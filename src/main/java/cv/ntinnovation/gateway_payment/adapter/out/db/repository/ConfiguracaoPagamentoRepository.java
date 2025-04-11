@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface ConfiguracaoPagamentoRepository extends JpaRepository<ConfiguracaoPagamentoEntity, Long> {
-    Optional<ConfiguracaoPagamentoEntity> findByMerchantIdAndIsActiveTrue(String merchantId);
-    Optional<ConfiguracaoPagamentoEntity> findByApiKeyAndIsActiveTrue(String apiKey);
+    Optional<ConfiguracaoPagamentoEntity> findByApiKeyAndApiSecret(String apiKey, String apiSecret);
+    Optional<ConfiguracaoPagamentoEntity> findByApiKey(String apiKey);
+    Optional<ConfiguracaoPagamentoEntity> findByPosId(String posId);
 }

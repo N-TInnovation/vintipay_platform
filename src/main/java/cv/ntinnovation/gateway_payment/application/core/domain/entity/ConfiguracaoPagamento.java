@@ -18,6 +18,7 @@ public class ConfiguracaoPagamento {
     private String terminalId;
     private String apiKey;
     private String apiSecret;
+    private String posAutCode;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

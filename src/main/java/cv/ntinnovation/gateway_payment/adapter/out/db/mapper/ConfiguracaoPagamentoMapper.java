@@ -15,6 +15,7 @@ public class ConfiguracaoPagamentoMapper {
                 .terminalId(entity.getTerminalId())
                 .apiKey(entity.getApiKey())
                 .apiSecret(entity.getApiSecret())
+                .posAutCode(entity.getPosAutCode())
                 .isActive(entity.getIsActive())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
@@ -22,16 +23,17 @@ public class ConfiguracaoPagamentoMapper {
     }
 
     public ConfiguracaoPagamentoEntity toEntity(ConfiguracaoPagamento configuracao) {
-        ConfiguracaoPagamentoEntity entity = new ConfiguracaoPagamentoEntity();
-        entity.setId(configuracao.getId());
-        entity.setPosId(configuracao.getPosId());
-        entity.setMerchantId(configuracao.getMerchantId());
-        entity.setTerminalId(configuracao.getTerminalId());
-        entity.setApiKey(configuracao.getApiKey());
-        entity.setApiSecret(configuracao.getApiSecret());
-        entity.setIsActive(configuracao.getIsActive());
-        entity.setCreatedAt(configuracao.getCreatedAt());
-        entity.setUpdatedAt(configuracao.getUpdatedAt());
-        return entity;
+        return ConfiguracaoPagamentoEntity.builder()
+                .id(configuracao.getId())
+                .posId(configuracao.getPosId())
+                .merchantId(configuracao.getMerchantId())
+                .terminalId(configuracao.getTerminalId())
+                .apiKey(configuracao.getApiKey())
+                .apiSecret(configuracao.getApiSecret())
+                .posAutCode(configuracao.getPosAutCode())
+                .isActive(configuracao.getIsActive())
+                .createdAt(configuracao.getCreatedAt())
+                .updatedAt(configuracao.getUpdatedAt())
+                .build();
     }
 }

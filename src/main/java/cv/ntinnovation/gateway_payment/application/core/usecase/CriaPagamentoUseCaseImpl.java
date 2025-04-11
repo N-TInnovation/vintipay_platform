@@ -26,7 +26,10 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
     @Transactional
     public Pagamento criar(String intencaoPagamentoRef) {
         // Buscar a intenção de pagamento pela referência
-        IntencaoPagamento intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(intencaoPagamentoRef);
+        var intencaoPagamento= buscaIntencaoPagamentoUseCase.buscarPorReferencia(intencaoPagamentoRef);
+        if (intencaoPagamento == null) {
+            throw new RuntimeException("Intenção de pagamento não encontrada: " + intencaoPagamentoRef);
+        }
 
         // Criar o pagamento
         Pagamento pagamento = Pagamento.builder()
@@ -36,8 +39,8 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
         // Gerar timestamp
         pagamento.gerarTimestamp();
 
-        // Buscar configuração de pagamento para obter o posAutCode
-        var configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscar();
+        // Buscar configuração de pagamento pelo posId da intenção
+        var configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId(intencaoPagamento.getPosId());
 
         // Gerar fingerprint usando o FingerPrintService
         DataFingerPrint dataFingerPrint = DataFingerPrint.builder()

@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface BuscaConfiguracaoPagamentoPort {
     Optional<ConfiguracaoPagamento> buscarPorCredenciais(String apiKey, String apiSecret);
     Optional<ConfiguracaoPagamento> buscarPorApiKey(String apiKey);
+    Optional<ConfiguracaoPagamento> buscarPorPosId(String posId);
 }

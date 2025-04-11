@@ -1,38 +1,43 @@
 package cv.ntinnovation.gateway_payment.adapter.out.db.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "configuracao_pagamento")
-@Getter
-@Setter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ConfiguracaoPagamentoEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "pos_id", unique = true, nullable = false)
+    @Column(name = "pos_id", nullable = false)
     private String posId;
 
-    @Column(name = "merchant_id")
+    @Column(name = "merchant_id", nullable = false)
     private String merchantId;
 
-    @Column(name = "terminal_id")
+    @Column(name = "terminal_id", nullable = false)
     private String terminalId;
 
-    @Column(name = "api_key")
+    @Column(name = "api_key", nullable = false, unique = true)
     private String apiKey;
 
-    @Column(name = "api_secret")
+    @Column(name = "api_secret", nullable = false)
     private String apiSecret;
 
-    @Column(name = "is_active")
+    @Column(name = "pos_aut_code", nullable = false)
+    private String posAutCode;
+
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
     @Column(name = "created_at", nullable = false)
@@ -44,7 +49,6 @@ public class ConfiguracaoPagamentoEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        isActive = true;
     }
 
     @PreUpdate
