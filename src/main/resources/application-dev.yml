@@ -1,0 +1,49 @@
+spring:
+  datasource:
+    url: ${PAYMENT_DB_URI}
+    username: ${PAYMENT_DB_USERNAME}
+    password: ${PAYMENT_DB_PASSWORD}
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.SQLServer2016Dialect
+      ddl-auto: validate
+
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: classpath:keystore1.jks
+    key-store-password: ${SERVER_SSL_KEY_PASSWORD}
+    key-password:  ${SERVER_SSL_KEY_PASSWORD}
+
+jwt:
+  public:
+    key: "classpath:app.pub"
+  private:
+    key: "classpath:app.key"
+
+# Tell Spring Security (if used) to require requests over HTTPS
+security:
+  require-ssl: true
+  
+sisp:
+  url:
+    3d: ${SISP_URL_3D}
+    normal: ${SISP_URL_NORMAL}
+
+uniteltmais:
+  entityCode: ${UNITELTMAIS_ENTITY_CODE}
+  ucc:
+    esb:
+      api:
+        baseurl: ${UNITELTMAIS_UCC_ESB_API_BASEURL}
+
+logging:
+  level:
+    cv:
+      uniteltemais:
+        gateway_payment: DEBUG
+    org:
+      hibernate:
+        SQL: DEBUG

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Pagamento Unitel</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+</head>
+<body onload="autoPost()">
+
+<h1 class="animate__animated animate__infinite animate__pulse" style="text-align: center;position: relative;margin-top: 25%;">Processando o pagamento...</h1>
+<form th:action="@{/doValidate}" th:object="${request}" method="post">
+  <input type="hidden"
+         th:field="*{session_code}"
+         required class="form-control"
+         id="session_code"
+         aria-describedby="session_codeHelp">
+</form>
+
+<script>
+  function autoPost(){document.forms[0].submit();}
+</script>
+</body>
+</html>
