@@ -18,7 +18,7 @@ public class ContaPagamentoEntity {
     @JoinColumn(name = "acct_info_id")
     private InfoContaPagamentoEntity acctInfo;
     
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
     
     @Column(name = "addr_match")

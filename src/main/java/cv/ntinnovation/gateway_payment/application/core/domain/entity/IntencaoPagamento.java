@@ -35,6 +35,6 @@ public class IntencaoPagamento {
     private String posId;
     private String entityCode;
     private String transactionCode;
-    private String referenceNumber;
+    private Long referenceNumber;
     private String timestamp;
 }

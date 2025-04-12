@@ -5,7 +5,9 @@ import org.springframework.stereotype.Repository;
 
 import cv.ntinnovation.gateway_payment.adapter.out.db.entity.ContaPagamentoEntity;
 
+import java.util.Optional;
+
 @Repository
 public interface ContaPagamentoRepository extends JpaRepository<ContaPagamentoEntity, Long> {
-    ContaPagamentoEntity findByEmail(String email);
+    Optional<ContaPagamentoEntity> findByEmail(String email);
 }

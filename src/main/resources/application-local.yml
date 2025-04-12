@@ -23,13 +23,10 @@ sisp:
   url:
     3d: https://mc.vinti4net.cv/3ds_middleware_php/public/3ds_init.php
     normal: https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment
+  checkout:
+    return:
+      url: https://localhost:8443/webhook/sisp/pagamentos/retorno/{reference}
 
-uniteltmais:
-  entityCode: 1234
-  ucc:
-    esb:
-      api:
-        baseurl: http://172.18.5.17:8280
 logging:
   level:
     cv:
@@ -42,10 +39,10 @@ springdoc:
 
 spring:
   datasource:
-    url: jdbc:h2:file:./data/gateway_pagamento;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
+    url: jdbc:mysql://localhost:3306/gateway_pagamento?createDatabaseIfNotExist=true
+    username: root
     password: 
-    driver-class-name: org.h2.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
   h2:
     console:
       enabled: true
@@ -53,8 +50,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
+    show-sql: true
+  sql:
+    init:
+      mode: never

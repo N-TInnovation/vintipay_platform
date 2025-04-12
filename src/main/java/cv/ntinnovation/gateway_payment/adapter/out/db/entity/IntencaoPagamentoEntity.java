@@ -30,5 +30,5 @@ public class IntencaoPagamentoEntity extends BasePagamentoEntity {
     private String entityCode;
     
     @Column(name = "reference_number", nullable = true)
-    private String referenceNumber;
+    private Long referenceNumber;
 }

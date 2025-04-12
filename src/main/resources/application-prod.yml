@@ -31,10 +31,6 @@ sisp:
   url:
     3d: ${SISP_URL_3D}
     normal: ${SISP_URL_NORMAL}
-
-uniteltmais:
-  entityCode: ${UNITELTMAIS_ENTITY_CODE:2312}
-  ucc:
-    esb:
-      api:
-        baseurl: ${UNITELTMAIS_UCC_ESB_API_BASEURL}
+  checkout:
+    return:
+      url: ${SISP_CHECKOUT_RETURN_URL}

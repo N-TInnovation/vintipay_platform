@@ -5,6 +5,8 @@ import cv.ntinnovation.gateway_payment.adapter.in.web.dto.IntencaoPagamentoRespo
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ContaPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.IntencaoPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.MetodoPagamento;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,6 +26,12 @@ public class IntencaoPagamentoWebMapper {
                 .contaPagamentoBillAddrLine1(request.getBillAddrLine1())
                 .contaPagamentoBillAddrPostCode(request.getBillAddrPostCode())
                 .currency(request.getCurrency())
+                .merchantRef(request.getMerchantRef())
+                .merchantSession(request.getMerchantSession())
+                .entityCode(request.getEntityCode())
+                .transactionCode(request.getTransactionCode())
+                .referenceNumber(request.getReferenceNumber())
+                .timestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
                 .build();
     }
 

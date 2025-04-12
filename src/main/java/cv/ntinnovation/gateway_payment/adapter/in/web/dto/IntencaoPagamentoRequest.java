@@ -25,5 +25,5 @@ public class IntencaoPagamentoRequest {
     private String merchantSession;
     private String entityCode;
     private String transactionCode;
-    private String referenceNumber;
+    private Long referenceNumber;
 }

@@ -63,6 +63,7 @@ public class IntencaoPagamentoMapper {
         entity.setEntityCode(domain.getEntityCode());
         entity.setTransactionCode(domain.getTransactionCode());
         entity.setReferenceNumber(domain.getReferenceNumber());
+        entity.setTimestamp(domain.getTimestamp());
         
         return entity;
     }

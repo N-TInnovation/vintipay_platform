@@ -42,14 +42,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
 
-        DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
         http.securityMatcher("/api/**")
                 .authorizeHttpRequests((authorize) ->
                 authorize.requestMatchers(HttpMethod.POST,"/api/v1/authorize").permitAll()
                         //.requestMatchers(HttpMethod.POST,"/api/v1/configuracoes-pagamento").permitAll()
                         .anyRequest().authenticated())
             .oauth2ResourceServer((oauth2) -> {
-                    oauth2.jwt(withDefaults()).bearerTokenResolver(resolver);
+                    oauth2.jwt(withDefaults()).bearerTokenResolver(bearerTokenResolver());
             })
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
@@ -89,7 +88,7 @@ public class SecurityConfig {
     @Bean
     BearerTokenResolver bearerTokenResolver() {
         DefaultBearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
-        bearerTokenResolver.setBearerTokenHeaderName(HttpHeaders.PROXY_AUTHORIZATION);
+        bearerTokenResolver.setBearerTokenHeaderName(HttpHeaders.AUTHORIZATION);
         return bearerTokenResolver;
     }
 

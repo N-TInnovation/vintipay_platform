@@ -20,15 +20,21 @@ public class ConfiguracaoPagamentoAdapter implements BuscaConfiguracaoPagamentoP
     private final CriptografiaService criptografiaService;
 
     @Override
-    public Optional<ConfiguracaoPagamento> buscarPorCredenciais(String clientId, String clientSecret) {
-        return configuracaoPagamentoRepository.findByApiKeyAndIsActiveTrue(clientId)
-                .filter(config -> criptografiaService.verificar(clientSecret, config.getApiSecret()))
+    public Optional<ConfiguracaoPagamento> buscarPorCredenciais(String apiKey, String apiSecret) {
+        return configuracaoPagamentoRepository.findByApiKey(apiKey)
+                .filter(config -> criptografiaService.verificar(apiSecret, config.getApiSecret()))
                 .map(configuracaoPagamentoMapper::toConfiguracao);
     }
 
     @Override
     public Optional<ConfiguracaoPagamento> buscarPorApiKey(String apiKey) {
-        return configuracaoPagamentoRepository.findByApiKeyAndIsActiveTrue(apiKey)
+        return configuracaoPagamentoRepository.findByApiKey(apiKey)
+                .map(configuracaoPagamentoMapper::toConfiguracao);
+    }
+
+    @Override
+    public Optional<ConfiguracaoPagamento> buscarPorPosId(String posId) {
+        return configuracaoPagamentoRepository.findByPosId(posId)
                 .map(configuracaoPagamentoMapper::toConfiguracao);
     }
 

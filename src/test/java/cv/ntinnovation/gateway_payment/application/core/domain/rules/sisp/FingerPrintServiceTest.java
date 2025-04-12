@@ -34,7 +34,7 @@ class FingerPrintServiceTest {
                 .transactionCode("0")
                 .posAutCode("DjZDExoROaG0vZoQ")
                 .build();
-        FingerPrintResult fingerPrintResult = fingerPrint.GenerateFingerPrint(dataFingerPrint);
+        FingerPrintResult fingerPrintResult = fingerPrint.generateFingerPrint(dataFingerPrint);
         assertNotNull(fingerPrintResult);
 
     }

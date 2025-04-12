@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "payment")
+@Table(name = "pagamento")
 @Data
 @Builder
 @NoArgsConstructor
@@ -32,6 +32,15 @@ public class PagamentoEntity {
 
     @Column(name = "status", nullable = false)
     private String status;
+
+    @Column(name = "mensagem")
+    private String mensagem;
+
+    @Column(name = "codigo_autorizacao")
+    private String codigoAutorizacao;
+
+    @Column(name = "pan_mascarado")
+    private String panMascarado;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

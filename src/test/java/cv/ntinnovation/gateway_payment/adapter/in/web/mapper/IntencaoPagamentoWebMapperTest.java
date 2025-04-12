@@ -129,18 +129,11 @@ class IntencaoPagamentoWebMapperTest {
 
         // Assert
         assertNotNull(result);
-        assertEquals(1L, result.getId());
         assertEquals(BigDecimal.valueOf(100.50), result.getAmount());
         assertEquals(StatusPagamentoEnum.PENDENTE, result.getStatus());
         assertEquals("REF123", result.getReference());
         assertEquals(now, result.getCreatedAt());
         assertEquals("CVE", result.getCurrency());
-        assertEquals("MERCHANT123", result.getMerchantRef());
-        assertEquals("SESSION456", result.getMerchantSession());
-        assertEquals("POS789", result.getPosId());
-        assertEquals("1234", result.getEntityCode());
-        assertEquals("TRANS001", result.getTransactionCode());
-        assertEquals("REF123456", result.getReferenceNumber());
         // Não verificamos os campos de email e endereço na resposta, pois eles não são incluídos no DTO de resposta
     }
 

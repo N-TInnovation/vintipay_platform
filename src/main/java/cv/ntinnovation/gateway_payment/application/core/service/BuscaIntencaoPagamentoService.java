@@ -4,10 +4,12 @@ import cv.ntinnovation.gateway_payment.application.core.domain.entity.IntencaoPa
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaIntencaoPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.out.BuscaIntencaoPagamentoPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Qualifier("buscaIntencaoPagamentoService")
 public class BuscaIntencaoPagamentoService implements BuscaIntencaoPagamentoUseCase {
 
     private final BuscaIntencaoPagamentoPort buscaIntencaoPagamentoPort;

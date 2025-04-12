@@ -10,6 +10,7 @@ import cv.ntinnovation.gateway_payment.application.port.in.BuscaIntencaoPagament
 import cv.ntinnovation.gateway_payment.application.port.in.CriaPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.out.SalvaPagamento;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
 
+    @Qualifier("buscaIntencaoPagamentoService")
     private final BuscaIntencaoPagamentoUseCase buscaIntencaoPagamentoUseCase;
     private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase;
     private final SalvaPagamento salvaPagamento;
@@ -53,7 +55,7 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
                 .currency(intencaoPagamento.getCurrency())
                 .transactionCode(intencaoPagamento.getTransactionCode())
                 .entityCode(intencaoPagamento.getEntityCode())
-                .referenceNumber(intencaoPagamento.getReferenceNumber())
+                .referenceNumber(intencaoPagamento.getReferenceNumber().toString())
                 .build();
 
         FingerPrintResult fingerPrintResult = fingerPrintService.generateFingerPrint(dataFingerPrint);
