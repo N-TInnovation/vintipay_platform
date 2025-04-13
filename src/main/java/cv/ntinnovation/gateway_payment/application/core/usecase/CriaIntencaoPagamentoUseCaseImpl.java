@@ -49,10 +49,6 @@ public class CriaIntencaoPagamentoUseCaseImpl implements CriaIntencaoPagamentoUs
         if (intencaoPagamento.getAmount().signum() <= 0) {
             throw new IllegalArgumentException("O valor do pagamento deve ser maior que zero");
         }
-        
-        if (intencaoPagamento.getMetodoPagamento() == null) {
-            throw new IllegalArgumentException("O método de pagamento é obrigatório");
-        }
 
         if (intencaoPagamento.getMerchantRef() == null || intencaoPagamento.getMerchantRef().isEmpty()) {
             throw new IllegalArgumentException("A referência do merchant é obrigatória");

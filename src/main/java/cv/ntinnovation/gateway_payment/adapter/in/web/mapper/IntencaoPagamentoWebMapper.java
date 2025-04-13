@@ -2,9 +2,7 @@ package cv.ntinnovation.gateway_payment.adapter.in.web.mapper;
 
 import cv.ntinnovation.gateway_payment.adapter.in.web.dto.IntencaoPagamentoRequest;
 import cv.ntinnovation.gateway_payment.adapter.in.web.dto.IntencaoPagamentoResponse;
-import cv.ntinnovation.gateway_payment.application.core.domain.entity.ContaPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.IntencaoPagamento;
-import cv.ntinnovation.gateway_payment.application.core.domain.entity.MetodoPagamento;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Component;
@@ -19,7 +17,6 @@ public class IntencaoPagamentoWebMapper {
 
         return IntencaoPagamento.builder()
                 .amount(request.getAmount())
-                .metodoPagamento(MetodoPagamento.builder().id(request.getMetodoPagamentoId()).build())
                 .contaPagamentoEmail(request.getEmail())
                 .contaPagamentoBillAddrCity(request.getBillAddrCity())
                 .contaPagamentoBillAddrCountry(request.getBillAddrCountry())

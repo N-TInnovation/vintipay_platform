@@ -1,13 +1,11 @@
 package cv.ntinnovation.gateway_payment.adapter.out.db.mapper;
 
 import cv.ntinnovation.gateway_payment.adapter.out.db.entity.ContaPagamentoEntity;
+import cv.ntinnovation.gateway_payment.adapter.out.db.entity.ContatoContaPagamentoEntity;
 import cv.ntinnovation.gateway_payment.adapter.out.db.entity.InfoContaPagamentoEntity;
 import cv.ntinnovation.gateway_payment.adapter.out.db.entity.IntencaoPagamentoEntity;
 import cv.ntinnovation.gateway_payment.adapter.out.db.repository.ContaPagamentoRepository;
-import cv.ntinnovation.gateway_payment.application.core.domain.entity.ContaPagamento;
-import cv.ntinnovation.gateway_payment.application.core.domain.entity.InfoContaPagamento;
-import cv.ntinnovation.gateway_payment.application.core.domain.entity.IntencaoPagamento;
-import cv.ntinnovation.gateway_payment.application.core.domain.entity.MetodoPagamento;
+import cv.ntinnovation.gateway_payment.application.core.domain.entity.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -44,8 +42,6 @@ public class IntencaoPagamentoMapper {
             entity.setContaPagamento(contaPagamentoEntity);
         }
 
-        entity.setMetodoPagamento(metodoPagamentoMapper.toMetodoPagamentoEntity(intencaoPagamento.getMetodoPagamento()));
-
         return entity;
     }
 
@@ -55,7 +51,6 @@ public class IntencaoPagamentoMapper {
         }
 
         ContaPagamento contaPagamento = toContaPagamento(entity.getContaPagamento());
-        MetodoPagamento metodoPagamento = metodoPagamentoMapper.toMetodoPagamento(entity.getMetodoPagamento());
 
         return IntencaoPagamento.builder()
                 .id(entity.getId())
@@ -71,7 +66,6 @@ public class IntencaoPagamentoMapper {
                 .entityCode(entity.getEntityCode())
                 .referenceNumber(entity.getReferenceNumber())
                 .contaPagamento(contaPagamento)
-                .metodoPagamento(metodoPagamento)
                 .transactionCode(entity.getTransactionCode())
                 .build();
     }
@@ -100,6 +94,7 @@ public class IntencaoPagamentoMapper {
                 .shipAddrPostCode(entity.getShipAddrPostCode())
                 .shipAddrState(entity.getShipAddrState())
                 .acctInfo(infoContaPagamento)
+                .mobilePhone(toContatoContaPagamento(entity.getMobilePhone()))
                 .build();
     }
 
@@ -114,6 +109,16 @@ public class IntencaoPagamentoMapper {
                 .chAccPwChange(entity.getChAccPwChange())
                 .chAccPwChangeInd(entity.getChAccPwChangeInd())
                 .suspiciousAccActivity(entity.getSuspiciousAccActivity())
+                .build();
+    }
+
+    private ContatoContaPagamento toContatoContaPagamento(ContatoContaPagamentoEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        return ContatoContaPagamento.builder()
+                .cc(entity.getCc())
+                .subscriber(entity.getSubscriber())
                 .build();
     }
 }

@@ -3,6 +3,7 @@ package cv.ntinnovation.gateway_payment.adapter.in.web.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cv.ntinnovation.gateway_payment.adapter.in.web.dto.SispCheckoutRequest;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
+import cv.ntinnovation.gateway_payment.application.core.domain.enums.MoedaEnum;
 import cv.ntinnovation.gateway_payment.application.port.in.CriaPagamentoUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +39,6 @@ public class CheckoutPagamentoController {
             String purchaseRequest = objectMapper.writeValueAsString(pagamento.getIntencaoPagamento().getContaPagamento());
             purchaseRequest = Base64.getEncoder().encodeToString(purchaseRequest.getBytes());
 
-            System.out.println(pagamento.getIntencaoPagamento().getContaPagamento());
             var referenceNumber = pagamento.getIntencaoPagamento().getReferenceNumber() == null ? null : pagamento.getIntencaoPagamento().getReferenceNumber().toString();
             var entityCode = pagamento.getIntencaoPagamento().getEntityCode() == null ? null : pagamento.getIntencaoPagamento().getEntityCode();
 
@@ -52,7 +52,7 @@ public class CheckoutPagamentoController {
                     .posID(pagamento.getIntencaoPagamento().getPosId())
                     .merchantRef(pagamento.getIntencaoPagamento().getMerchantRef())
                     .merchantSession(pagamento.getIntencaoPagamento().getMerchantSession())
-                    .currency(pagamento.getIntencaoPagamento().getCurrency())
+                    .currency(MoedaEnum.getByName(pagamento.getIntencaoPagamento().getCurrency()).getCodigoISO())
                     .is3DSec("1") // Habilitado por padrão
                     .urlMerchantResponse(returnUrl)
                     .languageMessages("pt") // Português por padrão

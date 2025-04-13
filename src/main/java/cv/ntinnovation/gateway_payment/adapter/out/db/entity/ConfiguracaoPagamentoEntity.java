@@ -38,6 +38,9 @@ public class ConfiguracaoPagamentoEntity {
     @Column(name = "pos_aut_code", nullable = false)
     private String posAutCode;
 
+    @Column(name = "return_url", nullable = false)
+    private String returnUrl;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 

@@ -31,6 +31,7 @@ public class AtualizaConfiguracaoPagamentoUseCaseImpl implements AtualizaConfigu
         configuracaoExistente.setMerchantId(configuracaoPagamento.getMerchantId());
         configuracaoExistente.setTerminalId(configuracaoPagamento.getTerminalId());
         configuracaoExistente.setPosAutCode(configuracaoPagamento.getPosAutCode());
+        configuracaoExistente.setReturnUrl(configuracaoPagamento.getReturnUrl());
         configuracaoExistente.setIsActive(configuracaoPagamento.getIsActive());
         
         // Garante que as datas estejam preenchidas

@@ -2,8 +2,8 @@ package cv.ntinnovation.gateway_payment.application.core.usecase;
 
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.DataFingerPrint;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.FingerPrintResult;
-import cv.ntinnovation.gateway_payment.application.core.domain.entity.IntencaoPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
+import cv.ntinnovation.gateway_payment.application.core.domain.enums.MoedaEnum;
 import cv.ntinnovation.gateway_payment.application.core.service.FingerPrintService;
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaConfiguracaoPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaIntencaoPagamentoUseCase;
@@ -52,7 +52,7 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
                 .merchantRef(intencaoPagamento.getMerchantRef())
                 .merchantSession(intencaoPagamento.getMerchantSession())
                 .posID(intencaoPagamento.getPosId())
-                .currency(intencaoPagamento.getCurrency())
+                .currency(MoedaEnum.getByName(intencaoPagamento.getCurrency()).getCodigoISO())
                 .transactionCode(intencaoPagamento.getTransactionCode())
                 .entityCode(intencaoPagamento.getEntityCode() == null ? "" : intencaoPagamento.getEntityCode())
                 .referenceNumber(intencaoPagamento.getReferenceNumber() == null ? "" : intencaoPagamento.getReferenceNumber().toString())

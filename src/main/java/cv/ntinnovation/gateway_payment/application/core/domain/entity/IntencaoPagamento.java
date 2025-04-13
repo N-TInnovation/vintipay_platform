@@ -20,7 +20,6 @@ public class IntencaoPagamento {
     private String reference;
     private LocalDateTime createdAt;
     private String currency;
-    private MetodoPagamento metodoPagamento;
     private ContaPagamento contaPagamento;
     
     // Campos para criação de conta de pagamento

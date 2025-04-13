@@ -11,13 +11,13 @@ public enum MoedaEnum {
     ESCUDOS("CVE", "132");
 
     private String name;
-    private String numero;
+    private String codigoISO;
 
     public static MoedaEnum getByName(String name){
         for (MoedaEnum moedaEnum :MoedaEnum.values())
             if(moedaEnum.getName().equals(name))
                 return moedaEnum;
-        return null;
+        return ESCUDOS;
     }
 
     public boolean isCVE(){

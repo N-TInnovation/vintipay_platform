@@ -19,9 +19,6 @@ public class IntencaoPagamentoRequest {
     
     @NotNull
     private String currency;
-    
-    @NotNull
-    private Long metodoPagamentoId;
 
     @NotBlank
     private String email;

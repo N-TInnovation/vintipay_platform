@@ -53,6 +53,16 @@
                                 </div>
                             </div>
 
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label for="returnUrl" class="form-label">URL de Retorno *</label>
+                                    <input type="url" class="form-control" id="returnUrl" th:value="${configuracao.returnUrl}" required>
+                                    <div class="invalid-feedback">
+                                        URL de Retorno é obrigatória e deve ser uma URL válida
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="mb-3">
                                 <div class="form-check">
                                     <input type="checkbox" class="form-check-input" id="isActive" th:checked="${configuracao.isActive}">
@@ -93,6 +103,7 @@
                 merchantId: document.getElementById('merchantId').value,
                 terminalId: document.getElementById('terminalId').value,
                 posAutCode: document.getElementById('posAutCode').value,
+                returnUrl: document.getElementById('returnUrl').value,
                 isActive: document.getElementById('isActive').checked
             };
 

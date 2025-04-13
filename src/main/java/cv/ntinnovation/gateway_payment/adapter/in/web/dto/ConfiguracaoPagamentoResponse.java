@@ -17,6 +17,7 @@ public class ConfiguracaoPagamentoResponse {
     private String merchantId;
     private String terminalId;
     private String posAutCode;
+    private String returnUrl;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

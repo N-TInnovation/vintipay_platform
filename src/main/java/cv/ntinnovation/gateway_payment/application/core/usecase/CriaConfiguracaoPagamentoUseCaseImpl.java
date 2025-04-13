@@ -35,6 +35,7 @@ public class CriaConfiguracaoPagamentoUseCaseImpl implements CriaConfiguracaoPag
                 .apiKey(apiKey)
                 .apiSecret(criptografiaService.criptografar(apiSecret))
                 .posAutCode(configuracaoPagamento.getPosAutCode())
+                .returnUrl(configuracaoPagamento.getReturnUrl())
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
                 .build()

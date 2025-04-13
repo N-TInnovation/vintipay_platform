@@ -19,6 +19,7 @@ public class ConfiguracaoPagamento {
     private String apiKey;
     private String apiSecret;
     private String posAutCode;
+    private String returnUrl;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
