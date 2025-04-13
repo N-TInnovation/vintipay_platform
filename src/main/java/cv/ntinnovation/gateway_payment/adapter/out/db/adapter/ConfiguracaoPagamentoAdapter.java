@@ -1,5 +1,6 @@
 package cv.ntinnovation.gateway_payment.adapter.out.db.adapter;
 
+import cv.ntinnovation.gateway_payment.adapter.out.db.entity.ConfiguracaoPagamentoEntity;
 import cv.ntinnovation.gateway_payment.adapter.out.db.mapper.ConfiguracaoPagamentoMapper;
 import cv.ntinnovation.gateway_payment.adapter.out.db.repository.ConfiguracaoPagamentoRepository;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ConfiguracaoPagamento;
@@ -9,39 +10,53 @@ import cv.ntinnovation.gateway_payment.application.port.out.SalvaConfiguracaoPag
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class ConfiguracaoPagamentoAdapter implements BuscaConfiguracaoPagamentoPort, SalvaConfiguracaoPagamentoPort {
 
-    private final ConfiguracaoPagamentoRepository configuracaoPagamentoRepository;
-    private final ConfiguracaoPagamentoMapper configuracaoPagamentoMapper;
+    private final ConfiguracaoPagamentoRepository repository;
+    private final ConfiguracaoPagamentoMapper mapper;
     private final CriptografiaService criptografiaService;
 
     @Override
-    public Optional<ConfiguracaoPagamento> buscarPorCredenciais(String apiKey, String apiSecret) {
-        return configuracaoPagamentoRepository.findByApiKey(apiKey)
-                .filter(config -> criptografiaService.verificar(apiSecret, config.getApiSecret()))
-                .map(configuracaoPagamentoMapper::toConfiguracao);
+    public Optional<ConfiguracaoPagamento> buscarPorId(Long id) {
+        return repository.findById(id)
+                .map(mapper::toDomain);
     }
 
     @Override
-    public Optional<ConfiguracaoPagamento> buscarPorApiKey(String apiKey) {
-        return configuracaoPagamentoRepository.findByApiKey(apiKey)
-                .map(configuracaoPagamentoMapper::toConfiguracao);
+    public Optional<ConfiguracaoPagamento> buscarPorCredenciais(String apiKey, String apiSecret) {
+        return repository.findByApiKeyAndIsActiveTrue(apiKey)
+                .filter(config -> criptografiaService.verificar(apiSecret, config.getApiSecret()))
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<ConfiguracaoPagamento> buscarPorApiKey(String clientId) {
+        return repository.findByApiKeyAndIsActiveTrue(clientId)
+                .map(mapper::toDomain);
     }
 
     @Override
     public Optional<ConfiguracaoPagamento> buscarPorPosId(String posId) {
-        return configuracaoPagamentoRepository.findByPosId(posId)
-                .map(configuracaoPagamentoMapper::toConfiguracao);
+        return repository.findByPosId(posId)
+                .map(mapper::toDomain);
     }
 
     @Override
-    public ConfiguracaoPagamento salvar(ConfiguracaoPagamento configuracaoPagamento) {
-        var entity = configuracaoPagamentoMapper.toEntity(configuracaoPagamento);
-        var savedEntity = configuracaoPagamentoRepository.save(entity);
-        return configuracaoPagamentoMapper.toConfiguracao(savedEntity);
+    public List<ConfiguracaoPagamento> buscarTodas() {
+        return repository.findAll().stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ConfiguracaoPagamento salvar(ConfiguracaoPagamento configuracao) {
+        ConfiguracaoPagamentoEntity entity = mapper.toEntity(configuracao);
+        return mapper.toDomain(repository.save(entity));
     }
 }

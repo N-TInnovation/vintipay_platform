@@ -6,6 +6,8 @@ import cv.ntinnovation.gateway_payment.application.port.out.BuscaConfiguracaoPag
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class BuscaConfiguracaoPagamentoUseCaseImpl implements BuscaConfiguracaoPagamentoUseCase {
@@ -13,8 +15,18 @@ public class BuscaConfiguracaoPagamentoUseCaseImpl implements BuscaConfiguracaoP
     private final BuscaConfiguracaoPagamentoPort buscaConfiguracaoPagamentoPort;
 
     @Override
+    public ConfiguracaoPagamento buscarPorId(Long id) {
+        return null;
+    }
+
+    @Override
     public ConfiguracaoPagamento buscarPorPosId(String posId) {
         return buscaConfiguracaoPagamentoPort.buscarPorPosId(posId)
                 .orElseThrow(() -> new RuntimeException("Configuração de pagamento não encontrada para o POS ID: " + posId));
+    }
+
+    @Override
+    public List<ConfiguracaoPagamento> buscarTodas() {
+        return List.of();
     }
 }

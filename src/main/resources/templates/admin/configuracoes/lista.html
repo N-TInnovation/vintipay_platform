@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações de Pagamento</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .table-actions {
+            width: 150px;
+        }
+        .status-badge {
+            width: 80px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Configurações de Pagamento</h2>
+            <a href="/admin/configuracoes/nova" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Nova Configuração
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>POS ID</th>
+                                <th>Merchant ID</th>
+                                <th>Terminal ID</th>
+                                <th>API Key</th>
+                                <th>Status</th>
+                                <th class="table-actions">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="config : ${configuracoes}">
+                                <td th:text="${config.id}"></td>
+                                <td th:text="${config.posId}"></td>
+                                <td th:text="${config.merchantId}"></td>
+                                <td th:text="${config.terminalId}"></td>
+                                <td th:text="${config.apiKey}"></td>
+                                <td>
+                                    <span th:if="${config.isActive}" class="badge bg-success status-badge">Ativo</span>
+                                    <span th:unless="${config.isActive}" class="badge bg-danger status-badge">Inativo</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a th:href="@{/admin/configuracoes/{id}(id=${config.id})}" 
+                                           class="btn btn-sm btn-info" 
+                                           title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button th:onclick="'alterarStatus(' + ${config.id} + ', ' + ${!config.isActive} + ')'" 
+                                                class="btn btn-sm" 
+                                                th:classappend="${config.isActive ? 'btn-warning' : 'btn-success'}"
+                                                th:title="${config.isActive ? 'Desativar' : 'Ativar'}">
+                                            <i class="bi" th:classappend="${config.isActive ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(configuracoes)}">
+                                <td colspan="7" class="text-center">Nenhuma configuração encontrada</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function alterarStatus(id, novoStatus) {
+            Swal.fire({
+                title: novoStatus ? 'Ativar configuração?' : 'Desativar configuração?',
+                text: novoStatus ? 'A configuração será ativada.' : 'A configuração será desativada.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: novoStatus ? '#28a745' : '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sim',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/admin/configuracoes/${id}/status?ativo=${novoStatus}`, {
+                        method: 'PUT'
+                    }).then(response => {
+                        if (response.ok) {
+                            Swal.fire({
+                                title: 'Sucesso!',
+                                text: 'Status alterado com sucesso.',
+                                icon: 'success'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            throw new Error('Erro ao alterar status');
+                        }
+                    }).catch(error => {
+                        Swal.fire({
+                            title: 'Erro!',
+                            text: error.message,
+                            icon: 'error'
+                        });
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

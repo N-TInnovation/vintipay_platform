@@ -7,7 +7,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConfiguracaoPagamentoMapper {
 
-    public ConfiguracaoPagamento toConfiguracao(ConfiguracaoPagamentoEntity entity) {
+    public ConfiguracaoPagamento toDomain(ConfiguracaoPagamentoEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+
         return ConfiguracaoPagamento.builder()
                 .id(entity.getId())
                 .posId(entity.getPosId())
@@ -22,18 +26,20 @@ public class ConfiguracaoPagamentoMapper {
                 .build();
     }
 
-    public ConfiguracaoPagamentoEntity toEntity(ConfiguracaoPagamento configuracao) {
+    public ConfiguracaoPagamentoEntity toEntity(ConfiguracaoPagamento domain) {
+        if (domain == null) {
+            return null;
+        }
+
         return ConfiguracaoPagamentoEntity.builder()
-                .id(configuracao.getId())
-                .posId(configuracao.getPosId())
-                .merchantId(configuracao.getMerchantId())
-                .terminalId(configuracao.getTerminalId())
-                .apiKey(configuracao.getApiKey())
-                .apiSecret(configuracao.getApiSecret())
-                .posAutCode(configuracao.getPosAutCode())
-                .isActive(configuracao.getIsActive())
-                .createdAt(configuracao.getCreatedAt())
-                .updatedAt(configuracao.getUpdatedAt())
+                .id(domain.getId())
+                .posId(domain.getPosId())
+                .merchantId(domain.getMerchantId())
+                .terminalId(domain.getTerminalId())
+                .apiKey(domain.getApiKey())
+                .apiSecret(domain.getApiSecret())
+                .posAutCode(domain.getPosAutCode())
+                .isActive(domain.getIsActive())
                 .build();
     }
 }

@@ -11,4 +11,5 @@ public interface ConfiguracaoPagamentoRepository extends JpaRepository<Configura
     Optional<ConfiguracaoPagamentoEntity> findByApiKeyAndApiSecret(String apiKey, String apiSecret);
     Optional<ConfiguracaoPagamentoEntity> findByApiKey(String apiKey);
     Optional<ConfiguracaoPagamentoEntity> findByPosId(String posId);
+    Optional<ConfiguracaoPagamentoEntity> findByApiKeyAndIsActiveTrue(String apiKey);
 }

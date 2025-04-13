@@ -23,7 +23,7 @@ public class ConfiguracaoPagamentoController {
 
     @PostMapping
     public ResponseEntity<ConfiguracaoPagamentoResponse> criar(@RequestBody @Valid ConfiguracaoPagamentoRequest request) {
-        ConfiguracaoPagamento configuracao = configuracaoPagamentoWebMapper.toConfiguracao(request);
+        ConfiguracaoPagamento configuracao = configuracaoPagamentoWebMapper.toDomain(request);
         ConfiguracaoPagamento configuracaoCriada = criaConfiguracaoPagamentoUseCase.criar(configuracao);
         return ResponseEntity.ok(configuracaoPagamentoWebMapper.toResponse(configuracaoCriada));
     }
