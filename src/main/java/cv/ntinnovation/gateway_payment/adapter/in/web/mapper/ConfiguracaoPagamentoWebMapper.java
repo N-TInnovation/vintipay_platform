@@ -8,26 +8,35 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConfiguracaoPagamentoWebMapper {
 
-    public ConfiguracaoPagamento toConfiguracao(ConfiguracaoPagamentoRequest request) {
-        ConfiguracaoPagamento configuracao =  ConfiguracaoPagamento.builder().build();
-        configuracao.setPosId(request.getPosId());
-        configuracao.setMerchantId(request.getMerchantId());
-        configuracao.setTerminalId(request.getTerminalId());
-        configuracao.setApiKey(request.getApiKey());
-        configuracao.setApiSecret(request.getApiSecret());
-        return configuracao;
+    public ConfiguracaoPagamento toDomain(ConfiguracaoPagamentoRequest request) {
+        if (request == null) {
+            return null;
+        }
+
+        return ConfiguracaoPagamento.builder()
+                .id(request.getId())
+                .posId(request.getPosId())
+                .merchantId(request.getMerchantId())
+                .terminalId(request.getTerminalId())
+                .apiKey(request.getApiKey())
+                .apiSecret(request.getApiSecret())
+                .posAutCode(request.getPosAutCode())
+                .isActive(request.getIsActive())
+                .build();
     }
 
-    public ConfiguracaoPagamentoResponse toResponse(ConfiguracaoPagamento configuracao) {
+    public ConfiguracaoPagamentoResponse toResponse(ConfiguracaoPagamento domain) {
+        if (domain == null) {
+            return null;
+        }
+
         return ConfiguracaoPagamentoResponse.builder()
-                .id(configuracao.getId())
-                .posId(configuracao.getPosId())
-                .merchantId(configuracao.getMerchantId())
-                .terminalId(configuracao.getTerminalId())
-                .apiKey(configuracao.getApiKey())
-                .isActive(configuracao.getIsActive())
-                .createdAt(configuracao.getCreatedAt())
-                .updatedAt(configuracao.getUpdatedAt())
+                .id(domain.getId())
+                .posId(domain.getPosId())
+                .merchantId(domain.getMerchantId())
+                .terminalId(domain.getTerminalId())
+                .apiKey(domain.getApiKey())
+                .isActive(domain.getIsActive())
                 .build();
     }
 }
