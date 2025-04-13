@@ -43,7 +43,7 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
 
         // Buscar configuração de pagamento pelo posId da intenção
         var configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId(intencaoPagamento.getPosId());
-        System.out.println(intencaoPagamento);
+
         // Gerar fingerprint usando o FingerPrintService
         DataFingerPrint dataFingerPrint = DataFingerPrint.builder()
                 .posAutCode(configuracaoPagamento.getPosAutCode())

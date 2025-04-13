@@ -52,7 +52,7 @@ public class CheckoutPagamentoController {
                     .merchantRef(pagamento.getIntencaoPagamento().getMerchantRef())
                     .merchantSession(pagamento.getIntencaoPagamento().getMerchantSession())
                     .currency(pagamento.getIntencaoPagamento().getCurrency())
-                    .is3DSec("true") // Habilitado por padrão
+                    .is3DSec("1") // Habilitado por padrão
                     .urlMerchantResponse(returnUrl)
                     .languageMessages("pt") // Português por padrão
                     .entityCode(entityCode)
