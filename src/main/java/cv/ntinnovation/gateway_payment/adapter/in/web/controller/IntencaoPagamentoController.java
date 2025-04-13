@@ -6,6 +6,7 @@ import cv.ntinnovation.gateway_payment.adapter.in.web.mapper.IntencaoPagamentoWe
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ContaPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.IntencaoPagamento;
+import cv.ntinnovation.gateway_payment.application.core.domain.enums.IntencaoPagamentoEnum;
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaConfiguracaoPagamentoAtivaUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.CriaContaPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.CriaIntencaoPagamentoUseCase;
@@ -34,11 +35,18 @@ public class IntencaoPagamentoController {
         this.buscaConfiguracaoPagamentoAtivaUseCase = buscaConfiguracaoPagamentoAtivaUseCase;
     }
 
-    @PostMapping("/intencao")
+    @PostMapping("/intencao/{intencao}")
     public ResponseEntity<IntencaoPagamentoResponse> criarIntencaoPagamento(
+            @PathVariable String intencao,
             @RequestHeader("X-Client-Id") String clientId,
             @Valid @RequestBody IntencaoPagamentoRequest request) {
         try {
+
+            IntencaoPagamentoEnum intencaoPagamentoEnum = IntencaoPagamentoEnum.findByIntencaoPagamento(intencao);
+            if (intencaoPagamentoEnum == null) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+            }
+
             // Buscar e validar configuração pelo clientId
             ConfiguracaoPagamento configuracao = buscaConfiguracaoPagamentoAtivaUseCase
                     .buscarPorClientId(clientId);
@@ -48,7 +56,9 @@ public class IntencaoPagamentoController {
             
             // Definir o posId da configuração
             intencaoPagamento.setPosId(configuracao.getPosId());
-            
+
+            intencaoPagamento.setTransactionCode(intencaoPagamentoEnum.getTransactionCode());
+
             // Criar ou buscar a conta de pagamento pelo email
             ContaPagamento contaPagamento = criaContaPagamentoUseCase.criarOuBuscarPorEmail(
                 request.getEmail(),

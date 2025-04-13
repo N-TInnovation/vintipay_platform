@@ -6,11 +6,12 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum MoedaEnum {
-    DOLAR("usd"),
-    EURO("eur"),
-    ESCUDOS("cve");
+    DOLAR("USD", "840"),
+    EURO("EUR", "978"),
+    ESCUDOS("CVE", "132");
 
     private String name;
+    private String numero;
 
     public static MoedaEnum getByName(String name){
         for (MoedaEnum moedaEnum :MoedaEnum.values())

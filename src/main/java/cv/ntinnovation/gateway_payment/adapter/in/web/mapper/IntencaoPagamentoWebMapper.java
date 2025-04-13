@@ -29,7 +29,6 @@ public class IntencaoPagamentoWebMapper {
                 .merchantRef(request.getMerchantRef())
                 .merchantSession(request.getMerchantSession())
                 .entityCode(request.getEntityCode())
-                .transactionCode(request.getTransactionCode())
                 .referenceNumber(request.getReferenceNumber())
                 .timestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
                 .build();

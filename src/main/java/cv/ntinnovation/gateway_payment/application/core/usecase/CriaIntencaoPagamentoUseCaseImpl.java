@@ -53,7 +53,23 @@ public class CriaIntencaoPagamentoUseCaseImpl implements CriaIntencaoPagamentoUs
         if (intencaoPagamento.getMetodoPagamento() == null) {
             throw new IllegalArgumentException("O método de pagamento é obrigatório");
         }
-        
+
+        if (intencaoPagamento.getMerchantRef() == null || intencaoPagamento.getMerchantRef().isEmpty()) {
+            throw new IllegalArgumentException("A referência do merchant é obrigatória");
+        }
+
+        if (intencaoPagamento.getMerchantSession() == null || intencaoPagamento.getMerchantSession().isEmpty()) {
+            throw new IllegalArgumentException("A sessão do merchant é obrigatória");
+        }
+
+        if (intencaoPagamento.getPosId() == null || intencaoPagamento.getPosId().isEmpty()) {
+            throw new IllegalArgumentException("O ID do POS é obrigatório");
+        }
+
+        if (intencaoPagamento.getTransactionCode() == null || intencaoPagamento.getTransactionCode().isEmpty()) {
+            throw new IllegalArgumentException("O código da transação é obrigatório");
+        }
+
         // Verificar se há conta de pagamento ou informações para criar uma
         if (intencaoPagamento.getContaPagamento() == null && 
             (intencaoPagamento.getContaPagamentoEmail() == null || intencaoPagamento.getContaPagamentoEmail().isEmpty())) {

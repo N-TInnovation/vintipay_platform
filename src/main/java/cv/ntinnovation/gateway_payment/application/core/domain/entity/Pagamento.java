@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @Builder
@@ -23,6 +24,6 @@ public class Pagamento {
     private LocalDateTime createdAt;
 
     public void gerarTimestamp() {
-        this.timestamp = String.valueOf(System.currentTimeMillis());
+        this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMM-dd HH:mm:ss"));
     }
 }

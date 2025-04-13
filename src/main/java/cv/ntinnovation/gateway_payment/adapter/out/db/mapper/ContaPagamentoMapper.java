@@ -13,6 +13,7 @@ public class ContaPagamentoMapper {
         }
         
         return ContaPagamento.builder()
+                .id(entity.getId())
                 .email(entity.getEmail())
                 .addrMatch(entity.getAddrMatch())
                 .billAddrCountry(entity.getBillAddrCountry())

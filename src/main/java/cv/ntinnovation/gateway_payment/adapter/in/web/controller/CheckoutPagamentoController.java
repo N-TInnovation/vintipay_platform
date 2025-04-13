@@ -38,6 +38,9 @@ public class CheckoutPagamentoController {
             String purchaseRequest = objectMapper.writeValueAsString(pagamento.getIntencaoPagamento().getContaPagamento());
             purchaseRequest = Base64.getEncoder().encodeToString(purchaseRequest.getBytes());
 
+            var referenceNumber = pagamento.getIntencaoPagamento().getReferenceNumber() == null ? null : pagamento.getIntencaoPagamento().getReferenceNumber().toString();
+            var entityCode = pagamento.getIntencaoPagamento().getEntityCode() == null ? null : pagamento.getIntencaoPagamento().getEntityCode();
+
             var request = SispCheckoutRequest.builder()
                     .timeStamp(pagamento.getTimestamp())
                     .purchaseRequest(purchaseRequest)
@@ -52,8 +55,8 @@ public class CheckoutPagamentoController {
                     .is3DSec("true") // Habilitado por padrão
                     .urlMerchantResponse(returnUrl)
                     .languageMessages("pt") // Português por padrão
-                    .entityCode(pagamento.getIntencaoPagamento().getEntityCode())
-                    .referenceNumber(pagamento.getIntencaoPagamento().getReferenceNumber().toString())
+                    .entityCode(entityCode)
+                    .referenceNumber(referenceNumber)
                     .submitFormUrl(String.format("%s?FingerPrint=%s&TimeStamp=%s&FingerPrintVersion=%s",
                             submitFormUrl,
                             UriUtils.encode(pagamento.getFingerprint(), StandardCharsets.UTF_8),

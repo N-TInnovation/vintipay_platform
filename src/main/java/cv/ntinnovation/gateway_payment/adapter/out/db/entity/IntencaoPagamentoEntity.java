@@ -10,20 +10,20 @@ import lombok.Setter;
 @Setter
 public class IntencaoPagamentoEntity extends BasePagamentoEntity {
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "conta_pagamento_id", nullable = false)
     private ContaPagamentoEntity contaPagamento;
 
-    @Column(name = "merchant_ref", nullable = true)
+    @Column(name = "merchant_ref", nullable = false)
     private String merchantRef;
 
-    @Column(name = "merchant_session", nullable = true)
+    @Column(name = "merchant_session", nullable = false)
     private String merchantSession;
 
-    @Column(name = "pos_id", nullable = true)
+    @Column(name = "pos_id", nullable = false)
     private String posId;
 
-    @Column(name = "timestamp", nullable = true)
+    @Column(name = "timestamp", nullable = false)
     private String timestamp;
     
     @Column(name = "entity_code", nullable = true)

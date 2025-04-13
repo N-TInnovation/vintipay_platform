@@ -29,7 +29,7 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
     public Pagamento criar(String intencaoPagamentoRef) {
         // Buscar a intenção de pagamento pela referência
         var intencaoPagamento= buscaIntencaoPagamentoUseCase.buscarPorReferencia(intencaoPagamentoRef);
-        if (intencaoPagamento == null) {
+        if (intencaoPagamento == null ) {
             throw new RuntimeException("Intenção de pagamento não encontrada: " + intencaoPagamentoRef);
         }
 
@@ -43,7 +43,7 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
 
         // Buscar configuração de pagamento pelo posId da intenção
         var configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId(intencaoPagamento.getPosId());
-
+        System.out.println(intencaoPagamento);
         // Gerar fingerprint usando o FingerPrintService
         DataFingerPrint dataFingerPrint = DataFingerPrint.builder()
                 .posAutCode(configuracaoPagamento.getPosAutCode())
@@ -54,8 +54,8 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
                 .posID(intencaoPagamento.getPosId())
                 .currency(intencaoPagamento.getCurrency())
                 .transactionCode(intencaoPagamento.getTransactionCode())
-                .entityCode(intencaoPagamento.getEntityCode())
-                .referenceNumber(intencaoPagamento.getReferenceNumber().toString())
+                .entityCode(intencaoPagamento.getEntityCode() == null ? "" : intencaoPagamento.getEntityCode())
+                .referenceNumber(intencaoPagamento.getReferenceNumber() == null ? "" : intencaoPagamento.getReferenceNumber().toString())
                 .build();
 
         FingerPrintResult fingerPrintResult = fingerPrintService.generateFingerPrint(dataFingerPrint);
