@@ -3,6 +3,9 @@ package cv.ntinnovation.gateway_payment.application.core.usecase;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import cv.ntinnovation.gateway_payment.application.core.domain.entity.ContatoContaPagamento;
+import cv.ntinnovation.gateway_payment.application.core.domain.enums.AtividadesSuspeitasEnum;
+import cv.ntinnovation.gateway_payment.application.core.domain.enums.ShAccAgeIndEnum;
 import org.springframework.stereotype.Service;
 
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ContaPagamento;
@@ -20,7 +23,7 @@ public class CriaContaPagamentoUseCaseImpl implements CriaContaPagamentoUseCase 
     private final SalvaContaPagamento salvaContaPagamento;
 
     @Override
-    public ContaPagamento criarOuBuscarPorEmail(String email, String billAddrCity, String billAddrCountry, String billAddrLine1, String billAddrPostCode) {
+    public ContaPagamento criarOuBuscarPorEmail(String email, String billAddrCity, String billAddrCountry, String billAddrLine1, String billAddrPostCode, String phoneCode, String phoneNumber) {
         // Validar email
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("Email não pode ser nulo");
@@ -50,11 +53,13 @@ public class CriaContaPagamentoUseCaseImpl implements CriaContaPagamentoUseCase 
         // Criar uma nova conta de pagamento
         ContaPagamento novaConta = ContaPagamento.builder()
                 .email(email)
+                .addrMatch("N")
                 .billAddrCity(billAddrCity)
                 .billAddrCountry(billAddrCountry)
                 .billAddrLine1(billAddrLine1)
                 .billAddrPostCode(billAddrPostCode)
                 .acctInfo(criarInfoContaPadrao())
+                .mobilePhone(criarContato(phoneCode, phoneNumber))
                 .build();
         
         return salvaContaPagamento.salvar(novaConta);
@@ -62,22 +67,24 @@ public class CriaContaPagamentoUseCaseImpl implements CriaContaPagamentoUseCase 
     
     private InfoContaPagamento criarInfoContaPadrao() {
         LocalDateTime agora = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         String dataFormatada = agora.format(formatter);
         
         return InfoContaPagamento.builder()
-                .acctID(gerarAcctID())
-                .chAccAgeInd("01") // Menos de 30 dias
+                .chAccAgeInd(ShAccAgeIndEnum.SEM_CONTA.getAgeInd())
                 .chAccChange(dataFormatada)
                 .chAccDate(dataFormatada)
                 .chAccPwChange(dataFormatada)
-                .chAccPwChangeInd("01") // Menos de 30 dias
-                .suspiciousAccActivity("01") // Sem atividade suspeita
+                .chAccPwChangeInd(ShAccAgeIndEnum.SEM_CONTA.getAgeInd()) // Menos de 30 dias
+                .suspiciousAccActivity(AtividadesSuspeitasEnum.NAO_SUSPEITO.getActivityInd()) // Sem atividade suspeita
                 .build();
     }
-    
-    private String gerarAcctID() {
-        // Implementação simplificada para gerar um ID de conta
-        return "ACC" + System.currentTimeMillis();
+
+    private ContatoContaPagamento criarContato(String cc, String subscriber) {
+        return ContatoContaPagamento.builder()
+                .cc(cc)
+                .subscriber(subscriber)
+                .build();
     }
+
 }

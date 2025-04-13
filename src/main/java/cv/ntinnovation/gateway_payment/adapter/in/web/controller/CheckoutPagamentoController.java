@@ -38,6 +38,7 @@ public class CheckoutPagamentoController {
             String purchaseRequest = objectMapper.writeValueAsString(pagamento.getIntencaoPagamento().getContaPagamento());
             purchaseRequest = Base64.getEncoder().encodeToString(purchaseRequest.getBytes());
 
+            System.out.println(pagamento.getIntencaoPagamento().getContaPagamento());
             var referenceNumber = pagamento.getIntencaoPagamento().getReferenceNumber() == null ? null : pagamento.getIntencaoPagamento().getReferenceNumber().toString();
             var entityCode = pagamento.getIntencaoPagamento().getEntityCode() == null ? null : pagamento.getIntencaoPagamento().getEntityCode();
 

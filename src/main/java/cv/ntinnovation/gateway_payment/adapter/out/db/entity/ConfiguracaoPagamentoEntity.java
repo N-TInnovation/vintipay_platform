@@ -20,10 +20,10 @@ public class ConfiguracaoPagamentoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "pos_id", nullable = false)
+    @Column(name = "pos_id", nullable = false, unique = true)
     private String posId;
 
-    @Column(name = "merchant_id", nullable = false)
+    @Column(name = "merchant_id", nullable = false, unique = true)
     private String merchantId;
 
     @Column(name = "terminal_id", nullable = false)

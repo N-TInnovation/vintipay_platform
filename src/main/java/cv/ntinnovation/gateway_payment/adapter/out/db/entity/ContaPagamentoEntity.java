@@ -14,7 +14,7 @@ public class ContaPagamentoEntity {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, optional = true)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "acct_info_id")
     private InfoContaPagamentoEntity acctInfo;
     
@@ -63,8 +63,8 @@ public class ContaPagamentoEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "work_phone_id")
     private ContatoContaPagamentoEntity workPhone;
-    
-    @ManyToOne(fetch = FetchType.EAGER)
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "mobile_phone_id")
     private ContatoContaPagamentoEntity mobilePhone;
 }

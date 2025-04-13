@@ -1,5 +1,6 @@
 package cv.ntinnovation.gateway_payment.adapter.in.web.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
@@ -21,19 +22,27 @@ public class IntencaoPagamentoRequest {
     
     @NotNull
     private Long metodoPagamentoId;
-    
+
+    @NotBlank
     private String email;
+    @NotBlank
     private String billAddrCity;
+    @NotBlank
     private String billAddrCountry;
+    @NotBlank
     private String billAddrLine1;
+    @NotBlank
     private String billAddrPostCode;
-    
-    @NotNull
+    @NotBlank
+    private String phoneCode;
+    @NotBlank
+    private String phoneNumber;
+
+    @NotBlank
     private String merchantRef;
-    
-    @NotNull
+    @NotBlank
     private String merchantSession;
-    
+
     // Campos opcionais
     private String entityCode;
     private Long referenceNumber;

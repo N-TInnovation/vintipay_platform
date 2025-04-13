@@ -13,9 +13,6 @@ public class InfoContaPagamentoEntity {
 	@Column(name = "id")
 	private Long id;
 	
-	@Column(name = "acct_id")
-	private String acctID; 
-	
 	@Column(name = "ch_acc_age_ind")
 	private String chAccAgeInd;
 	

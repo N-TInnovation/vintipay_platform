@@ -34,6 +34,8 @@ class CriaContaPagamentoUseCaseImplTest {
         String pais = "CV";
         String endereco = "Rua Principal, 123";
         String cep = "12345";
+        String phoneCode = "55";
+        String phoneNumber = "1234567890";
         
         ContaPagamento contaExistente = ContaPagamento.builder()
                 .id(1L)
@@ -47,7 +49,7 @@ class CriaContaPagamentoUseCaseImplTest {
         when(buscaContaPagamentoPorEmail.buscarPorEmail(email)).thenReturn(contaExistente);
         
         // Act
-        ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail(email, cidade, pais, endereco, cep);
+        ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail(email, cidade, pais, endereco, cep, phoneCode, phoneNumber);
         
         // Assert
         assertNotNull(resultado);
@@ -67,6 +69,8 @@ class CriaContaPagamentoUseCaseImplTest {
         String pais = "CV";
         String endereco = "Avenida Principal, 456";
         String cep = "54321";
+        String phoneCode = "55";
+        String phoneNumber = "1234567890";
         
         ContaPagamento novaConta = ContaPagamento.builder()
                 .email(email)
@@ -89,7 +93,7 @@ class CriaContaPagamentoUseCaseImplTest {
         when(salvaContaPagamento.salvar(any(ContaPagamento.class))).thenReturn(contaSalva);
         
         // Act
-        ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail(email, cidade, pais, endereco, cep);
+        ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail(email, cidade, pais, endereco, cep, phoneCode, phoneNumber);
         
         // Assert
         assertNotNull(resultado);
@@ -109,10 +113,12 @@ class CriaContaPagamentoUseCaseImplTest {
         String pais = "CV";
         String endereco = "Rua Principal, 123";
         String cep = "12345";
+        String phoneCode = "55";
+        String phoneNumber = "1234567890";
         
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> criaContaPagamentoUseCase.criarOuBuscarPorEmail(email, cidade, pais, endereco, cep));
+                () -> criaContaPagamentoUseCase.criarOuBuscarPorEmail(email, cidade, pais, endereco, cep, phoneCode, phoneNumber));
         
         assertEquals("Email é obrigatório para criar ou buscar uma conta de pagamento", exception.getMessage());
         
@@ -128,10 +134,12 @@ class CriaContaPagamentoUseCaseImplTest {
         String pais = "CV";
         String endereco = "Rua Principal, 123";
         String cep = "12345";
+        String phoneCode = "55";
+        String phoneNumber = "1234567890";
         
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> criaContaPagamentoUseCase.criarOuBuscarPorEmail(email, cidade, pais, endereco, cep));
+                () -> criaContaPagamentoUseCase.criarOuBuscarPorEmail(email, cidade, pais, endereco, cep, phoneCode, phoneNumber));
         
         assertEquals("Email é obrigatório para criar ou buscar uma conta de pagamento", exception.getMessage());
         

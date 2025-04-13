@@ -1,9 +1,11 @@
 package cv.ntinnovation.gateway_payment.adapter.out.db.mapper;
 
 import cv.ntinnovation.gateway_payment.adapter.out.db.entity.ContaPagamentoEntity;
+import cv.ntinnovation.gateway_payment.adapter.out.db.entity.InfoContaPagamentoEntity;
 import cv.ntinnovation.gateway_payment.adapter.out.db.entity.IntencaoPagamentoEntity;
 import cv.ntinnovation.gateway_payment.adapter.out.db.repository.ContaPagamentoRepository;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ContaPagamento;
+import cv.ntinnovation.gateway_payment.application.core.domain.entity.InfoContaPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.IntencaoPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.MetodoPagamento;
 import lombok.RequiredArgsConstructor;
@@ -79,6 +81,8 @@ public class IntencaoPagamentoMapper {
             return null;
         }
 
+        InfoContaPagamento infoContaPagamento = toInfoContaPagamento(entity.getAcctInfo());
+
         return ContaPagamento.builder()
                 .id(entity.getId())
                 .email(entity.getEmail())
@@ -95,6 +99,21 @@ public class IntencaoPagamentoMapper {
                 .shipAddrLine1(entity.getShipAddrLine1())
                 .shipAddrPostCode(entity.getShipAddrPostCode())
                 .shipAddrState(entity.getShipAddrState())
+                .acctInfo(infoContaPagamento)
+                .build();
+    }
+
+    private InfoContaPagamento toInfoContaPagamento(InfoContaPagamentoEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        return InfoContaPagamento.builder()
+                .chAccAgeInd(entity.getChAccAgeInd())
+                .chAccChange(entity.getChAccChange())
+                .chAccDate(entity.getChAccDate())
+                .chAccPwChange(entity.getChAccPwChange())
+                .chAccPwChangeInd(entity.getChAccPwChangeInd())
+                .suspiciousAccActivity(entity.getSuspiciousAccActivity())
                 .build();
     }
 }

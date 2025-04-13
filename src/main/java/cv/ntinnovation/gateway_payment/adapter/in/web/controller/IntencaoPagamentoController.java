@@ -65,7 +65,9 @@ public class IntencaoPagamentoController {
                 request.getBillAddrCity(),
                 request.getBillAddrCountry(),
                 request.getBillAddrLine1(),
-                request.getBillAddrPostCode()
+                request.getBillAddrPostCode(),
+                request.getPhoneCode(),
+                request.getPhoneNumber()
             );
             
             // Associar a conta de pagamento à intenção

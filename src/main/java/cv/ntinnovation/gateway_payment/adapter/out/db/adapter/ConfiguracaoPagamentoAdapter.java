@@ -43,7 +43,7 @@ public class ConfiguracaoPagamentoAdapter implements BuscaConfiguracaoPagamentoP
 
     @Override
     public Optional<ConfiguracaoPagamento> buscarPorPosId(String posId) {
-        return repository.findByPosId(posId)
+        return repository.findByPosIdAndIsActiveTrue(posId)
                 .map(mapper::toDomain);
     }
 

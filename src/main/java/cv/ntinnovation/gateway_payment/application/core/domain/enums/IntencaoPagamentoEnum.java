@@ -8,8 +8,8 @@ import lombok.Getter;
 public enum IntencaoPagamentoEnum {
 
     COMPRAS("1","compras","Compras"),
-    RECARGA("2","recarga","Recarga"),
-    PAGAMENTO_SERVICO("3","servico","Pagamento de Serviço");
+    RECARGA("3","recarga","Recarga"),
+    PAGAMENTO_SERVICO("2","servico","Pagamento de Serviço");
 
     private final String transactionCode;
     private final String intencaoPagamento;

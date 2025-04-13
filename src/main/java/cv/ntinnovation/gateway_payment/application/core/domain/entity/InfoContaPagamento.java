@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class InfoContaPagamento {
-	private String acctID; 
 	private String chAccAgeInd;
 	private String chAccChange;
 	private String chAccDate;

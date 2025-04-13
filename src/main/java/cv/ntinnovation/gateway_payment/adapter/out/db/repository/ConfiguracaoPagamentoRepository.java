@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface ConfiguracaoPagamentoRepository extends JpaRepository<ConfiguracaoPagamentoEntity, Long> {
     Optional<ConfiguracaoPagamentoEntity> findByApiKeyAndApiSecret(String apiKey, String apiSecret);
     Optional<ConfiguracaoPagamentoEntity> findByApiKey(String apiKey);
-    Optional<ConfiguracaoPagamentoEntity> findByPosId(String posId);
+    Optional<ConfiguracaoPagamentoEntity> findByPosIdAndIsActiveTrue(String posId);
     Optional<ConfiguracaoPagamentoEntity> findByApiKeyAndIsActiveTrue(String apiKey);
 }

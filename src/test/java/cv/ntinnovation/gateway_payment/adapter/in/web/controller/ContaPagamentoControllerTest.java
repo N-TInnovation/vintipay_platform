@@ -56,7 +56,7 @@ class ContaPagamentoControllerTest {
         
         when(contaPagamentoWebMapper.toContaPagamento(any(ContaPagamentoRequest.class))).thenReturn(contaPagamento);
         when(criaContaPagamentoUseCase.criarOuBuscarPorEmail(
-                anyString(), anyString(), anyString(), anyString(), anyString()
+                anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString()
         )).thenReturn(contaPagamento);
         
         // Criando um objeto de resposta específico para o teste
@@ -92,7 +92,6 @@ class ContaPagamentoControllerTest {
         String dataFormatada = agora.format(formatter);
         
         InfoContaPagamento acctInfo = InfoContaPagamento.builder()
-                .acctID("ACC123456789")
                 .chAccAgeInd("01")
                 .chAccDate(dataFormatada)
                 .chAccChange(dataFormatada)

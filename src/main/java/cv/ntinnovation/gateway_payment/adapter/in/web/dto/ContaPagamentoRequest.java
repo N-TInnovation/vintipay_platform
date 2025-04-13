@@ -26,4 +26,8 @@ public class ContaPagamentoRequest {
     private String billAddrLine1;
     
     private String billAddrPostCode;
+
+    private String phoneCode;
+
+    private String phoneNumber;
 }

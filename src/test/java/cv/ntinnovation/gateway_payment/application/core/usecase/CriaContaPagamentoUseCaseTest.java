@@ -36,6 +36,8 @@ class CriaContaPagamentoUseCaseTest {
     private String billAddrCountry;
     private String billAddrLine1;
     private String billAddrPostCode;
+    private String phoneCode;
+    private String phoneNumber;
 
     @BeforeEach
     void setUp() {
@@ -44,6 +46,8 @@ class CriaContaPagamentoUseCaseTest {
         billAddrCountry = "CV";
         billAddrLine1 = "Rua Principal, 123";
         billAddrPostCode = "12345";
+        phoneCode = "+351";
+        phoneNumber = "123456789";
     }
 
     @Test
@@ -58,7 +62,7 @@ class CriaContaPagamentoUseCaseTest {
 
         // Act
         ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail(
-                email, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode);
+                email, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
 
         // Assert
         assertNotNull(resultado);
@@ -83,7 +87,7 @@ class CriaContaPagamentoUseCaseTest {
 
         // Act
         ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail(
-                email, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode);
+                email, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
 
         // Assert
         assertNotNull(resultado);
@@ -107,7 +111,7 @@ class CriaContaPagamentoUseCaseTest {
 
         // Act
         ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail(
-                email, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode);
+                email, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
 
         // Assert
         assertNotNull(resultado);
@@ -126,7 +130,7 @@ class CriaContaPagamentoUseCaseTest {
         // Act & Assert
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             criaContaPagamentoUseCase.criarOuBuscarPorEmail(
-                    null, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode);
+                    null, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
         });
         
         assertTrue(exception.getMessage().contains("Email não pode ser nulo"));
@@ -142,7 +146,6 @@ class CriaContaPagamentoUseCaseTest {
         String dataFormatada = agora.format(formatter);
         
         InfoContaPagamento acctInfo = InfoContaPagamento.builder()
-                .acctID("ACC123456789")
                 .chAccAgeInd("01")
                 .chAccDate(dataFormatada)
                 .chAccChange(dataFormatada)

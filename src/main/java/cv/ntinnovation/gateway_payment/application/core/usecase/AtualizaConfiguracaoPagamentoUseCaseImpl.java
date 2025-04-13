@@ -2,45 +2,75 @@ package cv.ntinnovation.gateway_payment.application.core.usecase;
 
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.gateway_payment.application.port.in.AtualizaConfiguracaoPagamentoUseCase;
-import cv.ntinnovation.gateway_payment.application.port.in.BuscaConfiguracaoPagamentoUseCase;
+import cv.ntinnovation.gateway_payment.application.port.out.BuscaConfiguracaoPagamentoPort;
 import cv.ntinnovation.gateway_payment.application.port.out.SalvaConfiguracaoPagamentoPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AtualizaConfiguracaoPagamentoUseCaseImpl implements AtualizaConfiguracaoPagamentoUseCase {
 
-    private final SalvaConfiguracaoPagamentoPort salvaConfiguracaoPagamento;
-    private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase;
+    private final SalvaConfiguracaoPagamentoPort salvaConfiguracaoPagamentoPort;
+    private final BuscaConfiguracaoPagamentoPort buscaConfiguracaoPagamentoPort;
 
     @Override
     @Transactional
-    public ConfiguracaoPagamento atualizar(ConfiguracaoPagamento configuracao) {
-        if (configuracao.getId() == null) {
-            throw new IllegalArgumentException("ID da configuração não pode ser nulo para atualização");
+    public ConfiguracaoPagamento atualizar(ConfiguracaoPagamento configuracaoPagamento) {
+        // Busca a configuração existente
+        ConfiguracaoPagamento configuracaoExistente = buscaConfiguracaoPagamentoPort.buscarPorId(configuracaoPagamento.getId()).orElse(null);
+        if (configuracaoExistente == null) {
+            throw new RuntimeException("Configuração não encontrada");
         }
+
+        // Atualiza apenas os campos permitidos
+        configuracaoExistente.setPosId(configuracaoPagamento.getPosId());
+        configuracaoExistente.setMerchantId(configuracaoPagamento.getMerchantId());
+        configuracaoExistente.setTerminalId(configuracaoPagamento.getTerminalId());
+        configuracaoExistente.setPosAutCode(configuracaoPagamento.getPosAutCode());
+        configuracaoExistente.setIsActive(configuracaoPagamento.getIsActive());
         
-        // Verifica se a configuração existe
-        buscaConfiguracaoPagamentoUseCase.buscarPorId(configuracao.getId());
-        
-        return salvaConfiguracaoPagamento.salvar(configuracao);
+        // Garante que as datas estejam preenchidas
+        if (configuracaoExistente.getCreatedAt() == null) {
+            configuracaoExistente.setCreatedAt(LocalDateTime.now());
+        }
+        configuracaoExistente.setUpdatedAt(LocalDateTime.now());
+
+        return salvaConfiguracaoPagamentoPort.salvar(configuracaoExistente);
     }
 
     @Override
     @Transactional
     public void ativar(Long id) {
-        ConfiguracaoPagamento configuracao = buscaConfiguracaoPagamentoUseCase.buscarPorId(id);
+        ConfiguracaoPagamento configuracao = buscaConfiguracaoPagamentoPort.buscarPorId(id).orElse(null);
+        if (configuracao == null) {
+            throw new RuntimeException("Configuração não encontrada");
+        }
+
         configuracao.setIsActive(true);
-        salvaConfiguracaoPagamento.salvar(configuracao);
+        if (configuracao.getCreatedAt() == null) {
+            configuracao.setCreatedAt(LocalDateTime.now());
+        }
+        configuracao.setUpdatedAt(LocalDateTime.now());
+        salvaConfiguracaoPagamentoPort.salvar(configuracao);
     }
 
     @Override
     @Transactional
     public void desativar(Long id) {
-        ConfiguracaoPagamento configuracao = buscaConfiguracaoPagamentoUseCase.buscarPorId(id);
+        ConfiguracaoPagamento configuracao = buscaConfiguracaoPagamentoPort.buscarPorId(id).orElse(null);
+        if (configuracao == null) {
+            throw new RuntimeException("Configuração não encontrada");
+        }
+
         configuracao.setIsActive(false);
-        salvaConfiguracaoPagamento.salvar(configuracao);
+        if (configuracao.getCreatedAt() == null) {
+            configuracao.setCreatedAt(LocalDateTime.now());
+        }
+        configuracao.setUpdatedAt(LocalDateTime.now());
+        salvaConfiguracaoPagamentoPort.salvar(configuracao);
     }
 }

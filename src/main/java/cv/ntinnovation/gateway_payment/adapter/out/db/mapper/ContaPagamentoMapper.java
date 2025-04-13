@@ -1,7 +1,10 @@
 package cv.ntinnovation.gateway_payment.adapter.out.db.mapper;
 
 import cv.ntinnovation.gateway_payment.adapter.out.db.entity.ContaPagamentoEntity;
+import cv.ntinnovation.gateway_payment.adapter.out.db.entity.ContatoContaPagamentoEntity;
+import cv.ntinnovation.gateway_payment.adapter.out.db.entity.InfoContaPagamentoEntity;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ContaPagamento;
+import cv.ntinnovation.gateway_payment.application.core.domain.entity.ContatoContaPagamento;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -56,7 +59,24 @@ public class ContaPagamentoMapper {
         entity.setShipAddrLine1(domain.getShipAddrLine1());
         entity.setShipAddrPostCode(domain.getShipAddrPostCode());
         entity.setShipAddrState(domain.getShipAddrState());
-        
+        entity.setAcctInfo(getInfoContaPagamentoEntity(domain));
+
+        ContatoContaPagamentoEntity mobilePhone = new ContatoContaPagamentoEntity();
+        mobilePhone.setCc(domain.getMobilePhone().getCc());
+        mobilePhone.setSubscriber(domain.getMobilePhone().getSubscriber());
+        entity.setMobilePhone(mobilePhone);
+
         return entity;
+    }
+
+    private InfoContaPagamentoEntity getInfoContaPagamentoEntity(ContaPagamento domain) {
+        InfoContaPagamentoEntity infoContaPagamentoEntity = new InfoContaPagamentoEntity();
+        infoContaPagamentoEntity.setChAccAgeInd(domain.getAcctInfo().getChAccAgeInd());
+        infoContaPagamentoEntity.setChAccChange(domain.getAcctInfo().getChAccChange());
+        infoContaPagamentoEntity.setChAccDate(domain.getAcctInfo().getChAccDate());
+        infoContaPagamentoEntity.setChAccPwChange(domain.getAcctInfo().getChAccPwChange());
+        infoContaPagamentoEntity.setChAccPwChangeInd(domain.getAcctInfo().getChAccPwChangeInd());
+        infoContaPagamentoEntity.setSuspiciousAccActivity(domain.getAcctInfo().getSuspiciousAccActivity());
+        return infoContaPagamentoEntity;
     }
 }

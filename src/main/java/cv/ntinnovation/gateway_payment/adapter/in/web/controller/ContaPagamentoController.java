@@ -32,7 +32,9 @@ public class ContaPagamentoController {
             request.getBillAddrCity(),
             request.getBillAddrCountry(),
             request.getBillAddrLine1(),
-            request.getBillAddrPostCode()
+            request.getBillAddrPostCode(),
+            request.getPhoneCode(),
+            request.getPhoneNumber()
         );
         
         // Converter para response e retornar

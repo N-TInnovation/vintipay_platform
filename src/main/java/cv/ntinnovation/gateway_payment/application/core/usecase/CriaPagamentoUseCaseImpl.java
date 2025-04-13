@@ -28,7 +28,7 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
     @Transactional
     public Pagamento criar(String intencaoPagamentoRef) {
         // Buscar a intenção de pagamento pela referência
-        var intencaoPagamento= buscaIntencaoPagamentoUseCase.buscarPorReferencia(intencaoPagamentoRef);
+        var intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(intencaoPagamentoRef);
         if (intencaoPagamento == null ) {
             throw new RuntimeException("Intenção de pagamento não encontrada: " + intencaoPagamentoRef);
         }

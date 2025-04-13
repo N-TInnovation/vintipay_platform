@@ -24,6 +24,6 @@ public class Pagamento {
     private LocalDateTime createdAt;
 
     public void gerarTimestamp() {
-        this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMM-dd HH:mm:ss"));
+        this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 }
