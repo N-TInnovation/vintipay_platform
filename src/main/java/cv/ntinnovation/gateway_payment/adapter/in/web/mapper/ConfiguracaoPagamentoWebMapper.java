@@ -33,7 +33,6 @@ public class ConfiguracaoPagamentoWebMapper {
                 .posId(domain.getPosId())
                 .merchantId(domain.getMerchantId())
                 .terminalId(domain.getTerminalId())
-                .apiKey(domain.getApiKey())
                 .posAutCode(domain.getPosAutCode())
                 .isActive(domain.getIsActive())
                 .createdAt(domain.getCreatedAt())
