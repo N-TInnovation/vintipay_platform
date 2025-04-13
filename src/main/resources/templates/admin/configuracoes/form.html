@@ -2,63 +2,129 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuração de Pagamento</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-4">
-        <h2 th:text="${configuracao.id != null ? 'Editar Configuração' : 'Nova Configuração'}"></h2>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0" th:text="${configuracao.id != null ? 'Editar Configuração' : 'Nova Configuração'}"></h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="configForm" class="needs-validation" novalidate>
+                            <input type="hidden" id="id" th:value="${configuracao.id}">
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="posId" class="form-label">POS ID *</label>
+                                    <input type="text" class="form-control" id="posId" th:value="${configuracao.posId}" required>
+                                    <div class="invalid-feedback">
+                                        POS ID é obrigatório
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="merchantId" class="form-label">Merchant ID *</label>
+                                    <input type="text" class="form-control" id="merchantId" th:value="${configuracao.merchantId}" required>
+                                    <div class="invalid-feedback">
+                                        Merchant ID é obrigatório
+                                    </div>
+                                </div>
+                            </div>
 
-        <form id="configForm" class="mt-4">
-            <input type="hidden" id="id" th:value="${configuracao.id}">
-            
-            <div class="mb-3">
-                <label for="posId" class="form-label">POS ID</label>
-                <input type="text" class="form-control" id="posId" th:value="${configuracao.posId}" required>
-            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="terminalId" class="form-label">Terminal ID *</label>
+                                    <input type="text" class="form-control" id="terminalId" th:value="${configuracao.terminalId}" required>
+                                    <div class="invalid-feedback">
+                                        Terminal ID é obrigatório
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="apiKey" class="form-label">API Key *</label>
+                                    <input type="text" class="form-control" id="apiKey" th:value="${configuracao.apiKey}" required>
+                                    <div class="invalid-feedback">
+                                        API Key é obrigatória
+                                    </div>
+                                </div>
+                            </div>
 
-            <div class="mb-3">
-                <label for="merchantId" class="form-label">Merchant ID</label>
-                <input type="text" class="form-control" id="merchantId" th:value="${configuracao.merchantId}" required>
-            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="apiSecret" class="form-label">API Secret *</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="apiSecret" th:value="${configuracao.apiSecret}" required>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('apiSecret')">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="invalid-feedback">
+                                        API Secret é obrigatório
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="posAutCode" class="form-label">POS Aut Code *</label>
+                                    <input type="text" class="form-control" id="posAutCode" th:value="${configuracao.posAutCode}" required>
+                                    <div class="invalid-feedback">
+                                        POS Aut Code é obrigatório
+                                    </div>
+                                </div>
+                            </div>
 
-            <div class="mb-3">
-                <label for="terminalId" class="form-label">Terminal ID</label>
-                <input type="text" class="form-control" id="terminalId" th:value="${configuracao.terminalId}" required>
-            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="isActive" th:checked="${configuracao.isActive}">
+                                    <label class="form-check-label" for="isActive">Ativo</label>
+                                </div>
+                            </div>
 
-            <div class="mb-3">
-                <label for="apiKey" class="form-label">API Key</label>
-                <input type="text" class="form-control" id="apiKey" th:value="${configuracao.apiKey}" required>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Salvar
+                                </button>
+                                <a href="/admin/configuracoes" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Voltar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-
-            <div class="mb-3">
-                <label for="apiSecret" class="form-label">API Secret</label>
-                <input type="password" class="form-control" id="apiSecret" th:value="${configuracao.apiSecret}" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="posAutCode" class="form-label">POS Aut Code</label>
-                <input type="text" class="form-control" id="posAutCode" th:value="${configuracao.posAutCode}" required>
-            </div>
-
-            <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="isActive" th:checked="${configuracao.isActive}">
-                <label class="form-check-label" for="isActive">Ativo</label>
-            </div>
-
-            <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Salvar</button>
-                <a href="/admin/configuracoes" class="btn btn-secondary">Voltar</a>
-            </div>
-        </form>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Toggle password visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+
+        // Form validation and submission
         document.getElementById('configForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            if (!this.checkValidity()) {
+                e.stopPropagation();
+                this.classList.add('was-validated');
+                return;
+            }
+
             const data = {
                 id: document.getElementById('id').value || null,
                 posId: document.getElementById('posId').value,
@@ -70,6 +136,15 @@
                 isActive: document.getElementById('isActive').checked
             };
 
+            Swal.fire({
+                title: 'Salvando...',
+                text: 'Por favor, aguarde',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             fetch('/admin/configuracoes', {
                 method: 'POST',
                 headers: {
@@ -78,12 +153,22 @@
                 body: JSON.stringify(data)
             }).then(response => {
                 if (response.ok) {
-                    window.location.href = '/admin/configuracoes';
+                    Swal.fire({
+                        title: 'Sucesso!',
+                        text: 'Configuração salva com sucesso',
+                        icon: 'success'
+                    }).then(() => {
+                        window.location.href = '/admin/configuracoes';
+                    });
                 } else {
                     throw new Error('Erro ao salvar configuração');
                 }
             }).catch(error => {
-                alert(error.message);
+                Swal.fire({
+                    title: 'Erro!',
+                    text: error.message,
+                    icon: 'error'
+                });
             });
         });
     </script>

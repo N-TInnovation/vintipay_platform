@@ -16,7 +16,8 @@ public class BuscaConfiguracaoPagamentoUseCaseImpl implements BuscaConfiguracaoP
 
     @Override
     public ConfiguracaoPagamento buscarPorId(Long id) {
-        return null;
+        return buscaConfiguracaoPagamentoPort.buscarPorId(id)
+                .orElseThrow(() -> new RuntimeException("Configuração de pagamento não encontrada para o ID: " + id));
     }
 
     @Override
@@ -27,6 +28,6 @@ public class BuscaConfiguracaoPagamentoUseCaseImpl implements BuscaConfiguracaoP
 
     @Override
     public List<ConfiguracaoPagamento> buscarTodas() {
-        return List.of();
+        return buscaConfiguracaoPagamentoPort.buscarTodas();
     }
 }
