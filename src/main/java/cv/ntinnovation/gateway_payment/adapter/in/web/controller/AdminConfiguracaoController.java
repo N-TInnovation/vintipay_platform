@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin/configuracoes")
@@ -47,16 +48,32 @@ public class AdminConfiguracaoController {
 
     @PostMapping
     @ResponseBody
-    public ResponseEntity<Void> salvarConfiguracao(@RequestBody @Valid ConfiguracaoPagamentoRequest request) {
-        ConfiguracaoPagamento configuracao = configuracaoPagamentoWebMapper.toDomain(request);
-        
-        if (configuracao.getId() == null) {
-            criaConfiguracaoPagamentoUseCase.criar(configuracao);
-        } else {
-            atualizaConfiguracaoPagamentoUseCase.atualizar(configuracao);
+    public ResponseEntity<Map<String, Object>> salvarConfiguracao(@RequestBody @Valid ConfiguracaoPagamentoRequest request) {
+        try {
+            ConfiguracaoPagamento configuracao = configuracaoPagamentoWebMapper.toDomain(request);
+            
+            if (configuracao.getId() == null) {
+                ConfiguracaoPagamento configuracaoSalva = criaConfiguracaoPagamentoUseCase.criar(configuracao);
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Configuração salva com sucesso",
+                    "apiKey", configuracaoSalva.getApiKey(),
+                    "apiSecret", configuracaoSalva.getApiSecret()
+                ));
+            } else {
+                atualizaConfiguracaoPagamentoUseCase.atualizar(configuracao);
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Configuração atualizada com sucesso"
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+                ));
         }
-        
-        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}/status")

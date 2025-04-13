@@ -18,10 +18,8 @@ public class ConfiguracaoPagamentoWebMapper {
                 .posId(request.getPosId())
                 .merchantId(request.getMerchantId())
                 .terminalId(request.getTerminalId())
-                .apiKey(request.getApiKey())
-                .apiSecret(request.getApiSecret())
                 .posAutCode(request.getPosAutCode())
-                .isActive(request.getIsActive())
+                .isActive(request.getIsActive() != null ? request.getIsActive() : true)
                 .build();
     }
 
@@ -36,7 +34,10 @@ public class ConfiguracaoPagamentoWebMapper {
                 .merchantId(domain.getMerchantId())
                 .terminalId(domain.getTerminalId())
                 .apiKey(domain.getApiKey())
+                .posAutCode(domain.getPosAutCode())
                 .isActive(domain.getIsActive())
+                .createdAt(domain.getCreatedAt())
+                .updatedAt(domain.getUpdatedAt())
                 .build();
     }
 }

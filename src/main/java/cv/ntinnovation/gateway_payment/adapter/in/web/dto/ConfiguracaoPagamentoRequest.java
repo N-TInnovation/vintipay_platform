@@ -24,15 +24,8 @@ public class ConfiguracaoPagamentoRequest {
     @NotBlank(message = "O Terminal ID é obrigatório")
     private String terminalId;
 
-    @NotBlank(message = "A API Key é obrigatória")
-    private String apiKey;
-
-    @NotBlank(message = "O API Secret é obrigatório")
-    private String apiSecret;
-
     @NotBlank(message = "O POS Aut Code é obrigatório")
     private String posAutCode;
 
-    @NotNull(message = "O status ativo/inativo é obrigatório")
     private Boolean isActive;
 }
