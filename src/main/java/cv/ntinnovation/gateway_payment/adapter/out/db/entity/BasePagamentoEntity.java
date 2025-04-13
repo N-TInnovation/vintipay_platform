@@ -24,10 +24,6 @@ public abstract class BasePagamentoEntity {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "metodo_pagamento_id", nullable = false)
-    private MetodoPagamentoEntity metodoPagamento;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private StatusPagamentoEnum status;

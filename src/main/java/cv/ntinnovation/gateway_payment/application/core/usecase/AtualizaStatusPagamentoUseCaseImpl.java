@@ -1,5 +1,7 @@
 package cv.ntinnovation.gateway_payment.application.core.usecase;
 
+import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
+import cv.ntinnovation.gateway_payment.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.gateway_payment.application.port.in.AtualizaStatusPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.out.BuscaPagamentoPort;
 import cv.ntinnovation.gateway_payment.application.port.out.SalvaPagamento;
@@ -16,15 +18,15 @@ public class AtualizaStatusPagamentoUseCaseImpl implements AtualizaStatusPagamen
 
     @Override
     @Transactional
-    public void atualizar(String merchantRef, String status, String message, String authorizationCode, String pan) {
+    public Pagamento atualizar(String merchantRef, StatusPagamentoEnum status, String message, String authorizationCode, String pan) {
         var pagamento = buscaPagamentoPort.buscarPorMerchantRef(merchantRef)
                 .orElseThrow(() -> new RuntimeException("Pagamento não encontrado: " + merchantRef));
 
-        pagamento.setStatus(status);
+        pagamento.setStatus(status.getStatus());
         pagamento.setMensagem(message);
         pagamento.setCodigoAutorizacao(authorizationCode);
         pagamento.setPanMascarado(pan);
 
-        salvaPagamento.salvar(pagamento);
+        return salvaPagamento.salvar(pagamento);
     }
 }

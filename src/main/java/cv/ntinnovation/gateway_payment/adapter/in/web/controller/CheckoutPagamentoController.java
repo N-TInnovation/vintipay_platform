@@ -54,7 +54,7 @@ public class CheckoutPagamentoController {
                     .merchantSession(pagamento.getIntencaoPagamento().getMerchantSession())
                     .currency(MoedaEnum.getByName(pagamento.getIntencaoPagamento().getCurrency()).getCodigoISO())
                     .is3DSec("1") // Habilitado por padrão
-                    .urlMerchantResponse(returnUrl)
+                    .urlMerchantResponse(String.format("%s/%s", returnUrl, pagamento.getIntencaoPagamento().getReference()))
                     .languageMessages("pt") // Português por padrão
                     .entityCode(entityCode)
                     .referenceNumber(referenceNumber)
