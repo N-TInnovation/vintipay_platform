@@ -38,19 +38,22 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Lista de Pagamentos</h1>
             <div class="d-flex gap-2">
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Buscar por referência...">
-                    <button class="btn btn-outline-secondary" type="button">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-                <select class="form-select" style="width: auto;">
-                    <option value="">Todos os Status</option>
-                    <option value="PENDENTE">Pendente</option>
-                    <option value="PAGO">Pago</option>
-                    <option value="CANCELADO">Cancelado</option>
-                    <option value="ERRO">Erro</option>
-                </select>
+                <form th:action="@{/admin/pagamentos}" method="get" class="d-flex gap-2">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="reference" th:value="${reference}"
+                               placeholder="Buscar por referência...">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <select class="form-select" style="width: auto;" name="status" onchange="this.form.submit()">
+                        <option value="">Todos os Status</option>
+                        <option value="PENDENTE" th:selected="${statusSelecionado == 'PENDENTE'}">Pendente</option>
+                        <option value="PAGO" th:selected="${statusSelecionado == 'PAGO'}">Pago</option>
+                        <option value="CANCELADO" th:selected="${statusSelecionado == 'CANCELADO'}">Cancelado</option>
+                        <option value="ERRO" th:selected="${statusSelecionado == 'ERRO'}">Erro</option>
+                    </select>
+                </form>
             </div>
         </div>
 
@@ -113,16 +116,22 @@
         <nav th:if="${page.totalPages > 1}" class="mt-4">
             <ul class="pagination justify-content-center">
                 <li class="page-item" th:classappend="${!page.hasPrevious()} ? disabled">
-                    <a class="page-link" th:href="@{/admin/pagamentos(page=${page.number - 1})}" aria-label="Anterior">
+                    <a class="page-link" 
+                       th:href="@{/admin/pagamentos(page=${page.number - 1}, reference=${reference}, status=${statusSelecionado})}" 
+                       aria-label="Anterior">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
                 <li class="page-item" th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
                     th:classappend="${page.number == i} ? active">
-                    <a class="page-link" th:href="@{/admin/pagamentos(page=${i})}" th:text="${i + 1}">1</a>
+                    <a class="page-link" 
+                       th:href="@{/admin/pagamentos(page=${i}, reference=${reference}, status=${statusSelecionado})}"
+                       th:text="${i + 1}">1</a>
                 </li>
                 <li class="page-item" th:classappend="${!page.hasNext()} ? disabled">
-                    <a class="page-link" th:href="@{/admin/pagamentos(page=${page.number + 1})}" aria-label="Próximo">
+                    <a class="page-link" 
+                       th:href="@{/admin/pagamentos(page=${page.number + 1}, reference=${reference}, status=${statusSelecionado})}"
+                       aria-label="Próximo">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>

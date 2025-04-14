@@ -29,6 +29,7 @@ public class PagamentoMapper {
 
     public PagamentoEntity toEntity(Pagamento pagamento) {
         return PagamentoEntity.builder()
+                .id(pagamento.getId())
                 .intencaoPagamento(intencaoPagamentoMapper.toIntencaoPagamentoEntity(pagamento.getIntencaoPagamento()))
                 .fingerprint(pagamento.getFingerprint())
                 .timestamp(pagamento.getTimestamp())
