@@ -3,6 +3,8 @@ package cv.ntinnovation.gateway_payment.adapter.in.web.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cv.ntinnovation.gateway_payment.adapter.in.web.dto.SispCheckoutRequest;
 import cv.ntinnovation.gateway_payment.application.core.domain.enums.MoedaEnum;
+import cv.ntinnovation.gateway_payment.application.core.domain.enums.StatusPagamentoEnum;
+import cv.ntinnovation.gateway_payment.application.core.domain.exception.PagamentoStatusNaoPendenteException;
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.CriaPagamentoUseCase;
 import lombok.RequiredArgsConstructor;
@@ -37,44 +39,50 @@ public class CheckoutPagamentoController {
 
         var pagamento = pagamentoOptional.orElseGet(() -> criaPagamentoUseCase.criar(reference));
 
+
+        if (!pagamento.getStatus().equals(StatusPagamentoEnum.PENDENTE)){
+            throw new PagamentoStatusNaoPendenteException("Pagamento com status diferente de pendente: " + pagamento.getReference());
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String purchaseRequest = "";
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String purchaseRequest = objectMapper.writeValueAsString(pagamento.getIntencaoPagamento().getContaPagamento());
+            purchaseRequest = objectMapper.writeValueAsString(pagamento.getIntencaoPagamento().getContaPagamento());
             purchaseRequest = Base64.getEncoder().encodeToString(purchaseRequest.getBytes());
-
-            var referenceNumber = pagamento.getIntencaoPagamento().getReferenceNumber() == null ? null : pagamento.getIntencaoPagamento().getReferenceNumber().toString();
-            var entityCode = pagamento.getIntencaoPagamento().getEntityCode() == null ? null : pagamento.getIntencaoPagamento().getEntityCode();
-
-            var request = SispCheckoutRequest.builder()
-                    .timeStamp(pagamento.getTimestamp())
-                    .purchaseRequest(purchaseRequest)
-                    .fingerprint(pagamento.getFingerprint())
-                    .fingerprintversion("1") // Versão fixa por enquanto
-                    .amount(pagamento.getIntencaoPagamento().getAmount().toString())
-                    .transactionCode(pagamento.getIntencaoPagamento().getTransactionCode())
-                    .posID(pagamento.getIntencaoPagamento().getPosId())
-                    .merchantRef(pagamento.getIntencaoPagamento().getMerchantRef())
-                    .merchantSession(pagamento.getIntencaoPagamento().getMerchantSession())
-                    .currency(MoedaEnum.getByName(pagamento.getIntencaoPagamento().getCurrency()).getCodigoISO())
-                    .is3DSec("1") // Habilitado por padrão
-                    .urlMerchantResponse(String.format("%s/%s", returnUrl, pagamento.getIntencaoPagamento().getReference()))
-                    .languageMessages("pt") // Português por padrão
-                    .entityCode(entityCode)
-                    .referenceNumber(referenceNumber)
-                    .submitFormUrl(String.format("%s?FingerPrint=%s&TimeStamp=%s&FingerPrintVersion=%s",
-                            submitFormUrl,
-                            UriUtils.encode(pagamento.getFingerprint(), StandardCharsets.UTF_8),
-                            UriUtils.encode(pagamento.getTimestamp(), StandardCharsets.UTF_8),
-                            UriUtils.encode("1", StandardCharsets.UTF_8)))
-                    .build();
-
-            model.addAttribute("pagamento", pagamento);
-            model.addAttribute("request", request);
-
-            return "checkout";
-
         }catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+        var referenceNumber = pagamento.getIntencaoPagamento().getReferenceNumber() == null ? null : pagamento.getIntencaoPagamento().getReferenceNumber().toString();
+        var entityCode = pagamento.getIntencaoPagamento().getEntityCode() == null ? null : pagamento.getIntencaoPagamento().getEntityCode();
+
+        var request = SispCheckoutRequest.builder()
+            .timeStamp(pagamento.getTimestamp())
+            .purchaseRequest(purchaseRequest)
+            .fingerprint(pagamento.getFingerprint())
+            .fingerprintversion("1") // Versão fixa por enquanto
+            .amount(pagamento.getIntencaoPagamento().getAmount().toString())
+            .transactionCode(pagamento.getIntencaoPagamento().getTransactionCode())
+            .posID(pagamento.getIntencaoPagamento().getPosId())
+            .merchantRef(pagamento.getIntencaoPagamento().getMerchantRef())
+            .merchantSession(pagamento.getIntencaoPagamento().getMerchantSession())
+            .currency(MoedaEnum.getByName(pagamento.getIntencaoPagamento().getCurrency()).getCodigoISO())
+            .is3DSec("1") // Habilitado por padrão
+            .urlMerchantResponse(String.format("%s/%s", returnUrl, pagamento.getIntencaoPagamento().getReference()))
+            .languageMessages("pt") // Português por padrão
+            .entityCode(entityCode)
+            .referenceNumber(referenceNumber)
+            .submitFormUrl(String.format("%s?FingerPrint=%s&TimeStamp=%s&FingerPrintVersion=%s",
+                    submitFormUrl,
+                    UriUtils.encode(pagamento.getFingerprint(), StandardCharsets.UTF_8),
+                    UriUtils.encode(pagamento.getTimestamp(), StandardCharsets.UTF_8),
+                    UriUtils.encode("1", StandardCharsets.UTF_8)))
+            .build();
+
+        model.addAttribute("pagamento", pagamento);
+        model.addAttribute("request", request);
+
+        return "checkout";
+
     }
 }
