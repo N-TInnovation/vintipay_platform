@@ -9,7 +9,7 @@ public enum StatusPagamentoEnum {
 
     PENDENTE("PENDENTE"),
     PROCESSANDO("PROCESSANDO"),
-    CONCLUIDO("CONCLUIDO"),
+    CONCLUIDO("PAGO"),
     FALHA("FALHA"),
     CANCELADO("CANCELADO");
 
