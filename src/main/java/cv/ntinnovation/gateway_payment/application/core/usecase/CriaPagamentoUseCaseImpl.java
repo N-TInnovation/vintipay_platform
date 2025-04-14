@@ -4,10 +4,13 @@ import cv.ntinnovation.gateway_payment.application.core.domain.entity.DataFinger
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.FingerPrintResult;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.enums.MoedaEnum;
+import cv.ntinnovation.gateway_payment.application.core.domain.enums.StatusPagamentoEnum;
+import cv.ntinnovation.gateway_payment.application.core.domain.exception.IntencaoPagamentoNaoExisteExeption;
 import cv.ntinnovation.gateway_payment.application.core.service.FingerPrintService;
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaConfiguracaoPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaIntencaoPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.CriaPagamentoUseCase;
+import cv.ntinnovation.gateway_payment.application.port.out.SalvaIntencaoPagamento;
 import cv.ntinnovation.gateway_payment.application.port.out.SalvaPagamento;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,6 +26,7 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
     private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase;
     private final SalvaPagamento salvaPagamento;
     private final FingerPrintService fingerPrintService;
+    private final SalvaIntencaoPagamento salvaIntencaoPagamento;
 
     @Override
     @Transactional
@@ -30,12 +34,17 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
         // Buscar a intenção de pagamento pela referência
         var intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(intencaoPagamentoRef);
         if (intencaoPagamento == null ) {
-            throw new RuntimeException("Intenção de pagamento não encontrada: " + intencaoPagamentoRef);
+            throw new IntencaoPagamentoNaoExisteExeption("Intenção de pagamento não encontrada: " + intencaoPagamentoRef);
+        }
+
+        if(intencaoPagamento.getStatus() != StatusPagamentoEnum.PENDENTE) {
+            throw new RuntimeException("Interação de pagamento com status diferente de pendente: " + intencaoPagamentoRef);
         }
 
         // Criar o pagamento
         Pagamento pagamento = Pagamento.builder()
                 .intencaoPagamento(intencaoPagamento)
+                .reference(intencaoPagamento.getReference())
                 .build();
 
         pagamento.setStatus(intencaoPagamento.getStatus());
@@ -62,6 +71,10 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
 
         FingerPrintResult fingerPrintResult = fingerPrintService.generateFingerPrint(dataFingerPrint);
         pagamento.setFingerprint(fingerPrintResult.getHashFingerPrint());
+
+        intencaoPagamento.setStatus(StatusPagamentoEnum.PROCESSANDO);
+
+        salvaIntencaoPagamento.salvar(intencaoPagamento);
 
         // Salvar o pagamento
         return salvaPagamento.salvar(pagamento);

@@ -1,6 +1,7 @@
 package cv.ntinnovation.gateway_payment.application.core.service;
 
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.IntencaoPagamento;
+import cv.ntinnovation.gateway_payment.application.core.domain.exception.IntencaoPagamentoNaoExisteExeption;
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaIntencaoPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.out.BuscaIntencaoPagamentoPort;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,6 @@ public class BuscaIntencaoPagamentoService implements BuscaIntencaoPagamentoUseC
     @Override
     public IntencaoPagamento buscarPorReferencia(String reference) {
         return buscaIntencaoPagamentoPort.buscarPorReferencia(reference)
-                .orElseThrow(() -> new RuntimeException("Intenção de pagamento não encontrada: " + reference));
+                .orElseThrow(() -> new IntencaoPagamentoNaoExisteExeption("Intenção de pagamento não encontrada: " + reference));
     }
 }

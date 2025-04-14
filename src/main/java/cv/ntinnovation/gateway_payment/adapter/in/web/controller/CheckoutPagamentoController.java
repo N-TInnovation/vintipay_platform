@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cv.ntinnovation.gateway_payment.adapter.in.web.dto.SispCheckoutRequest;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.enums.MoedaEnum;
+import cv.ntinnovation.gateway_payment.application.port.in.BuscaPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.CriaPagamentoUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,16 +24,19 @@ import java.util.Base64;
 public class CheckoutPagamentoController {
 
     private final CriaPagamentoUseCase criaPagamentoUseCase;
-    
+    private final BuscaPagamentoUseCase buscaPagamentoUseCase;
+
     @Value("${sisp.url.3d}")
     private String submitFormUrl;
-    
+
     @Value("${sisp.checkout.return.url}")
     private String returnUrl;
 
     @GetMapping("/checkout/{reference}")
     public String checkout(@PathVariable String reference, Model model) {
-        var pagamento = criaPagamentoUseCase.criar(reference);
+        var pagamentoOptional = buscaPagamentoUseCase.buscarPorReference(reference);
+
+        var pagamento = pagamentoOptional.orElseGet(() -> criaPagamentoUseCase.criar(reference));
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();

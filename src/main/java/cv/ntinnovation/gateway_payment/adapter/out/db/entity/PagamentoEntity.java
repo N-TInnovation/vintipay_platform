@@ -27,6 +27,9 @@ public class PagamentoEntity {
     @Column(name = "fingerprint", nullable = false)
     private String fingerprint;
 
+    @Column(name = "result_fingerprint")
+    private String resultFingerprint;
+
     @Column(name = "timestamp", nullable = false)
     private String timestamp;
 
@@ -37,7 +40,7 @@ public class PagamentoEntity {
     @Column(name = "mensagem")
     private String mensagem;
 
-    @Column(name = "reference")
+    @Column(name = "reference", unique = true)
     private String reference;
 
     @Column(name = "pan_mascarado")

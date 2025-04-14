@@ -10,14 +10,18 @@ import cv.ntinnovation.gateway_payment.application.core.domain.enums.IntencaoPag
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaConfiguracaoPagamentoAtivaUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.CriaContaPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.CriaIntencaoPagamentoUseCase;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/api/v1/pagamentos")
+@RequiredArgsConstructor
 public class IntencaoPagamentoController {
 
     private final CriaIntencaoPagamentoUseCase criaIntencaoPagamentoUseCase;
@@ -25,22 +29,18 @@ public class IntencaoPagamentoController {
     private final IntencaoPagamentoWebMapper intencaoPagamentoWebMapper;
     private final BuscaConfiguracaoPagamentoAtivaUseCase buscaConfiguracaoPagamentoAtivaUseCase;
 
-    public IntencaoPagamentoController(CriaIntencaoPagamentoUseCase criaIntencaoPagamentoUseCase,
-                                      CriaContaPagamentoUseCase criaContaPagamentoUseCase,
-                                      IntencaoPagamentoWebMapper intencaoPagamentoWebMapper,
-                                      BuscaConfiguracaoPagamentoAtivaUseCase buscaConfiguracaoPagamentoAtivaUseCase) {
-        this.criaIntencaoPagamentoUseCase = criaIntencaoPagamentoUseCase;
-        this.criaContaPagamentoUseCase = criaContaPagamentoUseCase;
-        this.intencaoPagamentoWebMapper = intencaoPagamentoWebMapper;
-        this.buscaConfiguracaoPagamentoAtivaUseCase = buscaConfiguracaoPagamentoAtivaUseCase;
-    }
 
     @PostMapping("/intencao/{intencao}")
     public ResponseEntity<IntencaoPagamentoResponse> criarIntencaoPagamento(
             @PathVariable String intencao,
             @RequestHeader("X-Client-Id") String clientId,
-            @Valid @RequestBody IntencaoPagamentoRequest request) {
+            @Valid @RequestBody IntencaoPagamentoRequest request,
+            Principal principal) {
         try {
+
+            if (!principal.getName().equals(clientId)){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+            }
 
             IntencaoPagamentoEnum intencaoPagamentoEnum = IntencaoPagamentoEnum.findByIntencaoPagamento(intencao);
             if (intencaoPagamentoEnum == null) {
@@ -95,4 +95,6 @@ public class IntencaoPagamentoController {
         // Implementação futura para buscar intenção de pagamento por referência
         return ResponseEntity.ok("Implementação futura para buscar intenção de pagamento com referência: " + reference);
     }
+
+
 }
