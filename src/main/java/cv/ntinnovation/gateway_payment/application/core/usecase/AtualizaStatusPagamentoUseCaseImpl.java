@@ -25,7 +25,7 @@ public class AtualizaStatusPagamentoUseCaseImpl implements AtualizaStatusPagamen
         pagamento.getIntencaoPagamento().setStatus(status);
         pagamento.setStatus(status);
         pagamento.setMensagem(message);
-        pagamento.setCodigoAutorizacao(authorizationCode);
+        pagamento.setReference(reference);
         pagamento.setPanMascarado(pan);
 
         return salvaPagamento.salvar(pagamento);

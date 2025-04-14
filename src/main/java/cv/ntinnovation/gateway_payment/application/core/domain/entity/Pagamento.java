@@ -21,7 +21,6 @@ public class Pagamento {
     private String timestamp;
     private StatusPagamentoEnum status;
     private String mensagem;
-    private String codigoAutorizacao;
     private String panMascarado;
     private LocalDateTime createdAt;
     private String resultFingerPrint;

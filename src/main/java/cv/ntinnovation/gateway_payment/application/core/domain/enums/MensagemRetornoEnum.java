@@ -28,7 +28,7 @@ public enum MensagemRetornoEnum {
     }
 
     public static MensagemRetornoEnum getMensagemRetornoEnum(String messageType, String merchantResp, Boolean cancelled) {
-        if(cancelled) {
+        if(cancelled != null && cancelled) {
             return TRANSACAO_CANCELADA;
         }
         for (MensagemRetornoEnum mensagemRetornoEnum : MensagemRetornoEnum.values()) {

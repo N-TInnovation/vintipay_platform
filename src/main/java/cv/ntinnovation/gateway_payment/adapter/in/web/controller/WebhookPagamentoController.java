@@ -25,7 +25,8 @@ public class WebhookPagamentoController {
 
     @PostMapping(value = "/sisp/pagamentos/retorno/{reference}",
             consumes={"application/x-www-form-urlencoded;charset=UTF-8"}, produces={ MediaType.ALL_VALUE })
-    public String handlePaymentWebhook(@PathVariable String reference,SispWebhookRequest request,
+    public String handlePaymentWebhook(@PathVariable String reference,
+                                     @ModelAttribute SispWebhookRequest request,
                                      Model model) {
         log.info("Recebido webhook do SISP - Reference: {}, Request: {}", reference, request);
 
@@ -54,7 +55,7 @@ public class WebhookPagamentoController {
             log.debug("Configuração encontrada: {}", configuracaoPagamento);
 
             CheckoutResponseDto responseDto = CheckoutResponseDto.builder()
-                    .reference(pagamento.getIntencaoPagamento().getReference())
+                    .reference(pagamento.getReference())
                     .status(pagamento.getStatus().getStatus())
                     .message(mensagem)
                     .amount(pagamento.getIntencaoPagamento().getAmount())
@@ -62,6 +63,7 @@ public class WebhookPagamentoController {
                     .merchantSession(pagamento.getIntencaoPagamento().getMerchantSession())
                     .panMascarado(pagamento.getPanMascarado())
                     .merchantRef(pagamento.getIntencaoPagamento().getMerchantRef())
+                    .timestamp(pagamento.getTimestamp())
                     .build();
             log.debug("Response DTO criado: {}", responseDto);
 

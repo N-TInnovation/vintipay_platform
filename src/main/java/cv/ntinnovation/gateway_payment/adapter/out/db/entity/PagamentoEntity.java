@@ -37,12 +37,17 @@ public class PagamentoEntity {
     @Column(name = "mensagem")
     private String mensagem;
 
-    @Column(name = "codigo_autorizacao")
-    private String codigoAutorizacao;
+    @Column(name = "reference")
+    private String reference;
 
     @Column(name = "pan_mascarado")
     private String panMascarado;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 }
