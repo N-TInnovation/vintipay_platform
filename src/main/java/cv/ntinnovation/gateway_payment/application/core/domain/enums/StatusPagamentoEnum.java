@@ -9,8 +9,8 @@ public enum StatusPagamentoEnum {
 
     PENDENTE("PENDENTE"),
     PROCESSANDO("PROCESSANDO"),
-    CONCLUIDO("PAGO"),
-    FALHA("FALHA"),
+    PAGO("PAGO"),
+    ERRO("ERRO"),
     CANCELADO("CANCELADO");
 
     private final String status;
