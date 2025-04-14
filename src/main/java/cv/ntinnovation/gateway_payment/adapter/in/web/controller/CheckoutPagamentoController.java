@@ -2,7 +2,6 @@ package cv.ntinnovation.gateway_payment.adapter.in.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cv.ntinnovation.gateway_payment.adapter.in.web.dto.SispCheckoutRequest;
-import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.enums.MoedaEnum;
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.CriaPagamentoUseCase;
@@ -34,7 +33,7 @@ public class CheckoutPagamentoController {
 
     @GetMapping("/checkout/{reference}")
     public String checkout(@PathVariable String reference, Model model) {
-        var pagamentoOptional = buscaPagamentoUseCase.buscarPorReference(reference);
+        var pagamentoOptional = buscaPagamentoUseCase.buscarPorReferencia(reference);
 
         var pagamento = pagamentoOptional.orElseGet(() -> criaPagamentoUseCase.criar(reference));
 

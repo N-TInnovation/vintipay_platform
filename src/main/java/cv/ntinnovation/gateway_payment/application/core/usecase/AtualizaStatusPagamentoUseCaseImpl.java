@@ -21,7 +21,7 @@ public class AtualizaStatusPagamentoUseCaseImpl implements AtualizaStatusPagamen
     @Override
     @Transactional
     public Pagamento atualizar(String reference, StatusPagamentoEnum status, String message, String authorizationCode, String pan) {
-        var pagamento = buscaPagamentoPort.buscarPorReference(reference)
+        var pagamento = buscaPagamentoPort.buscarPorReferencia(reference)
                 .orElseThrow(() -> new RuntimeException("Pagamento não encontrado: " + reference));
 
         pagamento.getIntencaoPagamento().setStatus(status);
