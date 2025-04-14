@@ -1,5 +1,6 @@
 package cv.ntinnovation.gateway_payment.adapter.in.web.controller;
 
+import cv.ntinnovation.gateway_payment.adapter.in.web.dto.CheckoutResponseDto;
 import cv.ntinnovation.gateway_payment.adapter.in.web.dto.SispWebhookRequest;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
@@ -13,9 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.View;
 
 import java.io.IOException;
 
@@ -28,10 +28,10 @@ public class WebhookPagamentoController {
     private final AtualizaStatusPagamentoUseCase atualizaStatusPagamentoUseCase;
     private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase;
 
-    @PostMapping(path = "/sisp/pagamentos/retorno/{reference}", consumes = {"application/x-www-form-urlencoded;charset=UTF-8"}, produces = {MediaType.ALL_VALUE})
-    public ModelAndView handlePaymentWebhook(@PathVariable String reference,
-                                             @RequestBody SispWebhookRequest request,
-                                             HttpServletRequest servletRequest) throws IOException {
+    @RequestMapping(value = "/sisp/pagamentos/retorno/{reference}", method = RequestMethod.POST, consumes = {"application/x-www-form-urlencoded;charset=UTF-8"}, produces = {MediaType.ALL_VALUE})
+    public String handlePaymentWebhook(@PathVariable String reference,
+                                     @RequestBody SispWebhookRequest request,
+                                     Model model) {
         log.info("Recebido webhook do SISP: {}", request);
 
         try {
@@ -52,18 +52,25 @@ public class WebhookPagamentoController {
 
             ConfiguracaoPagamento configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId(pagamento.getIntencaoPagamento().getPosId());
 
-            // Redireciona para a URL de retorno da configuração com os parâmetros necessários
-            String redirectUrl = String.format("%s?status=%s&message=%s",
-                    configuracaoPagamento.getReturnUrl(),
-                    pagamento.getStatus(),
-                    mensagem);
+            // Monta o objeto de resposta
+            CheckoutResponseDto responseDto = CheckoutResponseDto.builder()
+                    .reference(pagamento.getIntencaoPagamento().getMerchantRef())
+                    .status(pagamento.getStatus())
+                    .message(mensagem)
+                    .amount(pagamento.getIntencaoPagamento().getAmount())
+                    .currency(pagamento.getIntencaoPagamento().getCurrency())
+                    .merchantSession(pagamento.getIntencaoPagamento().getMerchantSession())
+                    .panMascarado(pagamento.getPanMascarado())
+                    .merchantRef(pagamento.getIntencaoPagamento().getMerchantRef())
+                    .build();
 
-            servletRequest.setAttribute(
-                    View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
-            return new ModelAndView("redirect:" + redirectUrl);
+            model.addAttribute("response", responseDto);
+            model.addAttribute("submitFormUrl", configuracaoPagamento.getReturnUrl());
+
+            return "checkout-response.html";
         } catch (Exception e) {
             log.error("Erro ao processar webhook do SISP", e);
-            throw new RuntimeException( "Erro ao processar pagamento");
+            throw new RuntimeException("Erro ao processar pagamento");
         }
     }
 

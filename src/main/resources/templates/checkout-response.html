@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Pagamento vinti4</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+        <style>
+            .loading {
+                text-align: center;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .loading-text {
+                font-family: Arial, sans-serif;
+                color: #333;
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+    <body onload="autoPost()">
+        <div class="loading">
+            <h1 class="loading-text animate__animated animate__infinite animate__pulse">Processando o pagamento...</h1>
+        </div>
+        
+        <form th:action="@{${submitFormUrl}}" th:object="${response}" method="post">
+            <input type="hidden" th:value="*{reference}" name="reference">
+            <input type="hidden" th:value="*{status}" name="status">
+            <input type="hidden" th:value="*{message}" name="message">
+            <input type="hidden" th:value="*{amount}" name="amount">
+            <input type="hidden" th:value="*{currency}" name="currency">
+            <input type="hidden" th:value="*{merchantSession}" name="merchantSession">
+            <input type="hidden" th:value="*{merchantRef}" name="merchantRef">
+            <input type="hidden" th:value="*{timestamp}" name="timestamp">
+            <input type="hidden" th:value="*{panMascarado}" name="panMascarado">
+        </form>
+        
+        <script>
+            function autoPost() {
+                setTimeout(function() {
+                    document.forms[0].submit();
+                }, 1500); // Espera 1.5 segundos antes de submeter
+            }
+        </script>
+    </body>
+</html>
