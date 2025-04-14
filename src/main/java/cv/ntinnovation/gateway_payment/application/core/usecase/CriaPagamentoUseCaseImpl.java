@@ -38,6 +38,8 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
                 .intencaoPagamento(intencaoPagamento)
                 .build();
 
+        pagamento.setStatus(intencaoPagamento.getStatus());
+
         // Gerar timestamp
         pagamento.gerarTimestamp();
 

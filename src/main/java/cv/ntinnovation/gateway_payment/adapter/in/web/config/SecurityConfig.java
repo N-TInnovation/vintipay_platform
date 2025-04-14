@@ -62,8 +62,19 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) ->
                         authorize.requestMatchers("/pagamento/checkout/{intencaoPagamentoRef}").permitAll()
                                 .anyRequest().authenticated())
-                .csrf(AbstractHttpConfigurer::disable);
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        return http.build();
+    }
 
+    @Bean
+    public SecurityFilterChain webhookSecurityFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/webhook/**")
+                .authorizeHttpRequests((authorize) ->
+                        authorize.requestMatchers("/webhook/sisp/pagamentos/retorno/{reference}").permitAll()
+                                .anyRequest().authenticated())
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
 

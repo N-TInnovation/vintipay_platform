@@ -1,20 +1,20 @@
 package cv.ntinnovation.gateway_payment.adapter.out.db.entity;
 
+import cv.ntinnovation.gateway_payment.application.core.domain.enums.StatusPagamentoEnum;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "pagamento")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PagamentoEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -30,8 +30,9 @@ public class PagamentoEntity {
     @Column(name = "timestamp", nullable = false)
     private String timestamp;
 
-    @Column(name = "status", nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private StatusPagamentoEnum status;
 
     @Column(name = "mensagem")
     private String mensagem;

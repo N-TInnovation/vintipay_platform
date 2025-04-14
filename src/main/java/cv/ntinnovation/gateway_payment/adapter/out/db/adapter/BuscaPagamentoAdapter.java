@@ -17,8 +17,8 @@ public class BuscaPagamentoAdapter implements BuscaPagamentoPort {
     private final PagamentoMapper pagamentoMapper;
 
     @Override
-    public Optional<Pagamento> buscarPorMerchantRef(String merchantRef) {
-        return pagamentoRepository.findByIntencaoPagamentoMerchantRef(merchantRef)
+    public Optional<Pagamento> buscarPorReference(String reference) {
+        return pagamentoRepository.findByIntencaoPagamentoReference(reference)
                 .map(pagamentoMapper::toDomain);
     }
 }

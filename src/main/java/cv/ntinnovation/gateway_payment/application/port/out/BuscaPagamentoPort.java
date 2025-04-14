@@ -5,5 +5,5 @@ import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
 import java.util.Optional;
 
 public interface BuscaPagamentoPort {
-    Optional<Pagamento> buscarPorMerchantRef(String merchantRef);
+    Optional<Pagamento> buscarPorReference(String reference);
 }

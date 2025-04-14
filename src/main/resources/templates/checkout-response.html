@@ -3,24 +3,65 @@
     <head>
         <title>Pagamento vinti4</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
         <style>
-            .loading {
+            .container {
                 text-align: center;
                 position: fixed;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-            }
-            .loading-text {
                 font-family: Arial, sans-serif;
+            }
+            .status-icon {
+                font-size: 48px;
+                margin-bottom: 20px;
+            }
+            .status-text {
+                font-size: 24px;
                 color: #333;
                 margin-bottom: 20px;
             }
+            .message {
+                font-size: 16px;
+                color: #666;
+                margin-bottom: 30px;
+            }
+            .success { color: #28a745; }
+            .error { color: #dc3545; }
+            .warning { color: #ffc107; }
+            .loading { color: #007bff; }
         </style>
     </head>
     <body onload="autoPost()">
-        <div class="loading">
-            <h1 class="loading-text animate__animated animate__infinite animate__pulse">Processando o pagamento...</h1>
+        <div class="container">
+            <!-- Status em processamento -->
+            <div th:if="${response.status == 'PENDENTE'}" class="animate__animated animate__pulse animate__infinite">
+                <i class="status-icon loading fas fa-circle-notch fa-spin"></i>
+                <div class="status-text">Processando pagamento...</div>
+                <div class="message" th:text="${response.message}">Aguarde enquanto processamos seu pagamento</div>
+            </div>
+            
+            <!-- Status de sucesso -->
+            <div th:if="${response.status == 'SUCESSO'}" class="animate__animated animate__bounceIn">
+                <i class="status-icon success fas fa-check-circle"></i>
+                <div class="status-text">Pagamento realizado com sucesso!</div>
+                <div class="message" th:text="${response.message}">Transação aprovada</div>
+            </div>
+            
+            <!-- Status de cancelamento -->
+            <div th:if="${response.status == 'CANCELADO'}" class="animate__animated animate__bounceIn">
+                <i class="status-icon warning fas fa-times-circle"></i>
+                <div class="status-text">Pagamento cancelado</div>
+                <div class="message" th:text="${response.message}">Operação cancelada pelo usuário</div>
+            </div>
+            
+            <!-- Status de erro -->
+            <div th:if="${response.status == 'FALHA'}" class="animate__animated animate__bounceIn">
+                <i class="status-icon error fas fa-exclamation-circle"></i>
+                <div class="status-text">Erro no pagamento</div>
+                <div class="message" th:text="${response.message}">Não foi possível processar o pagamento</div>
+            </div>
         </div>
         
         <form th:action="@{${submitFormUrl}}" th:object="${response}" method="post">
@@ -37,9 +78,10 @@
         
         <script>
             function autoPost() {
+                // Aguarda 2 segundos antes de submeter o formulário
                 setTimeout(function() {
                     document.forms[0].submit();
-                }, 1500); // Espera 1.5 segundos antes de submeter
+                }, 2000);
             }
         </script>
     </body>

@@ -1,5 +1,6 @@
 package cv.ntinnovation.gateway_payment.application.core.domain.entity;
 
+import cv.ntinnovation.gateway_payment.application.core.domain.enums.StatusPagamentoEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,9 +16,10 @@ import java.time.format.DateTimeFormatter;
 public class Pagamento {
     private Long id;
     private IntencaoPagamento intencaoPagamento;
+    private String reference;
     private String fingerprint;
     private String timestamp;
-    private String status;
+    private StatusPagamentoEnum status;
     private String mensagem;
     private String codigoAutorizacao;
     private String panMascarado;

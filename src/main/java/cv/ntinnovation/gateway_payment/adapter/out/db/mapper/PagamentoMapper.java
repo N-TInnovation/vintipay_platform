@@ -19,11 +19,12 @@ public class PagamentoMapper {
                 .intencaoPagamento(intencaoPagamentoMapper.toIntencaoPagamento(entity.getIntencaoPagamento()))
                 .fingerprint(entity.getFingerprint())
                 .timestamp(entity.getTimestamp())
-                .status(entity.getStatus())
+                .status(entity.getIntencaoPagamento().getStatus())
                 .mensagem(entity.getMensagem())
                 .codigoAutorizacao(entity.getCodigoAutorizacao())
                 .panMascarado(entity.getPanMascarado())
                 .createdAt(entity.getCreatedAt())
+                .reference(entity.getIntencaoPagamento().getReference())
                 .build();
     }
 
@@ -32,11 +33,11 @@ public class PagamentoMapper {
                 .intencaoPagamento(intencaoPagamentoMapper.toIntencaoPagamentoEntity(pagamento.getIntencaoPagamento()))
                 .fingerprint(pagamento.getFingerprint())
                 .timestamp(pagamento.getTimestamp())
-                .status("PENDENTE")
                 .mensagem(pagamento.getMensagem())
                 .codigoAutorizacao(pagamento.getCodigoAutorizacao())
                 .panMascarado(pagamento.getPanMascarado())
                 .createdAt(LocalDateTime.now())
+                .status(pagamento.getStatus())
                 .build();
     }
 }

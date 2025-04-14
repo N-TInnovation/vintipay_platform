@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface PagamentoRepository extends JpaRepository<PagamentoEntity, Long> {
-    Optional<PagamentoEntity> findByIntencaoPagamentoMerchantRef(String merchantRef);
+    Optional<PagamentoEntity> findByIntencaoPagamentoReference(String reference);
 }
