@@ -71,6 +71,22 @@ public class SecurityConfig {
         }
 
         @Bean
+        public SecurityFilterChain webhookSecurityFilterChain(HttpSecurity http) throws Exception {
+
+            http.securityMatcher("/webhook/**")
+                    .authorizeHttpRequests((authorize) ->
+                            authorize.requestMatchers(HttpMethod.POST,"/webhook/sisp/pagamentos/retorno/{reference}").permitAll()
+                                    .anyRequest().authenticated())
+                    .oauth2ResourceServer((oauth2) -> {
+                        oauth2.jwt(withDefaults()).bearerTokenResolver(bearerTokenResolver());
+                    })
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+            return http.build();
+        }
+
+        @Bean
         BearerTokenResolver bearerTokenResolver() {
             DefaultBearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
             bearerTokenResolver.setBearerTokenHeaderName(HttpHeaders.AUTHORIZATION);
@@ -85,11 +101,10 @@ public class SecurityConfig {
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-           /* http
+            http.securityMatcher("/**")
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/admin/**").hasRole("ADMIN")
                             .requestMatchers("/pagamento/checkout/{reference}").permitAll()
-                            .requestMatchers("/webhook/sisp/pagamentos/retorno/{reference}").permitAll()
                             .requestMatchers("/login", "/error").permitAll()
                             .requestMatchers("/images/**", "/css/**", "/js/**").permitAll()
                             .anyRequest().authenticated()
@@ -105,27 +120,8 @@ public class SecurityConfig {
                             .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                             .logoutSuccessUrl("/login?logout")
                             .permitAll()
-                    );*/
+                    );
 
-            MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
-            http.securityMatcher("/admagaf*")
-                    .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
-                            authorizationManagerRequestMatcherRegistry.requestMatchers(mvcMatcherBuilder.pattern("/adminaa*")).hasRole("USER")
-                                    .requestMatchers("/webhook/sisp/pagamentos/retorno/{reference}").permitAll())
-                    // log in
-                    .formLogin(httpSecurityFormLoginConfigurer ->
-                            httpSecurityFormLoginConfigurer.loginPage("/login")
-                                    .loginProcessingUrl("/login")
-                                    .failureUrl("/login?error")
-                                    .defaultSuccessUrl("/admin", true))
-                    // logout
-                    .logout(httpSecurityLogoutConfigurer ->
-                            httpSecurityLogoutConfigurer.logoutUrl("/logout")
-                                    .logoutSuccessUrl("/logout?logout")
-                                    .deleteCookies("JSESSIONID"))
-                    .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
-                            httpSecurityExceptionHandlingConfigurer.accessDeniedPage("/403"))
-                    .csrf(AbstractHttpConfigurer::disable);
             return http.build();
         }
 

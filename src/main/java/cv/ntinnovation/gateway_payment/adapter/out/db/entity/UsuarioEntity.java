@@ -1,11 +1,16 @@
 package cv.ntinnovation.gateway_payment.adapter.out.db.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "usuarios")
+@Builder
 public class UsuarioEntity {
     
     @Id

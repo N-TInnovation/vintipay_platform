@@ -1,11 +1,11 @@
-package cv.ntinnovation.gateway_payment.adapter.in.web.service;
+package cv.ntinnovation.gateway_payment.application.core.usecase;
 
-import cv.ntinnovation.gateway_payment.adapter.out.db.repository.UsuarioRepository;
+import cv.ntinnovation.gateway_payment.application.port.in.UsuarioDetailsServiceUseCase;
+import cv.ntinnovation.gateway_payment.application.port.out.BuscaUsuarioPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -13,14 +13,14 @@ import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
-public class UsuarioDetailsService implements UserDetailsService {
+public class UsuarioDetailsServiceUseCaseImpl implements UsuarioDetailsServiceUseCase {
 
-    private final UsuarioRepository usuarioRepository;
+    private final BuscaUsuarioPort buscaUsuarioPort;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         System.out.println("entrou aqui");
-        var usuario = usuarioRepository.findByUsername(username)
+        var usuario = buscaUsuarioPort.getUser(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
 
         return new User(

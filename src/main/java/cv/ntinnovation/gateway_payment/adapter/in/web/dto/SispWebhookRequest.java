@@ -1,5 +1,6 @@
 package cv.ntinnovation.gateway_payment.adapter.in.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SispWebhookRequest {
     private String merchantRespMerchantRef; // Referência do pagamento
     private String merchantRespMerchantSession; // Sessão do cliente
