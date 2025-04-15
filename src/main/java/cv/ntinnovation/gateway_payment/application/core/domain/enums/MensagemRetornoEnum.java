@@ -11,7 +11,7 @@ public enum MensagemRetornoEnum {
     TRANSACAO_RECARGA_SUCESSO("M", "C", "Transação realizada com sucesso", StatusPagamentoEnum.PAGO),
     TRANSACAO_SERVICO_SUCESSO("P", "C", "Transação realizada com sucesso", StatusPagamentoEnum.PAGO),
     TRANSACAO_FALHA("", "", "Transação falhou", StatusPagamentoEnum.ERRO),
-    TRANSACAO_CANCELADA("", "", "Transação cancelada", StatusPagamentoEnum.CANCELADO);
+    TRANSACAO_CANCELADA("", "", "Transação cancelada pelo usuário", StatusPagamentoEnum.CANCELADO);
 
     private String messageType;
     private String merchantResp;

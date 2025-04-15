@@ -41,7 +41,7 @@ public class CheckoutPagamentoController {
 
 
         if (!pagamento.getStatus().equals(StatusPagamentoEnum.PENDENTE)){
-            throw new PagamentoStatusNaoPendenteException("Pagamento com status diferente de pendente: " + pagamento.getReference());
+            throw new PagamentoStatusNaoPendenteException("Pagamento está "+ pagamento.getStatus());
         }
 
         ObjectMapper objectMapper = new ObjectMapper();

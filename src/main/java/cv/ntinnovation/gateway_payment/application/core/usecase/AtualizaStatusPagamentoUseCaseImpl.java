@@ -7,8 +7,12 @@ import cv.ntinnovation.gateway_payment.application.port.out.BuscaPagamentoPort;
 import cv.ntinnovation.gateway_payment.application.port.out.SalvaIntencaoPagamento;
 import cv.ntinnovation.gateway_payment.application.port.out.SalvaPagamento;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -18,9 +22,21 @@ public class AtualizaStatusPagamentoUseCaseImpl implements AtualizaStatusPagamen
     private final SalvaPagamento salvaPagamento;
     private final SalvaIntencaoPagamento salvaIntencaoPagamento;
 
+    @Scheduled(fixedRate = 60000)
+    public void cancelarPagamentosPendentes() {
+        buscaPagamentoPort.buscarTodos(null, null, StatusPagamentoEnum.PENDENTE)
+                .getContent().forEach(pagamento ->{
+                    var tempoInicial = pagamento.getIntencaoPagamento().getCreatedAt();
+                    if (Duration.between(tempoInicial, LocalDateTime.now()).toMinutes() >= 10) {
+                        atualizar(pagamento.getReference(),
+                                StatusPagamentoEnum.CANCELADO, "Transação cancelada pelo Sistema", null, null);
+                    }
+                });
+    }
+
     @Override
     @Transactional
-    public Pagamento atualizar(String reference, StatusPagamentoEnum status, String message, String authorizationCode, String pan) {
+    public Pagamento atualizar(String reference, StatusPagamentoEnum status, String message, String fingerprint, String pan) {
         var pagamento = buscaPagamentoPort.buscarPorReferencia(reference)
                 .orElseThrow(() -> new RuntimeException("Pagamento não encontrado: " + reference));
 
@@ -29,6 +45,7 @@ public class AtualizaStatusPagamentoUseCaseImpl implements AtualizaStatusPagamen
         pagamento.setMensagem(message);
         pagamento.setReference(reference);
         pagamento.setPanMascarado(pan);
+        pagamento.setResultFingerPrint(fingerprint);
 
         salvaIntencaoPagamento.salvar(pagamento.getIntencaoPagamento());
 

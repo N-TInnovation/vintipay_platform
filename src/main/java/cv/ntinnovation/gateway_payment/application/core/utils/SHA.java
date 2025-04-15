@@ -1,4 +1,4 @@
-package cv.ntinnovation.gateway_payment.application.core.service;
+package cv.ntinnovation.gateway_payment.application.core.utils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

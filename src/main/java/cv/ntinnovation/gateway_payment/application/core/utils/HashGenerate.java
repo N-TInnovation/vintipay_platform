@@ -1,4 +1,4 @@
-package cv.ntinnovation.gateway_payment.application.core.service;
+package cv.ntinnovation.gateway_payment.application.core.utils;
 
 
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.DataFingerPrint6Response;

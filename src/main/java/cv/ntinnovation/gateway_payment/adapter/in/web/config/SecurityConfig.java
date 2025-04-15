@@ -6,31 +6,43 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     @Value("${jwt.public.key}")
@@ -38,45 +50,102 @@ public class SecurityConfig {
     @Value("${jwt.private.key}")
     private RSAPrivateKey privateKey;
 
+    @Configuration
+    @Order(1)
+    public static class ApiSecurityConfig {
+        @Bean
+        public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
 
-    @Bean
-    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+            http.securityMatcher("/api/**")
+                    .authorizeHttpRequests((authorize) ->
+                            authorize.requestMatchers(HttpMethod.POST,"/api/v1/authorize").permitAll()
+                                    //.requestMatchers(HttpMethod.POST,"/api/v1/configuracoes-pagamento").permitAll()
+                                    .anyRequest().authenticated())
+                    .oauth2ResourceServer((oauth2) -> {
+                        oauth2.jwt(withDefaults()).bearerTokenResolver(bearerTokenResolver());
+                    })
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http.securityMatcher("/api/**")
-                .authorizeHttpRequests((authorize) ->
-                authorize.requestMatchers(HttpMethod.POST,"/api/v1/authorize").permitAll()
-                        //.requestMatchers(HttpMethod.POST,"/api/v1/configuracoes-pagamento").permitAll()
-                        .anyRequest().authenticated())
-            .oauth2ResourceServer((oauth2) -> {
-                    oauth2.jwt(withDefaults()).bearerTokenResolver(bearerTokenResolver());
-            })
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            return http.build();
+        }
 
-        return http.build();
+        @Bean
+        BearerTokenResolver bearerTokenResolver() {
+            DefaultBearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
+            bearerTokenResolver.setBearerTokenHeaderName(HttpHeaders.AUTHORIZATION);
+            return bearerTokenResolver;
+        }
+
     }
 
-    @Bean
-    public SecurityFilterChain pagamentoSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/pagamento/**")
-                .authorizeHttpRequests((authorize) ->
-                        authorize.requestMatchers("/pagamento/checkout/{intencaoPagamentoRef}").permitAll()
-                                .anyRequest().authenticated())
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        return http.build();
+    @Configuration
+    @Order(2)
+    public static class WebSecurityConfig {
+
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+           /* http
+                    .authorizeHttpRequests(auth -> auth
+                            .requestMatchers("/admin/**").hasRole("ADMIN")
+                            .requestMatchers("/pagamento/checkout/{reference}").permitAll()
+                            .requestMatchers("/webhook/sisp/pagamentos/retorno/{reference}").permitAll()
+                            .requestMatchers("/login", "/error").permitAll()
+                            .requestMatchers("/images/**", "/css/**", "/js/**").permitAll()
+                            .anyRequest().authenticated()
+                    )
+                    .formLogin(form -> form
+                            .loginPage("/login")
+                            .loginProcessingUrl("/login")
+                            .defaultSuccessUrl("/admin", true)
+                            .failureUrl("/login?error")
+                            .permitAll()
+                    )
+                    .logout(logout -> logout
+                            .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                            .logoutSuccessUrl("/login?logout")
+                            .permitAll()
+                    );*/
+
+            MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
+            http.securityMatcher("/admagaf*")
+                    .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
+                            authorizationManagerRequestMatcherRegistry.requestMatchers(mvcMatcherBuilder.pattern("/adminaa*")).hasRole("USER")
+                                    .requestMatchers("/webhook/sisp/pagamentos/retorno/{reference}").permitAll())
+                    // log in
+                    .formLogin(httpSecurityFormLoginConfigurer ->
+                            httpSecurityFormLoginConfigurer.loginPage("/login")
+                                    .loginProcessingUrl("/login")
+                                    .failureUrl("/login?error")
+                                    .defaultSuccessUrl("/admin", true))
+                    // logout
+                    .logout(httpSecurityLogoutConfigurer ->
+                            httpSecurityLogoutConfigurer.logoutUrl("/logout")
+                                    .logoutSuccessUrl("/logout?logout")
+                                    .deleteCookies("JSESSIONID"))
+                    .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
+                            httpSecurityExceptionHandlingConfigurer.accessDeniedPage("/403"))
+                    .csrf(AbstractHttpConfigurer::disable);
+            return http.build();
+        }
+
+        @Bean
+        public InMemoryUserDetailsManager userDetailsService() {
+            UserDetails admin = User.builder()
+                    .username("admin")
+                    .password(encoder().encode("admin123"))
+                    .roles("ADMIN")
+                    .build();
+            return new InMemoryUserDetailsManager(admin);
+        }
+
+        @Bean
+        public static PasswordEncoder encoder() {
+            return new BCryptPasswordEncoder();
+        }
+
     }
 
-    @Bean
-    public SecurityFilterChain webhookSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/webhook/**")
-                .authorizeHttpRequests((authorize) ->
-                        authorize.requestMatchers("/webhook/sisp/pagamentos/retorno/{reference}").permitAll()
-                                .anyRequest().authenticated())
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        return http.build();
-    }
 
     @Bean
     public JwtDecoder jwtDecoder() {
@@ -96,11 +165,5 @@ public class SecurityConfig {
         return new RSASSAVerifier((RSAPublicKey) publicKey);
     }
 
-    @Bean
-    BearerTokenResolver bearerTokenResolver() {
-        DefaultBearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
-        bearerTokenResolver.setBearerTokenHeaderName(HttpHeaders.AUTHORIZATION);
-        return bearerTokenResolver;
-    }
 
 }

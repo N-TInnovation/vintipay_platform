@@ -5,6 +5,7 @@ import cv.ntinnovation.gateway_payment.application.port.in.AtualizaConfiguracaoP
 import cv.ntinnovation.gateway_payment.application.port.out.BuscaConfiguracaoPagamentoPort;
 import cv.ntinnovation.gateway_payment.application.port.out.SalvaConfiguracaoPagamentoPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

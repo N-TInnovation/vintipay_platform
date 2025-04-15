@@ -45,6 +45,7 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
         Pagamento pagamento = Pagamento.builder()
                 .intencaoPagamento(intencaoPagamento)
                 .reference(intencaoPagamento.getReference())
+                .mensagem("Aguardando pagamento")
                 .build();
 
         pagamento.setStatus(intencaoPagamento.getStatus());

@@ -14,8 +14,4 @@ import java.util.List;
 @Configuration
 public class ApplicationConfiguration {
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 }
