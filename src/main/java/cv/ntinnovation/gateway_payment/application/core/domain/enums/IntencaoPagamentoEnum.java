@@ -17,6 +17,7 @@ public enum IntencaoPagamentoEnum {
 
     public static IntencaoPagamentoEnum findByIntencaoPagamento(String intencaoPagamento) {
         for (IntencaoPagamentoEnum intencaoPagamentoEnum : IntencaoPagamentoEnum.values()) {
+            System.out.println(intencaoPagamentoEnum.getIntencaoPagamento());
             if (intencaoPagamentoEnum.getIntencaoPagamento().equals(intencaoPagamento)) {
                 return intencaoPagamentoEnum;
             }

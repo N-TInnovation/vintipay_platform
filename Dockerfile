@@ -1,4 +1,13 @@
-FROM openjdk:17
-EXPOSE 8080
-ADD target/*.jar gateway-payment-0.0.1.jar
-ENTRYPOINT ["java","-jar", "gateway-payment-0.0.1.jar"]
+# Build stage
+FROM eclipse-temurin:17-jdk-alpine
+
+WORKDIR /app
+
+# Copiar o projeto
+COPY . .
+
+# Expor a porta
+EXPOSE 8443
+
+# Executar a aplicação pulando os testes
+ENTRYPOINT ["./mvnw", "spring-boot:run", "-DskipTests"]

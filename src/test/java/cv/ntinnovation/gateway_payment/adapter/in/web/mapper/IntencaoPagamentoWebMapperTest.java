@@ -29,13 +29,10 @@ class IntencaoPagamentoWebMapperTest {
         IntencaoPagamentoRequest request = IntencaoPagamentoRequest.builder()
                 .amount(BigDecimal.valueOf(100.50))
                 .currency("CVE")
-                .metodoPagamentoId(1L)
-                .contaPagamentoId(2L)
                 .merchantRef("MERCHANT123")
                 .merchantSession("SESSION456")
                 .entityCode("1234")
-                .transactionCode("TRANS001")
-                .referenceNumber("REF123456")
+                .referenceNumber(123L)
                 .build();
 
         // Act
@@ -45,8 +42,6 @@ class IntencaoPagamentoWebMapperTest {
         assertNotNull(result);
         assertEquals(BigDecimal.valueOf(100.50), result.getAmount());
         assertEquals("CVE", result.getCurrency());
-        assertNotNull(result.getMetodoPagamento());
-        assertEquals(1L, result.getMetodoPagamento().getId());
         assertNotNull(result.getContaPagamento());
         assertEquals(2L, result.getContaPagamento().getId());
         assertEquals("MERCHANT123", result.getMerchantRef());
@@ -63,7 +58,6 @@ class IntencaoPagamentoWebMapperTest {
         IntencaoPagamentoRequest request = IntencaoPagamentoRequest.builder()
                 .amount(BigDecimal.valueOf(100.50))
                 .currency("CVE")
-                .metodoPagamentoId(1L)
                 .email("cliente@example.com")
                 .billAddrCity("Praia")
                 .billAddrCountry("CV")
@@ -72,8 +66,7 @@ class IntencaoPagamentoWebMapperTest {
                 .merchantRef("MERCHANT123")
                 .merchantSession("SESSION456")
                 .entityCode("1234")
-                .transactionCode("TRANS001")
-                .referenceNumber("REF123456")
+                .referenceNumber(55L)
                 .build();
 
         // Act
@@ -83,8 +76,6 @@ class IntencaoPagamentoWebMapperTest {
         assertNotNull(result);
         assertEquals(BigDecimal.valueOf(100.50), result.getAmount());
         assertEquals("CVE", result.getCurrency());
-        assertNotNull(result.getMetodoPagamento());
-        assertEquals(1L, result.getMetodoPagamento().getId());
         assertEquals("cliente@example.com", result.getContaPagamentoEmail());
         assertEquals("Praia", result.getContaPagamentoBillAddrCity());
         assertEquals("CV", result.getContaPagamentoBillAddrCountry());
@@ -109,7 +100,6 @@ class IntencaoPagamentoWebMapperTest {
                 .reference("REF123")
                 .createdAt(now)
                 .currency("CVE")
-                .metodoPagamento(MetodoPagamento.builder().id(1L).build())
                 .contaPagamento(ContaPagamento.builder().id(2L).build())
                 .contaPagamentoEmail("cliente@example.com")
                 .contaPagamentoBillAddrCity("Praia")
@@ -121,7 +111,7 @@ class IntencaoPagamentoWebMapperTest {
                 .posId("POS789")
                 .entityCode("1234")
                 .transactionCode("TRANS001")
-                .referenceNumber("REF123456")
+                .referenceNumber(123L)
                 .build();
 
         // Act

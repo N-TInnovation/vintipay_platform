@@ -42,7 +42,7 @@ public class IntencaoPagamentoController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
             }
 
-            IntencaoPagamentoEnum intencaoPagamentoEnum = IntencaoPagamentoEnum.findByIntencaoPagamento(intencao);
+            IntencaoPagamentoEnum intencaoPagamentoEnum = IntencaoPagamentoEnum.findByIntencaoPagamento(intencao.trim());
             if (intencaoPagamentoEnum == null) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
             }

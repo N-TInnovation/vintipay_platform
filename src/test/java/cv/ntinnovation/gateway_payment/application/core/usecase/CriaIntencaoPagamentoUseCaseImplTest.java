@@ -31,7 +31,6 @@ class CriaIntencaoPagamentoUseCaseImplTest {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
                 .amount(BigDecimal.valueOf(100.50))
-                .metodoPagamento(MetodoPagamento.builder().id(1L).build())
                 .contaPagamento(ContaPagamento.builder().id(1L).build())
                 .currency("CVE")
                 .build();
@@ -39,7 +38,6 @@ class CriaIntencaoPagamentoUseCaseImplTest {
         IntencaoPagamento intencaoPagamentoSalva = IntencaoPagamento.builder()
                 .id(1L)
                 .amount(BigDecimal.valueOf(100.50))
-                .metodoPagamento(MetodoPagamento.builder().id(1L).build())
                 .contaPagamento(ContaPagamento.builder().id(1L).build())
                 .status(StatusPagamentoEnum.PENDENTE)
                 .reference("REF123")
@@ -66,7 +64,6 @@ class CriaIntencaoPagamentoUseCaseImplTest {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
                 .amount(BigDecimal.valueOf(100.50))
-                .metodoPagamento(MetodoPagamento.builder().id(1L).build())
                 .contaPagamentoEmail("cliente@example.com")
                 .contaPagamentoBillAddrCity("Praia")
                 .contaPagamentoBillAddrCountry("CV")
@@ -78,7 +75,6 @@ class CriaIntencaoPagamentoUseCaseImplTest {
         IntencaoPagamento intencaoPagamentoSalva = IntencaoPagamento.builder()
                 .id(1L)
                 .amount(BigDecimal.valueOf(100.50))
-                .metodoPagamento(MetodoPagamento.builder().id(1L).build())
                 .contaPagamentoEmail("cliente@example.com")
                 .contaPagamentoBillAddrCity("Praia")
                 .contaPagamentoBillAddrCountry("CV")
@@ -109,7 +105,6 @@ class CriaIntencaoPagamentoUseCaseImplTest {
     void criar_QuandoAmountNulo_DeveLancarExcecao() {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
-                .metodoPagamento(MetodoPagamento.builder().id(1L).build())
                 .contaPagamento(ContaPagamento.builder().id(1L).build())
                 .build();
 
@@ -126,7 +121,6 @@ class CriaIntencaoPagamentoUseCaseImplTest {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
                 .amount(BigDecimal.valueOf(-10.0))
-                .metodoPagamento(MetodoPagamento.builder().id(1L).build())
                 .contaPagamento(ContaPagamento.builder().id(1L).build())
                 .build();
 
@@ -159,7 +153,6 @@ class CriaIntencaoPagamentoUseCaseImplTest {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
                 .amount(BigDecimal.valueOf(100.50))
-                .metodoPagamento(MetodoPagamento.builder().id(1L).build())
                 .build();
 
         // Act & Assert
@@ -175,7 +168,6 @@ class CriaIntencaoPagamentoUseCaseImplTest {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
                 .amount(BigDecimal.valueOf(100.50))
-                .metodoPagamento(MetodoPagamento.builder().id(1L).build())
                 .contaPagamentoEmail("")
                 .build();
 

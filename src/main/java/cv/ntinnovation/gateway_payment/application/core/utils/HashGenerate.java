@@ -1,9 +1,9 @@
 package cv.ntinnovation.gateway_payment.application.core.utils;
 
 
-import cv.ntinnovation.gateway_payment.application.core.domain.entity.DataFingerPrint6Response;
-import cv.ntinnovation.gateway_payment.application.core.domain.entity.DataFingerPrint810MPResponse;
-import cv.ntinnovation.gateway_payment.application.core.domain.entity.DataFingerPrintOutroResponse;
+import cv.ntinnovation.gateway_payment.application.core.domain.rules.DataFingerPrint6Response;
+import cv.ntinnovation.gateway_payment.application.core.domain.rules.DataFingerPrint810MPResponse;
+import cv.ntinnovation.gateway_payment.application.core.domain.rules.DataFingerPrintOutroResponse;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

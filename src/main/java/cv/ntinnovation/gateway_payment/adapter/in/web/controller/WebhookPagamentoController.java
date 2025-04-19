@@ -2,11 +2,13 @@ package cv.ntinnovation.gateway_payment.adapter.in.web.controller;
 
 import cv.ntinnovation.gateway_payment.adapter.in.web.dto.CheckoutResponseDto;
 import cv.ntinnovation.gateway_payment.adapter.in.web.dto.SispWebhookRequest;
+import cv.ntinnovation.gateway_payment.adapter.in.web.mapper.WebhookPagamentoMapper;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.enums.MensagemRetornoEnum;
 import cv.ntinnovation.gateway_payment.application.port.in.AtualizaStatusPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaConfiguracaoPagamentoUseCase;
+import cv.ntinnovation.gateway_payment.application.port.in.ValidaRetornoUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -22,6 +24,8 @@ public class WebhookPagamentoController {
 
     private final AtualizaStatusPagamentoUseCase atualizaStatusPagamentoUseCase;
     private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase;
+    private final ValidaRetornoUseCase validaRetornoUseCase;
+    private final WebhookPagamentoMapper webhookPagamentoMapper;
 
     @PostMapping(value = "/sisp/pagamentos/retorno/{reference}",
             consumes={"application/x-www-form-urlencoded;charset=UTF-8"}, produces={ MediaType.ALL_VALUE })
@@ -31,6 +35,11 @@ public class WebhookPagamentoController {
         log.info("Recebido webhook do SISP - Reference: {}, Request: {}", reference, request);
 
         try {
+
+            var retornoFingerprint = webhookPagamentoMapper.toRetornoFingerprint(request);
+
+            validaRetornoUseCase.executar(retornoFingerprint);
+
             log.debug("Processando mensagem de retorno");
             MensagemRetornoEnum mensagemRetornoEnum = MensagemRetornoEnum.getMensagemRetornoEnum(
                     request.getMessageType(),

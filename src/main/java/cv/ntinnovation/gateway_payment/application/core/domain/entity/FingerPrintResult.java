@@ -11,6 +11,6 @@ public class FingerPrintResult {
 	
 	private String HashFingerPrint;
 	private String HashposAutCode;
-	private String Result;
+	private Boolean Result;
 	
 }

@@ -1,7 +1,7 @@
 package cv.ntinnovation.gateway_payment.application.core.domain.rules.sisp;
 
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.DataFingerPrint;
-import cv.ntinnovation.gateway_payment.application.core.service.FingerPrintService;
+import cv.ntinnovation.gateway_payment.application.core.domain.rules.FingerPrintService;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.FingerPrintResult;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

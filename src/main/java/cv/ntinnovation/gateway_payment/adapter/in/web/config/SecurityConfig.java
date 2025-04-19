@@ -6,6 +6,8 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import cv.ntinnovation.gateway_payment.application.core.usecase.SessionAuthenticationUseCaseImpl;
+import cv.ntinnovation.gateway_payment.application.port.in.SessionAuthenticationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +16,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -30,7 +34,6 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
@@ -70,7 +73,7 @@ public class SecurityConfig {
             return http.build();
         }
 
-        @Bean
+        /*@Bean
         public SecurityFilterChain webhookSecurityFilterChain(HttpSecurity http) throws Exception {
 
             http.securityMatcher("/webhook/**")
@@ -84,7 +87,7 @@ public class SecurityConfig {
                     .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
             return http.build();
-        }
+        }*/
 
         @Bean
         BearerTokenResolver bearerTokenResolver() {
@@ -100,12 +103,21 @@ public class SecurityConfig {
     public static class WebSecurityConfig {
 
         @Bean
+        public AuthenticationManager authManager(HttpSecurity http, SessionAuthenticationUseCase sessionAuthenticationProvider) throws Exception {
+            return http.getSharedObject(AuthenticationManagerBuilder.class)
+                    .authenticationProvider(sessionAuthenticationProvider) // Registra o provedor personalizado
+                    .build();
+        }
+
+        @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
             http.securityMatcher("/**")
                     .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/admin/**").hasRole("ADMIN")
+                            //.requestMatchers("/admin/**").
                             .requestMatchers("/pagamento/checkout/{reference}").permitAll()
-                            .requestMatchers("/login", "/error").permitAll()
+                            .requestMatchers("/error").permitAll()
+                            .requestMatchers("/login").permitAll()
+                            .requestMatchers(HttpMethod.POST, "/login").permitAll()
                             .requestMatchers("/images/**", "/css/**", "/js/**").permitAll()
                             .anyRequest().authenticated()
                     )
@@ -120,7 +132,10 @@ public class SecurityConfig {
                             .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                             .logoutSuccessUrl("/login?logout")
                             .permitAll()
-                    );
+                    )
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                            .maximumSessions(1));
 
             return http.build();
         }

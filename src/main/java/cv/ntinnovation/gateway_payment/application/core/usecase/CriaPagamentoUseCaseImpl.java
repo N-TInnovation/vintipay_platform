@@ -6,7 +6,7 @@ import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.enums.MoedaEnum;
 import cv.ntinnovation.gateway_payment.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.gateway_payment.application.core.domain.exception.IntencaoPagamentoNaoExisteExeption;
-import cv.ntinnovation.gateway_payment.application.core.service.FingerPrintService;
+import cv.ntinnovation.gateway_payment.application.core.domain.rules.FingerPrintService;
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaConfiguracaoPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaIntencaoPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.CriaPagamentoUseCase;

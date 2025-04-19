@@ -1,4 +1,4 @@
-package cv.ntinnovation.gateway_payment.application.core.domain.entity;
+package cv.ntinnovation.gateway_payment.application.core.domain.rules;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 @Data
-public class DataFingerPrint6Response {
+public class DataFingerPrint6Response implements RetornoFingerprint {
 
 	private String posAutCode;
 	private String messageType;
@@ -19,4 +19,11 @@ public class DataFingerPrint6Response {
 	private String merchantRespAdditionalErrorMessage;
 	private String resultFingerPrint;
 
+	@Override
+	public void validarFingerPrint(FingerPrintService fingerPrintService) {
+		var fingerPrintResult = fingerPrintService.validatorFingerPrintMessageType6(this);
+		if(!fingerPrintResult.getResult()){
+			throw new RuntimeException(fingerPrintResult.getHashFingerPrint());
+		}
+	}
 }

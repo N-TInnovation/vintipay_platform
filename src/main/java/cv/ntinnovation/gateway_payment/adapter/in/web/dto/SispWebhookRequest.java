@@ -1,6 +1,7 @@
 package cv.ntinnovation.gateway_payment.adapter.in.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import cv.ntinnovation.gateway_payment.application.core.domain.enums.MessageRespTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,7 +28,7 @@ public class SispWebhookRequest {
     private String merchantRespMessageID; // Identificador de mensagem (20A)
     private String merchantResp; // Código de resposta (1A) - C=sucesso, Null=erro
     private String languageMessages; // Idioma (2A) - PT ou EN
-    private String messageType; // Tipo de mensagem (1A) - 6/8/P/M
+    private MessageRespTypeEnum messageType; // Tipo de mensagem (1A) - 6/8/P/M
     private String merchantRespTimeStamp; // Timestamp da resposta (19A)
     private String merchantRespReloadCode; // Código de Recarga (12N)
     private String merchantRespClientReceipt; // Recibo da transação (400A)
