@@ -24,8 +24,7 @@ public class UsusarioMapper {
 
         return UsuarioEntity.builder()
                 .id(user.getId())
-                .username(user.getUsername())
-                .password(user.getPassword())
+                .username(user.getUsername()).password(user.getPassword())
                 .role(user.getRole()[0])
                 .ativo(user.isAtivo())
                 .build();
