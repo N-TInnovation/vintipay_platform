@@ -39,12 +39,39 @@
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Gateway de Pagamento</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/pagamentos">Pagamentos</a>
+                    </li>
+                </ul>
+                <form th:action="@{/logout}" method="post" class="d-flex">
+                    <button class="btn btn-outline-light" type="submit">Sair</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Detalhes do Pagamento</h1>
-            <a th:href="@{/admin/pagamentos}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </a>
+            <div>
+                <a href="/admin" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a th:href="@{/admin/pagamentos}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Voltar para Lista
+                </a>
+            </div>
         </div>
 
         <div class="row">
@@ -99,13 +126,12 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="detail-label">Mensagem</div>
-                                <div class="detail-value" th:text="${pagamento.mensagem ?: '-'}">Mensagem do pagamento</div>
+                                <div class="detail-value" th:text="${pagamento.mensagem ?: '-'}">Mensagem de status</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Dados da Intenção de Pagamento -->
                 <div class="card mb-4" th:if="${pagamento.intencaoPagamento != null}">
                     <div class="card-header">
                         <h5 class="card-title mb-0">Dados da Intenção de Pagamento</h5>
@@ -129,19 +155,18 @@
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <div class="detail-label">Entity Code</div>
-                                <div class="detail-value" th:text="${pagamento.intencaoPagamento.entityCode ?: '-'}">001</div>
+                                <div class="detail-value" th:text="${pagamento.intencaoPagamento.entityCode ?: '-'}">123</div>
                             </div>
                             <div class="col-md-4">
                                 <div class="detail-label">Reference Number</div>
-                                <div class="detail-value" th:text="${pagamento.intencaoPagamento.referenceNumber ?: '-'}">REF123</div>
+                                <div class="detail-value" th:text="${pagamento.intencaoPagamento.referenceNumber ?: '-'}">123456789</div>
                             </div>
                             <div class="col-md-4">
                                 <div class="detail-label">Transaction Code</div>
-                                <div class="detail-value" th:text="${pagamento.intencaoPagamento.transactionCode ?: '-'}">TRX123</div>
+                                <div class="detail-value" th:text="${pagamento.intencaoPagamento.transactionCode ?: '-'}">TX123</div>
                             </div>
                         </div>
 
-                        <!-- Dados do Cliente -->
                         <div class="mt-4 mb-3">
                             <h6 class="text-muted mb-3">Dados do Cliente</h6>
                             <div class="row mb-3">
@@ -150,61 +175,40 @@
                                     <div class="detail-value" th:text="${pagamento.intencaoPagamento.email ?: '-'}">email@exemplo.com</div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="detail-label">Telefone Comercial</div>
-                                    <div class="detail-value">
-                                        <span th:if="${pagamento.intencaoPagamento.workPhoneCc != null || pagamento.intencaoPagamento.workPhoneSubscriber != null}">
-                                            <span th:text="${pagamento.intencaoPagamento.workPhoneCc ?: ''}">+238</span>
-                                            <span th:text="${pagamento.intencaoPagamento.workPhoneSubscriber ?: ''}">999999999</span>
-                                        </span>
-                                        <span th:unless="${pagamento.intencaoPagamento.workPhoneCc != null || pagamento.intencaoPagamento.workPhoneSubscriber != null}">-</span>
-                                    </div>
+                                    <div class="detail-label">Nome</div>
+                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.nome ?: '-'}">Nome do Cliente</div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="detail-label">Telefone Móvel</div>
-                                    <div class="detail-value">
-                                        <span th:if="${pagamento.intencaoPagamento.mobilePhoneCc != null || pagamento.intencaoPagamento.mobilePhoneSubscriber != null}">
-                                            <span th:text="${pagamento.intencaoPagamento.mobilePhoneCc ?: ''}">+238</span>
-                                            <span th:text="${pagamento.intencaoPagamento.mobilePhoneSubscriber ?: ''}">999999999</span>
-                                        </span>
-                                        <span th:unless="${pagamento.intencaoPagamento.mobilePhoneCc != null || pagamento.intencaoPagamento.mobilePhoneSubscriber != null}">-</span>
-                                    </div>
+                                    <div class="detail-label">Telefone</div>
+                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.telefone ?: '-'}">123456789</div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Endereço -->
-                            <div class="mt-3">
-                                <h6 class="text-muted mb-3">Endereço de Cobrança</h6>
-                                <div class="row mb-3">
-                                    <div class="col-md-4">
-                                        <div class="detail-label">Cidade</div>
-                                        <div class="detail-value" th:text="${pagamento.intencaoPagamento.billAddrCity ?: '-'}">Cidade</div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="detail-label">Estado</div>
-                                        <div class="detail-value" th:text="${pagamento.intencaoPagamento.billAddrState ?: '-'}">Estado</div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="detail-label">País</div>
-                                        <div class="detail-value" th:text="${pagamento.intencaoPagamento.billAddrCountry ?: '-'}">País</div>
-                                    </div>
+                        <div class="mt-4 mb-3">
+                            <h6 class="text-muted mb-3">Dados de Endereço</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="detail-label">Endereço</div>
+                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.endereco ?: '-'}">Rua Exemplo, 123</div>
                                 </div>
-
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="detail-label">Endereço</div>
-                                        <div class="detail-value">
-                                            <div th:text="${pagamento.intencaoPagamento.billAddrLine1 ?: '-'}">Linha 1</div>
-                                            <div th:if="${pagamento.intencaoPagamento.billAddrLine2}" th:text="${pagamento.intencaoPagamento.billAddrLine2}">Linha 2</div>
-                                            <div th:if="${pagamento.intencaoPagamento.billAddrLine3}" th:text="${pagamento.intencaoPagamento.billAddrLine3}">Linha 3</div>
-                                        </div>
-                                    </div>
+                                <div class="col-md-6">
+                                    <div class="detail-label">Cidade</div>
+                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.cidade ?: '-'}">Cidade Exemplo</div>
                                 </div>
-
-                                <div class="row mt-3">
-                                    <div class="col-md-4">
-                                        <div class="detail-label">Código Postal</div>
-                                        <div class="detail-value" th:text="${pagamento.intencaoPagamento.billAddrPostCode ?: '-'}">0000-000</div>
-                                    </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="detail-label">Estado</div>
+                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.estado ?: '-'}">Estado Exemplo</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="detail-label">País</div>
+                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.pais ?: '-'}">País Exemplo</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="detail-label">CEP</div>
+                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.cep ?: '-'}">12345-678</div>
                                 </div>
                             </div>
                         </div>
@@ -219,26 +223,22 @@
                     <div class="card-header">
                         <h5 class="card-title mb-0">Histórico</h5>
                     </div>
-                    <div class="card-body">
-                        <p class="text-muted">Histórico de atualizações do pagamento.</p>
-                        <!-- TODO: Implementar histórico -->
-                    </div>
-                </div>
-
-                <!-- Ações -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Ações</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-outline-primary" disabled>
-                                <i class="fas fa-sync-alt"></i> Atualizar Status
-                            </button>
-                            <button class="btn btn-outline-danger" disabled>
-                                <i class="fas fa-times"></i> Cancelar Pagamento
-                            </button>
-                        </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item py-3">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="fw-bold">Criação do Pagamento</div>
+                                        <div class="text-muted">Pagamento iniciado</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div th:text="${#temporals.format(pagamento.createdAt, 'dd/MM/yyyy')}">01/01/2025</div>
+                                        <div class="text-muted" th:text="${#temporals.format(pagamento.createdAt, 'HH:mm')}">10:00</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <!-- Adicionar mais eventos de histórico conforme necessário -->
+                        </ul>
                     </div>
                 </div>
             </div>

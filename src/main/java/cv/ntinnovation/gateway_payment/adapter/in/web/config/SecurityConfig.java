@@ -73,7 +73,7 @@ public class SecurityConfig {
             return http.build();
         }
 
-        /*@Bean
+        @Bean
         public SecurityFilterChain webhookSecurityFilterChain(HttpSecurity http) throws Exception {
 
             http.securityMatcher("/webhook/**")
@@ -87,7 +87,7 @@ public class SecurityConfig {
                     .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
             return http.build();
-        }*/
+        }
 
         @Bean
         BearerTokenResolver bearerTokenResolver() {

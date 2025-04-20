@@ -15,25 +15,25 @@ public class HashGenerate {
 	
 	public static String HashGenerate810MP(DataFingerPrint810MPResponse dataFingerPrint810MPResponse){
 		
-		String MerchantRespEntityCode="";
-		String MerchantRespReferenceNumber="";
-		String MerchantRespClientReceipt=dataFingerPrint810MPResponse.getMerchantRespClientReceipt();
+		String merchantRespEntityCode="";
+		String merchantRespReferenceNumber="";
+		String merchantRespClientReceipt=dataFingerPrint810MPResponse.getMerchantRespClientReceipt();
 		
-		if(MerchantRespClientReceipt!=null){
-				MerchantRespClientReceipt=MerchantRespClientReceipt.replaceAll(" ","");
-				MerchantRespClientReceipt=MerchantRespClientReceipt.trim();
+		if(merchantRespClientReceipt!=null){
+				merchantRespClientReceipt=merchantRespClientReceipt.replaceAll(" ","");
+				merchantRespClientReceipt=merchantRespClientReceipt.trim();
 
 		}
 		try{
-			MerchantRespEntityCode=Long.parseLong(dataFingerPrint810MPResponse.getMerchantRespEntityCode())+"";
+			merchantRespEntityCode=Long.parseLong(dataFingerPrint810MPResponse.getMerchantRespEntityCode())+"";
 		}catch(Exception e){
-			MerchantRespEntityCode="";
+			merchantRespEntityCode="";
 		}
 
 		try{
-			MerchantRespReferenceNumber=Long.parseLong(dataFingerPrint810MPResponse.getMerchantRespReferenceNumber())+"";
+			merchantRespReferenceNumber=Long.parseLong(dataFingerPrint810MPResponse.getMerchantRespReferenceNumber())+"";
 		}catch(Exception e){
-			MerchantRespReferenceNumber="";
+			merchantRespReferenceNumber="";
 		}
 		String toHash="";
 		if(dataFingerPrint810MPResponse.getMessageType().equals("8")){
@@ -43,8 +43,8 @@ public class HashGenerate {
 					dataFingerPrint810MPResponse.getMerchantRespMerchantSession().trim()+ ((long)(Double.parseDouble(dataFingerPrint810MPResponse.getMerchantRespPurchaseAmount())*1000))+
 					dataFingerPrint810MPResponse.getMerchantRespMessageID().trim()+dataFingerPrint810MPResponse.getMerchantRespPan().trim()+
 					dataFingerPrint810MPResponse.getMerchantResp().trim() +dataFingerPrint810MPResponse.getMerchantRespTimeStamp().trim()+
-					MerchantRespEntityCode+ MerchantRespReferenceNumber+
-					MerchantRespClientReceipt+
+					merchantRespEntityCode+ merchantRespReferenceNumber+
+					merchantRespClientReceipt+
 					dataFingerPrint810MPResponse.getMerchantRespAdditionalErrorMessage().trim()+
 					dataFingerPrint810MPResponse.getMerchantRespReloadCode().trim();
 			logger.log(Level.INFO,
@@ -59,10 +59,10 @@ public class HashGenerate {
 					dataFingerPrint810MPResponse.getMerchantRespMessageID().trim()+dataFingerPrint810MPResponse.getMerchantRespPan().trim()+
 					dataFingerPrint810MPResponse.getMerchantResp().trim()+
 					dataFingerPrint810MPResponse.getMerchantRespTimeStamp().trim()+
-					MerchantRespReferenceNumber+MerchantRespEntityCode+
+					merchantRespReferenceNumber+merchantRespEntityCode+
 					//MerchantRespEntityCode+MerchantRespReferenceNumber +
 					
-					MerchantRespClientReceipt+
+					merchantRespClientReceipt+
 					dataFingerPrint810MPResponse.getMerchantRespAdditionalErrorMessage().trim()+
 					dataFingerPrint810MPResponse.getMerchantRespReloadCode().trim();
 			logger.log(Level.INFO,
@@ -78,10 +78,10 @@ public class HashGenerate {
 	public static String HashGenerate6(DataFingerPrint6Response dataFingerPrint6Response){
 		
 		String toHash =SHA.GenerateSHA512StringToBase64(dataFingerPrint6Response.getPosAutCode())+
-				dataFingerPrint6Response.getMessageType()+dataFingerPrint6Response.getMerchantRespErrorCode()+
+				dataFingerPrint6Response.getMessageType()+dataFingerPrint6Response.getMerchantRespMessageID()+dataFingerPrint6Response.getMerchantRespErrorCode()+
 				dataFingerPrint6Response.getMerchantRespErrorDetail()+dataFingerPrint6Response.getMerchantRespErrorDescription()+
 				dataFingerPrint6Response.getMerchantRespMerchantRef()+dataFingerPrint6Response.getMerchantRespMerchantSession()+
-				dataFingerPrint6Response.getMerchantRespAdditionalErrorMessage();
+				dataFingerPrint6Response.getMerchantRespAdditionalErrorMessage()+dataFingerPrint6Response.getMerchantRespTimeStamp();
 		logger.log(Level.INFO,
 				"Clear Hash: " +toHash);
 		return SHA.GenerateSHA512StringToBase64(toHash);

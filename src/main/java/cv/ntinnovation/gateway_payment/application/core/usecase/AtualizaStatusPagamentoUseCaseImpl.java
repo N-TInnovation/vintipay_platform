@@ -22,7 +22,7 @@ public class AtualizaStatusPagamentoUseCaseImpl implements AtualizaStatusPagamen
     private final SalvaPagamento salvaPagamento;
     private final SalvaIntencaoPagamento salvaIntencaoPagamento;
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 10000)
     public void cancelarPagamentosPendentes() {
         buscaPagamentoPort.buscarTodos(null, null, StatusPagamentoEnum.PENDENTE)
                 .getContent().forEach(pagamento ->{

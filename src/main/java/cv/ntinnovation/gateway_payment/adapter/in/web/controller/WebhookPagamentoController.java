@@ -4,11 +4,11 @@ import cv.ntinnovation.gateway_payment.adapter.in.web.dto.CheckoutResponseDto;
 import cv.ntinnovation.gateway_payment.adapter.in.web.dto.SispWebhookRequest;
 import cv.ntinnovation.gateway_payment.adapter.in.web.mapper.WebhookPagamentoMapper;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ConfiguracaoPagamento;
+import cv.ntinnovation.gateway_payment.application.core.domain.entity.IntencaoPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.enums.MensagemRetornoEnum;
-import cv.ntinnovation.gateway_payment.application.port.in.AtualizaStatusPagamentoUseCase;
-import cv.ntinnovation.gateway_payment.application.port.in.BuscaConfiguracaoPagamentoUseCase;
-import cv.ntinnovation.gateway_payment.application.port.in.ValidaRetornoUseCase;
+import cv.ntinnovation.gateway_payment.application.core.domain.exception.PagamentoNaoEncontradoException;
+import cv.ntinnovation.gateway_payment.application.port.in.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -24,6 +24,7 @@ public class WebhookPagamentoController {
 
     private final AtualizaStatusPagamentoUseCase atualizaStatusPagamentoUseCase;
     private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase;
+    private final BuscaPagamentoUseCase buscaPagamentoUseCase;
     private final ValidaRetornoUseCase validaRetornoUseCase;
     private final WebhookPagamentoMapper webhookPagamentoMapper;
 
@@ -34,9 +35,14 @@ public class WebhookPagamentoController {
                                      Model model) {
         log.info("Recebido webhook do SISP - Reference: {}, Request: {}", reference, request);
 
-        try {
+        var pagamentoExistente = buscaPagamentoUseCase.buscarPorReferencia(reference);
+
+        if (pagamentoExistente.isPresent()) {
 
             var retornoFingerprint = webhookPagamentoMapper.toRetornoFingerprint(request);
+
+            ConfiguracaoPagamento configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId( pagamentoExistente.map(Pagamento::getIntencaoPagamento).orElse(IntencaoPagamento.builder().build()).getPosId());
+            retornoFingerprint.setPosAutCode(configuracaoPagamento.getPosAutCode());
 
             validaRetornoUseCase.executar(retornoFingerprint);
 
@@ -48,7 +54,7 @@ public class WebhookPagamentoController {
 
             String mensagem = getMensagemRetorno(mensagemRetornoEnum, request);
             log.debug("Mensagem de retorno: {}", mensagem);
-            
+
             log.debug("Atualizando status do pagamento");
             Pagamento pagamento = atualizaStatusPagamentoUseCase.atualizar(
                     reference,
@@ -60,7 +66,7 @@ public class WebhookPagamentoController {
             log.debug("Pagamento atualizado: {}", pagamento);
 
             log.debug("Buscando configuração de pagamento");
-            ConfiguracaoPagamento configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId(pagamento.getIntencaoPagamento().getPosId());
+
             log.debug("Configuração encontrada: {}", configuracaoPagamento);
 
             CheckoutResponseDto responseDto = CheckoutResponseDto.builder()
@@ -81,10 +87,10 @@ public class WebhookPagamentoController {
             log.info("Redirecionando para: {}", configuracaoPagamento.getReturnUrl());
 
             return "checkout-response";
-        } catch (Exception e) {
-            log.error("Erro ao processar webhook do SISP", e);
-            throw new RuntimeException("Erro ao processar pagamento", e);
+        } else {
+            throw new PagamentoNaoEncontradoException("Pagamento não encontrado");
         }
+
     }
 
     private String getMensagemRetorno(MensagemRetornoEnum mensagemRetornoEnum, SispWebhookRequest request) {

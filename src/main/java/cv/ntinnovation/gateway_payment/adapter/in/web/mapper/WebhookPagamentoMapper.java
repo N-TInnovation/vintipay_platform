@@ -1,6 +1,7 @@
 package cv.ntinnovation.gateway_payment.adapter.in.web.mapper;
 
 import cv.ntinnovation.gateway_payment.adapter.in.web.dto.SispWebhookRequest;
+import cv.ntinnovation.gateway_payment.application.core.domain.enums.MessageRespTypeEnum;
 import cv.ntinnovation.gateway_payment.application.core.domain.rules.DataFingerPrint6Response;
 import cv.ntinnovation.gateway_payment.application.core.domain.rules.DataFingerPrint810MPResponse;
 import cv.ntinnovation.gateway_payment.application.core.domain.rules.DataFingerPrintOutroResponse;
@@ -11,10 +12,10 @@ import org.springframework.stereotype.Component;
 public class WebhookPagamentoMapper {
 
     public RetornoFingerprint toRetornoFingerprint( SispWebhookRequest sispWebhookRequest) {
-
-        if(sispWebhookRequest.getMessageType().getRetornoFingerprint() instanceof DataFingerPrint810MPResponse) {
-            var dataFingerPrint810MPResponse = (DataFingerPrint810MPResponse) sispWebhookRequest.getMessageType().getRetornoFingerprint();
-            dataFingerPrint810MPResponse.setMessageType(sispWebhookRequest.getMessageType().getCode());
+        var messageType = sispWebhookRequest.getMessageType();
+        if(messageType != null && messageType.getRetornoFingerprint() instanceof DataFingerPrint810MPResponse) {
+            var dataFingerPrint810MPResponse = (DataFingerPrint810MPResponse) messageType.getRetornoFingerprint();
+            dataFingerPrint810MPResponse.setMessageType(messageType.getCode());
             dataFingerPrint810MPResponse.setMerchantRespCP(sispWebhookRequest.getMerchantRespCP());
             dataFingerPrint810MPResponse.setMerchantRespTid(sispWebhookRequest.getMerchantRespTid());
             dataFingerPrint810MPResponse.setMerchantRespMerchantRef(sispWebhookRequest.getMerchantRespMerchantRef());
@@ -32,9 +33,9 @@ public class WebhookPagamentoMapper {
             dataFingerPrint810MPResponse.setResultFingerPrint(sispWebhookRequest.getResultFingerPrint());
 
             return dataFingerPrint810MPResponse;
-        }if (sispWebhookRequest.getMessageType().getRetornoFingerprint() instanceof DataFingerPrint6Response) {
-            var dataFingerPrint6Response = (DataFingerPrint6Response) sispWebhookRequest.getMessageType().getRetornoFingerprint();
-            dataFingerPrint6Response.setMessageType(sispWebhookRequest.getMessageType().getCode());
+        }if ( messageType != null && messageType.getRetornoFingerprint() instanceof DataFingerPrint6Response) {
+            var dataFingerPrint6Response = (DataFingerPrint6Response) messageType.getRetornoFingerprint();
+            dataFingerPrint6Response.setMessageType(messageType.getCode());
             dataFingerPrint6Response.setMerchantRespErrorCode(sispWebhookRequest.getMerchantRespErrorCode());
             dataFingerPrint6Response.setMerchantRespErrorDetail(sispWebhookRequest.getMerchantRespErrorDetail());
             dataFingerPrint6Response.setMerchantRespErrorDescription(sispWebhookRequest.getMerchantRespErrorDescription());
@@ -42,11 +43,13 @@ public class WebhookPagamentoMapper {
             dataFingerPrint6Response.setMerchantRespMerchantSession(sispWebhookRequest.getMerchantRespMerchantSession());
             dataFingerPrint6Response.setMerchantRespAdditionalErrorMessage(sispWebhookRequest.getMerchantRespAdditionalErrorMessage());
             dataFingerPrint6Response.setResultFingerPrint(sispWebhookRequest.getResultFingerPrint());
+            dataFingerPrint6Response.setMerchantRespMessageID(sispWebhookRequest.getMerchantRespMessageID());
+            dataFingerPrint6Response.setMerchantRespTimeStamp(sispWebhookRequest.getMerchantRespTimeStamp());
 
             return dataFingerPrint6Response;
         }else {
-            var dataFingerPrintOutroResponse = (DataFingerPrintOutroResponse) sispWebhookRequest.getMessageType().getRetornoFingerprint();
-            dataFingerPrintOutroResponse.setMessageType(sispWebhookRequest.getMessageType().getCode());
+            var dataFingerPrintOutroResponse = (DataFingerPrintOutroResponse) MessageRespTypeEnum.FALHA_OUTROS.getRetornoFingerprint();
+            dataFingerPrintOutroResponse.setMessageType(MessageRespTypeEnum.FALHA_OUTROS.getCode());
             dataFingerPrintOutroResponse.setMerchantRespMerchantRef(sispWebhookRequest.getMerchantRespMerchantRef());
             dataFingerPrintOutroResponse.setMerchantRespMerchantSession(sispWebhookRequest.getMerchantRespMerchantSession());
             dataFingerPrintOutroResponse.setResultFingerPrint(sispWebhookRequest.getResultFingerPrint());

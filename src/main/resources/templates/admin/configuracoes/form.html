@@ -6,14 +6,48 @@
     <title>Configuração de Pagamento</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Gateway de Pagamento</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/pagamentos">Pagamentos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/configuracoes">Configurações</a>
+                    </li>
+                </ul>
+                <form th:action="@{/logout}" method="post" class="d-flex">
+                    <button class="btn btn-outline-light" type="submit">Sair</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
     <div class="container mt-4">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h3 class="card-title mb-0" th:text="${configuracao.id != null ? 'Editar Configuração' : 'Nova Configuração'}"></h3>
+                        <div>
+                            <a href="/admin" class="btn btn-outline-secondary btn-sm me-2">
+                                <i class="fas fa-home"></i> Dashboard
+                            </a>
+                            <a href="/admin/configuracoes" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-list"></i> Lista de Configurações
+                            </a>
+                        </div>
                     </div>
                     <div class="card-body">
                         <form id="configForm" class="needs-validation" novalidate>
@@ -107,10 +141,13 @@
                 isActive: document.getElementById('isActive').checked
             };
 
+            // Gera API Key automaticamente para novas configurações
+            if (!data.id) {
+                data.apiKey = generateApiKey();
+            }
+
             Swal.fire({
                 title: 'Salvando...',
-                text: 'Por favor, aguarde',
-                allowOutsideClick: false,
                 didOpen: () => {
                     Swal.showLoading();
                 }
@@ -122,78 +159,71 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(data)
-            }).then(response => {
+            })
+            .then(response => {
                 if (!response.ok) {
-                    return response.json().then(err => Promise.reject(err));
+                    throw new Error('Erro ao salvar configuração');
                 }
                 return response.json();
-            }).then(result => {
-                if (result.success) {
-                    let html = '<div class="text-center">';
-                    html += '<h5 class="mb-4">' + result.message + '</h5>';
-                    
-                    if (result.apiKey && result.apiSecret) {
-                        html += '<div class="alert alert-warning" role="alert">';
-                        html += '<p class="mb-2"><strong>Guarde estas informações em um local seguro!</strong></p>';
-                        html += '<p class="mb-2">Elas não serão mostradas novamente.</p>';
-                        html += '</div>';
-                        
-                        html += '<div class="mb-3">';
-                        html += '<p class="mb-2"><strong>API Key:</strong></p>';
-                        html += '<div class="input-group mb-3">';
-                        html += '<input type="text" class="form-control" value="' + result.apiKey + '" readonly>';
-                        html += '<button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(this)">Copiar</button>';
-                        html += '</div>';
-                        html += '</div>';
-                        
-                        html += '<div class="mb-3">';
-                        html += '<p class="mb-2"><strong>API Secret:</strong></p>';
-                        html += '<div class="input-group mb-3">';
-                        html += '<input type="text" class="form-control" value="' + result.apiSecret + '" readonly>';
-                        html += '<button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(this)">Copiar</button>';
-                        html += '</div>';
-                        html += '</div>';
-                    }
-                    
-                    html += '</div>';
-                    
-                    Swal.fire({
-                        title: 'Sucesso!',
-                        html: html,
-                        icon: 'success',
-                        width: '600px',
-                        showConfirmButton: true,
-                        confirmButtonText: 'Continuar'
-                    }).then(() => {
-                        window.location.href = '/admin/configuracoes';
-                    });
-                } else {
-                    throw new Error(result.message || 'Erro ao salvar configuração');
-                }
-            }).catch(error => {
+            })
+            .then(result => {
                 Swal.fire({
+                    icon: 'success',
+                    title: 'Sucesso!',
+                    text: 'Configuração salva com sucesso.',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    if (!data.id && result.apiKey) {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'API Key Gerada',
+                            html: `
+                                <p>Sua API Key foi gerada. Guarde-a em um local seguro:</p>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" value="${result.apiKey}" id="apiKeyInput" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(this)">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            `,
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/admin/configuracoes';
+                        });
+                    } else {
+                        window.location.href = '/admin/configuracoes';
+                    }
+                });
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
                     title: 'Erro!',
-                    text: error.message || 'Erro ao salvar configuração',
-                    icon: 'error'
+                    text: error.message,
+                    confirmButtonText: 'OK'
                 });
             });
         });
 
+        function generateApiKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let apiKey = '';
+            for (let i = 0; i < 32; i++) {
+                apiKey += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return apiKey;
+        }
+
         function copyToClipboard(button) {
-            const input = button.parentElement.querySelector('input');
+            const input = document.getElementById('apiKeyInput');
             input.select();
             document.execCommand('copy');
             
-            const originalText = button.textContent;
-            button.textContent = 'Copiado!';
-            button.classList.remove('btn-outline-secondary');
-            button.classList.add('btn-success');
-            
+            const originalHtml = button.innerHTML;
+            button.innerHTML = '<i class="bi bi-check"></i>';
             setTimeout(() => {
-                button.textContent = originalText;
-                button.classList.remove('btn-success');
-                button.classList.add('btn-outline-secondary');
-            }, 2000);
+                button.innerHTML = originalHtml;
+            }, 1500);
         }
     </script>
 </body>

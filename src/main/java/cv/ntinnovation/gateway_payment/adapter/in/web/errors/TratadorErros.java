@@ -1,5 +1,6 @@
 package cv.ntinnovation.gateway_payment.adapter.in.web.errors;
 
+import cv.ntinnovation.gateway_payment.application.core.domain.exception.FingerprintInvalidoException;
 import cv.ntinnovation.gateway_payment.application.core.domain.exception.IntencaoPagamentoNaoExisteExeption;
 import cv.ntinnovation.gateway_payment.application.core.domain.exception.PagamentoStatusNaoPendenteException;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,13 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ControllerAdvice
 public class TratadorErros {
+
+    @ExceptionHandler(FingerprintInvalidoException.class)
+    public String error401(FingerprintInvalidoException ex, Model model) {
+        model.addAttribute("title", "Fingerprint inválido");
+        model.addAttribute("message",  ex.getMessage());
+        return "erro-401";
+    }
 
     @ExceptionHandler(IntencaoPagamentoNaoExisteExeption.class)
     public String error404(IntencaoPagamentoNaoExisteExeption ex, Model model) {
