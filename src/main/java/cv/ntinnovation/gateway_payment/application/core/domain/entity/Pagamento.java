@@ -24,6 +24,8 @@ public class Pagamento {
     private String panMascarado;
     private LocalDateTime createdAt;
     private String resultFingerPrint;
+    private String authorizationCode;
+
 
     public void gerarTimestamp() {
         this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));

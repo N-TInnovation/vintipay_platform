@@ -14,6 +14,12 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @ControllerAdvice
 public class TratadorErros {
 
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public String error400(MissingServletRequestParameterException ex, Model model) {
+        model.addAttribute("mensagem",  ex.getMessage());
+        return "erro-400";
+    }
+
     @ExceptionHandler(FingerprintInvalidoException.class)
     public String error401(FingerprintInvalidoException ex, Model model) {
         model.addAttribute("title", "Fingerprint inválido");

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.util.UriUtils;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -68,7 +69,7 @@ public class CheckoutPagamentoController {
             .merchantSession(pagamento.getIntencaoPagamento().getMerchantSession())
             .currency(MoedaEnum.getByName(pagamento.getIntencaoPagamento().getCurrency()).getCodigoISO())
             .is3DSec("1") // Habilitado por padrão
-            .urlMerchantResponse(String.format("%s/%s", returnUrl, pagamento.getIntencaoPagamento().getReference()))
+            .urlMerchantResponse(String.format("%s/%s?fingerPrintCode=%s", returnUrl, pagamento.getIntencaoPagamento().getReference(), URLEncoder.encode(pagamento.getAuthorizationCode())))
             .languageMessages("pt") // Português por padrão
             .entityCode(entityCode)
             .referenceNumber(referenceNumber)

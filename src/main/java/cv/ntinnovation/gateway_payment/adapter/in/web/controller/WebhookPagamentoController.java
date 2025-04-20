@@ -30,7 +30,8 @@ public class WebhookPagamentoController {
 
     @PostMapping(value = "/sisp/pagamentos/retorno/{reference}",
             consumes={"application/x-www-form-urlencoded;charset=UTF-8"}, produces={ MediaType.ALL_VALUE })
-    public String handlePaymentWebhook(@PathVariable String reference,
+    public String handlePaymentWebhook(@PathVariable("reference") String reference,
+                                     @RequestParam("fingerPrintCode") String authorization,
                                      @ModelAttribute SispWebhookRequest request,
                                      Model model) {
         log.info("Recebido webhook do SISP - Reference: {}, Request: {}", reference, request);
@@ -41,7 +42,11 @@ public class WebhookPagamentoController {
 
             var retornoFingerprint = webhookPagamentoMapper.toRetornoFingerprint(request);
 
-            ConfiguracaoPagamento configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId( pagamentoExistente.map(Pagamento::getIntencaoPagamento).orElse(IntencaoPagamento.builder().build()).getPosId());
+            retornoFingerprint.setPagamento(pagamentoExistente.get());
+
+            retornoFingerprint.setAuthorizationCode(authorization);
+
+            ConfiguracaoPagamento configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId(pagamentoExistente.map(Pagamento::getIntencaoPagamento).orElse(IntencaoPagamento.builder().build()).getPosId());
             retornoFingerprint.setPosAutCode(configuracaoPagamento.getPosAutCode());
 
             validaRetornoUseCase.executar(retornoFingerprint);

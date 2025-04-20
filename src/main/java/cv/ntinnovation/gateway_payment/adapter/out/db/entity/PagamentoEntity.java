@@ -46,6 +46,9 @@ public class PagamentoEntity {
     @Column(name = "pan_mascarado")
     private String panMascarado;
 
+    @Column(name = "authorization_code")
+    private String authorizationCode;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

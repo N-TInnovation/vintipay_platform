@@ -1,5 +1,6 @@
 package cv.ntinnovation.gateway_payment.application.core.domain.rules;
 
+import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.exception.FingerprintInvalidoException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +28,8 @@ public class DataFingerPrint810MPResponse implements RetornoFingerprint {
 	private String merchantRespAdditionalErrorMessage;
 	private String merchantRespReloadCode;
 	private String resultFingerPrint;
+	private String authorizationCode;
+	private Pagamento pagamento;
 
 
 	@Override

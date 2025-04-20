@@ -19,6 +19,7 @@ public class PagamentoMapper {
                 .intencaoPagamento(intencaoPagamentoMapper.toIntencaoPagamento(entity.getIntencaoPagamento()))
                 .fingerprint(entity.getFingerprint())
                 .timestamp(entity.getTimestamp())
+                .authorizationCode(entity.getAuthorizationCode())
                 .status(entity.getStatus())
                 .mensagem(entity.getMensagem())
                 .reference(entity.getReference())
@@ -38,6 +39,7 @@ public class PagamentoMapper {
                 .panMascarado(pagamento.getPanMascarado())
                 .createdAt(LocalDateTime.now())
                 .status(pagamento.getStatus())
+                .authorizationCode(pagamento.getAuthorizationCode())
                 .build();
     }
 }
