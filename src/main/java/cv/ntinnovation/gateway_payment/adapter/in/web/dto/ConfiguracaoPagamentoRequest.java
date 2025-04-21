@@ -26,6 +26,8 @@ public class ConfiguracaoPagamentoRequest {
 
     @NotBlank(message = "O POS Aut Code é obrigatório")
     private String posAutCode;
+    
+    private String returnAutCode;
 
     @NotBlank(message = "A URL de retorno é obrigatória")
     private String returnUrl;

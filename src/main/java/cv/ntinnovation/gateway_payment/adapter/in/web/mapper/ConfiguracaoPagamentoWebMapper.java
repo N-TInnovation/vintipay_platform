@@ -19,6 +19,7 @@ public class ConfiguracaoPagamentoWebMapper {
                 .merchantId(request.getMerchantId())
                 .terminalId(request.getTerminalId())
                 .posAutCode(request.getPosAutCode())
+                .returnAutCode(request.getReturnAutCode())
                 .returnUrl(request.getReturnUrl())
                 .isActive(request.getIsActive() != null ? request.getIsActive() : true)
                 .build();
@@ -35,6 +36,7 @@ public class ConfiguracaoPagamentoWebMapper {
                 .merchantId(domain.getMerchantId())
                 .terminalId(domain.getTerminalId())
                 .posAutCode(domain.getPosAutCode())
+                .returnAutCode(domain.getReturnAutCode())
                 .returnUrl(domain.getReturnUrl())
                 .isActive(domain.getIsActive())
                 .createdAt(domain.getCreatedAt())

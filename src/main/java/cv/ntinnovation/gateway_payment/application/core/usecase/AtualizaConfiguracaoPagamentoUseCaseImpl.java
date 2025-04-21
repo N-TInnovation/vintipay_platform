@@ -1,22 +1,26 @@
 package cv.ntinnovation.gateway_payment.application.core.usecase;
 
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ConfiguracaoPagamento;
+import cv.ntinnovation.gateway_payment.application.core.domain.rules.FingerPrintService;
 import cv.ntinnovation.gateway_payment.application.port.in.AtualizaConfiguracaoPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.out.BuscaConfiguracaoPagamentoPort;
 import cv.ntinnovation.gateway_payment.application.port.out.SalvaConfiguracaoPagamentoPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AtualizaConfiguracaoPagamentoUseCaseImpl implements AtualizaConfiguracaoPagamentoUseCase {
 
     private final SalvaConfiguracaoPagamentoPort salvaConfiguracaoPagamentoPort;
     private final BuscaConfiguracaoPagamentoPort buscaConfiguracaoPagamentoPort;
+    private final FingerPrintService fingerPrintService;
 
     @Override
     @Transactional
@@ -27,11 +31,16 @@ public class AtualizaConfiguracaoPagamentoUseCaseImpl implements AtualizaConfigu
             throw new RuntimeException("Configuração não encontrada");
         }
 
+        // Criptografar o POS Aut Code com AES256
+        String posAutCodeOriginal = configuracaoPagamento.getPosAutCode();
+        String posAutCodeCriptografado = fingerPrintService.encryptAES256(posAutCodeOriginal);
+        log.info("POS Aut Code criptografado com AES256 durante atualização");
+
         // Atualiza apenas os campos permitidos
         configuracaoExistente.setPosId(configuracaoPagamento.getPosId());
         configuracaoExistente.setMerchantId(configuracaoPagamento.getMerchantId());
         configuracaoExistente.setTerminalId(configuracaoPagamento.getTerminalId());
-        configuracaoExistente.setPosAutCode(configuracaoPagamento.getPosAutCode());
+        configuracaoExistente.setPosAutCode(posAutCodeCriptografado); // Salvar o valor criptografado
         configuracaoExistente.setReturnUrl(configuracaoPagamento.getReturnUrl());
         configuracaoExistente.setIsActive(configuracaoPagamento.getIsActive());
         
@@ -41,7 +50,13 @@ public class AtualizaConfiguracaoPagamentoUseCaseImpl implements AtualizaConfigu
         }
         configuracaoExistente.setUpdatedAt(LocalDateTime.now());
 
-        return salvaConfiguracaoPagamentoPort.salvar(configuracaoExistente);
+        ConfiguracaoPagamento configuracaoAtualizada = salvaConfiguracaoPagamentoPort.salvar(configuracaoExistente);
+        
+        // Retorna a configuração com o posAutCode original (não criptografado)
+        // para exibição na interface
+        configuracaoAtualizada.setPosAutCode(posAutCodeOriginal);
+        
+        return configuracaoAtualizada;
     }
 
     @Override
@@ -51,11 +66,7 @@ public class AtualizaConfiguracaoPagamentoUseCaseImpl implements AtualizaConfigu
         if (configuracao == null) {
             throw new RuntimeException("Configuração não encontrada");
         }
-
         configuracao.setIsActive(true);
-        if (configuracao.getCreatedAt() == null) {
-            configuracao.setCreatedAt(LocalDateTime.now());
-        }
         configuracao.setUpdatedAt(LocalDateTime.now());
         salvaConfiguracaoPagamentoPort.salvar(configuracao);
     }
@@ -67,11 +78,7 @@ public class AtualizaConfiguracaoPagamentoUseCaseImpl implements AtualizaConfigu
         if (configuracao == null) {
             throw new RuntimeException("Configuração não encontrada");
         }
-
         configuracao.setIsActive(false);
-        if (configuracao.getCreatedAt() == null) {
-            configuracao.setCreatedAt(LocalDateTime.now());
-        }
         configuracao.setUpdatedAt(LocalDateTime.now());
         salvaConfiguracaoPagamentoPort.salvar(configuracao);
     }
