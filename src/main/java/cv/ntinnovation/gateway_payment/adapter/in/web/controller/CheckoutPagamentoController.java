@@ -10,14 +10,14 @@ import cv.ntinnovation.gateway_payment.application.core.domain.exception.SessaoP
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.CriaPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.ValidaSessaoPagamentoUseCase;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,6 +36,10 @@ public class CheckoutPagamentoController {
     private final BuscaPagamentoUseCase buscaPagamentoUseCase;
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
 
+    private static final String SESSION_COOKIE_NAME = "PAYMENT_SESSION_ID";
+    private static final int SESSION_COOKIE_MAX_AGE = 1800; // 30 minutos em segundos
+
+
     @Value("${sisp.url.3d}")
     private String submitFormUrl;
 
@@ -43,9 +47,9 @@ public class CheckoutPagamentoController {
     private String returnUrl;
 
     @GetMapping("/checkout/{reference}")
-    public String checkout(@PathVariable String reference, Model model, HttpServletRequest request) {
+    public String checkout(@PathVariable String reference, @RequestParam(value = "sessionId", required = false) String sessionId, Model model, HttpServletRequest request, HttpServletResponse servletResponse) {
         // Validar a sessão de pagamento
-        Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(reference, request);
+        Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(reference, request, sessionId);
         
         if (sessaoOpt.isEmpty()) {
             log.warn("Tentativa de acesso ao checkout com sessão inválida para referência: {}", reference);
@@ -54,6 +58,14 @@ public class CheckoutPagamentoController {
         
         log.info("Sessão válida para checkout da referência: {}, sessionId: {}", 
                 reference, sessaoOpt.get().getSessionId());
+
+        // Adicionar cookie de sessão na resposta
+        Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessaoOpt.get().getSessionId());
+        sessionCookie.setMaxAge(SESSION_COOKIE_MAX_AGE);
+        sessionCookie.setPath("/");
+        sessionCookie.setHttpOnly(true);
+        sessionCookie.setSecure(true); // Somente HTTPS
+        servletResponse.addCookie(sessionCookie);
         
         var pagamentoOptional = buscaPagamentoUseCase.buscarPorReferencia(reference);
 

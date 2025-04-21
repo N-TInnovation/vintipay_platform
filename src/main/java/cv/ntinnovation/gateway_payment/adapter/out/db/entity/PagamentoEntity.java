@@ -46,7 +46,7 @@ public class PagamentoEntity {
     @Column(name = "pan_mascarado")
     private String panMascarado;
 
-    @Column(name = "authorization_code")
+    @Column(name = "authorization_code", columnDefinition = "TEXT")
     private String authorizationCode;
 
     @Column(name = "created_at", nullable = false)

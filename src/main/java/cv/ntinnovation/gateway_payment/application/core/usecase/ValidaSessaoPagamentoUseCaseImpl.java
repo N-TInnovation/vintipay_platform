@@ -27,7 +27,7 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
     private static final String SESSION_COOKIE_NAME = "PAYMENT_SESSION_ID";
 
     @Override
-    public Optional<SessaoPagamento> validarSessao(String reference, HttpServletRequest request) {
+    public Optional<SessaoPagamento> validarSessao(String reference, HttpServletRequest request, String sessionIdparam) {
         // Primeiro verifica se existe uma sessão válida para a referência
         Optional<SessaoPagamento> sessaoByReference = buscaSessaoPagamentoPort.buscarSessaoValidaPorReferencia(reference);
         
@@ -36,9 +36,19 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
             log.warn("Nenhuma sessão válida encontrada para a referência: {}", reference);
             return Optional.empty();
         }
-        
+
         // Busca o cookie de sessão
         String sessionId = getSessionIdFromCookie(request);
+        if(sessionIdparam != null) {
+            if (!sessaoByReference.get().getSessionId().equals(sessionIdparam)) {
+                log.warn("Session ID do cookie ({}) não corresponde ao Session ID da sessão ({}) para referência: {}",
+                        sessionIdparam, sessaoByReference.get().getSessionId(), reference);
+                return Optional.empty();
+            }
+            sessionId = sessionIdparam;
+        }
+
+
         
         // Se não houver cookie de sessão, a validação falha
         if (sessionId == null) {

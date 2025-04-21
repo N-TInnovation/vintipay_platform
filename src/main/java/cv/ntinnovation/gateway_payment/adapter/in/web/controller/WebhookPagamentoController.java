@@ -6,16 +6,22 @@ import cv.ntinnovation.gateway_payment.adapter.in.web.mapper.WebhookPagamentoMap
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.IntencaoPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
+import cv.ntinnovation.gateway_payment.application.core.domain.entity.SessaoPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.enums.MensagemRetornoEnum;
 import cv.ntinnovation.gateway_payment.application.core.domain.exception.PagamentoNaoEncontradoException;
+import cv.ntinnovation.gateway_payment.application.core.domain.exception.SessaoPagamentoInvalidaException;
 import cv.ntinnovation.gateway_payment.application.core.domain.rules.FingerPrintService;
 import cv.ntinnovation.gateway_payment.application.port.in.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @Slf4j
 @Controller
@@ -30,13 +36,23 @@ public class WebhookPagamentoController {
     private final WebhookPagamentoMapper webhookPagamentoMapper;
     private final FingerPrintService fingerPrintService;
 
+    private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
+
     @PostMapping(value = "/sisp/pagamentos/retorno/{reference}",
             consumes={"application/x-www-form-urlencoded;charset=UTF-8"}, produces={ MediaType.ALL_VALUE })
     public String handlePaymentWebhook(@PathVariable("reference") String reference,
-                                     @RequestParam("fingerPrintCode") String authorization,
-                                     @ModelAttribute SispWebhookRequest request,
-                                     Model model) {
+                                       @RequestParam("fingerPrintCode") String authorization,
+                                       @ModelAttribute SispWebhookRequest request,
+                                       @CookieValue(value = "PAYMENT_SESSION_ID", required = false) String sessionId,
+                                       Model model, HttpServletRequest request2, HttpServletResponse response) {
         log.info("Recebido webhook do SISP - Reference: {}, Request: {}", reference, request);
+
+        Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(reference, request2, sessionId);
+
+        if (sessaoOpt.isEmpty()) {
+            log.warn("Tentativa de acesso ao checkout com sessão inválida para referência: {}", reference);
+            throw new SessaoPagamentoInvalidaException("Sessão de pagamento inválida ou expirada para referência: " + reference);
+        }
 
         var pagamentoExistente = buscaPagamentoUseCase.buscarPorReferencia(reference);
 

@@ -19,4 +19,5 @@ public class IntencaoPagamentoResponse {
     private String reference;
     private StatusPagamentoEnum status;
     private LocalDateTime createdAt;
+    private String sessionId;
 }

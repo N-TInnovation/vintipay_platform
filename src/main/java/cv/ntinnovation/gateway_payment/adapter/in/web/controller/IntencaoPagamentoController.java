@@ -103,6 +103,9 @@ public class IntencaoPagamentoController {
             
             // Converter para response e retornar
             IntencaoPagamentoResponse response = intencaoPagamentoWebMapper.toIntencaoPagamentoResponse(intencaoPagamentoCriada);
+            // Adicionar o ID da sessão à resposta
+            response.setSessionId(sessao.getSessionId());
+            
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

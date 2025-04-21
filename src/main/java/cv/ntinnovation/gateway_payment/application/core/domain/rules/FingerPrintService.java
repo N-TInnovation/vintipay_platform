@@ -79,6 +79,9 @@ public class FingerPrintService {
 	public FingerPrintResult validatorFingerPrintMessageType810MP(DataFingerPrint810MPResponse dataFingerPrint810MPResponse){
 
 		FingerPrintResult fingerPrintResult = FingerPrintResult.builder().build();
+		fingerPrintResult.setResult(validateAuthorizationCode(dataFingerPrint810MPResponse));
+		if (!fingerPrintResult.getResult()) return fingerPrintResult;
+
 		String resHash= HashGenerate.HashGenerate810MP(dataFingerPrint810MPResponse);
 
 		logger.log(Level.INFO,
@@ -103,6 +106,8 @@ public class FingerPrintService {
 	public FingerPrintResult validatorFingerPrintMessageType6(DataFingerPrint6Response dataFingerPrint6Response){
 
 		FingerPrintResult fingerPrintResult = FingerPrintResult.builder().build();
+		fingerPrintResult.setResult(validateAuthorizationCode(dataFingerPrint6Response));
+		if (!fingerPrintResult.getResult()) return fingerPrintResult;
 		String resHash=HashGenerate.HashGenerate6(dataFingerPrint6Response);
 		logger.log(Level.INFO,
 				"Generate ToHash: " +resHash);
@@ -116,22 +121,15 @@ public class FingerPrintService {
 		return fingerPrintResult;
 	}
 
-	public FingerPrintResult validatorFingerPrintMessageTypeOutros(DataFingerPrintOutroResponse DataFingerPrintOutroResponse){
+	public FingerPrintResult validatorFingerPrintMessageTypeOutros(DataFingerPrintOutroResponse dataFingerPrintOutroResponse){
 
-		FingerPrintResult fingerPrintResult =  FingerPrintResult.builder().build();
-		String resHash=HashGenerate.HashGenerateOutros(DataFingerPrintOutroResponse);
-		logger.log(Level.INFO,
-				"Generate ToHash: " +resHash);
-		logger.log(Level.INFO,
-				"Generate SISP ToHash: " +DataFingerPrintOutroResponse.getResultFingerPrint());
-		fingerPrintResult.setResult(false);
-		if(resHash.equals(DataFingerPrintOutroResponse.getResultFingerPrint())){
-			fingerPrintResult.setResult(true);
-		}
-		fingerPrintResult.setHashFingerPrint(resHash);
+		FingerPrintResult fingerPrintResult = FingerPrintResult.builder().build();
+		fingerPrintResult.setResult(validateAuthorizationCode(dataFingerPrintOutroResponse));
+
 		return fingerPrintResult;
 	}
-	
+
+
 	/**
 	 * Criptografa uma string usando AES256
 	 * 
