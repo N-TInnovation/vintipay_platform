@@ -164,8 +164,8 @@
                 </div>
             </div>
             <div class="info-row">
-                <div class="info-label">Descrição:</div>
-                <div class="info-value" th:text="${pagamento.intencaoPagamento.description}">Descrição do produto ou serviço</div>
+                <div class="info-label">Referência do Comerciante:</div>
+                <div class="info-value" th:text="${pagamento.intencaoPagamento.merchantRef}">Referência do comerciante</div>
             </div>
             <div class="info-row">
                 <div class="info-label">Código de Autorização:</div>
@@ -198,17 +198,21 @@
         <!-- Informações do Cliente -->
         <div class="customer-info">
             <h5>Informações do Cliente</h5>
-            <div class="info-row">
+            <div class="info-row" th:if="${pagamento.intencaoPagamento.contaPagamento != null && pagamento.intencaoPagamento.contaPagamento.email != null}">
                 <div class="info-label">Email:</div>
                 <div class="info-value" th:text="${pagamento.intencaoPagamento.contaPagamento.email}">cliente@email.com</div>
             </div>
-            <div class="info-row" th:if="${pagamento.intencaoPagamento.contaPagamento.endereco != null}">
+            <div class="info-row" th:if="${pagamento.intencaoPagamento.contaPagamento != null && pagamento.intencaoPagamento.contaPagamento.billAddrLine1 != null}">
                 <div class="info-label">Endereço:</div>
-                <div class="info-value" th:text="${pagamento.intencaoPagamento.contaPagamento.endereco}">Endereço do cliente</div>
+                <div class="info-value" th:text="${pagamento.intencaoPagamento.contaPagamento.billAddrLine1}">Endereço do cliente</div>
             </div>
-            <div class="info-row" th:if="${pagamento.intencaoPagamento.contaPagamento.cidade != null}">
+            <div class="info-row" th:if="${pagamento.intencaoPagamento.contaPagamento != null && pagamento.intencaoPagamento.contaPagamento.billAddrCity != null}">
                 <div class="info-label">Cidade:</div>
-                <div class="info-value" th:text="${pagamento.intencaoPagamento.contaPagamento.cidade}">Cidade do cliente</div>
+                <div class="info-value" th:text="${pagamento.intencaoPagamento.contaPagamento.billAddrCity}">Cidade do cliente</div>
+            </div>
+            <div class="info-row" th:if="${pagamento.intencaoPagamento.contaPagamento != null && pagamento.intencaoPagamento.contaPagamento.billAddrCountry != null}">
+                <div class="info-label">País:</div>
+                <div class="info-value" th:text="${pagamento.intencaoPagamento.contaPagamento.billAddrCountry}">País do cliente</div>
             </div>
         </div>
 

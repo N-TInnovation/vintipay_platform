@@ -170,17 +170,9 @@
                         <div class="mt-4 mb-3">
                             <h6 class="text-muted mb-3">Dados do Cliente</h6>
                             <div class="row mb-3">
-                                <div class="col-md-4">
+                                <div class="col-md-12">
                                     <div class="detail-label">Email</div>
                                     <div class="detail-value" th:text="${pagamento.intencaoPagamento.email ?: '-'}">email@exemplo.com</div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="detail-label">Nome</div>
-                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.nome ?: '-'}">Nome do Cliente</div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="detail-label">Telefone</div>
-                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.telefone ?: '-'}">123456789</div>
                                 </div>
                             </div>
                         </div>
@@ -190,25 +182,25 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <div class="detail-label">Endereço</div>
-                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.endereco ?: '-'}">Rua Exemplo, 123</div>
+                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.billAddrLine1 ?: '-'}">Rua Exemplo, 123</div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="detail-label">Cidade</div>
-                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.cidade ?: '-'}">Cidade Exemplo</div>
+                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.billAddrCity ?: '-'}">Cidade Exemplo</div>
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <div class="col-md-4">
                                     <div class="detail-label">Estado</div>
-                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.estado ?: '-'}">Estado Exemplo</div>
+                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.billAddrState ?: '-'}">Estado Exemplo</div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="detail-label">País</div>
-                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.pais ?: '-'}">País Exemplo</div>
+                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.billAddrCountry ?: '-'}">País Exemplo</div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="detail-label">CEP</div>
-                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.cep ?: '-'}">12345-678</div>
+                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.billAddrPostCode ?: '-'}">12345-678</div>
                                 </div>
                             </div>
                         </div>
