@@ -6,15 +6,20 @@ import cv.ntinnovation.gateway_payment.adapter.in.web.mapper.IntencaoPagamentoWe
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.ContaPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.IntencaoPagamento;
+import cv.ntinnovation.gateway_payment.application.core.domain.entity.SessaoPagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.enums.IntencaoPagamentoEnum;
 import cv.ntinnovation.gateway_payment.application.port.in.BuscaConfiguracaoPagamentoAtivaUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.CriaContaPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.in.CriaIntencaoPagamentoUseCase;
+import cv.ntinnovation.gateway_payment.application.port.in.CriaSessaoPagamentoUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 import java.security.Principal;
@@ -28,14 +33,19 @@ public class IntencaoPagamentoController {
     private final CriaContaPagamentoUseCase criaContaPagamentoUseCase;
     private final IntencaoPagamentoWebMapper intencaoPagamentoWebMapper;
     private final BuscaConfiguracaoPagamentoAtivaUseCase buscaConfiguracaoPagamentoAtivaUseCase;
+    private final CriaSessaoPagamentoUseCase criaSessaoPagamentoUseCase;
 
+    private static final String SESSION_COOKIE_NAME = "PAYMENT_SESSION_ID";
+    private static final int SESSION_COOKIE_MAX_AGE = 1800; // 30 minutos em segundos
 
     @PostMapping("/intencao/{intencao}")
     public ResponseEntity<IntencaoPagamentoResponse> criarIntencaoPagamento(
             @PathVariable String intencao,
             @RequestHeader("X-Client-Id") String clientId,
             @Valid @RequestBody IntencaoPagamentoRequest request,
-            Principal principal) {
+            Principal principal,
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse) {
         try {
 
             if (!principal.getName().equals(clientId)){
@@ -76,6 +86,21 @@ public class IntencaoPagamentoController {
             // Criar a intenção de pagamento
             IntencaoPagamento intencaoPagamentoCriada = criaIntencaoPagamentoUseCase.criar(intencaoPagamento);
             
+            // Criar uma sessão de pagamento para esta intenção
+            SessaoPagamento sessao = criaSessaoPagamentoUseCase.criar(
+                    intencaoPagamentoCriada.getReference(),
+                    clientId,
+                    servletRequest
+            );
+            
+            // Adicionar cookie de sessão na resposta
+            Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessao.getSessionId());
+            sessionCookie.setMaxAge(SESSION_COOKIE_MAX_AGE);
+            sessionCookie.setPath("/");
+            sessionCookie.setHttpOnly(true);
+            sessionCookie.setSecure(true); // Somente HTTPS
+            servletResponse.addCookie(sessionCookie);
+            
             // Converter para response e retornar
             IntencaoPagamentoResponse response = intencaoPagamentoWebMapper.toIntencaoPagamentoResponse(intencaoPagamentoCriada);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -95,6 +120,4 @@ public class IntencaoPagamentoController {
         // Implementação futura para buscar intenção de pagamento por referência
         return ResponseEntity.ok("Implementação futura para buscar intenção de pagamento com referência: " + reference);
     }
-
-
 }
