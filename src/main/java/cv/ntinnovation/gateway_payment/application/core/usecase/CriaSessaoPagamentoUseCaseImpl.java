@@ -1,0 +1,82 @@
+package cv.ntinnovation.gateway_payment.application.core.usecase;
+
+import cv.ntinnovation.gateway_payment.application.core.domain.entity.SessaoPagamento;
+import cv.ntinnovation.gateway_payment.application.port.in.CriaSessaoPagamentoUseCase;
+import cv.ntinnovation.gateway_payment.application.port.out.SalvaSessaoPagamentoPort;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class CriaSessaoPagamentoUseCaseImpl implements CriaSessaoPagamentoUseCase {
+
+    private final SalvaSessaoPagamentoPort salvaSessaoPagamentoPort;
+    
+    @Value("${app.session.timeout-minutes:30}")
+    private int sessionTimeoutMinutes;
+
+    @Override
+    @Transactional
+    public SessaoPagamento criar(String reference, String clientId, HttpServletRequest request) {
+        String sessionId = UUID.randomUUID().toString();
+        String ipAddress = getClientIpAddress(request);
+        String userAgent = request.getHeader("User-Agent");
+        
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiresAt = now.plusMinutes(sessionTimeoutMinutes);
+        
+        SessaoPagamento sessaoPagamento = SessaoPagamento.builder()
+                .sessionId(sessionId)
+                .reference(reference)
+                .clientId(clientId)
+                .ipAddress(ipAddress)
+                .userAgent(userAgent)
+                .createdAt(now)
+                .expiresAt(expiresAt)
+                .valid(true)
+                .build();
+        
+        log.info("Criando nova sessão de pagamento para referência: {}, cliente: {}, IP: {}", 
+                reference, clientId, ipAddress);
+        
+        return salvaSessaoPagamentoPort.salvar(sessaoPagamento);
+    }
+    
+    /**
+     * Obtém o endereço IP real do cliente, considerando proxies
+     */
+    private String getClientIpAddress(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        
+        // Se houver múltiplos IPs (caso de múltiplos proxies), pega o primeiro
+        if (ip != null && ip.contains(",")) {
+            ip = ip.split(",")[0].trim();
+        }
+        
+        return ip;
+    }
+}
