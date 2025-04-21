@@ -27,8 +27,6 @@ public class DataFingerPrint6Response implements RetornoFingerprint {
 
 	@Override
 	public void validarFingerPrint(FingerPrintService fingerPrintService) {
-		fingerPrintService.decryptAES256(this.authorizationCode);
-
 		var fingerPrintResult = fingerPrintService.validatorFingerPrintMessageType6(this);
 		if(!fingerPrintResult.getResult()){
 			throw new FingerprintInvalidoException(this.resultFingerPrint);

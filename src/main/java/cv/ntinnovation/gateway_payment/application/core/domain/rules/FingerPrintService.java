@@ -1,6 +1,7 @@
 package cv.ntinnovation.gateway_payment.application.core.domain.rules;
 
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.*;
+import cv.ntinnovation.gateway_payment.application.core.domain.exception.FingerprintInvalidoException;
 import cv.ntinnovation.gateway_payment.application.core.utils.HashGenerate;
 import cv.ntinnovation.gateway_payment.application.core.utils.SHA;
 import org.springframework.beans.factory.annotation.Value;
@@ -76,6 +77,8 @@ public class FingerPrintService {
 
 		FingerPrintResult fingerPrintResult = FingerPrintResult.builder().build();
 		fingerPrintResult.setResult(validateAuthorizationCode(dataFingerPrint810MPResponse));
+		if (!fingerPrintResult.getResult()) return fingerPrintResult;
+
 		String resHash= HashGenerate.HashGenerate810MP(dataFingerPrint810MPResponse);
 
 		logger.log(Level.INFO,
@@ -101,6 +104,7 @@ public class FingerPrintService {
 
 		FingerPrintResult fingerPrintResult = FingerPrintResult.builder().build();
 		fingerPrintResult.setResult(validateAuthorizationCode(dataFingerPrint6Response));
+		if (!fingerPrintResult.getResult()) return fingerPrintResult;
 		String resHash=HashGenerate.HashGenerate6(dataFingerPrint6Response);
 		logger.log(Level.INFO,
 				"Generate ToHash: " +resHash);
@@ -123,17 +127,21 @@ public class FingerPrintService {
 	}
 
 	private boolean validateAuthorizationCode(RetornoFingerprint retornoFingerprint) {
-		var pagamento = retornoFingerprint.getPagamento();
-		var data = pagamento.getIntencaoPagamento().getPosId()+"|"
-				+pagamento.getIntencaoPagamento().getAmount().longValue()+"|"
-				+pagamento.getIntencaoPagamento().getTransactionCode()+"|"
-				+pagamento.getIntencaoPagamento().getReference()+"|"
-				+pagamento.getIntencaoPagamento().getContaPagamento().getEmail()
-				+"|"+pagamento.getIntencaoPagamento().getContaPagamento().getMobilePhone();
-		var fingerprint = SHA.GenerateSHA512StringToBase64(data);
-		var plainText = decryptAES256(retornoFingerprint.getAuthorizationCode());
-		var authorizationCodeHash = SHA.GenerateSHA512StringToBase64(plainText);
-		return authorizationCodeHash.equals(fingerprint);
+		try {
+			var pagamento = retornoFingerprint.getPagamento();
+			var data = pagamento.getIntencaoPagamento().getPosId()+"|"
+					+pagamento.getIntencaoPagamento().getAmount().longValue()+"|"
+					+pagamento.getIntencaoPagamento().getTransactionCode()+"|"
+					+pagamento.getIntencaoPagamento().getReference()+"|"
+					+pagamento.getIntencaoPagamento().getContaPagamento().getEmail()
+					+"|"+pagamento.getIntencaoPagamento().getContaPagamento().getMobilePhone();
+			var fingerprint = SHA.GenerateSHA512StringToBase64(data);
+			var plainText = decryptAES256(retornoFingerprint.getAuthorizationCode());
+			var authorizationCodeHash = SHA.GenerateSHA512StringToBase64(plainText);
+			return authorizationCodeHash.equals(fingerprint);
+		} catch (RuntimeException e) {
+			throw new FingerprintInvalidoException("Fingerprint Invalido");
+		}
 	}
 	
 	/**
