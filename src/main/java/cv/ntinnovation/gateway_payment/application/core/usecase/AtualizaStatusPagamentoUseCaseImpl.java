@@ -2,6 +2,7 @@ package cv.ntinnovation.gateway_payment.application.core.usecase;
 
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.enums.StatusPagamentoEnum;
+import cv.ntinnovation.gateway_payment.application.core.domain.exception.PagamentoNaoEncontradoException;
 import cv.ntinnovation.gateway_payment.application.port.in.AtualizaStatusPagamentoUseCase;
 import cv.ntinnovation.gateway_payment.application.port.out.BuscaPagamentoPort;
 import cv.ntinnovation.gateway_payment.application.port.out.SalvaIntencaoPagamento;
@@ -22,7 +23,7 @@ public class AtualizaStatusPagamentoUseCaseImpl implements AtualizaStatusPagamen
     private final SalvaPagamento salvaPagamento;
     private final SalvaIntencaoPagamento salvaIntencaoPagamento;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 60000*30)
     public void cancelarPagamentosPendentes() {
         buscaPagamentoPort.buscarTodos(null, null, StatusPagamentoEnum.PENDENTE)
                 .getContent().forEach(pagamento ->{
@@ -38,7 +39,7 @@ public class AtualizaStatusPagamentoUseCaseImpl implements AtualizaStatusPagamen
     @Transactional
     public Pagamento atualizar(String reference, StatusPagamentoEnum status, String message, String fingerprint, String pan) {
         var pagamento = buscaPagamentoPort.buscarPorReferencia(reference)
-                .orElseThrow(() -> new RuntimeException("Pagamento não encontrado: " + reference));
+                .orElseThrow(() -> new PagamentoNaoEncontradoException("Pagamento não encontrado: " + reference));
 
         pagamento.getIntencaoPagamento().setStatus(status);
         pagamento.setStatus(status);
