@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .table-actions {
-            width: 150px;
+            width: 180px;
         }
         .status-badge {
             width: 80px;
@@ -83,6 +83,11 @@
                                 </td>
                                 <td>
                                     <div class="btn-group">
+                                        <a th:href="@{/admin/configuracoes/{id}/detalhes(id=${config.id})}" 
+                                           class="btn btn-sm btn-primary" 
+                                           title="Detalhes">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
                                         <a th:href="@{/admin/configuracoes/{id}(id=${config.id})}" 
                                            class="btn btn-sm btn-info" 
                                            title="Editar">
@@ -113,38 +118,45 @@
         function alterarStatus(id, novoStatus) {
             Swal.fire({
                 title: novoStatus ? 'Ativar configuração?' : 'Desativar configuração?',
-                text: novoStatus ? 'A configuração será ativada.' : 'A configuração será desativada.',
-                icon: 'warning',
+                text: novoStatus 
+                    ? "A configuração será ativada e poderá ser utilizada para processar pagamentos." 
+                    : "A configuração será desativada e não poderá ser utilizada para processar pagamentos.",
+                icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: novoStatus ? '#28a745' : '#dc3545',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sim',
+                confirmButtonText: novoStatus ? 'Sim, ativar' : 'Sim, desativar',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch(`/admin/configuracoes/${id}/status?ativo=${novoStatus}`, {
-                        method: 'PUT'
-                    }).then(response => {
-                        if (response.ok) {
-                            Swal.fire({
-                                title: 'Sucesso!',
-                                text: 'Status alterado com sucesso.',
-                                icon: 'success'
-                            }).then(() => {
-                                window.location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                title: 'Erro!',
-                                text: 'Ocorreu um erro ao alterar o status.',
-                                icon: 'error'
-                            });
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
                         }
-                    }).catch(error => {
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erro ao alterar status da configuração');
+                        }
+                        
+                        Swal.fire({
+                            title: 'Sucesso!',
+                            text: novoStatus 
+                                ? 'Configuração ativada com sucesso.' 
+                                : 'Configuração desativada com sucesso.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    })
+                    .catch(error => {
                         Swal.fire({
                             title: 'Erro!',
-                            text: 'Ocorreu um erro ao alterar o status.',
-                            icon: 'error'
+                            text: error.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
                         });
                     });
                 }
