@@ -66,12 +66,16 @@ public class BuscaConfiguracaoPagamentoUseCaseImpl implements BuscaConfiguracaoP
                         .returnAutCode(configuracao.getReturnAutCode())
                         .returnUrl(configuracao.getReturnUrl())
                         .isActive(configuracao.getIsActive())
+                        .nomeLoja(configuracao.getNomeLoja())
+                        .urlLoja(configuracao.getUrlLoja())
+                        .telefone(configuracao.getTelefone())
+                        .email(configuracao.getEmail())
                         .createdAt(configuracao.getCreatedAt())
                         .updatedAt(configuracao.getUpdatedAt())
                         .build();
             }
         } catch (Exception e) {
-            log.warn("Erro ao descriptografar posAutCode: {}", e.getMessage());
+            log.error("Erro ao descriptografar posAutCode: {}", e.getMessage(), e);
             // Em caso de erro, retornar a configuração original
         }
         

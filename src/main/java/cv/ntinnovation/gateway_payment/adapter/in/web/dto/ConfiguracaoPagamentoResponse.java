@@ -20,6 +20,10 @@ public class ConfiguracaoPagamentoResponse {
     private String returnAutCode;
     private String returnUrl;
     private Boolean isActive;
+    private String nomeLoja;
+    private String urlLoja;
+    private String telefone;
+    private String email;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

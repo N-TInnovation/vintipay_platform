@@ -24,4 +24,8 @@ public class ConfiguracaoPagamento {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String returnAutCode;
+    private String nomeLoja;
+    private String urlLoja;
+    private String telefone;
+    private String email;
 }

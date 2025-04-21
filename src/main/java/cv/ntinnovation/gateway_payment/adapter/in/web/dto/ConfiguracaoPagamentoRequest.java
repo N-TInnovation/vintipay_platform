@@ -1,5 +1,6 @@
 package cv.ntinnovation.gateway_payment.adapter.in.web.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -33,4 +34,15 @@ public class ConfiguracaoPagamentoRequest {
     private String returnUrl;
 
     private Boolean isActive;
+    
+    @NotBlank(message = "O nome da loja é obrigatório")
+    private String nomeLoja;
+    
+    @NotBlank(message = "A URL da loja é obrigatória")
+    private String urlLoja;
+    
+    private String telefone;
+    
+    @Email(message = "Formato de e-mail inválido")
+    private String email;
 }

@@ -48,6 +48,10 @@ public class CriaConfiguracaoPagamentoUseCaseImpl implements CriaConfiguracaoPag
                 .posAutCode(posAutCodeCriptografado) // Salvar o valor criptografado
                 .returnAutCode(configuracaoPagamento.getReturnAutCode())
                 .returnUrl(configuracaoPagamento.getReturnUrl())
+                .nomeLoja(configuracaoPagamento.getNomeLoja())
+                .urlLoja(configuracaoPagamento.getUrlLoja())
+                .telefone(configuracaoPagamento.getTelefone())
+                .email(configuracaoPagamento.getEmail())
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
                 .build()
@@ -59,7 +63,7 @@ public class CriaConfiguracaoPagamentoUseCaseImpl implements CriaConfiguracaoPag
             .apiKey(apiKey)
             .apiSecret(apiSecret)
             .posAutCode(posAutCodeOriginal) // Retornar o valor original
-            .returnAutCode(configuracaoPagamento.getReturnAutCode())
+            .returnAutCode(configuracaoSalva.getReturnAutCode())
             .build();
     }
 }

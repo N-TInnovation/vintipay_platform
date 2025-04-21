@@ -44,6 +44,12 @@ public class AtualizaConfiguracaoPagamentoUseCaseImpl implements AtualizaConfigu
         configuracaoExistente.setReturnUrl(configuracaoPagamento.getReturnUrl());
         configuracaoExistente.setIsActive(configuracaoPagamento.getIsActive());
         
+        // Atualiza os novos campos de informações da loja
+        configuracaoExistente.setNomeLoja(configuracaoPagamento.getNomeLoja());
+        configuracaoExistente.setUrlLoja(configuracaoPagamento.getUrlLoja());
+        configuracaoExistente.setTelefone(configuracaoPagamento.getTelefone());
+        configuracaoExistente.setEmail(configuracaoPagamento.getEmail());
+        
         // Garante que as datas estejam preenchidas
         if (configuracaoExistente.getCreatedAt() == null) {
             configuracaoExistente.setCreatedAt(LocalDateTime.now());

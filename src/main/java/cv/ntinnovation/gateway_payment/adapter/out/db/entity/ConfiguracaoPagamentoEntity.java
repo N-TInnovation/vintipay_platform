@@ -47,6 +47,18 @@ public class ConfiguracaoPagamentoEntity {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
+    @Column(name = "nome_loja", nullable = false)
+    private String nomeLoja;
+    
+    @Column(name = "url_loja", nullable = false)
+    private String urlLoja;
+    
+    @Column(name = "telefone")
+    private String telefone;
+    
+    @Column(name = "email")
+    private String email;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
