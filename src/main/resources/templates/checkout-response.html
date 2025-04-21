@@ -31,6 +31,20 @@
             .error { color: #dc3545; }
             .warning { color: #ffc107; }
             .loading { color: #007bff; }
+            .receipt-link {
+                display: inline-block;
+                margin-top: 20px;
+                padding: 10px 20px;
+                background-color: #007bff;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                font-weight: bold;
+                transition: background-color 0.3s;
+            }
+            .receipt-link:hover {
+                background-color: #0056b3;
+            }
         </style>
     </head>
     <body onload="autoPost()">
@@ -47,6 +61,9 @@
                 <i class="status-icon success fas fa-check-circle"></i>
                 <div class="status-text">Pagamento realizado com sucesso!</div>
                 <div class="message" th:text="${response.message}">Transação aprovada</div>
+                <a th:href="@{/pagamento/recibo/{reference}(reference=${response.reference}, sessionId=${#httpServletRequest.cookies['PAYMENT_SESSION_ID']?.value})}" class="receipt-link">
+                    <i class="fas fa-receipt"></i> Ver Recibo
+                </a>
             </div>
             
             <!-- Status de cancelamento -->
