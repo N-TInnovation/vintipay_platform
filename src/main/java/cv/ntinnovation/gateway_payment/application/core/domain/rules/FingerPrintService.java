@@ -9,11 +9,14 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.logging.Level;
@@ -76,9 +79,6 @@ public class FingerPrintService {
 	public FingerPrintResult validatorFingerPrintMessageType810MP(DataFingerPrint810MPResponse dataFingerPrint810MPResponse){
 
 		FingerPrintResult fingerPrintResult = FingerPrintResult.builder().build();
-		fingerPrintResult.setResult(validateAuthorizationCode(dataFingerPrint810MPResponse));
-		if (!fingerPrintResult.getResult()) return fingerPrintResult;
-
 		String resHash= HashGenerate.HashGenerate810MP(dataFingerPrint810MPResponse);
 
 		logger.log(Level.INFO,
@@ -103,8 +103,6 @@ public class FingerPrintService {
 	public FingerPrintResult validatorFingerPrintMessageType6(DataFingerPrint6Response dataFingerPrint6Response){
 
 		FingerPrintResult fingerPrintResult = FingerPrintResult.builder().build();
-		fingerPrintResult.setResult(validateAuthorizationCode(dataFingerPrint6Response));
-		if (!fingerPrintResult.getResult()) return fingerPrintResult;
 		String resHash=HashGenerate.HashGenerate6(dataFingerPrint6Response);
 		logger.log(Level.INFO,
 				"Generate ToHash: " +resHash);
@@ -118,30 +116,20 @@ public class FingerPrintService {
 		return fingerPrintResult;
 	}
 
-	public FingerPrintResult validatorFingerPrintMessageTypeOutros(DataFingerPrintOutroResponse dataFingerPrintOutroResponse){
+	public FingerPrintResult validatorFingerPrintMessageTypeOutros(DataFingerPrintOutroResponse DataFingerPrintOutroResponse){
 
-		FingerPrintResult fingerPrintResult = FingerPrintResult.builder().build();
-		fingerPrintResult.setResult(validateAuthorizationCode(dataFingerPrintOutroResponse));
-
-		return fingerPrintResult;
-	}
-
-	private boolean validateAuthorizationCode(RetornoFingerprint retornoFingerprint) {
-		try {
-			var pagamento = retornoFingerprint.getPagamento();
-			var data = pagamento.getIntencaoPagamento().getPosId()+"|"
-					+pagamento.getIntencaoPagamento().getAmount().longValue()+"|"
-					+pagamento.getIntencaoPagamento().getTransactionCode()+"|"
-					+pagamento.getIntencaoPagamento().getReference()+"|"
-					+pagamento.getIntencaoPagamento().getContaPagamento().getEmail()
-					+"|"+pagamento.getIntencaoPagamento().getContaPagamento().getMobilePhone();
-			var fingerprint = SHA.GenerateSHA512StringToBase64(data);
-			var plainText = decryptAES256(retornoFingerprint.getAuthorizationCode());
-			var authorizationCodeHash = SHA.GenerateSHA512StringToBase64(plainText);
-			return authorizationCodeHash.equals(fingerprint);
-		} catch (RuntimeException e) {
-			throw new FingerprintInvalidoException("Fingerprint Invalido");
+		FingerPrintResult fingerPrintResult =  FingerPrintResult.builder().build();
+		String resHash=HashGenerate.HashGenerateOutros(DataFingerPrintOutroResponse);
+		logger.log(Level.INFO,
+				"Generate ToHash: " +resHash);
+		logger.log(Level.INFO,
+				"Generate SISP ToHash: " +DataFingerPrintOutroResponse.getResultFingerPrint());
+		fingerPrintResult.setResult(false);
+		if(resHash.equals(DataFingerPrintOutroResponse.getResultFingerPrint())){
+			fingerPrintResult.setResult(true);
 		}
+		fingerPrintResult.setHashFingerPrint(resHash);
+		return fingerPrintResult;
 	}
 	
 	/**
@@ -245,6 +233,90 @@ public class FingerPrintService {
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Erro ao derivar chave: " + e.getMessage(), e);
 			throw new RuntimeException("Erro ao derivar chave", e);
+		}
+	}
+	
+	/**
+	 * Gera um HMAC (Hash-based Message Authentication Code) usando o algoritmo HmacSHA256
+	 * 
+	 * @param data Dados a serem assinados
+	 * @param key Chave secreta para assinatura
+	 * @return String em formato Base64 contendo o HMAC
+	 */
+	public String generateHmac(String data, String key) {
+		try {
+			// Criar a chave secreta para HMAC
+			SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+			
+			// Inicializar o MAC
+			Mac mac = Mac.getInstance("HmacSHA256");
+			mac.init(secretKeySpec);
+			
+			// Calcular o HMAC
+			byte[] hmacBytes = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+			
+			// Converter para Base64
+			return Base64.getEncoder().encodeToString(hmacBytes);
+		} catch (NoSuchAlgorithmException | InvalidKeyException e) {
+			logger.log(Level.SEVERE, "Erro ao gerar HMAC: " + e.getMessage(), e);
+			throw new RuntimeException("Erro ao gerar HMAC", e);
+		}
+	}
+	
+	/**
+	 * Gera um HMAC para os dados de resposta do checkout
+	 * 
+	 * @param reference Referência do pagamento
+	 * @param status Status do pagamento
+	 * @param message Mensagem de retorno
+	 * @param amount Valor do pagamento
+	 * @param currency Moeda do pagamento
+	 * @param merchantSession Sessão do comerciante
+	 * @param merchantRef Referência do comerciante
+	 * @param timestamp Timestamp da transação
+	 * @param secretKey Chave secreta para assinatura
+	 * @return String em formato Base64 contendo o HMAC
+	 */
+	public String generateCheckoutResponseHmac(String reference, String status, String message, 
+			BigDecimal amount, String currency, String merchantSession, String merchantRef, 
+			String timestamp, String panMascarado, String secretKey) {
+		
+		// Concatenar os dados na ordem correta
+		String data = reference + status + message + amount.toString() + currency + 
+				merchantSession + merchantRef + timestamp + panMascarado;
+		
+		// Gerar e retornar o HMAC
+		return generateHmac(data, secretKey);
+	}
+	
+	/**
+	 * Verifica se um HMAC é válido
+	 * 
+	 * @param data Dados originais
+	 * @param hmac HMAC a ser verificado
+	 * @param key Chave secreta
+	 * @return true se o HMAC for válido, false caso contrário
+	 */
+	public boolean verifyHmac(String data, String hmac, String key) {
+		String calculatedHmac = generateHmac(data, key);
+		return calculatedHmac.equals(hmac);
+	}
+
+	private boolean validateAuthorizationCode(RetornoFingerprint retornoFingerprint) {
+		try {
+			var pagamento = retornoFingerprint.getPagamento();
+			var data = pagamento.getIntencaoPagamento().getPosId()+"|"
+					+pagamento.getIntencaoPagamento().getAmount().longValue()+"|"
+					+pagamento.getIntencaoPagamento().getTransactionCode()+"|"
+					+pagamento.getIntencaoPagamento().getReference()+"|"
+					+pagamento.getIntencaoPagamento().getContaPagamento().getEmail()
+					+"|"+pagamento.getIntencaoPagamento().getContaPagamento().getMobilePhone();
+			var fingerprint = SHA.GenerateSHA512StringToBase64(data);
+			var plainText = decryptAES256(retornoFingerprint.getAuthorizationCode());
+			var authorizationCodeHash = SHA.GenerateSHA512StringToBase64(plainText);
+			return authorizationCodeHash.equals(fingerprint);
+		} catch (RuntimeException e) {
+			throw new FingerprintInvalidoException("Fingerprint Invalido");
 		}
 	}
 }

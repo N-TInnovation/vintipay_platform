@@ -23,6 +23,7 @@ public class ConfiguracaoPagamentoMapper {
                 .posAutCode(domain.getPosAutCode())
                 .returnUrl(domain.getReturnUrl())
                 .isActive(domain.getIsActive())
+                .returnAutCode(domain.getReturnAutCode())
                 .createdAt(domain.getCreatedAt() != null ? domain.getCreatedAt() : LocalDateTime.now())
                 .updatedAt(domain.getUpdatedAt() != null ? domain.getUpdatedAt() : LocalDateTime.now())
                 .build();
@@ -40,6 +41,7 @@ public class ConfiguracaoPagamentoMapper {
                 .terminalId(entity.getTerminalId())
                 .apiKey(entity.getApiKey())
                 .apiSecret(entity.getApiSecret())
+                .returnAutCode(entity.getReturnAutCode())
                 .posAutCode(entity.getPosAutCode())
                 .returnUrl(entity.getReturnUrl())
                 .isActive(entity.getIsActive())

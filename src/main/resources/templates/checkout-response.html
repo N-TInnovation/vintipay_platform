@@ -74,6 +74,8 @@
             <input type="hidden" th:value="*{merchantRef}" name="merchantRef">
             <input type="hidden" th:value="*{timestamp}" name="timestamp">
             <input type="hidden" th:value="*{panMascarado}" name="panMascarado">
+            <!-- Campo de fingerprint HMAC para verificação de integridade -->
+            <input type="hidden" th:value="${hmacFingerprint}" name="fingerprint">
         </form>
         
         <script>

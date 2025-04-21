@@ -8,6 +8,7 @@ import cv.ntinnovation.gateway_payment.application.core.domain.entity.IntencaoPa
 import cv.ntinnovation.gateway_payment.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.gateway_payment.application.core.domain.enums.MensagemRetornoEnum;
 import cv.ntinnovation.gateway_payment.application.core.domain.exception.PagamentoNaoEncontradoException;
+import cv.ntinnovation.gateway_payment.application.core.domain.rules.FingerPrintService;
 import cv.ntinnovation.gateway_payment.application.port.in.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class WebhookPagamentoController {
     private final BuscaPagamentoUseCase buscaPagamentoUseCase;
     private final ValidaRetornoUseCase validaRetornoUseCase;
     private final WebhookPagamentoMapper webhookPagamentoMapper;
+    private final FingerPrintService fingerPrintService;
 
     @PostMapping(value = "/sisp/pagamentos/retorno/{reference}",
             consumes={"application/x-www-form-urlencoded;charset=UTF-8"}, produces={ MediaType.ALL_VALUE })
@@ -86,9 +88,26 @@ public class WebhookPagamentoController {
                     .timestamp(pagamento.getTimestamp())
                     .build();
             log.debug("Response DTO criado: {}", responseDto);
+            
+            // Gerar HMAC para verificação de integridade dos dados
+            String hmacFingerprint = fingerPrintService.generateCheckoutResponseHmac(
+                responseDto.getReference(),
+                responseDto.getStatus(),
+                responseDto.getMessage(),
+                responseDto.getAmount(),
+                responseDto.getCurrency(),
+                responseDto.getMerchantSession(),
+                responseDto.getMerchantRef(),
+                responseDto.getTimestamp(),
+                responseDto.getPanMascarado(),
+                configuracaoPagamento.getReturnAutCode() // Usando returnAutCode como chave secreta
+            );
+            
+            log.debug("HMAC Fingerprint gerado: {}", hmacFingerprint);
 
             model.addAttribute("response", responseDto);
             model.addAttribute("submitFormUrl", configuracaoPagamento.getReturnUrl());
+            model.addAttribute("hmacFingerprint", hmacFingerprint);
             log.info("Redirecionando para: {}", configuracaoPagamento.getReturnUrl());
 
             return "checkout-response";
@@ -99,10 +118,6 @@ public class WebhookPagamentoController {
     }
 
     private String getMensagemRetorno(MensagemRetornoEnum mensagemRetornoEnum, SispWebhookRequest request) {
-        String merchantRespErrorDescription = request.getMerchantRespErrorDescription();
-        String merchantRespErrorDetail = request.getMerchantRespErrorDetail();
-        return mensagemRetornoEnum.equals(MensagemRetornoEnum.TRANSACAO_FALHA) ?
-                merchantRespErrorDescription + " - " + merchantRespErrorDetail :
-                mensagemRetornoEnum.getDescricao();
+        return mensagemRetornoEnum.getDescricao();
     }
 }
