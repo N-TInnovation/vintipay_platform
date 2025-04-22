@@ -53,3 +53,5 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql: TRACE
     org.springframework.jdbc.datasource.init: DEBUG
+    cv.ntinnovation.vintipay: DEBUG
+    org.springframework.security: DEBUG

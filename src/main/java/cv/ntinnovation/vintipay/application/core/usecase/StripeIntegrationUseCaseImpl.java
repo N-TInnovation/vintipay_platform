@@ -98,6 +98,38 @@ public class StripeIntegrationUseCaseImpl implements StripeIntegrationUseCase {
     }
 
     @Override
+    public String criarPreco(String produtoId, long valorCentavos, String moeda, String intervalo, int intervalCount) {
+        try {
+            PriceCreateParams.Recurring.Interval intervalEnum;
+            try {
+                intervalEnum = PriceCreateParams.Recurring.Interval.valueOf(intervalo.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // Valor padrão se o intervalo não for válido
+                log.warn("Intervalo inválido: {}. Usando MONTH como padrão.", intervalo);
+                intervalEnum = PriceCreateParams.Recurring.Interval.MONTH;
+            }
+            
+            PriceCreateParams.Recurring recurring = PriceCreateParams.Recurring.builder()
+                    .setInterval(intervalEnum)
+                    .setIntervalCount((long) intervalCount)
+                    .build();
+
+            PriceCreateParams params = PriceCreateParams.builder()
+                    .setProduct(produtoId)
+                    .setUnitAmount(valorCentavos)
+                    .setCurrency(moeda)
+                    .setRecurring(recurring)
+                    .build();
+
+            Price price = Price.create(params);
+            return price.getId();
+        } catch (StripeException e) {
+            log.error("Erro ao criar preço no Stripe com intervalCount: {}", intervalCount, e);
+            throw new RuntimeException("Erro ao criar preço no Stripe: " + e.getMessage(), e);
+        }
+    }
+    
+    @Override
     public String criarCheckoutSession(Usuario usuario, String priceId, String successUrl, String cancelUrl) {
         try {
             // Certifique-se de que o usuário tem um customerId do Stripe
@@ -164,6 +196,21 @@ public class StripeIntegrationUseCaseImpl implements StripeIntegrationUseCase {
         } catch (StripeException e) {
             log.error("Erro ao cancelar assinatura no Stripe", e);
             throw new RuntimeException("Erro ao cancelar assinatura no Stripe: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void atualizarProduto(String produtoId, String nome, String descricao) {
+        try {
+            Product product = Product.retrieve(produtoId);
+            Map<String, Object> params = new HashMap<>();
+            params.put("name", nome);
+            params.put("description", descricao);
+            product.update(params);
+            log.debug("Produto atualizado no Stripe: {}", produtoId);
+        } catch (StripeException e) {
+            log.error("Erro ao atualizar produto no Stripe", e);
+            throw new RuntimeException("Erro ao atualizar produto no Stripe: " + e.getMessage(), e);
         }
     }
 

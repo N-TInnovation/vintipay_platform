@@ -18,11 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class DefaultUserInitializer implements CommandLineRunner {
 
     private final RegistroUsuarioUseCase registroUsuarioUseCase;
-
     private final BuscaUsuario buscaUsuario;
-
     private final PasswordEncoder passwordEncoder;
-
     private final ConfiguracaoPagamentoRepository configuracaoPagamentoRepository;
     private final CriaMetodoPagamentoUseCase criaMetodoPagamentoUseCase;
     private final CriaConfiguracaoPagamentoUseCase criaConfiguracaoPagamentoUseCase;
@@ -30,11 +27,12 @@ public class DefaultUserInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        if (buscaUsuario.getusername("admin").isEmpty()) {
-            registroUsuarioUseCase.executar("admin",passwordEncoder.encode("admin123"),"ADMIN");
-            System.out.println("Usuário padrão 'admin' criado com sucesso!");
+        String username = buscaUsuario.getusername("admin");
+        if (username.isEmpty()) {
+            registroUsuarioUseCase.executar("admin", passwordEncoder.encode("admin123"), "ADMIN");
+            log.info("Usuário padrão 'admin' criado com sucesso!");
         } else {
-            System.out.println("Usuário padrão 'admin' já existe.");
+            log.info("Usuário padrão 'admin' já existe.");
         }
         /*if (configuracaoPagamentoRepository.count() > 0) {
             log.info("Configurações já existem, pulando inicialização");

@@ -1,8 +1,8 @@
 package cv.ntinnovation.vintipay.application.port.out;
 
-import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public interface BuscaUsuario {
     public String getusername(String username);
-    public Usuario getUser(String username);
+    public UserDetails getUser(String username);
 }

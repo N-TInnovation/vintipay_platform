@@ -116,8 +116,11 @@ public class SecurityConfig {
                             .requestMatchers("/pagamento/checkout/{reference}").permitAll()
                             .requestMatchers("/error").permitAll()
                             .requestMatchers("/login").permitAll()
+                            .requestMatchers("/registro").permitAll()
                             .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                            .requestMatchers(HttpMethod.POST, "/registro").permitAll()
                             .requestMatchers("/images/**", "/css/**", "/js/**").permitAll()
+                            .requestMatchers("/webhook/stripe").permitAll()
                             .anyRequest().authenticated()
                     )
                     .formLogin(form -> form
@@ -139,15 +142,16 @@ public class SecurityConfig {
             return http.build();
         }
 
-        @Bean
-        public InMemoryUserDetailsManager userDetailsService() {
-            UserDetails admin = User.builder()
-                    .username("admin")
-                    .password(encoder().encode("admin123"))
-                    .roles("ADMIN")
-                    .build();
-            return new InMemoryUserDetailsManager(admin);
-        }
+        // Removido o InMemoryUserDetailsManager para evitar conflito com o sistema de usuários do banco de dados
+        // @Bean
+        // public InMemoryUserDetailsManager userDetailsService() {
+        //     UserDetails admin = User.builder()
+        //             .username("admin")
+        //             .password(encoder().encode("admin123"))
+        //             .roles("ADMIN")
+        //             .build();
+        //     return new InMemoryUserDetailsManager(admin);
+        // }
 
         @Bean
         public static PasswordEncoder encoder() {

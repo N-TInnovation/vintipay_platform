@@ -2,10 +2,10 @@ package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.out.db.entity.UsuarioEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.repository.UsuarioRepository;
+import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsusarioMapper;
 import cv.ntinnovation.vintipay.application.core.domain.entity.PlanoAssinatura;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaAssinaturaUseCase;
-import cv.ntinnovation.vintipay.application.port.out.BuscaUsuario;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,7 +24,7 @@ import java.util.Optional;
 public class UsuarioAdminController {
 
     private final UsuarioRepository usuarioRepository;
-    private final BuscaUsuario buscaUsuario;
+    private final UsusarioMapper usuarioMapper;
     private final GerenciaAssinaturaUseCase gerenciaAssinaturaUseCase;
 
     @GetMapping
@@ -45,7 +45,7 @@ public class UsuarioAdminController {
         model.addAttribute("usuario", usuarioEntity);
         
         // Buscar assinatura do usuário, se existir
-        Usuario usuario = buscaUsuario.getUser(usuarioEntity.getUsername());
+        Usuario usuario = usuarioMapper.toDomain(usuarioEntity);
         Optional<PlanoAssinatura> assinaturaOptional = gerenciaAssinaturaUseCase.buscarAssinaturaPorUsuario(usuario);
         assinaturaOptional.ifPresent(assinatura -> model.addAttribute("assinatura", assinatura));
         

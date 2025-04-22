@@ -1,12 +1,13 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
+import cv.ntinnovation.vintipay.adapter.out.db.repository.UsuarioRepository;
+import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsusarioMapper;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Plano;
 import cv.ntinnovation.vintipay.application.core.domain.entity.PlanoAssinatura;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaAssinaturaUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaPlanoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.StripeIntegrationUseCase;
-import cv.ntinnovation.vintipay.application.port.out.BuscaUsuario;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -27,20 +28,25 @@ public class AssinaturaController {
     private final GerenciaPlanoUseCase gerenciaPlanoUseCase;
     private final GerenciaAssinaturaUseCase gerenciaAssinaturaUseCase;
     private final StripeIntegrationUseCase stripeIntegrationUseCase;
-    private final BuscaUsuario buscaUsuario;
+    private final UsuarioRepository usuarioRepository;
+    private final UsusarioMapper usuarioMapper;
 
     @GetMapping
     public String exibirPlanos(Model model) {
         List<Plano> planos = gerenciaPlanoUseCase.listarPlanosAtivos();
         model.addAttribute("planos", planos);
-        
+
         // Verificar se o usuário já tem uma assinatura
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Usuario usuario = buscaUsuario.getUser(auth.getName());
-        
+        String username = auth.getName();
+
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .map(usuarioMapper::toDomain)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
         Optional<PlanoAssinatura> assinaturaOptional = gerenciaAssinaturaUseCase.buscarAssinaturaPorUsuario(usuario);
         assinaturaOptional.ifPresent(assinatura -> model.addAttribute("assinaturaAtual", assinatura));
-        
+
         return "assinaturas/planos";
     }
 
@@ -50,10 +56,10 @@ public class AssinaturaController {
         if (planoOptional.isEmpty()) {
             return "redirect:/assinaturas?erro=Plano+não+encontrado";
         }
-        
+
         Plano plano = planoOptional.get();
         model.addAttribute("plano", plano);
-        
+
         return "assinaturas/checkout";
     }
 
@@ -62,27 +68,31 @@ public class AssinaturaController {
         try {
             // Obter o usuário atual
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuario = buscaUsuario.getUser(auth.getName());
-            
+            String username = auth.getName();
+
+            Usuario usuario = usuarioRepository.findByUsername(username)
+                    .map(usuarioMapper::toDomain)
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
             // Obter o plano
             Optional<Plano> planoOptional = gerenciaPlanoUseCase.buscarPlanoPorId(planoId);
             if (planoOptional.isEmpty()) {
                 return "redirect:/assinaturas?erro=Plano+não+encontrado";
             }
-            
+
             Plano plano = planoOptional.get();
-            
+
             // Criar URL de checkout do Stripe
             String successUrl = "http://localhost:8080/assinaturas/sucesso";
             String cancelUrl = "http://localhost:8080/assinaturas/cancelado";
-            
+
             String checkoutUrl = stripeIntegrationUseCase.criarCheckoutSession(
-                    usuario, 
-                    plano.getStripePriceId(), 
-                    successUrl, 
+                    usuario,
+                    plano.getStripePriceId(),
+                    successUrl,
                     cancelUrl
             );
-            
+
             // Redirecionar para a página de checkout do Stripe
             return "redirect:" + checkoutUrl;
         } catch (Exception e) {
@@ -106,11 +116,15 @@ public class AssinaturaController {
         try {
             // Obter o usuário atual
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuario = buscaUsuario.getUser(auth.getName());
-            
+            String username = auth.getName();
+
+            Usuario usuario = usuarioRepository.findByUsername(username)
+                    .map(usuarioMapper::toDomain)
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
             // Cancelar a assinatura
             gerenciaAssinaturaUseCase.cancelarAssinatura(usuario);
-            
+
             return "redirect:/assinaturas?sucesso=Assinatura+cancelada+com+sucesso";
         } catch (Exception e) {
             log.error("Erro ao cancelar assinatura", e);
