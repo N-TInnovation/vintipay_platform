@@ -27,19 +27,13 @@ sisp:
     return:
       url: https://localhost:8443/webhook/sisp/pagamentos/retorno
 
-logging:
-  level:
-    cv:
-      uniteltemais:
-        gateway_payment: DEBUG
-
 springdoc:
   api-docs:
     path: /api-docs
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/gateway_pagamento?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/vintipay?createDatabaseIfNotExist=true
     username: root
     password: 
     driver-class-name: com.mysql.cj.jdbc.Driver

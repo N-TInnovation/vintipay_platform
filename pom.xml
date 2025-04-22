@@ -8,9 +8,9 @@
 		<relativePath />
 	</parent>
 	<groupId>cv.ntinovation</groupId>
-	<artifactId>gateway-pagamento</artifactId>
+	<artifactId>vintipay</artifactId>
 	<version>0.0.1</version>
-	<name>gateway-pagamento</name>
+	<name>vintipay</name>
 	<description>Serviço que integra com gateway de pagamento sisp</description>
 	<url />
 	<licenses>

@@ -40,7 +40,7 @@ DROP TABLE IF EXISTS metodo_pagamento [90107-232]
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350)
-	at cv.ntinnovation.gateway_payment.GatewayPaymentApplication.main(GatewayPaymentApplication.java:10)
+	at cv.ntinnovation.vintipay.GatewayPaymentApplication.main(GatewayPaymentApplication.java:10)
 2025-04-11 00:03:09 database: flush
 org.h2.message.DbException: General error: "java.lang.IllegalStateException: The write format 3 is larger than the supported format 1, and the file was not opened in read-only mode [1.4.199/5]" [50000-199]
 	at org.h2.message.DbException.get(DbException.java:194)
