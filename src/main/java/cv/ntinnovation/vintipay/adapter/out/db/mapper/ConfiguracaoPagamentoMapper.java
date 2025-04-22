@@ -1,19 +1,25 @@
 package cv.ntinnovation.vintipay.adapter.out.db.mapper;
 
 import cv.ntinnovation.vintipay.adapter.out.db.entity.ConfiguracaoPagamentoEntity;
+import cv.ntinnovation.vintipay.adapter.out.db.entity.UsuarioEntity;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
+import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import java.time.LocalDateTime;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class ConfiguracaoPagamentoMapper {
+
+    private final UsusarioMapper ususarioMapper;
 
     public ConfiguracaoPagamentoEntity toEntity(ConfiguracaoPagamento domain) {
         if (domain == null) {
             return null;
         }
 
-        return ConfiguracaoPagamentoEntity.builder()
+        ConfiguracaoPagamentoEntity entity = ConfiguracaoPagamentoEntity.builder()
                 .id(domain.getId())
                 .posId(domain.getPosId())
                 .merchantId(domain.getMerchantId())
@@ -31,6 +37,13 @@ public class ConfiguracaoPagamentoMapper {
                 .createdAt(domain.getCreatedAt() != null ? domain.getCreatedAt() : LocalDateTime.now())
                 .updatedAt(domain.getUpdatedAt() != null ? domain.getUpdatedAt() : LocalDateTime.now())
                 .build();
+        
+        if (domain.getUsuario() != null) {
+            UsuarioEntity usuarioEntity = ususarioMapper.toEntity(domain.getUsuario());
+            entity.setUsuario(usuarioEntity);
+        }
+        
+        return entity;
     }
 
     public ConfiguracaoPagamento toDomain(ConfiguracaoPagamentoEntity entity) {
@@ -38,7 +51,7 @@ public class ConfiguracaoPagamentoMapper {
             return null;
         }
 
-        return ConfiguracaoPagamento.builder()
+        ConfiguracaoPagamento domain = ConfiguracaoPagamento.builder()
                 .id(entity.getId())
                 .posId(entity.getPosId())
                 .merchantId(entity.getMerchantId())
@@ -56,5 +69,12 @@ public class ConfiguracaoPagamentoMapper {
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
+        
+        if (entity.getUsuario() != null) {
+            Usuario usuario = ususarioMapper.toDomain(entity.getUsuario());
+            domain.setUsuario(usuario);
+        }
+        
+        return domain;
     }
 }

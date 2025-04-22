@@ -53,6 +53,26 @@ public class ConfiguracaoPagamentoAdapter implements BuscaConfiguracaoPagamentoP
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    public List<ConfiguracaoPagamento> buscarPorUsuario(Long usuarioId) {
+        return repository.findByUsuarioId(usuarioId).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<ConfiguracaoPagamento> buscarAtivasPorUsuario(Long usuarioId) {
+        return repository.findByUsuarioIdAndIsActiveTrue(usuarioId).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public Optional<ConfiguracaoPagamento> buscarPorUsuarioEPosId(Long usuarioId, String posId) {
+        return repository.findByUsuarioIdAndPosId(usuarioId, posId)
+                .map(mapper::toDomain);
+    }
 
     @Override
     public ConfiguracaoPagamento salvar(ConfiguracaoPagamento configuracao) {

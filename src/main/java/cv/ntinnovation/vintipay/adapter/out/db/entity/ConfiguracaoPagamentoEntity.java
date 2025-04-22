@@ -20,16 +20,16 @@ public class ConfiguracaoPagamentoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "pos_id", nullable = false, unique = true)
+    @Column(name = "pos_id", nullable = false)
     private String posId;
 
-    @Column(name = "merchant_id", nullable = false, unique = true)
+    @Column(name = "merchant_id", nullable = false)
     private String merchantId;
 
     @Column(name = "terminal_id", nullable = false)
     private String terminalId;
 
-    @Column(name = "api_key", nullable = false, unique = true)
+    @Column(name = "api_key", nullable = false)
     private String apiKey;
 
     @Column(name = "api_secret", nullable = false)
@@ -58,6 +58,10 @@ public class ConfiguracaoPagamentoEntity {
     
     @Column(name = "email")
     private String email;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private UsuarioEntity usuario;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

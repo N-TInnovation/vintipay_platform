@@ -28,4 +28,5 @@ public class ConfiguracaoPagamento {
     private String urlLoja;
     private String telefone;
     private String email;
+    private Usuario usuario;
 }

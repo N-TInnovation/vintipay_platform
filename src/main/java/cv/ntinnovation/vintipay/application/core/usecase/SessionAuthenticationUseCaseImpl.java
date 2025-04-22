@@ -27,6 +27,8 @@ public class SessionAuthenticationUseCaseImpl implements SessionAuthenticationUs
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
         
+        log.debug("Tentativa de login - Username: {}, Password (não criptografada): {}", username, password);
+        
         try {
             UserDetails userDetails = usuarioUseCase.getUser(username);
             log.debug("Usuário encontrado: {}, senha codificada: {}", username, userDetails.getPassword());
@@ -34,12 +36,15 @@ public class SessionAuthenticationUseCaseImpl implements SessionAuthenticationUs
             // Verificar se a senha está correta
             boolean senhaCorreta = passwordEncoder.matches(password, userDetails.getPassword());
             log.debug("Verificação de senha para {}: {}", username, senhaCorreta ? "SUCESSO" : "FALHA");
+            log.debug("Detalhes da verificação - Senha informada: {}, Senha armazenada: {}", password, userDetails.getPassword());
             
             if (!senhaCorreta) {
+                log.warn("Falha na autenticação para o usuário: {} - Senha incorreta", username);
                 throw new BadCredentialsException("Senha incorreta");
             }
             
             // Atualizar o último login do usuário (poderia ser implementado aqui)
+            log.info("Usuário {} autenticado com sucesso", username);
             
             return new UsernamePasswordAuthenticationToken(
                     userDetails, 
