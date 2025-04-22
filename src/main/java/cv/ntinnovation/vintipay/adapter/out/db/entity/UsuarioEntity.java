@@ -26,4 +26,23 @@ public class UsuarioEntity {
     private String role;
     
     private boolean ativo = true;
+    
+    @Column(unique = true)
+    private String email;
+    
+    private String nome;
+    
+    private String telefone;
+    
+    @Column(name = "stripe_customer_id")
+    private String stripeCustomerId;
+    
+    @Column(name = "data_registro")
+    private java.time.LocalDateTime dataRegistro;
+    
+    @Column(name = "ultimo_login")
+    private java.time.LocalDateTime ultimoLogin;
+    
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private PlanoAssinaturaEntity planoAssinatura;
 }

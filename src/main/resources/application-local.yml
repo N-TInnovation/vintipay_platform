@@ -27,6 +27,12 @@ sisp:
     return:
       url: https://localhost:8443/webhook/sisp/pagamentos/retorno
 
+stripe:
+  api:
+    key: ${STRIPE_API_KEY:sk_test_51JZHlXFLqETPcYGM3OkBuL08Yv8BFyYLkMIuIRBORak5t2aIOQ5IoRtZOoa0kNMcFbGhjSbHgRG8Hf5WIrPqAh1300GGaBDBpk}
+  webhook:
+    secret: ${STRIPE_WEBHOOK_SECRET:whsec_your_webhook_secret}
+
 springdoc:
   api-docs:
     path: /api-docs

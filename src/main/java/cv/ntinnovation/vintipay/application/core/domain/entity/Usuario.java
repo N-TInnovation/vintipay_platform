@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,12 +25,51 @@ public class Usuario extends User {
     private String username;
     @Setter
     private String password;
+    
+    @Getter
+    @Setter
+    private String email;
+    
+    @Getter
+    @Setter
+    private String nome;
+    
+    @Getter
+    @Setter
+    private String telefone;
+    
+    @Getter
+    @Setter
+    private String stripeCustomerId;
+    
+    @Getter
+    @Setter
+    private LocalDateTime dataRegistro;
+    
+    @Getter
+    @Setter
+    private LocalDateTime ultimoLogin;
+    
+    @Getter
+    @Setter
+    private PlanoAssinatura planoAssinatura;
 
 
     public static Usuario builder(String username, String password, boolean ativo, String... roles) {
         UserDetails detalhesUsuario = User.withUsername(username).password(password).roles(roles).disabled(!ativo).build();
 
         return new Usuario(username, password, detalhesUsuario.getAuthorities(), ativo, roles);
+    }
+    
+    public static Usuario builder(String username, String email, String nome, String password, boolean ativo, String... roles) {
+        UserDetails detalhesUsuario = User.withUsername(username).password(password).roles(roles).disabled(!ativo).build();
+        
+        Usuario usuario = new Usuario(username, password, detalhesUsuario.getAuthorities(), ativo, roles);
+        usuario.setEmail(email);
+        usuario.setNome(nome);
+        usuario.setDataRegistro(LocalDateTime.now());
+        
+        return usuario;
     }
 
     public static DetalhesUsuario builder(String username, String password, String... role) {

@@ -12,6 +12,12 @@ public class UsusarioMapper {
                         userEntity.getPassword(),
                         userEntity.isAtivo(), userEntity.getRole());
         usuario.setId(userEntity.getId());
+        usuario.setEmail(userEntity.getEmail());
+        usuario.setNome(userEntity.getNome());
+        usuario.setTelefone(userEntity.getTelefone());
+        usuario.setStripeCustomerId(userEntity.getStripeCustomerId());
+        usuario.setDataRegistro(userEntity.getDataRegistro());
+        usuario.setUltimoLogin(userEntity.getUltimoLogin());
         return usuario;
     }
 
@@ -19,9 +25,16 @@ public class UsusarioMapper {
 
         return UsuarioEntity.builder()
                 .id(user.getId())
-                .username(user.getUsername()).password(user.getPassword())
+                .username(user.getUsername())
+                .password(user.getPassword())
                 .role(user.getRole()[0])
                 .ativo(user.isAtivo())
+                .email(user.getEmail())
+                .nome(user.getNome())
+                .telefone(user.getTelefone())
+                .stripeCustomerId(user.getStripeCustomerId())
+                .dataRegistro(user.getDataRegistro())
+                .ultimoLogin(user.getUltimoLogin())
                 .build();
     }
 }
