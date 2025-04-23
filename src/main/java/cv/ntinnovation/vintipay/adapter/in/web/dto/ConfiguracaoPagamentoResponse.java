@@ -16,6 +16,7 @@ public class ConfiguracaoPagamentoResponse {
     private String posId;
     private String merchantId;
     private String terminalId;
+    private String apiKey;
     private String posAutCode;
     private String returnAutCode;
     private String returnUrl;

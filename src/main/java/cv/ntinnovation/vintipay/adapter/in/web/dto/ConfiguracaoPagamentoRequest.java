@@ -23,6 +23,12 @@ public class ConfiguracaoPagamentoRequest {
 
     @NotBlank(message = "O Terminal ID é obrigatório")
     private String terminalId;
+    
+    @NotBlank(message = "A API Key é obrigatória")
+    private String apiKey;
+    
+    @NotBlank(message = "A API Secret é obrigatória")
+    private String apiSecret;
 
     @NotBlank(message = "O POS Aut Code é obrigatório")
     private String posAutCode;

@@ -2,6 +2,9 @@ package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.in.web.dto.ConfiguracaoPagamentoRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.ConfiguracaoPagamentoResponse;
+import cv.ntinnovation.vintipay.adapter.in.web.mapper.ConfiguracaoPagamentoWebMapper;
+import cv.ntinnovation.vintipay.adapter.out.db.repository.UsuarioRepository;
+import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsusarioMapper;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaConfiguracaoPagamentoUsuarioUseCase;
@@ -10,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,9 +31,13 @@ import java.util.stream.Collectors;
 public class ConfiguracaoPagamentoUsuarioController {
 
     private final GerenciaConfiguracaoPagamentoUsuarioUseCase gerenciaConfiguracaoPagamentoUsuarioUseCase;
+    private final UsuarioRepository usuarioRepository;
+    private final UsusarioMapper usuarioMapper;
+    private final ConfiguracaoPagamentoWebMapper configuracaoPagamentoWebMapper;
 
     @GetMapping
-    public String listarConfiguracoes(@AuthenticationPrincipal Usuario usuario, Model model) {
+    public String listarConfiguracoes(Model model) {
+        Usuario usuario = getUsuarioAutenticado();
         List<ConfiguracaoPagamento> configuracoes = gerenciaConfiguracaoPagamentoUsuarioUseCase.buscarConfiguracoesDoUsuario(usuario.getId());
         model.addAttribute("configuracoes", configuracoes);
         return "configuracoes/lista";
@@ -44,7 +53,6 @@ public class ConfiguracaoPagamentoUsuarioController {
     public String criarConfiguracao(
             @Valid @ModelAttribute("configuracao") ConfiguracaoPagamentoRequest request,
             BindingResult result,
-            @AuthenticationPrincipal Usuario usuario,
             Model model) {
         
         if (result.hasErrors()) {
@@ -52,7 +60,8 @@ public class ConfiguracaoPagamentoUsuarioController {
         }
 
         try {
-            ConfiguracaoPagamento configuracao = mapearRequestParaEntidade(request);
+            Usuario usuario = getUsuarioAutenticado();
+            ConfiguracaoPagamento configuracao = configuracaoPagamentoWebMapper.toDomain(request);
             gerenciaConfiguracaoPagamentoUsuarioUseCase.criarConfiguracaoParaUsuario(configuracao, usuario.getId());
             return "redirect:/configuracoes-pagamento?sucesso";
         } catch (Exception e) {
@@ -63,12 +72,13 @@ public class ConfiguracaoPagamentoUsuarioController {
     }
 
     @GetMapping("/{id}/editar")
-    public String exibirFormularioEditar(@PathVariable Long id, @AuthenticationPrincipal Usuario usuario, Model model) {
+    public String exibirFormularioEditar(@PathVariable Long id, Model model) {
+        Usuario usuario = getUsuarioAutenticado();
         ConfiguracaoPagamento configuracao = gerenciaConfiguracaoPagamentoUsuarioUseCase
                 .buscarConfiguracaoPorIdEUsuario(id, usuario.getId())
                 .orElseThrow(() -> new RuntimeException("Configuração não encontrada"));
         
-        model.addAttribute("configuracao", mapearEntidadeParaRequest(configuracao));
+        model.addAttribute("configuracao", configuracaoPagamentoWebMapper.toRequest(configuracao));
         return "configuracoes/form";
     }
 
@@ -77,7 +87,6 @@ public class ConfiguracaoPagamentoUsuarioController {
             @PathVariable Long id,
             @Valid @ModelAttribute("configuracao") ConfiguracaoPagamentoRequest request,
             BindingResult result,
-            @AuthenticationPrincipal Usuario usuario,
             Model model) {
         
         if (result.hasErrors()) {
@@ -85,7 +94,8 @@ public class ConfiguracaoPagamentoUsuarioController {
         }
 
         try {
-            ConfiguracaoPagamento configuracao = mapearRequestParaEntidade(request);
+            Usuario usuario = getUsuarioAutenticado();
+            ConfiguracaoPagamento configuracao = configuracaoPagamentoWebMapper.toDomain(request);
             gerenciaConfiguracaoPagamentoUsuarioUseCase.atualizarConfiguracaoParaUsuario(id, configuracao, usuario.getId());
             return "redirect:/configuracoes-pagamento?sucesso";
         } catch (Exception e) {
@@ -96,13 +106,15 @@ public class ConfiguracaoPagamentoUsuarioController {
     }
 
     @PostMapping("/{id}/ativar")
-    public String ativarConfiguracao(@PathVariable Long id, @AuthenticationPrincipal Usuario usuario) {
+    public String ativarConfiguracao(@PathVariable Long id) {
+        Usuario usuario = getUsuarioAutenticado();
         gerenciaConfiguracaoPagamentoUsuarioUseCase.ativarConfiguracao(id, usuario.getId());
         return "redirect:/configuracoes-pagamento?sucesso";
     }
 
     @PostMapping("/{id}/desativar")
-    public String desativarConfiguracao(@PathVariable Long id, @AuthenticationPrincipal Usuario usuario) {
+    public String desativarConfiguracao(@PathVariable Long id) {
+        Usuario usuario = getUsuarioAutenticado();
         gerenciaConfiguracaoPagamentoUsuarioUseCase.desativarConfiguracao(id, usuario.getId());
         return "redirect:/configuracoes-pagamento?sucesso";
     }
@@ -111,10 +123,11 @@ public class ConfiguracaoPagamentoUsuarioController {
 
     @GetMapping("/api")
     @ResponseBody
-    public ResponseEntity<List<ConfiguracaoPagamentoResponse>> listarConfiguracoesApi(@AuthenticationPrincipal Usuario usuario) {
+    public ResponseEntity<List<ConfiguracaoPagamentoResponse>> listarConfiguracoesApi() {
+        Usuario usuario = getUsuarioAutenticado();
         List<ConfiguracaoPagamento> configuracoes = gerenciaConfiguracaoPagamentoUsuarioUseCase.buscarConfiguracoesDoUsuario(usuario.getId());
         List<ConfiguracaoPagamentoResponse> response = configuracoes.stream()
-                .map(this::mapearEntidadeParaResponse)
+                .map(configuracaoPagamentoWebMapper::toResponse)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
@@ -122,78 +135,41 @@ public class ConfiguracaoPagamentoUsuarioController {
     @PostMapping("/api")
     @ResponseBody
     public ResponseEntity<ConfiguracaoPagamentoResponse> criarConfiguracaoApi(
-            @Valid @RequestBody ConfiguracaoPagamentoRequest request,
-            @AuthenticationPrincipal Usuario usuario) {
+            @Valid @RequestBody ConfiguracaoPagamentoRequest request) {
         
-        ConfiguracaoPagamento configuracao = mapearRequestParaEntidade(request);
+        Usuario usuario = getUsuarioAutenticado();
+        ConfiguracaoPagamento configuracao = configuracaoPagamentoWebMapper.toDomain(request);
         ConfiguracaoPagamento configuracaoSalva = gerenciaConfiguracaoPagamentoUsuarioUseCase.criarConfiguracaoParaUsuario(configuracao, usuario.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapearEntidadeParaResponse(configuracaoSalva));
+        return ResponseEntity.status(HttpStatus.CREATED).body(configuracaoPagamentoWebMapper.toResponse(configuracaoSalva));
     }
 
     @PutMapping("/api/{id}")
     @ResponseBody
     public ResponseEntity<ConfiguracaoPagamentoResponse> atualizarConfiguracaoApi(
             @PathVariable Long id,
-            @Valid @RequestBody ConfiguracaoPagamentoRequest request,
-            @AuthenticationPrincipal Usuario usuario) {
+            @Valid @RequestBody ConfiguracaoPagamentoRequest request) {
         
-        ConfiguracaoPagamento configuracao = mapearRequestParaEntidade(request);
+        Usuario usuario = getUsuarioAutenticado();
+        ConfiguracaoPagamento configuracao = configuracaoPagamentoWebMapper.toDomain(request);
         ConfiguracaoPagamento configuracaoAtualizada = gerenciaConfiguracaoPagamentoUsuarioUseCase.atualizarConfiguracaoParaUsuario(id, configuracao, usuario.getId());
-        return ResponseEntity.ok(mapearEntidadeParaResponse(configuracaoAtualizada));
+        return ResponseEntity.ok(configuracaoPagamentoWebMapper.toResponse(configuracaoAtualizada));
     }
-
-    // Métodos auxiliares para mapeamento
-
-    private ConfiguracaoPagamento mapearRequestParaEntidade(ConfiguracaoPagamentoRequest request) {
-        return ConfiguracaoPagamento.builder()
-                .posId(request.getPosId())
-                .merchantId(request.getMerchantId())
-                .terminalId(request.getTerminalId())
-                .apiKey(request.getApiKey())
-                .apiSecret(request.getApiSecret())
-                .posAutCode(request.getPosAutCode())
-                .returnAutCode(request.getReturnAutCode())
-                .returnUrl(request.getReturnUrl())
-                .nomeLoja(request.getNomeLoja())
-                .urlLoja(request.getUrlLoja())
-                .telefone(request.getTelefone())
-                .email(request.getEmail())
-                .isActive(true)
-                .build();
-    }
-
-    private ConfiguracaoPagamentoRequest mapearEntidadeParaRequest(ConfiguracaoPagamento configuracao) {
-        ConfiguracaoPagamentoRequest request = new ConfiguracaoPagamentoRequest();
-        request.setPosId(configuracao.getPosId());
-        request.setMerchantId(configuracao.getMerchantId());
-        request.setTerminalId(configuracao.getTerminalId());
-        request.setApiKey(configuracao.getApiKey());
-        request.setApiSecret(configuracao.getApiSecret());
-        request.setPosAutCode(configuracao.getPosAutCode());
-        request.setReturnAutCode(configuracao.getReturnAutCode());
-        request.setReturnUrl(configuracao.getReturnUrl());
-        request.setNomeLoja(configuracao.getNomeLoja());
-        request.setUrlLoja(configuracao.getUrlLoja());
-        request.setTelefone(configuracao.getTelefone());
-        request.setEmail(configuracao.getEmail());
-        return request;
-    }
-
-    private ConfiguracaoPagamentoResponse mapearEntidadeParaResponse(ConfiguracaoPagamento configuracao) {
-        return ConfiguracaoPagamentoResponse.builder()
-                .id(configuracao.getId())
-                .posId(configuracao.getPosId())
-                .merchantId(configuracao.getMerchantId())
-                .terminalId(configuracao.getTerminalId())
-                .apiKey(configuracao.getApiKey())
-                .posAutCode(configuracao.getPosAutCode())
-                .returnAutCode(configuracao.getReturnAutCode())
-                .returnUrl(configuracao.getReturnUrl())
-                .nomeLoja(configuracao.getNomeLoja())
-                .urlLoja(configuracao.getUrlLoja())
-                .telefone(configuracao.getTelefone())
-                .email(configuracao.getEmail())
-                .ativo(configuracao.getIsActive())
-                .build();
+    
+    private Usuario getUsuarioAutenticado() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+        
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+        
+        return usuarioRepository.findByUsername(username)
+                .map(usuarioMapper::toDomain)
+                .orElseThrow(() -> {
+                    log.error("Usuário não encontrado: {}", username);
+                    return new UsernameNotFoundException("Usuário não encontrado: " + username);
+                });
     }
 }

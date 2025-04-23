@@ -18,6 +18,8 @@ public class ConfiguracaoPagamentoWebMapper {
                 .posId(request.getPosId())
                 .merchantId(request.getMerchantId())
                 .terminalId(request.getTerminalId())
+                .apiKey(request.getApiKey())
+                .apiSecret(request.getApiSecret())
                 .posAutCode(request.getPosAutCode())
                 .returnAutCode(request.getReturnAutCode())
                 .returnUrl(request.getReturnUrl())
@@ -27,6 +29,29 @@ public class ConfiguracaoPagamentoWebMapper {
                 .telefone(request.getTelefone())
                 .email(request.getEmail())
                 .build();
+    }
+    
+    public ConfiguracaoPagamentoRequest toRequest(ConfiguracaoPagamento domain) {
+        if (domain == null) {
+            return null;
+        }
+        
+        ConfiguracaoPagamentoRequest request = new ConfiguracaoPagamentoRequest();
+        request.setId(domain.getId());
+        request.setPosId(domain.getPosId());
+        request.setMerchantId(domain.getMerchantId());
+        request.setTerminalId(domain.getTerminalId());
+        request.setApiKey(domain.getApiKey());
+        request.setApiSecret(domain.getApiSecret());
+        request.setPosAutCode(domain.getPosAutCode());
+        request.setReturnAutCode(domain.getReturnAutCode());
+        request.setReturnUrl(domain.getReturnUrl());
+        request.setIsActive(domain.getIsActive());
+        request.setNomeLoja(domain.getNomeLoja());
+        request.setUrlLoja(domain.getUrlLoja());
+        request.setTelefone(domain.getTelefone());
+        request.setEmail(domain.getEmail());
+        return request;
     }
 
     public ConfiguracaoPagamentoResponse toResponse(ConfiguracaoPagamento domain) {
@@ -39,6 +64,8 @@ public class ConfiguracaoPagamentoWebMapper {
                 .posId(domain.getPosId())
                 .merchantId(domain.getMerchantId())
                 .terminalId(domain.getTerminalId())
+                .apiKey(domain.getApiKey())
+                // Não incluir apiSecret na resposta por questões de segurança
                 .posAutCode(domain.getPosAutCode())
                 .returnAutCode(domain.getReturnAutCode())
                 .returnUrl(domain.getReturnUrl())
