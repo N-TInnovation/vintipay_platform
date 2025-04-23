@@ -1,12 +1,10 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
-import cv.ntinnovation.vintipay.adapter.out.db.repository.UsuarioRepository;
-import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsuarioMapper;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaConfiguracaoPagamentoUsuarioUseCase;
 import cv.ntinnovation.vintipay.application.port.out.BuscaConfiguracaoPagamentoPort;
-import cv.ntinnovation.vintipay.application.port.out.BuscaUsuario;
+import cv.ntinnovation.vintipay.application.port.out.BuscaUsuarioPorIdPort;
 import cv.ntinnovation.vintipay.application.port.out.SalvaConfiguracaoPagamentoPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +23,7 @@ public class GerenciaConfiguracaoPagamentoUsuarioUseCaseImpl implements Gerencia
 
     private final BuscaConfiguracaoPagamentoPort buscaConfiguracaoPagamentoPort;
     private final SalvaConfiguracaoPagamentoPort salvaConfiguracaoPagamentoPort;
-    private final UsuarioRepository usuarioRepository;
-    private final UsuarioMapper usuarioMapper;
+    private final BuscaUsuarioPorIdPort buscaUsuarioPorIdPort;
 
     @Override
     @Transactional
@@ -135,8 +132,7 @@ public class GerenciaConfiguracaoPagamentoUsuarioUseCaseImpl implements Gerencia
     
     private Usuario buscarUsuarioPorId(Long usuarioId) {
         log.debug("Buscando usuário com ID: {}", usuarioId);
-        return usuarioRepository.findById(usuarioId)
-                .map(usuarioMapper::toDomain)
+        return buscaUsuarioPorIdPort.buscarPorId(usuarioId)
                 .orElseThrow(() -> {
                     log.error("Usuário não encontrado com o ID: {}", usuarioId);
                     return new UsernameNotFoundException("Usuário não encontrado com o ID: " + usuarioId);
