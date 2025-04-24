@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{user/layout/base :: html(
+        title='Meu Perfil',
+        activeMenu='perfil',
+        pageTitle='Meu Perfil',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <title>Meu Perfil</title>
+    <additionalCss>
+        <!-- CSS adicional específico desta página -->
+        <style>
+            .profile-header {
+                background-color: #f8f9fa;
+                border-radius: 10px;
+                padding: 20px;
+                margin-bottom: 30px;
+            }
+            
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                background-color: #e9ecef;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2.5rem;
+                color: #6c757d;
+                margin-right: 20px;
+            }
+            
+            .nav-pills .nav-link {
+                color: #495057;
+                border-radius: 0.5rem;
+                padding: 0.75rem 1.25rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .nav-pills .nav-link.active {
+                background-color: #2563eb;
+                color: white;
+            }
+            
+            .form-label {
+                font-weight: 500;
+            }
+            
+            .form-text {
+                font-size: 0.875rem;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <!-- Alertas de Sucesso/Erro -->
+        <div th:if="${mensagemSucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> <span th:text="${mensagemSucesso}">Operação realizada com sucesso!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+        
+        <div th:if="${mensagemErro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${mensagemErro}">Ocorreu um erro!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+        
+        <!-- Cabeçalho do Perfil -->
+        <div class="profile-header d-flex align-items-center mb-4">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div>
+                <h4 class="mb-1" th:text="${usuario.nome}">Nome do Usuário</h4>
+                <p class="text-muted mb-0" th:text="${usuario.email}">email@exemplo.com</p>
+                <p class="text-muted mb-0">
+                    <small>Membro desde <span th:text="${#temporals.format(usuario.dataRegistro, 'dd/MM/yyyy')}">01/01/2025</span></small>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Conteúdo do Perfil -->
+        <div class="row">
+            <div class="col-md-3 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                            <button class="nav-link active" id="v-pills-info-tab" data-bs-toggle="pill" data-bs-target="#v-pills-info" type="button" role="tab" aria-controls="v-pills-info" aria-selected="true">
+                                <i class="fas fa-user me-2"></i> Informações Pessoais
+                            </button>
+                            <button class="nav-link" id="v-pills-security-tab" data-bs-toggle="pill" data-bs-target="#v-pills-security" type="button" role="tab" aria-controls="v-pills-security" aria-selected="false">
+                                <i class="fas fa-lock me-2"></i> Segurança
+                            </button>
+                            <button class="nav-link" id="v-pills-notifications-tab" data-bs-toggle="pill" data-bs-target="#v-pills-notifications" type="button" role="tab" aria-controls="v-pills-notifications" aria-selected="false">
+                                <i class="fas fa-bell me-2"></i> Notificações
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="tab-content" id="v-pills-tabContent">
+                            <!-- Informações Pessoais -->
+                            <div class="tab-pane fade show active" id="v-pills-info" role="tabpanel" aria-labelledby="v-pills-info-tab">
+                                <h5 class="card-title mb-4">Informações Pessoais</h5>
+                                
+                                <form th:action="@{/user/perfil/atualizar}" method="post">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">E-mail</label>
+                                        <input type="email" class="form-control" id="email" th:value="${usuario.email}" readonly>
+                                        <div class="form-text">O e-mail não pode ser alterado.</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="nome" class="form-label">Nome Completo</label>
+                                        <input type="text" class="form-control" id="nome" name="nome" th:value="${usuario.nome}" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="telefone" class="form-label">Telefone</label>
+                                        <input type="tel" class="form-control" id="telefone" name="telefone" th:value="${usuario.telefone}">
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i> Salvar Alterações
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <!-- Segurança -->
+                            <div class="tab-pane fade" id="v-pills-security" role="tabpanel" aria-labelledby="v-pills-security-tab">
+                                <h5 class="card-title mb-4">Segurança</h5>
+                                
+                                <!-- Alertas de Sucesso/Erro para Alteração de Senha -->
+                                <div th:if="${mensagemSucessoSenha}" class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i> <span th:text="${mensagemSucessoSenha}">Senha alterada com sucesso!</span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                                </div>
+                                
+                                <div th:if="${mensagemErroSenha}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${mensagemErroSenha}">Erro ao alterar senha!</span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                                </div>
+                                
+                                <form th:action="@{/user/perfil/alterar-senha}" method="post">
+                                    <div class="mb-3">
+                                        <label for="senhaAtual" class="form-label">Senha Atual</label>
+                                        <input type="password" class="form-control" id="senhaAtual" name="senhaAtual" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="novaSenha" class="form-label">Nova Senha</label>
+                                        <input type="password" class="form-control" id="novaSenha" name="novaSenha" required>
+                                        <div class="form-text">A senha deve ter pelo menos 8 caracteres e incluir letras, números e caracteres especiais.</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="confirmarSenha" class="form-label">Confirmar Nova Senha</label>
+                                        <input type="password" class="form-control" id="confirmarSenha" name="confirmarSenha" required>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-key me-2"></i> Alterar Senha
+                                    </button>
+                                </form>
+                                
+                                <hr class="my-4">
+                                
+                                <h6 class="mb-3">Sessões Ativas</h6>
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">Sessão Atual</h6>
+                                                <p class="text-muted mb-0 small">Navegador: Chrome • IP: 192.168.1.1 • Último acesso: Hoje às 10:30</p>
+                                            </div>
+                                            <span class="badge bg-success">Ativa</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button class="btn btn-outline-danger">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Encerrar Todas as Sessões
+                                </button>
+                            </div>
+                            
+                            <!-- Notificações -->
+                            <div class="tab-pane fade" id="v-pills-notifications" role="tabpanel" aria-labelledby="v-pills-notifications-tab">
+                                <h5 class="card-title mb-4">Preferências de Notificação</h5>
+                                
+                                <form>
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="emailPagamentos" checked>
+                                            <label class="form-check-label" for="emailPagamentos">Receber notificações por e-mail sobre pagamentos</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="emailAssinatura" checked>
+                                            <label class="form-check-label" for="emailAssinatura">Receber notificações por e-mail sobre assinatura</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="emailMarketing">
+                                            <label class="form-check-label" for="emailMarketing">Receber e-mails de marketing e promoções</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="smsNotifications">
+                                            <label class="form-check-label" for="smsNotifications">Receber notificações por SMS</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i> Salvar Preferências
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- JavaScript adicional específico desta página -->
+        <script>
+            // Código JavaScript específico da página de perfil, se necessário
+            document.addEventListener('DOMContentLoaded', function() {
+                // Validação do formulário de alteração de senha
+                const formAlterarSenha = document.querySelector('form[action="/user/perfil/alterar-senha"]');
+                if (formAlterarSenha) {
+                    formAlterarSenha.addEventListener('submit', function(event) {
+                        const novaSenha = document.getElementById('novaSenha').value;
+                        const confirmarSenha = document.getElementById('confirmarSenha').value;
+                        
+                        if (novaSenha !== confirmarSenha) {
+                            event.preventDefault();
+                            alert('As senhas não coincidem. Por favor, verifique.');
+                        }
+                    });
+                }
+            });
+        </script>
+    </additionalJs>
+</body>
+</html>

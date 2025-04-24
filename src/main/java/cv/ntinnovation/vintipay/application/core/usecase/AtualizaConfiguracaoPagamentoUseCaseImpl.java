@@ -49,6 +49,22 @@ public class AtualizaConfiguracaoPagamentoUseCaseImpl implements AtualizaConfigu
         configuracaoExistente.setTelefone(configuracaoPagamento.getTelefone());
         configuracaoExistente.setEmail(configuracaoPagamento.getEmail());
         
+        // Atualiza campos adicionais
+        configuracaoExistente.setAmbiente(configuracaoPagamento.getAmbiente());
+        configuracaoExistente.setServiceUrl(configuracaoPagamento.getServiceUrl());
+        configuracaoExistente.setWebhookUrl(configuracaoPagamento.getWebhookUrl());
+        configuracaoExistente.setWebhookSecret(configuracaoPagamento.getWebhookSecret());
+        configuracaoExistente.setAtivo(configuracaoPagamento.getAtivo());
+        configuracaoExistente.setObservacoes(configuracaoPagamento.getObservacoes());
+        
+        // Não atualizar o API Secret se não for fornecido um novo
+        if (configuracaoPagamento.getApiSecret() != null && !configuracaoPagamento.getApiSecret().isEmpty()) {
+            log.info("Atualizando API Secret para a configuração ID: {}", configuracaoPagamento.getId());
+            configuracaoExistente.setApiSecret(configuracaoPagamento.getApiSecret());
+        } else {
+            log.info("Mantendo API Secret existente para a configuração ID: {}", configuracaoPagamento.getId());
+        }
+        
         // Garante que as datas estejam preenchidas
         if (configuracaoExistente.getCreatedAt() == null) {
             configuracaoExistente.setCreatedAt(LocalDateTime.now());

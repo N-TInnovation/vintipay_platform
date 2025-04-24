@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{admin/layout/base :: html(
+        title=${usuario.id != null ? 'Editar Usuário' : 'Novo Usuário'},
+        activeMenu='usuarios',
+        pageTitle=${usuario.id != null ? 'Editar Usuário' : 'Novo Usuário'},
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <style>
+            .required-field::after {
+                content: "*";
+                color: red;
+                margin-left: 4px;
+            }
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <!-- Botões de ação -->
+        <div class="d-flex justify-content-end mb-4">
+            <a th:href="@{/admin/usuarios}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+            <button type="submit" form="usuarioForm" class="btn btn-primary">
+                <i class="fas fa-save"></i> Salvar
+            </button>
+        </div>
+        
+        <!-- Alertas -->
+        <div th:if="${param.erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${param.erro}">Ocorreu um erro!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        
+        <!-- Formulário -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form id="usuarioForm" th:action="${usuario.id != null ? '/admin/usuarios/' + usuario.id + '/editar' : '/admin/usuarios/novo'}" 
+                      method="post" class="needs-validation" novalidate>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="nome" class="form-label required-field">Nome</label>
+                            <input type="text" class="form-control" id="nome" name="nome" th:value="${usuario.nome}" required>
+                            <div class="invalid-feedback">
+                                Por favor, informe o nome do usuário.
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="username" class="form-label required-field">Nome de Usuário</label>
+                            <input type="text" class="form-control" id="username" name="username" th:value="${usuario.username}" required>
+                            <div class="invalid-feedback">
+                                Por favor, informe o nome de usuário.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="email" class="form-label required-field">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" th:value="${usuario.email}" required>
+                            <div class="invalid-feedback">
+                                Por favor, informe um email válido.
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="telefone" class="form-label">Telefone</label>
+                            <input type="tel" class="form-control" id="telefone" name="telefone" th:value="${usuario.telefone}">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="password" class="form-label" th:classappend="${usuario.id == null ? 'required-field' : ''}">
+                                Senha
+                                <small th:if="${usuario.id != null}" class="text-muted">(Deixe em branco para manter a senha atual)</small>
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password" th:required="${usuario.id == null}">
+                            <div class="invalid-feedback">
+                                Por favor, informe uma senha.
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="confirmPassword" class="form-label" th:classappend="${usuario.id == null ? 'required-field' : ''}">
+                                Confirmar Senha
+                            </label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" th:required="${usuario.id == null}">
+                            <div class="invalid-feedback">
+                                As senhas não coincidem.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="roles" class="form-label required-field">Perfil</label>
+                            <select class="form-select" id="roles" name="roles" required multiple>
+                                <option value="USER" th:selected="${usuario.role != null && usuario.role.contains('USER')}">Usuário</option>
+                                <option value="ADMIN" th:selected="${usuario.role != null && usuario.role.contains('ADMIN')}">Administrador</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Por favor, selecione pelo menos um perfil.
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-4">
+                                <input class="form-check-input" type="checkbox" id="ativo" name="ativo" th:checked="${usuario.ativo}">
+                                <label class="form-check-label" for="ativo">Usuário Ativo</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <script>
+            // Validação do formulário
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('usuarioForm');
+                const password = document.getElementById('password');
+                const confirmPassword = document.getElementById('confirmPassword');
+                
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    
+                    // Verificar se as senhas coincidem
+                    if (password.value !== confirmPassword.value) {
+                        confirmPassword.setCustomValidity('As senhas não coincidem');
+                        event.preventDefault();
+                        event.stopPropagation();
+                    } else {
+                        confirmPassword.setCustomValidity('');
+                    }
+                    
+                    form.classList.add('was-validated');
+                });
+                
+                // Limpar validação personalizada quando o usuário digitar
+                confirmPassword.addEventListener('input', function() {
+                    if (password.value === confirmPassword.value) {
+                        confirmPassword.setCustomValidity('');
+                    } else {
+                        confirmPassword.setCustomValidity('As senhas não coincidem');
+                    }
+                });
+            });
+        </script>
+    </additionalJs>
+</body>
+</html>

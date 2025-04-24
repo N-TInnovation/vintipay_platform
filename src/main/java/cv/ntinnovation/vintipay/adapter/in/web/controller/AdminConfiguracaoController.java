@@ -77,8 +77,30 @@ public class AdminConfiguracaoController {
     
     @GetMapping("/{id}/editar")
     public String editarConfiguracaoAlternativo(@PathVariable Long id, Model model) {
-        // Redirecionar para o endpoint principal de edição
-        return editarConfiguracao(id, model);
+        log.info("Acessando edição de configuração com ID: {}", id);
+        Optional<ConfiguracaoPagamento> configuracaoOpt = buscaConfiguracaoPagamentoPort.buscarPorId(id);
+        
+        if (configuracaoOpt.isPresent()) {
+            ConfiguracaoPagamento configuracao = configuracaoOpt.get();
+            log.info("Configuração encontrada: {}", configuracao.getNomeLoja());
+            
+            // Converter para o objeto de request para o formulário
+            ConfiguracaoPagamentoRequest request = configuracaoPagamentoWebMapper.toRequest(configuracao);
+            
+            // Adicionar o ID do usuário separadamente para garantir que está disponível
+            if (configuracao.getUsuarioId() != null) {
+                model.addAttribute("usuarioId", configuracao.getUsuarioId());
+            } else if (configuracao.getUsuario() != null && configuracao.getUsuario().getId() != null) {
+                model.addAttribute("usuarioId", configuracao.getUsuario().getId());
+            }
+            
+            model.addAttribute("configuracao", request);
+            return "admin/configuracoes/form";
+        } else {
+            log.warn("Configuração com ID {} não encontrada", id);
+            // Configuração não encontrada, redirecionar para a lista com mensagem de erro
+            return "redirect:/admin/configuracoes?erro=Configuração não encontrada";
+        }
     }
     
     @GetMapping("/{id}/detalhes")

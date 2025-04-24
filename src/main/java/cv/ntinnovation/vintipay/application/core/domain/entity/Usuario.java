@@ -9,10 +9,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Usuario extends User {
     @Getter
@@ -56,6 +54,10 @@ public class Usuario extends User {
     @Getter
     @Setter
     private PlanoAssinatura planoAssinatura;
+
+    @Getter
+    @Setter
+    private Set<Papel> papeis = new HashSet<>();
 
     /**
      * Construtor padrão para criar instâncias simplificadas
@@ -201,5 +203,99 @@ public class Usuario extends User {
     @Override
     public boolean isEnabled() {
         return this.ativo;
+    }
+    
+    /**
+     * Retorna todas as autoridades (papéis e permissões) do usuário
+     * @return Coleção de autoridades
+     */
+    @Override
+    public Collection<GrantedAuthority> getAuthorities() {
+        // Inicializar a lista de autoridades com uma coleção mutável
+        Collection<GrantedAuthority> authorities = new ArrayList<>(super.getAuthorities());
+        
+        // 1. Verificar se há papéis definidos no novo sistema
+        if (papeis != null && !papeis.isEmpty()) {
+            // Adicionar papéis como ROLE_X
+            for (Papel papel : papeis) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + papel.getCodigo()));
+                
+                // Adicionar todas as permissões do papel
+                if (papel.getPermissoes() != null) {
+                    for (Permissao permissao : papel.getPermissoes()) {
+                        authorities.add(new SimpleGrantedAuthority(permissao.getCodigo()));
+                    }
+                }
+            }
+        } 
+        // 2. Se não há papéis, verificar se há roles legados
+        else if (role != null && role.length > 0) {
+            for (String r : role) {
+                // Adicionar com prefixo ROLE_ se não tiver
+                if (!r.startsWith("ROLE_")) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_" + r));
+                } else {
+                    authorities.add(new SimpleGrantedAuthority(r));
+                }
+            }
+        }
+        
+        // 3. Se ainda não temos autoridades, adicionar ROLE_USER como padrão
+        if (authorities.isEmpty()) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+        
+        return authorities;
+    }
+    
+    /**
+     * Adiciona um papel ao usuário
+     * @param papel Papel a ser adicionado
+     */
+    public void adicionarPapel(Papel papel) {
+        if (papeis == null) {
+            papeis = new HashSet<>();
+        }
+        papeis.add(papel);
+    }
+    
+    /**
+     * Remove um papel do usuário
+     * @param papelId ID do papel a ser removido
+     * @return true se o papel foi removido, false caso contrário
+     */
+    public boolean removerPapel(Long papelId) {
+        if (papeis == null || papeis.isEmpty()) {
+            return false;
+        }
+        return papeis.removeIf(papel -> papel.getId().equals(papelId));
+    }
+    
+    /**
+     * Verifica se o usuário possui um determinado papel
+     * @param codigoPapel Código do papel
+     * @return true se o usuário possui o papel, false caso contrário
+     */
+    public boolean temPapel(String codigoPapel) {
+        if (papeis == null || papeis.isEmpty()) {
+            return false;
+        }
+        return papeis.stream()
+                .anyMatch(papel -> papel.getCodigo().equals(codigoPapel));
+    }
+    
+    /**
+     * Verifica se o usuário possui uma determinada permissão
+     * @param codigoPermissao Código da permissão
+     * @return true se o usuário possui a permissão, false caso contrário
+     */
+    public boolean temPermissao(String codigoPermissao) {
+        if (papeis == null || papeis.isEmpty()) {
+            return false;
+        }
+        return papeis.stream()
+                .filter(papel -> papel.getPermissoes() != null && !papel.getPermissoes().isEmpty())
+                .anyMatch(papel -> papel.getPermissoes().stream()
+                        .anyMatch(permissao -> permissao.getCodigo().equals(codigoPermissao)));
     }
 }

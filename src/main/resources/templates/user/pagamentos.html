@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{user/layout/base :: html(
+        title='Meus Pagamentos',
+        activeMenu='pagamentos',
+        pageTitle='Meus Pagamentos',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <title>Meus Pagamentos</title>
+    <additionalCss>
+        <!-- CSS adicional específico desta página -->
+        <style>
+            .status-badge {
+                padding: 0.35em 0.65em;
+                border-radius: 0.25rem;
+                font-weight: 600;
+                font-size: 0.75em;
+                text-transform: uppercase;
+            }
+            .status-pago {
+                background-color: #d1fae5;
+                color: #047857;
+            }
+            .status-pendente {
+                background-color: #fef3c7;
+                color: #b45309;
+            }
+            .status-cancelado {
+                background-color: #fee2e2;
+                color: #b91c1c;
+            }
+            .table-hover tbody tr:hover {
+                background-color: rgba(0, 0, 0, 0.03);
+                cursor: pointer;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <!-- Cards de Estatísticas -->
+        <div class="row mb-4">
+            <div class="col-xl-4 col-md-4 mb-xl-0 mb-4">
+                <div class="card">
+                    <div class="card-body p-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Pagamentos Pagos</p>
+                                    <h5 class="font-weight-bolder text-success" th:text="${pagamentosPagos}">0</h5>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="icon icon-shape bg-success shadow-success text-center rounded-circle p-3">
+                                    <i class="fas fa-check text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-4 mb-xl-0 mb-4">
+                <div class="card">
+                    <div class="card-body p-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Pagamentos Pendentes</p>
+                                    <h5 class="font-weight-bolder text-warning" th:text="${pagamentosPendentes}">0</h5>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="icon icon-shape bg-warning shadow-warning text-center rounded-circle p-3">
+                                    <i class="fas fa-clock text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-4">
+                <div class="card">
+                    <div class="card-body p-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Pagamentos Cancelados</p>
+                                    <h5 class="font-weight-bolder text-danger" th:text="${pagamentosCancelados}">0</h5>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="icon icon-shape bg-danger shadow-danger text-center rounded-circle p-3">
+                                    <i class="fas fa-times text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filtros e Tabela de Pagamentos -->
+        <div class="card">
+            <div class="card-header pb-0 p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Lista de Pagamentos</h6>
+                    <div>
+                        <form method="get" class="d-flex align-items-center">
+                            <div class="me-2">
+                                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                    <option value="">Todos os Status</option>
+                                    <option th:each="statusOption : ${statusOptions}" 
+                                            th:value="${statusOption}" 
+                                            th:text="${statusOption.name()}"
+                                            th:selected="${statusOption == statusAtual}">
+                                        Status
+                                    </option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-3">
+                <div th:if="${erro}" class="alert alert-danger" role="alert" th:text="${erro}">
+                    Erro ao carregar pagamentos
+                </div>
+                
+                <div th:if="${pagamentos != null && pagamentos.empty}" class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Nenhum pagamento encontrado com os filtros selecionados.</p>
+                </div>
+                
+                <div th:if="${pagamentos != null && !pagamentos.empty}" class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Referência</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                                <th>Cartão</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="pagamento : ${pagamentos}">
+                                <td th:text="${pagamento.reference}">REF123456</td>
+                                <td th:text="${#temporals.format(pagamento.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2023 12:00</td>
+                                <td>
+                                    <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PAGO}" 
+                                          class="status-badge status-pago">Pago</span>
+                                    <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PENDENTE}" 
+                                          class="status-badge status-pendente">Pendente</span>
+                                    <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).CANCELADO}" 
+                                          class="status-badge status-cancelado">Cancelado</span>
+                                </td>
+                                <td th:text="${pagamento.panMascarado != null ? pagamento.panMascarado : '-'}">**** **** **** 1234</td>
+                                <td>
+                                    <a th:href="@{'/recibo/' + ${pagamento.reference}}" 
+                                       th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PAGO}"
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fas fa-receipt"></i> Recibo
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <!-- Paginação -->
+                    <div th:if="${pagamentos.totalPages > 1}" class="d-flex justify-content-center mt-4">
+                        <nav aria-label="Navegação de páginas">
+                            <ul class="pagination">
+                                <li class="page-item" th:classappend="${paginaAtual == 0 ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/user/pagamentos(page=${paginaAtual - 1}, status=${statusAtual})}" aria-label="Anterior">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item" th:each="i : ${#numbers.sequence(0, pagamentos.totalPages - 1)}" 
+                                    th:classappend="${i == paginaAtual ? 'active' : ''}">
+                                    <a class="page-link" th:href="@{/user/pagamentos(page=${i}, status=${statusAtual})}" th:text="${i + 1}">1</a>
+                                </li>
+                                <li class="page-item" th:classappend="${paginaAtual == pagamentos.totalPages - 1 ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/user/pagamentos(page=${paginaAtual + 1}, status=${statusAtual})}" aria-label="Próxima">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- JavaScript adicional específico desta página -->
+        <script>
+            // Código JavaScript específico da página de pagamentos, se necessário
+        </script>
+    </additionalJs>
+</body>
+</html>

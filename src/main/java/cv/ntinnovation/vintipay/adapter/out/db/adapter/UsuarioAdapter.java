@@ -8,13 +8,9 @@ import cv.ntinnovation.vintipay.application.port.out.BuscaUsuario;
 import cv.ntinnovation.vintipay.application.port.out.SalvaUsuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
 
 @Primary
 @Component
@@ -39,14 +35,8 @@ public class UsuarioAdapter implements SalvaUsuario, BuscaUsuario {
                 .map(ususarioMapper::toDomain)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
         
-        return User.builder()
-                .username(usuario.getUsername())
-                .password(usuario.getPassword())
-                .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + usuario.getRole())))
-                .disabled(!usuario.isAtivo())
-                .accountExpired(false)
-                .credentialsExpired(false)
-                .accountLocked(false)
-                .build();
+        // Retornar o próprio objeto Usuario, que já implementa UserDetails
+        // e agora tem um método getAuthorities() atualizado para usar papéis e permissões
+        return usuario;
     }
 }

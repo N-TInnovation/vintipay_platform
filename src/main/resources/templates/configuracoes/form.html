@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuração de Pagamento</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 th:text="${configuracao.id != null ? 'Editar Configuração' : 'Nova Configuração'}">Configuração de Pagamento</h1>
+                <p class="text-muted">Preencha os dados para configurar sua integração de pagamento</p>
+            </div>
+            <div class="col-auto">
+                <a th:href="@{/configuracoes-pagamento}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+        </div>
+        
+        <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${erro}">Erro</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form th:action="${configuracao.id != null ? '/configuracoes-pagamento/' + configuracao.id + '/editar' : '/configuracoes-pagamento/nova'}" 
+                      th:object="${configuracao}" method="post">
+                    
+                    <input type="hidden" th:field="*{id}" />
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="nomeLoja" class="form-label">Nome da Loja</label>
+                            <input type="text" class="form-control" id="nomeLoja" th:field="*{nomeLoja}" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('nomeLoja')}" th:errors="*{nomeLoja}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="urlLoja" class="form-label">URL da Loja</label>
+                            <input type="url" class="form-control" id="urlLoja" th:field="*{urlLoja}" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('urlLoja')}" th:errors="*{urlLoja}"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="telefone" class="form-label">Telefone</label>
+                            <input type="tel" class="form-control" id="telefone" th:field="*{telefone}" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    <h5>Configurações SISP</h5>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="posId" class="form-label">POS ID</label>
+                            <input type="text" class="form-control" id="posId" th:field="*{posId}" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('posId')}" th:errors="*{posId}"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="merchantId" class="form-label">Merchant ID</label>
+                            <input type="text" class="form-control" id="merchantId" th:field="*{merchantId}" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('merchantId')}" th:errors="*{merchantId}"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="terminalId" class="form-label">Terminal ID</label>
+                            <input type="text" class="form-control" id="terminalId" th:field="*{terminalId}" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('terminalId')}" th:errors="*{terminalId}"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="apiKey" class="form-label">API Key</label>
+                            <input type="text" class="form-control" id="apiKey" th:field="*{apiKey}" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('apiKey')}" th:errors="*{apiKey}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="apiSecret" class="form-label">API Secret</label>
+                            <input type="password" class="form-control" id="apiSecret" th:field="*{apiSecret}" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('apiSecret')}" th:errors="*{apiSecret}"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="posAutCode" class="form-label">POS Auth Code</label>
+                            <input type="text" class="form-control" id="posAutCode" th:field="*{posAutCode}" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('posAutCode')}" th:errors="*{posAutCode}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="returnAutCode" class="form-label">Return Auth Code</label>
+                            <input type="text" class="form-control" id="returnAutCode" th:field="*{returnAutCode}" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('returnAutCode')}" th:errors="*{returnAutCode}"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="returnUrl" class="form-label">URL de Retorno</label>
+                        <input type="url" class="form-control" id="returnUrl" th:field="*{returnUrl}" required>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('returnUrl')}" th:errors="*{returnUrl}"></div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a th:href="@{/configuracoes-pagamento}" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

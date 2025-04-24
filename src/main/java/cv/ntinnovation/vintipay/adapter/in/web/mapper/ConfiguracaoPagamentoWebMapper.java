@@ -49,7 +49,8 @@ public class ConfiguracaoPagamentoWebMapper {
         request.setMerchantId(domain.getMerchantId());
         request.setTerminalId(domain.getTerminalId());
         request.setApiKey(domain.getApiKey());
-        request.setApiSecret(domain.getApiSecret());
+        // Não incluir o apiSecret por questões de segurança
+        // request.setApiSecret(domain.getApiSecret());
         request.setPosAutCode(domain.getPosAutCode());
         request.setReturnAutCode(domain.getReturnAutCode());
         request.setReturnUrl(domain.getReturnUrl());
@@ -64,6 +65,7 @@ public class ConfiguracaoPagamentoWebMapper {
         request.setWebhookSecret(domain.getWebhookSecret());
         request.setAtivo(domain.getAtivo());
         request.setObservacoes(domain.getObservacoes());
+        request.setUsuarioId(domain.getUsuarioId());
         return request;
     }
 

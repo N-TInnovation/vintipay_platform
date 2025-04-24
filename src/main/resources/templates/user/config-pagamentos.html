@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{user/layout/base :: html(
+        title='Configurações de Pagamento SISP',
+        activeMenu='config-pagamentos',
+        pageTitle='Configurações de Pagamento SISP',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <title>Configurações de Pagamento SISP</title>
+    <additionalCss>
+        <!-- CSS adicional específico desta página -->
+        <style>
+            .config-card {
+                border-radius: 10px;
+                border: 1px solid rgba(0,0,0,0.1);
+                padding: 15px;
+                margin-bottom: 15px;
+                position: relative;
+                transition: all 0.3s ease;
+            }
+            
+            .config-card:hover {
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+            
+            .config-card.active {
+                border-color: #10b981;
+                background-color: rgba(16, 185, 129, 0.05);
+            }
+            
+            .config-card.inactive {
+                border-color: #ef4444;
+                background-color: rgba(239, 68, 68, 0.05);
+            }
+            
+            .status-badge {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                padding: 3px 8px;
+                font-size: 0.7rem;
+                border-radius: 10px;
+            }
+            
+            .status-badge.active {
+                background-color: #10b981;
+                color: white;
+            }
+            
+            .status-badge.inactive {
+                background-color: #ef4444;
+                color: white;
+            }
+            
+            .config-title {
+                font-weight: bold;
+                font-size: 1.1rem;
+                margin-bottom: 5px;
+            }
+            
+            .config-detail {
+                font-size: 0.9rem;
+                color: #6c757d;
+                margin-bottom: 3px;
+            }
+            
+            .config-actions {
+                margin-top: 15px;
+            }
+            
+            .add-config-btn {
+                border: 2px dashed rgba(0,0,0,0.1);
+                border-radius: 10px;
+                padding: 15px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .add-config-btn:hover {
+                border-color: #2563eb;
+                background-color: rgba(37, 99, 235, 0.05);
+            }
+            
+            .add-config-icon {
+                font-size: 2rem;
+                color: #2563eb;
+                margin-bottom: 10px;
+            }
+            
+            .form-label {
+                font-weight: 500;
+            }
+            
+            .form-text {
+                font-size: 0.85rem;
+                color: #6c757d;
+            }
+            
+            .required-field::after {
+                content: " *";
+                color: #ef4444;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <!-- Alertas de Sucesso/Erro -->
+        <div th:if="${mensagemSucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> <span th:text="${mensagemSucesso}">Operação realizada com sucesso!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+        
+        <div th:if="${mensagemErro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${mensagemErro}">Ocorreu um erro!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+        
+        <!-- Informações sobre o SISP -->
+        <div class="alert alert-info mb-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-info-circle fa-2x me-3"></i>
+                <div>
+                    <h5 class="alert-heading">Integração com o Gateway SISP</h5>
+                    <p class="mb-0">Configure suas credenciais de acesso ao gateway de pagamento SISP para processar pagamentos em sua loja. Você pode ter múltiplas configurações para diferentes lojas ou ambientes.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Lista de Configurações -->
+            <div class="col-lg-12 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Minhas Configurações SISP</h5>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addConfigModal">
+                            <i class="fas fa-plus me-2"></i> Nova Configuração
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${configuracoesPagamento == null || configuracoesPagamento.empty}" class="text-center py-5">
+                            <i class="fas fa-cogs fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Você ainda não possui configurações de pagamento SISP.</p>
+                            <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#addConfigModal">
+                                <i class="fas fa-plus me-2"></i> Adicionar Configuração
+                            </button>
+                        </div>
+                        
+                        <div th:if="${configuracoesPagamento != null && !configuracoesPagamento.empty}">
+                            <div class="row">
+                                <div class="col-md-6 mb-4" th:each="config : ${configuracoesPagamento}">
+                                    <div th:class="${config.ativo ? 'config-card active' : 'config-card inactive'}">
+                                        <span th:class="${config.ativo ? 'status-badge active' : 'status-badge inactive'}" 
+                                              th:text="${config.ativo ? 'Ativa' : 'Inativa'}">Status</span>
+                                        
+                                        <div class="config-title" th:text="${config.nomeLoja ?: 'Configuração SISP'}">Nome da Loja</div>
+                                        
+                                        <div class="config-detail">
+                                            <strong>POS ID:</strong> <span th:text="${config.posId}">123456</span>
+                                        </div>
+                                        
+                                        <div class="config-detail">
+                                            <strong>Merchant ID:</strong> <span th:text="${config.merchantId ?: 'Não definido'}">789012</span>
+                                        </div>
+                                        
+                                        <div class="config-detail">
+                                            <strong>Terminal ID:</strong> <span th:text="${config.terminalId ?: 'Não definido'}">T001</span>
+                                        </div>
+                                        
+                                        <div class="config-detail">
+                                            <strong>API Key:</strong> <span th:text="${config.apiKey != null ? config.apiKey : 'Não definida'}">API_KEY_12345</span>
+                                            <button type="button" class="btn btn-sm btn-link p-0 ms-1" 
+                                                    th:if="${config.apiKey != null}" 
+                                                    th:data-api-key="${config.apiKey}"
+                                                    onclick="copyApiKey(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="config-detail">
+                                            <strong>Ambiente:</strong> <span th:text="${config.ambiente ?: 'Produção'}">Produção</span>
+                                        </div>
+                                        
+                                        <div class="config-detail">
+                                            <strong>URL da Loja:</strong> <span th:text="${config.urlLoja ?: 'Não definida'}">https://loja.exemplo.com</span>
+                                        </div>
+                                        
+                                        <div class="config-detail">
+                                            <strong>Criado em:</strong> <span th:text="${#temporals.format(config.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2025 12:00</span>
+                                        </div>
+                                        
+                                        <div class="config-actions d-flex justify-content-between">
+                                            <div>
+                                                <a th:href="@{'/user/credenciais/' + ${config.id}}" class="btn btn-sm btn-outline-info me-1">
+                                                    <i class="fas fa-key me-1"></i> Credenciais
+                                                </a>
+                                                <a th:href="@{'/user/config-pagamentos/editar/' + ${config.id}}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit me-1"></i> Editar
+                                                </a>
+                                            </div>
+                                            
+                                            <div>
+                                                <form th:if="${!config.ativo}" th:action="@{/user/config-pagamentos/ativar/{id}(id=${config.id})}" 
+                                                      method="post" style="display: inline;">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                                        <i class="fas fa-check me-1"></i> Ativar
+                                                    </button>
+                                                </form>
+                                                
+                                                <form th:if="${config.ativo}" th:action="@{/user/config-pagamentos/desativar/{id}(id=${config.id})}" 
+                                                      method="post" style="display: inline;">
+                                                    <button type="submit" class="btn btn-sm btn-outline-warning">
+                                                        <i class="fas fa-pause me-1"></i> Desativar
+                                                    </button>
+                                                </form>
+                                                
+                                                <form th:action="@{/user/config-pagamentos/excluir/{id}(id=${config.id})}" 
+                                                      method="post" style="display: inline;"
+                                                      onsubmit="return confirm('Tem certeza que deseja excluir esta configuração?')">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-trash me-1"></i> Excluir
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal para Adicionar Configuração -->
+        <div class="modal fade" id="addConfigModal" tabindex="-1" aria-labelledby="addConfigModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addConfigModalLabel">Nova Configuração SISP</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form th:action="@{/user/config-pagamentos/salvar}" method="post" th:object="${novaConfiguracao}">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="nomeLoja" class="form-label">Nome da Loja</label>
+                                    <input type="text" class="form-control" id="nomeLoja" name="nomeLoja" th:field="*{nomeLoja}">
+                                    <div class="form-text">Nome para identificar esta configuração</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="urlLoja" class="form-label">URL da Loja</label>
+                                    <input type="url" class="form-control" id="urlLoja" name="urlLoja" th:field="*{urlLoja}">
+                                    <div class="form-text">Endereço do seu site ou loja virtual</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="posId" class="form-label required-field">POS ID</label>
+                                    <input type="text" class="form-control" id="posId" name="posId" th:field="*{posId}" required>
+                                    <div class="form-text">Identificador do ponto de venda fornecido pelo SISP</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="merchantId" class="form-label">Merchant ID</label>
+                                    <input type="text" class="form-control" id="merchantId" name="merchantId" th:field="*{merchantId}">
+                                    <div class="form-text">Identificador do comerciante fornecido pelo SISP</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="terminalId" class="form-label">Terminal ID</label>
+                                    <input type="text" class="form-control" id="terminalId" name="terminalId" th:field="*{terminalId}">
+                                    <div class="form-text">Identificador do terminal fornecido pelo SISP</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="posAutCode" class="form-label required-field">POS Aut Code</label>
+                                    <input type="text" class="form-control" id="posAutCode" name="posAutCode" th:field="*{posAutCode}" required>
+                                    <div class="form-text">Código de autorização do POS fornecido pelo SISP</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="returnUrl" class="form-label">URL de Retorno</label>
+                                    <input type="url" class="form-control" id="returnUrl" name="returnUrl" th:field="*{returnUrl}">
+                                    <div class="form-text">URL para onde o cliente será redirecionado após o pagamento</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="ambiente" class="form-label">Ambiente</label>
+                                    <select class="form-select" id="ambiente" name="ambiente" th:field="*{ambiente}">
+                                        <option value="PRODUCAO">Produção</option>
+                                        <option value="TESTE">Teste</option>
+                                    </select>
+                                    <div class="form-text">Ambiente onde a integração será utilizada</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="serviceUrl" class="form-label">URL do Serviço</label>
+                                    <input type="url" class="form-control" id="serviceUrl" name="serviceUrl" th:field="*{serviceUrl}">
+                                    <div class="form-text">URL do serviço SISP (deixe em branco para usar a URL padrão)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="webhookUrl" class="form-label">URL do Webhook</label>
+                                    <input type="url" class="form-control" id="webhookUrl" name="webhookUrl" th:field="*{webhookUrl}">
+                                    <div class="form-text">URL para notificações de eventos de pagamento</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="telefone" class="form-label">Telefone</label>
+                                    <input type="tel" class="form-control" id="telefone" name="telefone" th:field="*{telefone}">
+                                    <div class="form-text">Telefone de contato para suporte</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email" th:field="*{email}">
+                                    <div class="form-text">Email de contato para suporte</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="observacoes" class="form-label">Observações</label>
+                                <textarea class="form-control" id="observacoes" name="observacoes" rows="3" th:field="*{observacoes}"></textarea>
+                                <div class="form-text">Informações adicionais sobre esta configuração</div>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="ativo" name="ativo" th:field="*{ativo}" checked>
+                                <label class="form-check-label" for="ativo">
+                                    Ativar esta configuração
+                                </label>
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Salvar Configuração</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- JavaScript adicional específico desta página -->
+        <script>
+            function copyApiKey(button) {
+                const apiKey = button.getAttribute('data-api-key');
+                navigator.clipboard.writeText(apiKey);
+                alert('API Key copiada!');
+            }
+            
+            document.addEventListener('DOMContentLoaded', function() {
+                // Código JavaScript específico da página, se necessário
+            });
+        </script>
+    </additionalJs>
+</body>
+</html>

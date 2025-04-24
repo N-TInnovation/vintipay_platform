@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<body>
+    <!-- Modal de Alerta -->
+    <div th:fragment="alertModal">
+        <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header border-0" id="alertModalHeader">
+                        <h5 class="modal-title" id="alertModalTitle">Mensagem</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body py-4" id="alertModalBody">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i id="alertModalIcon" class="fas fa-info-circle fa-2x"></i>
+                            </div>
+                            <div>
+                                <p id="alertModalMessage" class="mb-0">Mensagem de alerta</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="button" class="btn" id="alertModalConfirmBtn" style="display: none;">Confirmar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script para gerenciar alertas -->
+    <div th:fragment="alertScript">
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                // Verificar parâmetros de URL para alertas
+                const urlParams = new URLSearchParams(window.location.search);
+                const sucesso = urlParams.get('sucesso');
+                const erro = urlParams.get('erro');
+                const info = urlParams.get('info');
+                const aviso = urlParams.get('aviso');
+                
+                // Exibir alertas baseados nos parâmetros da URL
+                if (sucesso) {
+                    showAlert('success', 'Sucesso!', sucesso);
+                } else if (erro) {
+                    showAlert('error', 'Erro!', erro);
+                } else if (info) {
+                    showAlert('info', 'Informação', info);
+                } else if (aviso) {
+                    showAlert('warning', 'Atenção', aviso);
+                }
+                
+                // Limpar parâmetros da URL após exibir o alerta
+                if (sucesso || erro || info || aviso) {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            });
+            
+            /**
+             * Exibe um alerta modal
+             * @param {string} type - Tipo de alerta: 'success', 'error', 'info', 'warning', 'confirm'
+             * @param {string} title - Título do alerta
+             * @param {string} message - Mensagem do alerta
+             * @param {function} confirmCallback - Função a ser executada ao confirmar (apenas para type='confirm')
+             */
+            function showAlert(type, title, message, confirmCallback) {
+                const modal = new bootstrap.Modal(document.getElementById('alertModal'));
+                const modalTitle = document.getElementById('alertModalTitle');
+                const modalMessage = document.getElementById('alertModalMessage');
+                const modalHeader = document.getElementById('alertModalHeader');
+                const modalIcon = document.getElementById('alertModalIcon');
+                const confirmBtn = document.getElementById('alertModalConfirmBtn');
+                
+                // Definir título e mensagem
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                
+                // Resetar estilos
+                modalHeader.className = 'modal-header border-0';
+                modalIcon.className = 'fas fa-2x';
+                confirmBtn.style.display = 'none';
+                confirmBtn.className = 'btn';
+                
+                // Configurar aparência baseada no tipo
+                switch (type) {
+                    case 'success':
+                        modalHeader.classList.add('bg-success', 'text-white');
+                        modalIcon.classList.add('fa-check-circle', 'text-success');
+                        break;
+                    case 'error':
+                        modalHeader.classList.add('bg-danger', 'text-white');
+                        modalIcon.classList.add('fa-exclamation-circle', 'text-danger');
+                        break;
+                    case 'warning':
+                        modalHeader.classList.add('bg-warning', 'text-dark');
+                        modalIcon.classList.add('fa-exclamation-triangle', 'text-warning');
+                        break;
+                    case 'info':
+                        modalHeader.classList.add('bg-info', 'text-white');
+                        modalIcon.classList.add('fa-info-circle', 'text-info');
+                        break;
+                    case 'confirm':
+                        modalHeader.classList.add('bg-primary', 'text-white');
+                        modalIcon.classList.add('fa-question-circle', 'text-primary');
+                        confirmBtn.style.display = 'block';
+                        confirmBtn.classList.add('btn-primary');
+                        confirmBtn.textContent = 'Confirmar';
+                        
+                        // Configurar callback de confirmação
+                        if (confirmCallback && typeof confirmCallback === 'function') {
+                            confirmBtn.onclick = function() {
+                                modal.hide();
+                                confirmCallback();
+                            };
+                        }
+                        break;
+                }
+                
+                // Exibir o modal
+                modal.show();
+            }
+            
+            /**
+             * Função para exibir diálogo de confirmação
+             * @param {string} message - Mensagem de confirmação
+             * @param {function} confirmCallback - Função a ser executada ao confirmar
+             * @param {string} title - Título opcional (padrão: "Confirmação")
+             */
+            function confirmAction(message, confirmCallback, title = 'Confirmação') {
+                showAlert('confirm', title, message, confirmCallback);
+            }
+            
+            // Adicionar ao objeto window para acesso global
+            window.showAlert = showAlert;
+            window.confirmAction = confirmAction;
+        </script>
+    </div>
+</body>
+</html>

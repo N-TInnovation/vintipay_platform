@@ -32,4 +32,18 @@ public class BuscaPagamentoAdapter implements BuscaPagamentoPort {
         return pagamentoRepository.findByReference(reference)
                 .map(pagamentoMapper::toDomain);
     }
+    
+    @Override
+    public Page<Pagamento> buscarPorUsuario(Pageable pageable, Long usuarioId, StatusPagamentoEnum status) {
+        // Converter o enum para string apenas se não for nulo
+        String statusStr = status != null ? status.name() : null;
+        
+        try {
+            var pagamentos = pagamentoRepository.findByUsuarioIdAndStatusIfPresent(usuarioId, statusStr, pageable);
+            return pagamentos.map(pagamentoMapper::toDomain);
+        } catch (Exception e) {
+            // Em caso de erro na consulta, retornar uma página vazia
+            return Page.empty(pageable);
+        }
+    }
 }

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{admin/layout/base :: html(
+        title=${papel.id != null ? 'Editar Papel' : 'Novo Papel'},
+        activeMenu='papeis',
+        pageTitle=${papel.id != null ? 'Editar Papel' : 'Novo Papel'},
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <style>
+            .required-field::after {
+                content: "*";
+                color: red;
+                margin-left: 4px;
+            }
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+            .permissoes-container {
+                max-height: 300px;
+                overflow-y: auto;
+                border: 1px solid #dee2e6;
+                border-radius: 0.25rem;
+                padding: 1rem;
+            }
+            .permissao-item {
+                margin-bottom: 0.5rem;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <!-- Botões de ação -->
+        <div class="d-flex justify-content-end mb-4">
+            <a th:href="@{/admin/papeis}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+            <button type="button" class="btn btn-primary" onclick="salvarPapel()">
+                <i class="fas fa-save"></i> Salvar
+            </button>
+        </div>
+
+        <!-- Mensagens de alerta -->
+        <div id="alertSuccess" class="alert alert-success alert-dismissible fade show" role="alert" style="display: none;">
+            <span id="alertSuccessMessage"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div id="alertError" class="alert alert-danger alert-dismissible fade show" role="alert" style="display: none;">
+            <span id="alertErrorMessage"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Formulário -->
+        <div class="card">
+            <div class="card-body">
+                <form id="papelForm" class="needs-validation" novalidate>
+                    <input type="hidden" id="id" th:value="${papel.id}">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nome" class="form-label required-field">Nome</label>
+                                <input type="text" class="form-control" id="nome" th:value="${papel.nome}" required>
+                                <div class="invalid-feedback">
+                                    Por favor, informe o nome do papel.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="codigo" class="form-label required-field">Código</label>
+                                <input type="text" class="form-control" id="codigo" th:value="${papel.codigo}" required
+                                       onblur="verificarCodigoExistente()">
+                                <div class="invalid-feedback">
+                                    Por favor, informe o código do papel.
+                                </div>
+                                <div id="codigoFeedback" class="text-danger" style="display: none;">
+                                    Este código já está em uso por outro papel.
+                                </div>
+                                <small class="form-text text-muted">
+                                    O código deve ser único e é usado internamente pelo sistema.
+                                    Use apenas letras, números e underscores (ex: ADMIN, USER).
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="descricao" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="descricao" rows="3" th:text="${papel.descricao}"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="padrao" th:checked="${papel.padrao}">
+                            <label class="form-check-label" for="padrao">
+                                Definir como papel padrão
+                            </label>
+                            <small class="form-text text-muted d-block">
+                                O papel padrão será atribuído automaticamente a novos usuários.
+                                Apenas um papel pode ser definido como padrão.
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Permissões</label>
+                        <div class="permissoes-container">
+                            <div th:if="${todasPermissoes.empty}" class="text-center">
+                                Nenhuma permissão cadastrada
+                            </div>
+                            <div th:each="permissao : ${todasPermissoes}" class="permissao-item">
+                                <div class="form-check">
+                                    <input class="form-check-input permissao-checkbox" type="checkbox" 
+                                           th:id="'permissao_' + ${permissao.id}"
+                                           th:value="${permissao.id}"
+                                           th:checked="${papel.permissoesIds != null && papel.permissoesIds.contains(permissao.id)}">
+                                    <label class="form-check-label" th:for="'permissao_' + ${permissao.id}">
+                                        <span th:text="${permissao.nome}"></span>
+                                        <small class="text-muted" th:text="'(' + ${permissao.codigo} + ')'"></small>
+                                    </label>
+                                </div>
+                                <small class="text-muted" th:if="${permissao.descricao}" th:text="${permissao.descricao}"></small>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <script>
+            // Verificar se o código já existe
+            function verificarCodigoExistente() {
+                const codigo = document.getElementById('codigo').value;
+                const id = document.getElementById('id').value;
+                
+                if (!codigo) return;
+                
+                fetch(`/admin/papeis/verificar-codigo?codigo=${encodeURIComponent(codigo)}&id=${id || ''}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const feedback = document.getElementById('codigoFeedback');
+                        if (data.exists) {
+                            feedback.style.display = 'block';
+                            document.getElementById('codigo').setCustomValidity('Código já existe');
+                        } else {
+                            feedback.style.display = 'none';
+                            document.getElementById('codigo').setCustomValidity('');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao verificar código:', error);
+                    });
+            }
+            
+            // Validar formulário
+            function validarFormulario() {
+                const form = document.getElementById('papelForm');
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return false;
+                }
+                return true;
+            }
+            
+            // Coletar IDs das permissões selecionadas
+            function getPermissoesIds() {
+                const permissoesIds = [];
+                const checkboxes = document.querySelectorAll('.permissao-checkbox:checked');
+                
+                checkboxes.forEach(checkbox => {
+                    permissoesIds.push(parseInt(checkbox.value));
+                });
+                
+                return permissoesIds;
+            }
+            
+            // Salvar papel
+            function salvarPapel() {
+                if (!validarFormulario()) {
+                    return;
+                }
+                
+                // Coletar dados do formulário
+                const papel = {
+                    id: document.getElementById('id').value || null,
+                    nome: document.getElementById('nome').value,
+                    codigo: document.getElementById('codigo').value,
+                    descricao: document.getElementById('descricao').value,
+                    padrao: document.getElementById('padrao').checked,
+                    permissoesIds: getPermissoesIds()
+                };
+                
+                // Mostrar indicador de carregamento
+                const saveButton = document.querySelector('button[onclick="salvarPapel()"]');
+                const originalText = saveButton.innerHTML;
+                saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+                saveButton.disabled = true;
+                
+                // Enviar requisição
+                fetch('/admin/papeis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(papel)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Restaurar botão
+                    saveButton.innerHTML = originalText;
+                    saveButton.disabled = false;
+                    
+                    if (data.success) {
+                        // Exibir mensagem de sucesso
+                        document.getElementById('alertSuccessMessage').textContent = data.message;
+                        document.getElementById('alertSuccess').style.display = 'block';
+                        
+                        // Redirecionar após 2 segundos
+                        setTimeout(() => {
+                            window.location.href = '/admin/papeis';
+                        }, 2000);
+                    } else {
+                        // Exibir mensagem de erro
+                        document.getElementById('alertErrorMessage').textContent = data.message;
+                        document.getElementById('alertError').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    
+                    // Restaurar botão
+                    saveButton.innerHTML = originalText;
+                    saveButton.disabled = false;
+                    
+                    // Exibir mensagem de erro
+                    document.getElementById('alertErrorMessage').textContent = 'Erro ao salvar papel. Tente novamente.';
+                    document.getElementById('alertError').style.display = 'block';
+                });
+            }
+            
+            // Inicializar validação do formulário
+            document.addEventListener('DOMContentLoaded', function() {
+                // Verificar código ao carregar a página se estiver editando
+                const codigo = document.getElementById('codigo').value;
+                if (codigo) {
+                    verificarCodigoExistente();
+                }
+            });
+        </script>
+    </additionalJs>
+</body>
+</html>

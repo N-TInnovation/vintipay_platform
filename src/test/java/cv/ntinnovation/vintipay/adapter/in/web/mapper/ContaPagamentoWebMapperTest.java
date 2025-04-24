@@ -87,7 +87,6 @@ class ContaPagamentoWebMapperTest {
         String dataFormatada = agora.format(formatter);
         
         InfoContaPagamento acctInfo = InfoContaPagamento.builder()
-                .acctID("ACC123456789")
                 .chAccAgeInd("01")
                 .chAccDate(dataFormatada)
                 .chAccChange(dataFormatada)

@@ -84,6 +84,7 @@
                     <input type="hidden" id="id" th:value="${configuracao.id}">
                     <input type="hidden" id="returnAutCode" th:value="${configuracao.returnAutCode}">
                     <input type="hidden" id="usuarioId" th:value="${usuarioId != null ? usuarioId : configuracao.usuarioId}">
+                    <input type="hidden" id="apiSecret" th:value="${configuracao.apiSecret}">
                     
                     <div class="tab-content" id="configTabsContent">
                         <!-- Informações Básicas -->
@@ -403,7 +404,7 @@
                     merchantId: document.getElementById('merchantId').value,
                     terminalId: document.getElementById('terminalId').value,
                     apiKey: document.getElementById('apiKey').value,
-                    apiSecret: document.getElementById('apiSecret').value,
+                    apiSecret: document.getElementById('apiSecret').value || null,
                     webhookUrl: document.getElementById('webhookUrl').value,
                     webhookSecret: document.getElementById('webhookSecret').value,
                     returnUrl: document.getElementById('returnUrl').value,

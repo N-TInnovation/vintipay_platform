@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{user/layout/base :: html(
+        title='Minha Assinatura',
+        activeMenu='assinatura',
+        pageTitle='Minha Assinatura',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <title>Minha Assinatura</title>
+    <additionalCss>
+        <!-- CSS adicional específico desta página -->
+        <style>
+            .plan-card {
+                border-radius: 10px;
+                overflow: hidden;
+                transition: all 0.3s ease;
+                height: 100%;
+            }
+            
+            .plan-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+            
+            .plan-header {
+                padding: 20px;
+                color: white;
+                background: linear-gradient(135deg, #2563eb, #4f46e5);
+            }
+            
+            .plan-price {
+                font-size: 2rem;
+                font-weight: bold;
+                margin-bottom: 0;
+            }
+            
+            .plan-period {
+                opacity: 0.8;
+                font-size: 0.9rem;
+            }
+            
+            .plan-features {
+                padding: 20px;
+            }
+            
+            .plan-features ul {
+                list-style-type: none;
+                padding-left: 0;
+            }
+            
+            .plan-features li {
+                padding: 8px 0;
+                border-bottom: 1px solid rgba(0,0,0,0.05);
+            }
+            
+            .plan-features li:last-child {
+                border-bottom: none;
+            }
+            
+            .plan-features li i {
+                color: #10b981;
+                margin-right: 10px;
+            }
+            
+            .plan-footer {
+                padding: 20px;
+                background-color: #f9fafb;
+                border-top: 1px solid rgba(0,0,0,0.05);
+            }
+            
+            .status-badge {
+                display: inline-block;
+                padding: 0.35em 0.65em;
+                font-size: 0.75em;
+                font-weight: 700;
+                line-height: 1;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: baseline;
+                border-radius: 0.25rem;
+                text-transform: uppercase;
+            }
+            
+            .status-active {
+                background-color: #d1fae5;
+                color: #047857;
+            }
+            
+            .status-inactive {
+                background-color: #fee2e2;
+                color: #b91c1c;
+            }
+            
+            .status-pending {
+                background-color: #fef3c7;
+                color: #b45309;
+            }
+            
+            .upgrade-card {
+                border: 2px dashed rgba(0,0,0,0.1);
+                border-radius: 10px;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding: 30px;
+                text-align: center;
+                transition: all 0.3s ease;
+            }
+            
+            .upgrade-card:hover {
+                border-color: #2563eb;
+                background-color: rgba(37, 99, 235, 0.05);
+            }
+            
+            .upgrade-icon {
+                font-size: 3rem;
+                color: #2563eb;
+                margin-bottom: 20px;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <div class="row">
+            <!-- Informações da Assinatura Atual -->
+            <div class="col-lg-8 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Detalhes da Assinatura</h5>
+                        <span class="status-badge status-active" th:text="${statusAssinatura}">Ativa</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-1">Plano Atual</h6>
+                                <h5 th:text="${planoAtual}">Plano Básico</h5>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-1">Valor Mensal</h6>
+                                <h5 th:text="${valorMensal}">R$ 29,90</h5>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-1">Data de Início</h6>
+                                <p th:text="${dataInicio}">01/01/2025</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-1">Próxima Renovação</h6>
+                                <p th:text="${dataRenovacao}">01/01/2026</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <h6 class="mb-3">Recursos Incluídos</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2" th:each="recurso : ${recursos}">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span th:text="${recurso}">Recurso</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#upgradeModal">
+                                <i class="fas fa-arrow-up me-2"></i> Fazer Upgrade
+                            </button>
+                            <button class="btn btn-outline-danger">
+                                <i class="fas fa-times me-2"></i> Cancelar Assinatura
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Histórico de Pagamentos -->
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Histórico de Pagamentos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush">
+                            <a href="#" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">Abril 2025</h6>
+                                    <small class="text-success">Pago</small>
+                                </div>
+                                <p class="mb-1">R$ 29,90</p>
+                                <small class="text-muted">01/04/2025</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">Março 2025</h6>
+                                    <small class="text-success">Pago</small>
+                                </div>
+                                <p class="mb-1">R$ 29,90</p>
+                                <small class="text-muted">01/03/2025</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">Fevereiro 2025</h6>
+                                    <small class="text-success">Pago</small>
+                                </div>
+                                <p class="mb-1">R$ 29,90</p>
+                                <small class="text-muted">01/02/2025</small>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white text-center">
+                        <a href="/user/pagamentos" class="btn btn-sm btn-link">Ver todos os pagamentos</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Planos Disponíveis para Upgrade -->
+        <h5 class="mb-3 mt-2">Planos Disponíveis para Upgrade</h5>
+        <div class="row">
+            <!-- Plano Profissional -->
+            <div class="col-md-4 mb-4">
+                <div class="card plan-card">
+                    <div class="plan-header">
+                        <h5 class="mb-3">Plano Profissional</h5>
+                        <p class="plan-price">R$ 59,90</p>
+                        <p class="plan-period">por mês</p>
+                    </div>
+                    <div class="plan-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Até 500 pagamentos por mês</li>
+                            <li><i class="fas fa-check"></i> Suporte prioritário</li>
+                            <li><i class="fas fa-check"></i> Relatórios avançados</li>
+                            <li><i class="fas fa-check"></i> API completa</li>
+                            <li><i class="fas fa-check"></i> Múltiplos usuários</li>
+                        </ul>
+                    </div>
+                    <div class="plan-footer">
+                        <button class="btn btn-primary w-100">Fazer Upgrade</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Plano Enterprise -->
+            <div class="col-md-4 mb-4">
+                <div class="card plan-card">
+                    <div class="plan-header">
+                        <h5 class="mb-3">Plano Enterprise</h5>
+                        <p class="plan-price">R$ 119,90</p>
+                        <p class="plan-period">por mês</p>
+                    </div>
+                    <div class="plan-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Pagamentos ilimitados</li>
+                            <li><i class="fas fa-check"></i> Suporte 24/7</li>
+                            <li><i class="fas fa-check"></i> Relatórios personalizados</li>
+                            <li><i class="fas fa-check"></i> API premium</li>
+                            <li><i class="fas fa-check"></i> Usuários ilimitados</li>
+                            <li><i class="fas fa-check"></i> Integração com sistemas ERP</li>
+                        </ul>
+                    </div>
+                    <div class="plan-footer">
+                        <button class="btn btn-primary w-100">Fazer Upgrade</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Plano Personalizado -->
+            <div class="col-md-4 mb-4">
+                <div class="card upgrade-card">
+                    <div class="upgrade-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h5>Precisa de um plano personalizado?</h5>
+                    <p class="text-muted mb-4">Entre em contato com nossa equipe para criar um plano sob medida para sua empresa.</p>
+                    <button class="btn btn-outline-primary">Falar com Consultor</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de Upgrade -->
+        <div class="modal fade" id="upgradeModal" tabindex="-1" aria-labelledby="upgradeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="upgradeModalLabel">Fazer Upgrade de Plano</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Selecione o plano para o qual deseja fazer upgrade:</p>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="planoUpgrade" id="planoProfissional" value="Profissional" checked>
+                            <label class="form-check-label" for="planoProfissional">
+                                <strong>Plano Profissional</strong> - R$ 59,90/mês
+                            </label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="planoUpgrade" id="planoEnterprise" value="Enterprise">
+                            <label class="form-check-label" for="planoEnterprise">
+                                <strong>Plano Enterprise</strong> - R$ 119,90/mês
+                            </label>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> O valor proporcional será cobrado imediatamente para o período restante do ciclo atual.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary">Confirmar Upgrade</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- JavaScript adicional específico desta página -->
+        <script>
+            // Código JavaScript específico da página de assinatura, se necessário
+        </script>
+    </additionalJs>
+</body>
+</html>

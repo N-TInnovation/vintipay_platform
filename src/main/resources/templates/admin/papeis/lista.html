@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{admin/layout/base :: html(
+        title='Gerenciamento de Papéis',
+        activeMenu='papeis',
+        pageTitle='Gerenciamento de Papéis',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <style>
+            .card-header .btn {
+                margin-left: 10px;
+            }
+            .table-actions {
+                white-space: nowrap;
+            }
+            .table-actions .btn {
+                margin-right: 5px;
+            }
+            .badge-padrao {
+                background-color: #28a745;
+                color: white;
+                padding: 3px 8px;
+                border-radius: 10px;
+                font-size: 0.75rem;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Lista de Papéis</h5>
+                <a th:href="@{/admin/papeis/novo}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Novo Papel
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Código</th>
+                                <th>Descrição</th>
+                                <th>Permissões</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${papeis.empty}">
+                                <td colspan="7" class="text-center">Nenhum papel cadastrado</td>
+                            </tr>
+                            <tr th:each="papel : ${papeis}">
+                                <td th:text="${papel.id}"></td>
+                                <td th:text="${papel.nome}"></td>
+                                <td th:text="${papel.codigo}"></td>
+                                <td th:text="${papel.descricao}"></td>
+                                <td>
+                                    <span th:text="${papel.permissoes.size()}"></span> permissões
+                                </td>
+                                <td>
+                                    <span th:if="${papel.padrao}" class="badge-padrao">Padrão</span>
+                                </td>
+                                <td class="table-actions">
+                                    <a th:href="@{/admin/papeis/{id}(id=${papel.id})}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </a>
+                                    <button th:if="${!papel.padrao}" class="btn btn-sm btn-danger" 
+                                            th:onclick="'excluirPapel(' + ${papel.id} + ')'">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <script>
+            function excluirPapel(id) {
+                if (confirm('Tem certeza que deseja excluir este papel? Esta ação não pode ser desfeita.')) {
+                    fetch(`/admin/papeis/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            window.location.reload();
+                        } else {
+                            alert(data.message || 'Erro ao excluir papel');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        alert('Erro ao excluir papel');
+                    });
+                }
+            }
+        </script>
+    </additionalJs>
+</body>
+</html>

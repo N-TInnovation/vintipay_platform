@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{admin/layout/base :: html(
+      title='Editar Perfil',
+      activeMenu='perfil',
+      pageTitle='Editar Perfil',
+      content=~{::content},
+      additionalCss=~{::additionalCss},
+      additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <!-- Estilos adicionais específicos para esta página -->
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- Mensagens de alerta -->
+                    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <span th:text="${erro}"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Informações do Perfil</h3>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/admin/perfil/atualizar}" method="post">
+                                <input type="hidden" th:field="${usuario.id}" />
+                                <input type="hidden" th:field="${usuario.username}" />
+                                <input type="hidden" th:field="${usuario.ativo}" />
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="nome">Nome</label>
+                                            <input type="text" class="form-control" id="nome" th:field="${usuario.nome}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Username</label>
+                                            <input type="text" class="form-control" th:value="${usuario.username}" disabled>
+                                            <small class="form-text text-muted">O username não pode ser alterado.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="email">Email</label>
+                                            <input type="email" class="form-control" id="email" th:field="${usuario.email}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="telefone">Telefone</label>
+                                            <input type="text" class="form-control" id="telefone" th:field="${usuario.telefone}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="novaPassword">Nova Senha</label>
+                                            <input type="password" class="form-control" id="novaPassword" name="novaPassword">
+                                            <small class="form-text text-muted">Deixe em branco para manter a senha atual.</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="confirmPassword">Confirmar Nova Senha</label>
+                                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                                        <a th:href="@{/admin/perfil}" class="btn btn-secondary">Cancelar</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- Scripts adicionais específicos para esta página -->
+    </additionalJs>
+</body>
+</html>

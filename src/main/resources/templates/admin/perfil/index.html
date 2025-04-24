@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{admin/layout/base :: html(
+      title='Meu Perfil',
+      activeMenu='perfil',
+      pageTitle='Meu Perfil',
+      content=~{::content},
+      additionalCss=~{::additionalCss},
+      additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <!-- Estilos adicionais específicos para esta página -->
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- Mensagens de alerta -->
+                    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <span th:text="${erro}"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span th:text="${sucesso}"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Informações do Perfil</h3>
+                            <div class="card-tools">
+                                <a th:href="@{/admin/perfil/editar}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit"></i> Editar Perfil
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Nome:</label>
+                                        <p class="form-control-static" th:text="${usuario.nome}">Nome do Usuário</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Username:</label>
+                                        <p class="form-control-static" th:text="${usuario.username}">username</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Email:</label>
+                                        <p class="form-control-static" th:text="${usuario.email}">email@exemplo.com</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Telefone:</label>
+                                        <p class="form-control-static" th:text="${usuario.telefone ?: 'Não informado'}">Telefone</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Perfil:</label>
+                                        <p class="form-control-static">
+                                            <span th:each="role : ${usuario.role}" class="badge badge-primary mr-1" th:text="${role}">ROLE</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Status:</label>
+                                        <p class="form-control-static">
+                                            <span th:if="${usuario.ativo}" class="badge badge-success">Ativo</span>
+                                            <span th:unless="${usuario.ativo}" class="badge badge-danger">Inativo</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- Scripts adicionais específicos para esta página -->
+    </additionalJs>
+</body>
+</html>

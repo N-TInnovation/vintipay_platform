@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{admin/layout/base :: html(
+        title='Detalhes da Assinatura',
+        activeMenu='assinaturas',
+        pageTitle='Detalhes da Assinatura',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <!-- Adicione CSS específico da página aqui, se necessário -->
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <!-- Ações -->
+        <div class="d-flex justify-content-end mb-4">
+            <a th:href="@{/admin/assinaturas}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+            
+            <form th:if="${assinatura.status == 'ATIVA'}" th:action="@{/admin/assinaturas/{id}/cancelar(id=${assinatura.usuario.id})}" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Tem certeza que deseja cancelar esta assinatura?');">
+                    <i class="fas fa-ban"></i> Cancelar Assinatura
+                </button>
+            </form>
+            
+            <form th:if="${assinatura.status == 'CANCELADA' || assinatura.status == 'EXPIRADA'}" th:action="@{/admin/assinaturas/{id}/renovar(id=${assinatura.usuario.id})}" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-outline-success" onclick="return confirm('Tem certeza que deseja renovar esta assinatura?');">
+                    <i class="fas fa-sync"></i> Renovar Assinatura
+                </button>
+            </form>
+        </div>
+
+        <!-- Detalhes da Assinatura -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Informações da Assinatura</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th style="width: 40%">Status:</th>
+                                <td>
+                                    <span th:if="${assinatura.status == 'ATIVA'}" class="badge bg-success">Ativa</span>
+                                    <span th:if="${assinatura.status == 'CANCELADA'}" class="badge bg-danger">Cancelada</span>
+                                    <span th:if="${assinatura.status == 'PENDENTE'}" class="badge bg-warning">Pendente</span>
+                                    <span th:if="${assinatura.status == 'EXPIRADA'}" class="badge bg-secondary">Expirada</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Data de Início:</th>
+                                <td th:text="${#temporals.format(assinatura.dataInicio, 'dd/MM/yyyy HH:mm')}">01/01/2025 12:00</td>
+                            </tr>
+                            <tr>
+                                <th>Data de Término:</th>
+                                <td th:text="${assinatura.dataTermino != null ? #temporals.format(assinatura.dataTermino, 'dd/MM/yyyy HH:mm') : '-'}">31/12/2025 12:00</td>
+                            </tr>
+                            <tr th:if="${assinatura.stripeSubscriptionId != null}">
+                                <th>ID Externo:</th>
+                                <td th:text="${assinatura.stripeSubscriptionId}">sub_123456</td>
+                            </tr>
+                            <tr th:if="${assinatura.ultimaAtualizacao != null}">
+                                <th>Última Atualização:</th>
+                                <td th:text="${#temporals.format(assinatura.ultimaAtualizacao, 'dd/MM/yyyy HH:mm')}">15/01/2025 14:30</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Informações do Plano</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th style="width: 40%">Nome do Plano:</th>
+                                <td th:text="${assinatura.plano.nome}">Plano Premium</td>
+                            </tr>
+                            <tr>
+                                <th>Descrição:</th>
+                                <td th:text="${assinatura.plano.descricao}">Plano com recursos avançados</td>
+                            </tr>
+                            <tr>
+                                <th>Valor:</th>
+                                <td th:text="${#numbers.formatCurrency(assinatura.plano.valor)}">R$ 99,90</td>
+                            </tr>
+                            <tr>
+                                <th>Período:</th>
+                                <td th:text="${assinatura.plano.periodo}">MENSAL</td>
+                            </tr>
+                            <tr>
+                                <th>ID do Plano:</th>
+                                <td th:text="${assinatura.plano.id}">1</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Informações do Usuário</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th style="width: 40%">ID do Usuário:</th>
+                                <td th:text="${assinatura.usuario.id}">1</td>
+                            </tr>
+                            <tr>
+                                <th>Nome:</th>
+                                <td th:text="${assinatura.usuario.nome}">João Silva</td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td th:text="${assinatura.usuario.username}">joao@exemplo.com</td>
+                            </tr>
+                            <tr>
+                                <th>Perfil:</th>
+                                <td th:text="${assinatura.usuario.role}">USUARIO</td>
+                            </tr>
+                            <tr>
+                                <th>Status:</th>
+                                <td>
+                                    <span th:if="${assinatura.usuario.ativo}" class="badge bg-success">Ativo</span>
+                                    <span th:unless="${assinatura.usuario.ativo}" class="badge bg-danger">Inativo</span>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="mt-3">
+                            <a th:href="@{/admin/usuarios/{id}(id=${assinatura.usuario.id})}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-user"></i> Ver Perfil Completo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Histórico de Pagamentos</h5>
+                        <a th:href="@{/admin/pagamentos(assinatura=${assinatura.id})}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-list"></i> Ver Todos
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <!-- Aqui você pode adicionar uma tabela com o histórico de pagamentos relacionados a esta assinatura -->
+                        <p class="text-muted text-center py-3">
+                            <i class="fas fa-info-circle"></i> O histórico de pagamentos estará disponível em breve.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- Adicione JavaScript específico da página aqui, se necessário -->
+    </additionalJs>
+</body>
+</html>

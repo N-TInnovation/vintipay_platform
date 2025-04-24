@@ -3,6 +3,9 @@ package cv.ntinnovation.vintipay.adapter.out.db.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 @Setter
 @Entity
@@ -24,6 +27,14 @@ public class UsuarioEntity {
     
     @Column(nullable = false)
     private String role;
+    
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "usuario_papel",
+        joinColumns = @JoinColumn(name = "usuario_id"),
+        inverseJoinColumns = @JoinColumn(name = "papel_id")
+    )
+    private Set<PapelEntity> papeis = new HashSet<>();
     
     private boolean ativo = true;
     

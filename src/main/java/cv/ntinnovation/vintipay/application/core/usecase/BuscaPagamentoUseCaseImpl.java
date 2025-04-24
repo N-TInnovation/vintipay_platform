@@ -26,4 +26,9 @@ public class BuscaPagamentoUseCaseImpl implements BuscaPagamentoUseCase {
     public Optional<Pagamento> buscarPorReferencia(String reference) {
         return buscaPagamentoPort.buscarPorReferencia(reference);
     }
+    
+    @Override
+    public Page<Pagamento> buscarPorUsuario(Pageable pageable, Long usuarioId, StatusPagamentoEnum status) {
+        return buscaPagamentoPort.buscarPorUsuario(pageable, usuarioId, status);
+    }
 }

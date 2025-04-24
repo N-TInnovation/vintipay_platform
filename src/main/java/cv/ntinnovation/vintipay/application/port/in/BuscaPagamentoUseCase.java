@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface BuscaPagamentoUseCase {
     Page<Pagamento> buscarTodos(Pageable pageable, String reference, StatusPagamentoEnum status);
     Optional<Pagamento> buscarPorReferencia(String reference);
+    Page<Pagamento> buscarPorUsuario(Pageable pageable, Long usuarioId, StatusPagamentoEnum status);
 }

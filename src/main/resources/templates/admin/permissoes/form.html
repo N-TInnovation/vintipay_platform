@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{admin/layout/base :: html(
+        title=${permissao.id != null ? 'Editar Permissão' : 'Nova Permissão'},
+        activeMenu='permissoes',
+        pageTitle=${permissao.id != null ? 'Editar Permissão' : 'Nova Permissão'},
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <style>
+            .required-field::after {
+                content: "*";
+                color: red;
+                margin-left: 4px;
+            }
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <!-- Botões de ação -->
+        <div class="d-flex justify-content-end mb-4">
+            <a th:href="@{/admin/permissoes}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+            <button type="button" class="btn btn-primary" onclick="salvarPermissao()">
+                <i class="fas fa-save"></i> Salvar
+            </button>
+        </div>
+
+        <!-- Mensagens de alerta -->
+        <div id="alertSuccess" class="alert alert-success alert-dismissible fade show" role="alert" style="display: none;">
+            <span id="alertSuccessMessage"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div id="alertError" class="alert alert-danger alert-dismissible fade show" role="alert" style="display: none;">
+            <span id="alertErrorMessage"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Formulário -->
+        <div class="card">
+            <div class="card-body">
+                <form id="permissaoForm" class="needs-validation" novalidate>
+                    <input type="hidden" id="id" th:value="${permissao.id}">
+                    
+                    <div class="form-group">
+                        <label for="nome" class="form-label required-field">Nome</label>
+                        <input type="text" class="form-control" id="nome" th:value="${permissao.nome}" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe o nome da permissão.
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="codigo" class="form-label required-field">Código</label>
+                        <input type="text" class="form-control" id="codigo" th:value="${permissao.codigo}" required
+                               onblur="verificarCodigoExistente()">
+                        <div class="invalid-feedback">
+                            Por favor, informe o código da permissão.
+                        </div>
+                        <div id="codigoFeedback" class="text-danger" style="display: none;">
+                            Este código já está em uso por outra permissão.
+                        </div>
+                        <small class="form-text text-muted">
+                            O código deve ser único e é usado internamente pelo sistema.
+                            Use apenas letras, números e underscores (ex: GERENCIAR_USUARIOS).
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="descricao" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="descricao" rows="3" th:text="${permissao.descricao}"></textarea>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <script>
+            // Verificar se o código já existe
+            function verificarCodigoExistente() {
+                const codigo = document.getElementById('codigo').value;
+                const id = document.getElementById('id').value;
+                
+                if (!codigo) return;
+                
+                fetch(`/admin/permissoes/verificar-codigo?codigo=${encodeURIComponent(codigo)}&id=${id || ''}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const feedback = document.getElementById('codigoFeedback');
+                        if (data.exists) {
+                            feedback.style.display = 'block';
+                            document.getElementById('codigo').setCustomValidity('Código já existe');
+                        } else {
+                            feedback.style.display = 'none';
+                            document.getElementById('codigo').setCustomValidity('');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao verificar código:', error);
+                    });
+            }
+            
+            // Validar formulário
+            function validarFormulario() {
+                const form = document.getElementById('permissaoForm');
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return false;
+                }
+                return true;
+            }
+            
+            // Salvar permissão
+            function salvarPermissao() {
+                if (!validarFormulario()) {
+                    return;
+                }
+                
+                // Coletar dados do formulário
+                const permissao = {
+                    id: document.getElementById('id').value || null,
+                    nome: document.getElementById('nome').value,
+                    codigo: document.getElementById('codigo').value,
+                    descricao: document.getElementById('descricao').value
+                };
+                
+                // Mostrar indicador de carregamento
+                const saveButton = document.querySelector('button[onclick="salvarPermissao()"]');
+                const originalText = saveButton.innerHTML;
+                saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+                saveButton.disabled = true;
+                
+                // Enviar requisição
+                fetch('/admin/permissoes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(permissao)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Restaurar botão
+                    saveButton.innerHTML = originalText;
+                    saveButton.disabled = false;
+                    
+                    if (data.success) {
+                        // Exibir mensagem de sucesso
+                        document.getElementById('alertSuccessMessage').textContent = data.message;
+                        document.getElementById('alertSuccess').style.display = 'block';
+                        
+                        // Redirecionar após 2 segundos
+                        setTimeout(() => {
+                            window.location.href = '/admin/permissoes';
+                        }, 2000);
+                    } else {
+                        // Exibir mensagem de erro
+                        document.getElementById('alertErrorMessage').textContent = data.message;
+                        document.getElementById('alertError').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    
+                    // Restaurar botão
+                    saveButton.innerHTML = originalText;
+                    saveButton.disabled = false;
+                    
+                    // Exibir mensagem de erro
+                    document.getElementById('alertErrorMessage').textContent = 'Erro ao salvar permissão. Tente novamente.';
+                    document.getElementById('alertError').style.display = 'block';
+                });
+            }
+            
+            // Inicializar validação do formulário
+            document.addEventListener('DOMContentLoaded', function() {
+                // Verificar código ao carregar a página se estiver editando
+                const codigo = document.getElementById('codigo').value;
+                if (codigo) {
+                    verificarCodigoExistente();
+                }
+            });
+        </script>
+    </additionalJs>
+</body>
+</html>

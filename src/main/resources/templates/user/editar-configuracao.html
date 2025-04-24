@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{user/layout/base :: html(
+        title='Editar Configuração SISP',
+        activeMenu='config-pagamentos',
+        pageTitle='Editar Configuração SISP',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <title>Editar Configuração SISP</title>
+    <additionalCss>
+        <!-- CSS adicional específico desta página -->
+        <style>
+            .form-label {
+                font-weight: 500;
+            }
+            
+            .form-text {
+                font-size: 0.85rem;
+                color: #6c757d;
+            }
+            
+            .required-field::after {
+                content: " *";
+                color: #ef4444;
+            }
+            
+            .card-header-tabs {
+                margin-right: -1rem;
+                margin-bottom: -0.5rem;
+                margin-left: -1rem;
+                border-bottom: 0;
+            }
+            
+            .nav-tabs .nav-link {
+                color: #4b5563;
+                border: none;
+                padding: 0.75rem 1rem;
+                border-bottom: 2px solid transparent;
+            }
+            
+            .nav-tabs .nav-link.active {
+                color: #2563eb;
+                border-bottom: 2px solid #2563eb;
+                background-color: transparent;
+            }
+            
+            .nav-tabs .nav-link:hover:not(.active) {
+                border-bottom: 2px solid #e5e7eb;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <!-- Alertas de Sucesso/Erro -->
+        <div th:if="${mensagemSucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> <span th:text="${mensagemSucesso}">Operação realizada com sucesso!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+        
+        <div th:if="${mensagemErro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${mensagemErro}">Ocorreu um erro!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" id="configTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab" aria-controls="basic" aria-selected="true">
+                                    Informações Básicas
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="advanced-tab" data-bs-toggle="tab" data-bs-target="#advanced" type="button" role="tab" aria-controls="advanced" aria-selected="false">
+                                    Configurações Avançadas
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="webhook-tab" data-bs-toggle="tab" data-bs-target="#webhook" type="button" role="tab" aria-controls="webhook" aria-selected="false">
+                                    Webhook e Notificações
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/user/config-pagamentos/salvar}" method="post" th:object="${configuracao}">
+                            <input type="hidden" th:field="*{id}">
+                            <input type="hidden" th:field="*{createdAt}">
+                            
+                            <div class="tab-content" id="configTabsContent">
+                                <!-- Informações Básicas -->
+                                <div class="tab-pane fade show active" id="basic" role="tabpanel" aria-labelledby="basic-tab">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="nomeLoja" class="form-label">Nome da Loja</label>
+                                            <input type="text" class="form-control" id="nomeLoja" name="nomeLoja" th:field="*{nomeLoja}">
+                                            <div class="form-text">Nome para identificar esta configuração</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="urlLoja" class="form-label">URL da Loja</label>
+                                            <input type="url" class="form-control" id="urlLoja" name="urlLoja" th:field="*{urlLoja}">
+                                            <div class="form-text">Endereço do seu site ou loja virtual</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="posId" class="form-label required-field">POS ID</label>
+                                            <input type="text" class="form-control" id="posId" name="posId" th:field="*{posId}" required>
+                                            <div class="form-text">Identificador do ponto de venda fornecido pelo SISP</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="merchantId" class="form-label">Merchant ID</label>
+                                            <input type="text" class="form-control" id="merchantId" name="merchantId" th:field="*{merchantId}">
+                                            <div class="form-text">Identificador do comerciante fornecido pelo SISP</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="terminalId" class="form-label">Terminal ID</label>
+                                            <input type="text" class="form-control" id="terminalId" name="terminalId" th:field="*{terminalId}">
+                                            <div class="form-text">Identificador do terminal fornecido pelo SISP</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="posAutCode" class="form-label required-field">POS Aut Code</label>
+                                            <input type="text" class="form-control" id="posAutCode" name="posAutCode" th:field="*{posAutCode}" required>
+                                            <div class="form-text">Código de autorização do POS fornecido pelo SISP</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="telefone" class="form-label">Telefone</label>
+                                            <input type="tel" class="form-control" id="telefone" name="telefone" th:field="*{telefone}">
+                                            <div class="form-text">Telefone de contato da loja</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="email" name="email" th:field="*{email}">
+                                            <div class="form-text">Email de contato da loja</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Configurações Avançadas -->
+                                <div class="tab-pane fade" id="advanced" role="tabpanel" aria-labelledby="advanced-tab">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="returnUrl" class="form-label">URL de Retorno</label>
+                                            <input type="url" class="form-control" id="returnUrl" name="returnUrl" th:field="*{returnUrl}">
+                                            <div class="form-text">URL para onde o cliente será redirecionado após o pagamento</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="ambiente" class="form-label">Ambiente</label>
+                                            <select class="form-select" id="ambiente" name="ambiente" th:field="*{ambiente}">
+                                                <option value="PRODUCAO">Produção</option>
+                                                <option value="TESTE">Teste</option>
+                                            </select>
+                                            <div class="form-text">Ambiente onde a integração será utilizada</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="serviceUrl" class="form-label">URL do Serviço</label>
+                                            <input type="url" class="form-control" id="serviceUrl" name="serviceUrl" th:field="*{serviceUrl}">
+                                            <div class="form-text">URL do serviço SISP (deixe em branco para usar a URL padrão)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Webhook e Notificações -->
+                                <div class="tab-pane fade" id="webhook" role="tabpanel" aria-labelledby="webhook-tab">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="webhookUrl" class="form-label">URL do Webhook</label>
+                                            <input type="url" class="form-control" id="webhookUrl" name="webhookUrl" th:field="*{webhookUrl}">
+                                            <div class="form-text">URL para notificações de eventos de pagamento</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="telefone" class="form-label">Telefone</label>
+                                            <input type="tel" class="form-control" id="telefone" name="telefone" th:field="*{telefone}">
+                                            <div class="form-text">Telefone de contato para suporte</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="email" name="email" th:field="*{email}">
+                                            <div class="form-text">Email de contato para suporte</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="observacoes" class="form-label">Observações</label>
+                                        <textarea class="form-control" id="observacoes" name="observacoes" rows="3" th:field="*{observacoes}"></textarea>
+                                        <div class="form-text">Informações adicionais sobre esta configuração</div>
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="ativo" name="ativo" th:field="*{ativo}">
+                                        <label class="form-check-label" for="ativo">
+                                            Ativar esta configuração
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <a th:href="@{/user/config-pagamentos}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i> Voltar
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i> Salvar Alterações
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- JavaScript adicional específico desta página -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Código JavaScript específico da página, se necessário
+            });
+        </script>
+    </additionalJs>
+</body>
+</html>

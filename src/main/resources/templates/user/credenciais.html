@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{user/layout/base :: html(
+        title='Credenciais SISP',
+        activeMenu='config-pagamentos',
+        pageTitle='Credenciais SISP',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <title>Credenciais SISP</title>
+    <additionalCss>
+        <!-- CSS adicional específico desta página -->
+        <style>
+            .credentials-card {
+                border-radius: 10px;
+                border: 1px solid rgba(0,0,0,0.1);
+                padding: 20px;
+                margin-bottom: 20px;
+                transition: all 0.3s ease;
+            }
+            
+            .credentials-card:hover {
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+            
+            .credential-item {
+                margin-bottom: 15px;
+            }
+            
+            .credential-label {
+                font-weight: 600;
+                margin-bottom: 5px;
+                color: #4b5563;
+            }
+            
+            .credential-value {
+                padding: 10px;
+                background-color: #f8f9fa;
+                border-radius: 5px;
+                font-family: monospace;
+                font-size: 0.9rem;
+                word-break: break-all;
+                position: relative;
+            }
+            
+            .copy-btn {
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                background-color: #fff;
+                border: 1px solid rgba(0,0,0,0.1);
+                border-radius: 4px;
+                padding: 3px 8px;
+                font-size: 0.8rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            
+            .copy-btn:hover {
+                background-color: #f0f0f0;
+            }
+            
+            .alert-warning {
+                border-left: 4px solid #f59e0b;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <div class="alert alert-warning mb-4">
+            <div class="d-flex">
+                <div class="me-3">
+                    <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                </div>
+                <div>
+                    <h5 class="alert-heading">Informação Sensível</h5>
+                    <p class="mb-0">As credenciais exibidas nesta página são sensíveis e não devem ser compartilhadas. Guarde-as em um local seguro e nunca as compartilhe com terceiros.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Credenciais para <span th:text="${configuracao.nomeLoja ?: 'Configuração SISP'}">Nome da Loja</span></h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="credentials-card">
+                            <div class="credential-item">
+                                <div class="credential-label">API Key</div>
+                                <div class="credential-value" th:text="${configuracao.apiKey}">API_KEY_12345</div>
+                                <button class="copy-btn" th:data-value="${configuracao.apiKey}" onclick="copyToClipboard(this, 'API Key')" title="Copiar API Key">
+                                    <i class="fas fa-copy me-1"></i> Copiar
+                                </button>
+                            </div>
+                            
+                            <div class="credential-item">
+                                <div class="credential-label">API Secret</div>
+                                <div class="credential-value" th:text="${configuracao.apiSecret}">API_SECRET_67890</div>
+                                <button class="copy-btn" th:data-value="${configuracao.apiSecret}" onclick="copyToClipboard(this, 'API Secret')" title="Copiar API Secret">
+                                    <i class="fas fa-copy me-1"></i> Copiar
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <h6 class="mb-3">Outras Informações</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="credential-label">POS ID</div>
+                                <div class="credential-value" th:text="${configuracao.posId}">123456</div>
+                                <button class="copy-btn" th:data-value="${configuracao.posId}" onclick="copyToClipboard(this, 'POS ID')" title="Copiar POS ID">
+                                    <i class="fas fa-copy me-1"></i> Copiar
+                                </button>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="credential-label">Merchant ID</div>
+                                <div class="credential-value" th:text="${configuracao.merchantId ?: 'Não definido'}">789012</div>
+                                <button class="copy-btn" th:if="${configuracao.merchantId != null}" th:data-value="${configuracao.merchantId}" onclick="copyToClipboard(this, 'Merchant ID')" title="Copiar Merchant ID">
+                                    <i class="fas fa-copy me-1"></i> Copiar
+                                </button>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="credential-label">Terminal ID</div>
+                                <div class="credential-value" th:text="${configuracao.terminalId ?: 'Não definido'}">T001</div>
+                                <button class="copy-btn" th:if="${configuracao.terminalId != null}" th:data-value="${configuracao.terminalId}" onclick="copyToClipboard(this, 'Terminal ID')" title="Copiar Terminal ID">
+                                    <i class="fas fa-copy me-1"></i> Copiar
+                                </button>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="credential-label">POS Aut Code</div>
+                                <div class="credential-value" th:text="${configuracao.posAutCode}">AUTH123</div>
+                                <button class="copy-btn" th:data-value="${configuracao.posAutCode}" onclick="copyToClipboard(this, 'POS Aut Code')" title="Copiar POS Aut Code">
+                                    <i class="fas fa-copy me-1"></i> Copiar
+                                </button>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="credential-label">Return Aut Code</div>
+                                <div class="credential-value" th:text="${configuracao.returnAutCode}">RETURN123</div>
+                                <button class="copy-btn" th:data-value="${configuracao.returnAutCode}" onclick="copyToClipboard(this, 'Return Aut Code')" title="Copiar Return Aut Code">
+                                    <i class="fas fa-copy me-1"></i> Copiar
+                                </button>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="credential-label">Webhook Secret</div>
+                                <div class="credential-value" th:text="${configuracao.webhookSecret}">WEBHOOK123</div>
+                                <button class="copy-btn" th:data-value="${configuracao.webhookSecret}" onclick="copyToClipboard(this, 'Webhook Secret')" title="Copiar Webhook Secret">
+                                    <i class="fas fa-copy me-1"></i> Copiar
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a th:href="@{/user/config-pagamentos}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Voltar
+                            </a>
+                            <a th:href="@{'/user/config-pagamentos/editar/' + ${configuracao.id}}" class="btn btn-primary">
+                                <i class="fas fa-edit me-2"></i> Editar Configuração
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- JavaScript adicional específico desta página -->
+        <script>
+            function copyToClipboard(button, label) {
+                const value = button.getAttribute('data-value');
+                navigator.clipboard.writeText(value)
+                    .then(() => {
+                        // Criar notificação de sucesso
+                        const toast = document.createElement('div');
+                        toast.className = 'position-fixed bottom-0 end-0 p-3';
+                        toast.style.zIndex = '5';
+                        
+                        toast.innerHTML = `
+                            <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                                <div class="toast-header">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong class="me-auto">Copiado!</strong>
+                                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close" onclick="this.parentElement.parentElement.parentElement.remove()"></button>
+                                </div>
+                                <div class="toast-body">
+                                    ${label} copiado para a área de transferência.
+                                </div>
+                            </div>
+                        `;
+                        
+                        document.body.appendChild(toast);
+                        
+                        // Remover após 3 segundos
+                        setTimeout(() => {
+                            toast.remove();
+                        }, 3000);
+                    })
+                    .catch(err => {
+                        console.error('Erro ao copiar texto: ', err);
+                        alert('Não foi possível copiar o texto. Por favor, tente novamente.');
+                    });
+            }
+        </script>
+    </additionalJs>
+</body>
+</html>

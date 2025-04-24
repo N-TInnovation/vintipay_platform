@@ -112,7 +112,10 @@ public class SecurityConfig {
         public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
             http.securityMatcher("/**")
                     .authorizeHttpRequests(auth -> auth
-                            //.requestMatchers("/admin/**").
+                            .requestMatchers("/admin/**").hasRole("ADMIN")
+                            .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                            .requestMatchers("/permissoes/**").hasRole("ADMIN")
+                            .requestMatchers("/papeis/**").hasRole("ADMIN")
                             .requestMatchers("/pagamento/checkout/{reference}").permitAll()
                             .requestMatchers("/error").permitAll()
                             .requestMatchers("/login").permitAll()
@@ -126,7 +129,7 @@ public class SecurityConfig {
                     .formLogin(form -> form
                             .loginPage("/login")
                             .loginProcessingUrl("/login")
-                            .defaultSuccessUrl("/admin", true)
+                            .defaultSuccessUrl("/dashboard", true)
                             .failureUrl("/login?error")
                             .permitAll()
                     )
