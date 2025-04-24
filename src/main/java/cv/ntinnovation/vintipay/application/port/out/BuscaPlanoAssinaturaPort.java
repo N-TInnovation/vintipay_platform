@@ -10,4 +10,5 @@ public interface BuscaPlanoAssinaturaPort {
     Optional<PlanoAssinatura> buscarPorUsuario(Usuario usuario);
     Optional<PlanoAssinatura> buscarPorStripeSubscriptionId(String stripeSubscriptionId);
     List<PlanoAssinatura> buscarPorStatus(PlanoAssinatura.StatusAssinatura status);
+    Optional<PlanoAssinatura> buscarPorId(Long id);
 }

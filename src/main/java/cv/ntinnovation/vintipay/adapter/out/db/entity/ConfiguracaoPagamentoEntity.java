@@ -29,9 +29,6 @@ public class ConfiguracaoPagamentoEntity {
     @Column(name = "merchant_id", nullable = false)
     private String merchantId;
 
-    @Column(name = "terminal_id", nullable = false)
-    private String terminalId;
-
     @Column(name = "api_key", nullable = false)
     private String apiKey;
 
@@ -56,23 +53,26 @@ public class ConfiguracaoPagamentoEntity {
     @Column(name = "url_loja", nullable = false)
     private String urlLoja;
     
-    @Column(name = "telefone")
+    @Column(name = "telefone", nullable = false)
     private String telefone;
     
-    @Column(name = "email")
+    @Column(name = "email", nullable = false)
     private String email;
 
     @Column(name = "ambiente", nullable = false)
     private String ambiente;
-    
-    @Column(name = "service_url", nullable = false)
-    private String serviceUrl;
 
     @Column(name = "webhook_url")
     private String webhookUrl;
     
-    @Column(name = "webhook_secret")
+    @Column(name = "webhook_secret", nullable = false)
     private String webhookSecret;
+
+    @Column(name = "webhook_ativo")
+    private Boolean webhookAtivo;
+
+    @Column(name = "return_ativo")
+    private Boolean returnAtivo;
 
     @Column(name = "ativo")
     private Boolean ativo;

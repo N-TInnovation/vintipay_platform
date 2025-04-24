@@ -18,6 +18,14 @@ public interface GerenciaAssinaturaUseCase {
     PlanoAssinatura criarAssinatura(Usuario usuario, Long planoId, boolean skipStripeIntegration);
     
     Optional<PlanoAssinatura> buscarAssinaturaPorUsuario(Usuario usuario);
+    
+    /**
+     * Busca uma assinatura pelo seu ID
+     * @param id ID da assinatura a ser buscada
+     * @return Optional contendo a assinatura se encontrada, ou vazio se não existir
+     */
+    Optional<PlanoAssinatura> buscarAssinaturaPorId(Long id);
+    
     void cancelarAssinatura(Usuario usuario);
     void renovarAssinatura(String stripeSubscriptionId);
     void atualizarStatusAssinatura(String stripeSubscriptionId, PlanoAssinatura.StatusAssinatura novoStatus);

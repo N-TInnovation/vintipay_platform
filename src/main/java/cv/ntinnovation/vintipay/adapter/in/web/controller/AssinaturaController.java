@@ -10,6 +10,7 @@ import cv.ntinnovation.vintipay.application.port.in.GerenciaPlanoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.StripeIntegrationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -30,6 +31,12 @@ public class AssinaturaController {
     private final StripeIntegrationUseCase stripeIntegrationUseCase;
     private final UsuarioRepository usuarioRepository;
     private final UsusarioMapper usuarioMapper;
+    
+    @Value("${app.stripe.success-url}")
+    private String successUrl;
+    
+    @Value("${app.stripe.cancel-url}")
+    private String cancelUrl;
 
     @GetMapping
     public String exibirPlanos(Model model) {
@@ -82,10 +89,7 @@ public class AssinaturaController {
 
             Plano plano = planoOptional.get();
 
-            // Criar URL de checkout do Stripe
-            String successUrl = "http://localhost:8080/assinaturas/sucesso";
-            String cancelUrl = "http://localhost:8080/assinaturas/cancelado";
-
+            // Criar URL de checkout do Stripe usando as variáveis de ambiente
             String checkoutUrl = stripeIntegrationUseCase.criarCheckoutSession(
                     usuario,
                     plano.getStripePriceId(),

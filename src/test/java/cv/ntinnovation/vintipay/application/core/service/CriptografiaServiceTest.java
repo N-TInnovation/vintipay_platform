@@ -1,11 +1,14 @@
 package cv.ntinnovation.vintipay.application.core.service;
 
+import cv.ntinnovation.vintipay.application.core.domain.rules.FingerPrintService;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class CriptografiaServiceTest {
 
-    private final CriptografiaService criptografiaService = new CriptografiaService();
+    private final CriptografiaService criptografiaService = new CriptografiaService(new BCryptPasswordEncoder(), new FingerPrintService());
 
     @Test
     void deveVerificarSenhaCorretamente() {

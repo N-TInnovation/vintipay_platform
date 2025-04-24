@@ -94,6 +94,18 @@ public class GerenciaAssinaturaUseCaseImpl implements GerenciaAssinaturaUseCase 
     public Optional<PlanoAssinatura> buscarAssinaturaPorUsuario(Usuario usuario) {
         return buscaPlanoAssinaturaPort.buscarPorUsuario(usuario);
     }
+    
+    @Override
+    public Optional<PlanoAssinatura> buscarAssinaturaPorId(Long id) {
+        log.info("Buscando assinatura por ID: {}", id);
+        Optional<PlanoAssinatura> assinaturaOptional = buscaPlanoAssinaturaPort.buscarPorId(id);
+        if (assinaturaOptional.isPresent()) {
+            log.info("Assinatura encontrada: {}", assinaturaOptional.get().getId());
+        } else {
+            log.info("Assinatura não encontrada para o ID: {}", id);
+        }
+        return assinaturaOptional;
+    }
 
     @Override
     @Transactional
@@ -105,7 +117,7 @@ public class GerenciaAssinaturaUseCaseImpl implements GerenciaAssinaturaUseCase 
         
         PlanoAssinatura assinatura = assinaturaOptional.get();
         
-        // Cancelar assinatura no Stripe
+        // Se tiver ID do Stripe, cancelar no Stripe também
         if (assinatura.getStripeSubscriptionId() != null && !assinatura.getStripeSubscriptionId().isEmpty()) {
             stripeIntegrationUseCase.cancelarSubscription(assinatura.getStripeSubscriptionId());
         }
@@ -122,17 +134,27 @@ public class GerenciaAssinaturaUseCaseImpl implements GerenciaAssinaturaUseCase 
     public void renovarAssinatura(String stripeSubscriptionId) {
         Optional<PlanoAssinatura> assinaturaOptional = buscaPlanoAssinaturaPort.buscarPorStripeSubscriptionId(stripeSubscriptionId);
         if (assinaturaOptional.isEmpty()) {
-            throw new RuntimeException("Assinatura não encontrada com o ID: " + stripeSubscriptionId);
+            log.error("Assinatura não encontrada para o Stripe Subscription ID: {}", stripeSubscriptionId);
+            return;
         }
         
         PlanoAssinatura assinatura = assinaturaOptional.get();
         
-        // Atualizar datas e status
+        // Atualizar data do último pagamento
         assinatura.setUltimoPagamento(LocalDateTime.now());
-        assinatura.setStatus(PlanoAssinatura.StatusAssinatura.ATIVA);
-        assinatura.setDataFim(null); // Assinatura ativa não tem data fim
+        
+        // Se estiver em trial, mudar para ativa
+        if (assinatura.getStatus() == PlanoAssinatura.StatusAssinatura.TRIAL) {
+            assinatura.setStatus(PlanoAssinatura.StatusAssinatura.ATIVA);
+        }
+        
+        // Calcular próxima data de pagamento (30 dias a partir de hoje)
+        LocalDateTime proximoPagamento = LocalDateTime.now().plusDays(30);
+        assinatura.setProximoPagamento(proximoPagamento);
         
         salvaPlanoAssinaturaPort.salvar(assinatura);
+        
+        log.info("Assinatura renovada com sucesso: {}", stripeSubscriptionId);
     }
 
     @Override
@@ -140,7 +162,8 @@ public class GerenciaAssinaturaUseCaseImpl implements GerenciaAssinaturaUseCase 
     public void atualizarStatusAssinatura(String stripeSubscriptionId, PlanoAssinatura.StatusAssinatura novoStatus) {
         Optional<PlanoAssinatura> assinaturaOptional = buscaPlanoAssinaturaPort.buscarPorStripeSubscriptionId(stripeSubscriptionId);
         if (assinaturaOptional.isEmpty()) {
-            throw new RuntimeException("Assinatura não encontrada com o ID: " + stripeSubscriptionId);
+            log.error("Assinatura não encontrada para o Stripe Subscription ID: {}", stripeSubscriptionId);
+            return;
         }
         
         PlanoAssinatura assinatura = assinaturaOptional.get();
@@ -148,12 +171,13 @@ public class GerenciaAssinaturaUseCaseImpl implements GerenciaAssinaturaUseCase 
         // Atualizar status
         assinatura.setStatus(novoStatus);
         
-        // Se for cancelada ou expirada, definir data fim
-        if (novoStatus == PlanoAssinatura.StatusAssinatura.CANCELADA || 
-            novoStatus == PlanoAssinatura.StatusAssinatura.EXPIRADA) {
+        // Se for cancelada, definir data de fim
+        if (novoStatus == PlanoAssinatura.StatusAssinatura.CANCELADA) {
             assinatura.setDataFim(LocalDateTime.now());
         }
         
         salvaPlanoAssinaturaPort.salvar(assinatura);
+        
+        log.info("Status da assinatura atualizado para {}: {}", novoStatus, stripeSubscriptionId);
     }
 }

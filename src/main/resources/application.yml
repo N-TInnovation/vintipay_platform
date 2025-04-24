@@ -16,29 +16,26 @@ spring:
           default:
             loggerLevel: full
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
-    username: sa
+    url: jdbc:mysql://localhost:3306/vintipay?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
     password:
-    driverClassName: org.h2.Driver
+    driverClassName: com.mysql.cj.jdbc.Driver
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         use_sql_comments: true
-    defer-datasource-initialization: false
+    defer-datasource-initialization: true
   sql:
     init:
       mode: always
       schema-locations: classpath:schema.sql
       data-locations: classpath:data.sql
-      continue-on-error: false
-      separator: ;
-      encoding: UTF-8
-      platform: h2
+      continue-on-error: true
   h2:
     console:
       enabled: true
@@ -55,3 +52,10 @@ logging:
     org.springframework.jdbc.datasource.init: DEBUG
     cv.ntinnovation.vintipay: DEBUG
     org.springframework.security: DEBUG
+
+# Configurações da aplicação
+app:
+  base-url: ${APP_BASE_URL:https://localhost:8443}
+  stripe:
+    success-url: ${app.base-url}/assinaturas/sucesso
+    cancel-url: ${app.base-url}/assinaturas/cancelado

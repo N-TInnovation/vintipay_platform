@@ -15,7 +15,6 @@ public class ConfiguracaoPagamentoResponse {
     private Long id;
     private String posId;
     private String merchantId;
-    private String terminalId;
     private String apiKey;
     private String posAutCode;
     private String returnAutCode;
@@ -26,10 +25,11 @@ public class ConfiguracaoPagamentoResponse {
     private String telefone;
     private String email;
     private String ambiente;
-    private String serviceUrl;
     private String webhookUrl;
     private String webhookSecret;
     private Boolean ativo;
+    private Boolean webhookAtivo;
+    private Boolean returnAtivo;
     private String observacoes;
     private Long usuarioId;
     private LocalDateTime createdAt;

@@ -78,6 +78,7 @@ public class SecurityConfig {
             http.securityMatcher("/webhook/**")
                     .authorizeHttpRequests((authorize) ->
                             authorize.requestMatchers(HttpMethod.POST,"/webhook/sisp/pagamentos/retorno/{reference}").permitAll()
+                                    .requestMatchers("/webhook/stripe").permitAll()
                                     .anyRequest().authenticated())
                     .oauth2ResourceServer((oauth2) -> {
                         oauth2.jwt(withDefaults()).bearerTokenResolver(bearerTokenResolver());
@@ -94,7 +95,6 @@ public class SecurityConfig {
             bearerTokenResolver.setBearerTokenHeaderName(HttpHeaders.AUTHORIZATION);
             return bearerTokenResolver;
         }
-
     }
 
     @Configuration
@@ -110,6 +110,7 @@ public class SecurityConfig {
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+
             http.securityMatcher("/**")
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -123,7 +124,6 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.POST, "/login").permitAll()
                             .requestMatchers(HttpMethod.POST, "/registro").permitAll()
                             .requestMatchers("/images/**", "/css/**", "/js/**").permitAll()
-                            .requestMatchers("/webhook/stripe").permitAll()
                             .anyRequest().authenticated()
                     )
                     .formLogin(form -> form
@@ -138,7 +138,6 @@ public class SecurityConfig {
                             .logoutSuccessUrl("/login?logout")
                             .permitAll()
                     )
-                    .csrf(AbstractHttpConfigurer::disable)
                     .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                             .maximumSessions(1));
 

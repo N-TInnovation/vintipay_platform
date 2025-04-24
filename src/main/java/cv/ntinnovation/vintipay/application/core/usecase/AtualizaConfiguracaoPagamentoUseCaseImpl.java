@@ -38,7 +38,6 @@ public class AtualizaConfiguracaoPagamentoUseCaseImpl implements AtualizaConfigu
         // Atualiza apenas os campos permitidos
         configuracaoExistente.setPosId(configuracaoPagamento.getPosId());
         configuracaoExistente.setMerchantId(configuracaoPagamento.getMerchantId());
-        configuracaoExistente.setTerminalId(configuracaoPagamento.getTerminalId());
         configuracaoExistente.setPosAutCode(posAutCodeCriptografado); // Salvar o valor criptografado
         configuracaoExistente.setReturnUrl(configuracaoPagamento.getReturnUrl());
         configuracaoExistente.setIsActive(configuracaoPagamento.getIsActive());
@@ -51,10 +50,11 @@ public class AtualizaConfiguracaoPagamentoUseCaseImpl implements AtualizaConfigu
         
         // Atualiza campos adicionais
         configuracaoExistente.setAmbiente(configuracaoPagamento.getAmbiente());
-        configuracaoExistente.setServiceUrl(configuracaoPagamento.getServiceUrl());
         configuracaoExistente.setWebhookUrl(configuracaoPagamento.getWebhookUrl());
         configuracaoExistente.setWebhookSecret(configuracaoPagamento.getWebhookSecret());
         configuracaoExistente.setAtivo(configuracaoPagamento.getAtivo());
+        configuracaoExistente.setWebhookAtivo(configuracaoPagamento.getWebhookAtivo());
+        configuracaoExistente.setReturnAtivo(configuracaoPagamento.getReturnAtivo());
         configuracaoExistente.setObservacoes(configuracaoPagamento.getObservacoes());
         
         // Não atualizar o API Secret se não for fornecido um novo

@@ -185,35 +185,45 @@
                         <h5 class="mb-0">Histórico de Pagamentos</h5>
                     </div>
                     <div class="card-body">
-                        <div class="list-group list-group-flush">
-                            <a href="#" class="list-group-item list-group-item-action">
+                        <div th:if="${#lists.isEmpty(pagamentos)}" class="text-center py-4">
+                            <i class="fas fa-receipt text-muted mb-3" style="font-size: 2rem;"></i>
+                            <p class="mb-0">Nenhum pagamento encontrado</p>
+                        </div>
+                        <div th:unless="${#lists.isEmpty(pagamentos)}" class="list-group list-group-flush">
+                            <a href="#" class="list-group-item list-group-item-action" th:each="pagamento : ${pagamentos}">
                                 <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1">Abril 2025</h6>
-                                    <small class="text-success">Pago</small>
+                                    <h6 class="mb-1" th:text="${#temporals.format(pagamento.createdAt, 'MMMM yyyy')}">Abril 2025</h6>
+                                    <small th:class="${pagamento.status.name() == 'PAGO' ? 'text-success' : (pagamento.status.name() == 'PENDENTE' ? 'text-warning' : 'text-danger')}" 
+                                           th:text="${pagamento.status.name()}">Status</small>
                                 </div>
-                                <p class="mb-1">R$ 29,90</p>
-                                <small class="text-muted">01/04/2025</small>
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1">Março 2025</h6>
-                                    <small class="text-success">Pago</small>
-                                </div>
-                                <p class="mb-1">R$ 29,90</p>
-                                <small class="text-muted">01/03/2025</small>
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1">Fevereiro 2025</h6>
-                                    <small class="text-success">Pago</small>
-                                </div>
-                                <p class="mb-1">R$ 29,90</p>
-                                <small class="text-muted">01/02/2025</small>
+                                <p class="mb-1" th:if="${pagamento.intencaoPagamento != null}" 
+                                   th:text="${'R$ ' + pagamento.intencaoPagamento.amount}">Valor</p>
+                                <p class="mb-1" th:unless="${pagamento.intencaoPagamento != null}">Valor não disponível</p>
+                                <small class="text-muted" th:text="${#temporals.format(pagamento.createdAt, 'dd/MM/yyyy')}">Data</small>
                             </a>
                         </div>
-                    </div>
-                    <div class="card-footer bg-white text-center">
-                        <a href="/user/pagamentos" class="btn btn-sm btn-link">Ver todos os pagamentos</a>
+                        
+                        <!-- Paginação -->
+                        <div th:if="${totalPaginas > 1}" class="d-flex justify-content-center mt-3">
+                            <nav aria-label="Navegação de páginas">
+                                <ul class="pagination pagination-sm">
+                                    <li class="page-item" th:classappend="${paginaAtual == 0 ? 'disabled' : ''}">
+                                        <a class="page-link" th:href="@{/user/assinatura(page=${paginaAtual - 1})}" aria-label="Anterior">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}" 
+                                        th:classappend="${i == paginaAtual ? 'active' : ''}">
+                                        <a class="page-link" th:href="@{/user/assinatura(page=${i})}" th:text="${i + 1}">1</a>
+                                    </li>
+                                    <li class="page-item" th:classappend="${paginaAtual == totalPaginas - 1 ? 'disabled' : ''}">
+                                        <a class="page-link" th:href="@{/user/assinatura(page=${paginaAtual + 1})}" aria-label="Próximo">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -222,62 +232,46 @@
         <!-- Planos Disponíveis para Upgrade -->
         <h5 class="mb-3 mt-2">Planos Disponíveis para Upgrade</h5>
         <div class="row">
-            <!-- Plano Profissional -->
-            <div class="col-md-4 mb-4">
+            <div class="col-md-4 mb-4" th:each="planoNome : ${planosDisponiveis}">
                 <div class="card plan-card">
                     <div class="plan-header">
-                        <h5 class="mb-3">Plano Profissional</h5>
-                        <p class="plan-price">R$ 59,90</p>
+                        <h5 class="text-white mb-3" th:text="${planoNome}">Plano Profissional</h5>
+                        <p class="plan-price mb-0">R$ 99,90</p>
                         <p class="plan-period">por mês</p>
                     </div>
                     <div class="plan-features">
                         <ul>
-                            <li><i class="fas fa-check"></i> Até 500 pagamentos por mês</li>
+                            <li><i class="fas fa-check"></i> Processamento ilimitado de pagamentos</li>
                             <li><i class="fas fa-check"></i> Suporte prioritário</li>
                             <li><i class="fas fa-check"></i> Relatórios avançados</li>
-                            <li><i class="fas fa-check"></i> API completa</li>
-                            <li><i class="fas fa-check"></i> Múltiplos usuários</li>
+                            <li><i class="fas fa-check"></i> Integrações premium</li>
                         </ul>
                     </div>
                     <div class="plan-footer">
-                        <button class="btn btn-primary w-100">Fazer Upgrade</button>
+                        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#upgradeModal">
+                            Fazer Upgrade
+                        </button>
                     </div>
                 </div>
             </div>
             
-            <!-- Plano Enterprise -->
-            <div class="col-md-4 mb-4">
-                <div class="card plan-card">
-                    <div class="plan-header">
-                        <h5 class="mb-3">Plano Enterprise</h5>
-                        <p class="plan-price">R$ 119,90</p>
-                        <p class="plan-period">por mês</p>
+            <!-- Upgrade Modal -->
+            <div class="modal fade" id="upgradeModal" tabindex="-1" aria-labelledby="upgradeModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="upgradeModalLabel">Fazer Upgrade de Plano</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Você está prestes a fazer upgrade para um novo plano. Seu plano atual será substituído pelo novo plano selecionado.</p>
+                            <p>Deseja continuar?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <a href="/assinaturas" class="btn btn-primary">Continuar para Planos</a>
+                        </div>
                     </div>
-                    <div class="plan-features">
-                        <ul>
-                            <li><i class="fas fa-check"></i> Pagamentos ilimitados</li>
-                            <li><i class="fas fa-check"></i> Suporte 24/7</li>
-                            <li><i class="fas fa-check"></i> Relatórios personalizados</li>
-                            <li><i class="fas fa-check"></i> API premium</li>
-                            <li><i class="fas fa-check"></i> Usuários ilimitados</li>
-                            <li><i class="fas fa-check"></i> Integração com sistemas ERP</li>
-                        </ul>
-                    </div>
-                    <div class="plan-footer">
-                        <button class="btn btn-primary w-100">Fazer Upgrade</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Plano Personalizado -->
-            <div class="col-md-4 mb-4">
-                <div class="card upgrade-card">
-                    <div class="upgrade-icon">
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <h5>Precisa de um plano personalizado?</h5>
-                    <p class="text-muted mb-4">Entre em contato com nossa equipe para criar um plano sob medida para sua empresa.</p>
-                    <button class="btn btn-outline-primary">Falar com Consultor</button>
                 </div>
             </div>
         </div>

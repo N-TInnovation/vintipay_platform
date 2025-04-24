@@ -17,7 +17,6 @@ public class ConfiguracaoPagamentoWebMapper {
                 .id(request.getId())
                 .posId(request.getPosId())
                 .merchantId(request.getMerchantId())
-                .terminalId(request.getTerminalId())
                 .apiKey(request.getApiKey())
                 .apiSecret(request.getApiSecret())
                 .posAutCode(request.getPosAutCode())
@@ -30,10 +29,11 @@ public class ConfiguracaoPagamentoWebMapper {
                 .email(request.getEmail())
                 .usuarioId(request.getUsuarioId())
                 .ambiente(request.getAmbiente())
-                .serviceUrl(request.getServiceUrl())
                 .webhookUrl(request.getWebhookUrl())
                 .webhookSecret(request.getWebhookSecret())
                 .ativo(request.getAtivo())
+                .webhookAtivo(request.getWebhookAtivo())
+                .returnAtivo(request.getReturnAtivo())
                 .observacoes(request.getObservacoes())
                 .build();
     }
@@ -47,7 +47,6 @@ public class ConfiguracaoPagamentoWebMapper {
         request.setId(domain.getId());
         request.setPosId(domain.getPosId());
         request.setMerchantId(domain.getMerchantId());
-        request.setTerminalId(domain.getTerminalId());
         request.setApiKey(domain.getApiKey());
         // Não incluir o apiSecret por questões de segurança
         // request.setApiSecret(domain.getApiSecret());
@@ -60,10 +59,11 @@ public class ConfiguracaoPagamentoWebMapper {
         request.setTelefone(domain.getTelefone());
         request.setEmail(domain.getEmail());
         request.setAmbiente(domain.getAmbiente());
-        request.setServiceUrl(domain.getServiceUrl());
         request.setWebhookUrl(domain.getWebhookUrl());
         request.setWebhookSecret(domain.getWebhookSecret());
         request.setAtivo(domain.getAtivo());
+        request.setWebhookAtivo(domain.getWebhookAtivo());
+        request.setReturnAtivo(domain.getReturnAtivo());
         request.setObservacoes(domain.getObservacoes());
         request.setUsuarioId(domain.getUsuarioId());
         return request;
@@ -78,7 +78,6 @@ public class ConfiguracaoPagamentoWebMapper {
                 .id(domain.getId())
                 .posId(domain.getPosId())
                 .merchantId(domain.getMerchantId())
-                .terminalId(domain.getTerminalId())
                 .apiKey(domain.getApiKey())
                 // Não incluir apiSecret na resposta por questões de segurança
                 .posAutCode(domain.getPosAutCode())
@@ -90,10 +89,11 @@ public class ConfiguracaoPagamentoWebMapper {
                 .telefone(domain.getTelefone())
                 .email(domain.getEmail())
                 .ambiente(domain.getAmbiente())
-                .serviceUrl(domain.getServiceUrl())
                 .webhookUrl(domain.getWebhookUrl())
                 .webhookSecret(domain.getWebhookSecret())
                 .ativo(domain.getAtivo())
+                .webhookAtivo(domain.getWebhookAtivo())
+                .returnAtivo(domain.getReturnAtivo())
                 .observacoes(domain.getObservacoes())
                 .usuarioId(domain.getUsuarioId())
                 .createdAt(domain.getCreatedAt())

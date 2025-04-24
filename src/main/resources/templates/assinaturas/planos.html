@@ -5,58 +5,394 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planos de Assinatura - VintiPay</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #4f46e5;
+            --accent-color: #10b981;
+            --light-bg: #f9fafb;
+            --dark-text: #1f2937;
+            --light-text: #6b7280;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 5rem 0;
+            border-radius: 0 0 2rem 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .hero-title {
+            font-weight: 800;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-subtitle {
+            font-weight: 400;
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .plan-card {
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            height: 100%;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .plan-header {
+            padding: 2rem;
+            color: white;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            text-align: center;
+        }
+        
+        .plan-name {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0;
+        }
+        
+        .plan-period {
+            opacity: 0.8;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .plan-body {
+            padding: 2rem;
+            background-color: white;
+        }
+        
+        .plan-description {
+            color: var(--light-text);
+            margin-bottom: 1.5rem;
+            min-height: 60px;
+        }
+        
+        .plan-features {
+            margin-bottom: 2rem;
+        }
+        
+        .plan-feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            color: var(--dark-text);
+        }
+        
+        .plan-feature i {
+            color: var(--accent-color);
+            margin-right: 0.75rem;
+            font-size: 1rem;
+        }
+        
+        .plan-footer {
+            padding: 1.5rem 2rem;
+            background-color: white;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .btn-choose {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-choose:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+        
+        .current-plan {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .current-plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .current-plan-title {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 0;
+            color: var(--primary-color);
+        }
+        
+        .plan-badge {
+            display: inline-block;
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+            text-transform: uppercase;
+        }
+        
+        .plan-badge-active {
+            background-color: #d1fae5;
+            color: #047857;
+        }
+        
+        .plan-badge-trial {
+            background-color: #fef3c7;
+            color: #b45309;
+        }
+        
+        .plan-badge-canceled {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        
+        .trial-badge {
+            background-color: #fef3c7;
+            color: #b45309;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+        
+        .popular-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            border-radius: 0.25rem;
+            text-transform: uppercase;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-section {
+                padding: 3rem 0;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="row mb-4">
-            <div class="col-12">
-                <h1 class="text-center">Escolha seu Plano</h1>
-                <p class="text-center lead">Selecione o plano que melhor atende às suas necessidades</p>
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container text-center">
+            <h1 class="hero-title">Escolha o Plano Ideal para o Seu Negócio</h1>
+            <p class="hero-subtitle">Soluções de pagamento flexíveis e seguras para impulsionar suas vendas online</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Alertas -->
+        <div th:if="${param.erro}" class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${param.erro}"></span>
+        </div>
+        <div th:if="${param.sucesso}" class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${param.sucesso}"></span>
+        </div>
+        
+        <!-- Assinatura Atual -->
+        <div th:if="${assinaturaAtual}" class="current-plan">
+            <div class="current-plan-header">
+                <h2 class="current-plan-title">
+                    <i class="fas fa-crown me-2"></i>
+                    Sua Assinatura Atual
+                </h2>
+                <span th:class="${'plan-badge ' + 
+                                 (assinaturaAtual.status == 'ATIVA' ? 'plan-badge-active' : 
+                                  (assinaturaAtual.status == 'TRIAL' ? 'plan-badge-trial' : 'plan-badge-canceled'))}"
+                      th:text="${assinaturaAtual.status}">
+                </span>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-2">
+                        <strong>Plano:</strong> 
+                        <span th:text="${assinaturaAtual.plano.nome}" class="ms-2"></span>
+                    </p>
+                    <p class="mb-2" th:if="${assinaturaAtual.dataInicio}">
+                        <strong>Data de Início:</strong>
+                        <span th:text="${#temporals.format(assinaturaAtual.dataInicio, 'dd/MM/yyyy')}" class="ms-2"></span>
+                    </p>
+                    <p class="mb-2" th:if="${assinaturaAtual.dataFim}">
+                        <strong>Válido até:</strong>
+                        <span th:text="${#temporals.format(assinaturaAtual.dataFim, 'dd/MM/yyyy')}" class="ms-2"></span>
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <form th:action="@{/assinaturas/cancelar}" method="post">
+                        <button type="submit" class="btn btn-outline-danger" 
+                                onclick="return confirm('Tem certeza que deseja cancelar sua assinatura?')">
+                            <i class="fas fa-times-circle me-2"></i>
+                            Cancelar Assinatura
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
         
-        <div th:if="${param.erro}" class="alert alert-danger" role="alert" th:text="${param.erro}"></div>
-        <div th:if="${param.sucesso}" class="alert alert-success" role="alert" th:text="${param.sucesso}"></div>
-        
-        <div th:if="${assinaturaAtual}" class="alert alert-info mb-4">
-            <h4>Sua Assinatura Atual</h4>
-            <p>Plano: <strong th:text="${assinaturaAtual.plano.nome}"></strong></p>
-            <p>Status: <span th:text="${assinaturaAtual.status}"></span></p>
-            <p th:if="${assinaturaAtual.dataFim}">Válido até: <span th:text="${#temporals.format(assinaturaAtual.dataFim, 'dd/MM/yyyy')}"></span></p>
-            
-            <form th:action="@{/assinaturas/cancelar}" method="post" class="mt-3">
-                <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja cancelar sua assinatura?')">
-                    Cancelar Assinatura
-                </button>
-            </form>
-        </div>
-        
+        <!-- Planos -->
         <div class="row">
-            <div th:each="plano : ${planos}" class="col-md-4 mb-4">
-                <div class="card h-100 shadow">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h3 class="my-0" th:text="${plano.nome}"></h3>
+            <div th:each="plano, status : ${planos}" class="col-md-4 mb-4">
+                <div class="plan-card">
+                    <!-- Badge Popular para o segundo plano -->
+                    <div th:if="${status.index == 1}" class="popular-badge">
+                        <i class="fas fa-star me-1"></i> Popular
                     </div>
-                    <div class="card-body d-flex flex-column">
-                        <h2 class="card-title pricing-card-title text-center">
-                            R$ <span th:text="${#numbers.formatDecimal(plano.preco, 0, 'POINT', 2, 'COMMA')}"></span>
-                            <small class="text-muted" th:text="${'/' + plano.periodoCobranca.toString().toLowerCase()}"></small>
-                        </h2>
-                        <div class="mt-3 mb-4">
-                            <p th:text="${plano.descricao}"></p>
-                            <p th:if="${plano.diasTrial > 0}" class="text-success">
-                                <strong th:text="${plano.diasTrial + ' dias de teste grátis'}"></strong>
-                            </p>
+                    
+                    <div class="plan-header">
+                        <h3 class="plan-name" th:text="${plano.nome}">Plano Básico</h3>
+                        <p class="plan-price">
+                            R$ <span th:text="${#numbers.formatDecimal(plano.preco, 0, 'POINT', 2, 'COMMA')}">29,90</span>
+                        </p>
+                        <p class="plan-period" th:text="${'/' + plano.periodoCobranca.descricao.toLowerCase()}">
+                            /mensal
+                        </p>
+                    </div>
+                    
+                    <div class="plan-body">
+                        <p class="plan-description" th:text="${plano.descricao}">
+                            Ideal para pequenos negócios que estão começando.
+                        </p>
+                        
+                        <div th:if="${plano.diasTrial > 0}" class="trial-badge text-center">
+                            <i class="fas fa-gift me-2"></i>
+                            <span th:text="${plano.diasTrial + ' dias de teste grátis'}">
+                                7 dias de teste grátis
+                            </span>
                         </div>
-                        <div class="mt-auto">
-                            <div class="d-grid gap-2">
-                                <a th:href="@{'/assinaturas/checkout/' + ${plano.id}}" class="btn btn-lg btn-outline-primary">Escolher</a>
+                        
+                        <div class="plan-features mt-4">
+                            <!-- Aqui você pode adicionar recursos específicos para cada plano -->
+                            <div class="plan-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Processamento de pagamentos</span>
                             </div>
+                            <div class="plan-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Relatórios básicos</span>
+                            </div>
+                            <div class="plan-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Suporte por email</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="plan-footer">
+                        <div class="d-grid">
+                            <a th:href="@{'/assinaturas/checkout/' + ${plano.id}}" class="btn btn-choose">
+                                <i class="fas fa-arrow-right me-2"></i>
+                                Escolher Plano
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+        
+        <!-- Seção de Perguntas Frequentes -->
+        <div class="mt-5 mb-5">
+            <h3 class="text-center mb-4">Perguntas Frequentes</h3>
+            
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                            Como funciona o período de teste?
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            O período de teste permite que você experimente todas as funcionalidades do plano escolhido sem custo. Após o término do período de teste, sua assinatura será automaticamente convertida para o plano pago, a menos que você cancele antes.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Posso mudar de plano depois?
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Sim, você pode fazer upgrade ou downgrade do seu plano a qualquer momento. As alterações entrarão em vigor no próximo ciclo de cobrança.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingThree">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Como posso cancelar minha assinatura?
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Você pode cancelar sua assinatura a qualquer momento através da sua conta. Após o cancelamento, você continuará tendo acesso ao serviço até o final do período pago.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seção de Contato -->
+        <div class="text-center mb-5 pb-5">
+            <h3 class="mb-3">Precisa de ajuda para escolher?</h3>
+            <p class="mb-4">Nossa equipe está pronta para ajudar você a encontrar o plano perfeito para o seu negócio.</p>
+            <a href="#" class="btn btn-outline-primary">
+                <i class="fas fa-headset me-2"></i>
+                Falar com um consultor
+            </a>
         </div>
     </div>
     

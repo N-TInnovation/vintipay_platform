@@ -19,8 +19,6 @@ public class ConfiguracaoPagamentoRequest {
     private String posId;
 
     private String merchantId;
-
-    private String terminalId;
     
     private String apiKey;
     
@@ -48,13 +46,15 @@ public class ConfiguracaoPagamentoRequest {
     
     private String ambiente;
     
-    private String serviceUrl;
-    
     private String webhookUrl;
     
     private String webhookSecret;
     
     private Boolean ativo;
+    
+    private Boolean webhookAtivo;
+    
+    private Boolean returnAtivo;
     
     private String observacoes;
 }

@@ -99,12 +99,12 @@
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label for="nomeLoja" class="form-label">Nome da Loja</label>
-                                            <input type="text" class="form-control" id="nomeLoja" name="nomeLoja" th:field="*{nomeLoja}">
+                                            <input type="text" class="form-control" id="nomeLoja" name="nomeLoja" th:value="*{nomeLoja}">
                                             <div class="form-text">Nome para identificar esta configuração</div>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="urlLoja" class="form-label">URL da Loja</label>
-                                            <input type="url" class="form-control" id="urlLoja" name="urlLoja" th:field="*{urlLoja}">
+                                            <input type="url" class="form-control" id="urlLoja" name="urlLoja" th:value="*{urlLoja}">
                                             <div class="form-text">Endereço do seu site ou loja virtual</div>
                                         </div>
                                     </div>
@@ -112,25 +112,20 @@
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label for="posId" class="form-label required-field">POS ID</label>
-                                            <input type="text" class="form-control" id="posId" name="posId" th:field="*{posId}" required>
+                                            <input type="text" class="form-control" id="posId" name="posId" th:value="*{posId}" required>
                                             <div class="form-text">Identificador do ponto de venda fornecido pelo SISP</div>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="merchantId" class="form-label">Merchant ID</label>
-                                            <input type="text" class="form-control" id="merchantId" name="merchantId" th:field="*{merchantId}">
+                                            <input type="text" class="form-control" id="merchantId" name="merchantId" th:value="*{merchantId}">
                                             <div class="form-text">Identificador do comerciante fornecido pelo SISP</div>
                                         </div>
                                     </div>
                                     
                                     <div class="row mb-3">
                                         <div class="col-md-6">
-                                            <label for="terminalId" class="form-label">Terminal ID</label>
-                                            <input type="text" class="form-control" id="terminalId" name="terminalId" th:field="*{terminalId}">
-                                            <div class="form-text">Identificador do terminal fornecido pelo SISP</div>
-                                        </div>
-                                        <div class="col-md-6">
                                             <label for="posAutCode" class="form-label required-field">POS Aut Code</label>
-                                            <input type="text" class="form-control" id="posAutCode" name="posAutCode" th:field="*{posAutCode}" required>
+                                            <input type="text" class="form-control" id="posAutCode" name="posAutCode" th:value="*{posAutCode}" required>
                                             <div class="form-text">Código de autorização do POS fornecido pelo SISP</div>
                                         </div>
                                     </div>
@@ -138,12 +133,12 @@
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label for="telefone" class="form-label">Telefone</label>
-                                            <input type="tel" class="form-control" id="telefone" name="telefone" th:field="*{telefone}">
+                                            <input type="tel" class="form-control" id="telefone" name="telefone" th:value="*{telefone}">
                                             <div class="form-text">Telefone de contato da loja</div>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email" name="email" th:field="*{email}">
+                                            <input type="email" class="form-control" id="email" name="email" th:value="*{email}">
                                             <div class="form-text">Email de contato da loja</div>
                                         </div>
                                     </div>
@@ -153,13 +148,13 @@
                                 <div class="tab-pane fade" id="advanced" role="tabpanel" aria-labelledby="advanced-tab">
                                     <div class="row mb-3">
                                         <div class="col-md-6">
-                                            <label for="returnUrl" class="form-label">URL de Retorno</label>
-                                            <input type="url" class="form-control" id="returnUrl" name="returnUrl" th:field="*{returnUrl}">
+                                            <label for="returnUrlAdvanced" class="form-label">URL de Retorno</label>
+                                            <input type="url" class="form-control" id="returnUrlAdvanced" name="returnUrl" th:value="*{returnUrl}">
                                             <div class="form-text">URL para onde o cliente será redirecionado após o pagamento</div>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="ambiente" class="form-label">Ambiente</label>
-                                            <select class="form-select" id="ambiente" name="ambiente" th:field="*{ambiente}">
+                                            <select class="form-select" id="ambiente" name="ambiente" th:value="*{ambiente}">
                                                 <option value="PRODUCAO">Produção</option>
                                                 <option value="TESTE">Teste</option>
                                             </select>
@@ -169,9 +164,9 @@
                                     
                                     <div class="row mb-3">
                                         <div class="col-md-6">
-                                            <label for="serviceUrl" class="form-label">URL do Serviço</label>
-                                            <input type="url" class="form-control" id="serviceUrl" name="serviceUrl" th:field="*{serviceUrl}">
-                                            <div class="form-text">URL do serviço SISP (deixe em branco para usar a URL padrão)</div>
+                                            <label for="webhookUrlAdvanced" class="form-label">URL do Webhook</label>
+                                            <input type="url" class="form-control" id="webhookUrlAdvanced" name="webhookUrl" th:value="*{webhookUrl}">
+                                            <div class="form-text">URL para notificações de eventos de pagamento</div>
                                         </div>
                                     </div>
                                 </div>
@@ -179,37 +174,27 @@
                                 <!-- Webhook e Notificações -->
                                 <div class="tab-pane fade" id="webhook" role="tabpanel" aria-labelledby="webhook-tab">
                                     <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label for="webhookUrl" class="form-label">URL do Webhook</label>
-                                            <input type="url" class="form-control" id="webhookUrl" name="webhookUrl" th:field="*{webhookUrl}">
-                                            <div class="form-text">URL para notificações de eventos de pagamento</div>
+                                        <div class="col-md-4">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="ativo" name="ativo" th:checked="*{ativo}">
+                                                <label class="form-check-label" for="ativo">Configuração Ativa</label>
+                                            </div>
+                                            <div class="form-text">Ative ou desative esta configuração</div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <label for="telefone" class="form-label">Telefone</label>
-                                            <input type="tel" class="form-control" id="telefone" name="telefone" th:field="*{telefone}">
-                                            <div class="form-text">Telefone de contato para suporte</div>
+                                        <div class="col-md-4">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="webhookAtivo" name="webhookAtivo" th:checked="*{webhookAtivo}">
+                                                <label class="form-check-label" for="webhookAtivo">Webhook Ativo</label>
+                                            </div>
+                                            <div class="form-text">Ative para receber notificações de pagamento</div>
                                         </div>
-                                    </div>
-                                    
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label for="email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email" name="email" th:field="*{email}">
-                                            <div class="form-text">Email de contato para suporte</div>
+                                        <div class="col-md-4">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="returnAtivo" name="returnAtivo" th:checked="*{returnAtivo}">
+                                                <label class="form-check-label" for="returnAtivo">Redirecionamento Ativo</label>
+                                            </div>
+                                            <div class="form-text">Ative para redirecionar após o pagamento</div>
                                         </div>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="observacoes" class="form-label">Observações</label>
-                                        <textarea class="form-control" id="observacoes" name="observacoes" rows="3" th:field="*{observacoes}"></textarea>
-                                        <div class="form-text">Informações adicionais sobre esta configuração</div>
-                                    </div>
-                                    
-                                    <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" id="ativo" name="ativo" th:field="*{ativo}">
-                                        <label class="form-check-label" for="ativo">
-                                            Ativar esta configuração
-                                        </label>
                                     </div>
                                 </div>
                             </div>
