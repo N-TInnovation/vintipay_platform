@@ -89,6 +89,36 @@ public class GerenciaAssinaturaUseCaseImpl implements GerenciaAssinaturaUseCase 
         
         return salvaPlanoAssinaturaPort.salvar(assinatura);
     }
+    
+    @Override
+    @Transactional
+    public boolean criarNovaAssinatura(Usuario usuario, Long planoId) {
+        try {
+            log.info("Criando nova assinatura para usuário ID: {} com plano ID: {}", usuario.getId(), planoId);
+            
+            // Verificar se o plano existe
+            Optional<Plano> planoOptional = buscaPlanoPort.buscarPorId(planoId);
+            if (planoOptional.isEmpty()) {
+                log.error("Plano não encontrado com o ID: {}", planoId);
+                return false;
+            }
+            
+            // Verificar se o usuário já tem uma assinatura
+            Optional<PlanoAssinatura> assinaturaExistente = buscaPlanoAssinaturaPort.buscarPorUsuario(usuario);
+            if (assinaturaExistente.isPresent()) {
+                log.warn("Usuário já possui uma assinatura ativa");
+                return false;
+            }
+            
+            // Criar a assinatura
+            criarAssinatura(usuario, planoId);
+            log.info("Nova assinatura criada com sucesso para usuário ID: {}", usuario.getId());
+            return true;
+        } catch (Exception e) {
+            log.error("Erro ao criar nova assinatura: {}", e.getMessage(), e);
+            return false;
+        }
+    }
 
     @Override
     public Optional<PlanoAssinatura> buscarAssinaturaPorUsuario(Usuario usuario) {
@@ -127,6 +157,39 @@ public class GerenciaAssinaturaUseCaseImpl implements GerenciaAssinaturaUseCase 
         assinatura.setDataFim(LocalDateTime.now());
         
         salvaPlanoAssinaturaPort.salvar(assinatura);
+    }
+    
+    @Override
+    @Transactional
+    public boolean cancelarAssinatura(Long assinaturaId) {
+        try {
+            log.info("Cancelando assinatura ID: {}", assinaturaId);
+            
+            // Buscar a assinatura
+            Optional<PlanoAssinatura> assinaturaOptional = buscaPlanoAssinaturaPort.buscarPorId(assinaturaId);
+            if (assinaturaOptional.isEmpty()) {
+                log.warn("Assinatura não encontrada para o ID: {}", assinaturaId);
+                return false;
+            }
+            
+            PlanoAssinatura assinatura = assinaturaOptional.get();
+            
+            // Se tiver ID do Stripe, cancelar no Stripe também
+            if (assinatura.getStripeSubscriptionId() != null && !assinatura.getStripeSubscriptionId().isEmpty()) {
+                stripeIntegrationUseCase.cancelarSubscription(assinatura.getStripeSubscriptionId());
+            }
+            
+            // Atualizar status da assinatura
+            assinatura.setStatus(PlanoAssinatura.StatusAssinatura.CANCELADA);
+            assinatura.setDataFim(LocalDateTime.now());
+            
+            salvaPlanoAssinaturaPort.salvar(assinatura);
+            log.info("Assinatura cancelada com sucesso: {}", assinaturaId);
+            return true;
+        } catch (Exception e) {
+            log.error("Erro ao cancelar assinatura: {}", e.getMessage(), e);
+            return false;
+        }
     }
 
     @Override
@@ -179,5 +242,83 @@ public class GerenciaAssinaturaUseCaseImpl implements GerenciaAssinaturaUseCase 
         salvaPlanoAssinaturaPort.salvar(assinatura);
         
         log.info("Status da assinatura atualizado para {}: {}", novoStatus, stripeSubscriptionId);
+    }
+    
+    @Override
+    @Transactional
+    public boolean atualizarPlanoAssinatura(Long assinaturaId, Long novoPlanoId) {
+        try {
+            log.info("Atualizando assinatura ID: {} para o plano ID: {}", assinaturaId, novoPlanoId);
+            
+            // Buscar a assinatura
+            Optional<PlanoAssinatura> assinaturaOptional = buscaPlanoAssinaturaPort.buscarPorId(assinaturaId);
+            if (assinaturaOptional.isEmpty()) {
+                log.warn("Assinatura não encontrada para o ID: {}", assinaturaId);
+                return false;
+            }
+            
+            // Buscar o novo plano
+            Optional<Plano> planoOptional = buscaPlanoPort.buscarPorId(novoPlanoId);
+            if (planoOptional.isEmpty()) {
+                log.warn("Plano não encontrado com o ID: {}", novoPlanoId);
+                return false;
+            }
+            
+            PlanoAssinatura assinatura = assinaturaOptional.get();
+            Plano novoPlano = planoOptional.get();
+            
+            // Verificar se não é o mesmo plano
+            if (assinatura.getPlano().getId().equals(novoPlanoId)) {
+                log.warn("A assinatura já está no plano solicitado: {}", novoPlanoId);
+                return false;
+            }
+            
+            // Verificar se o novo plano tem um stripePriceId válido
+            if (novoPlano.getStripePriceId() == null || novoPlano.getStripePriceId().isEmpty()) {
+                log.error("O novo plano não possui um ID de preço do Stripe válido: {}", novoPlanoId);
+                return false;
+            }
+            
+            // Se tiver ID do Stripe, atualizar no Stripe também
+            if (assinatura.getStripeSubscriptionId() != null && !assinatura.getStripeSubscriptionId().isEmpty()) {
+                try {
+                    log.info("Atualizando assinatura no Stripe: {} para o preço: {}", 
+                            assinatura.getStripeSubscriptionId(), novoPlano.getStripePriceId());
+                    
+                    String updatedSubscriptionId = stripeIntegrationUseCase.atualizarSubscription(
+                            assinatura.getStripeSubscriptionId(), 
+                            novoPlano.getStripePriceId());
+                    
+                    log.info("Assinatura atualizada no Stripe com sucesso: {}", updatedSubscriptionId);
+                    
+                    // Se o ID da assinatura mudou, atualizar no banco de dados
+                    if (!updatedSubscriptionId.equals(assinatura.getStripeSubscriptionId())) {
+                        assinatura.setStripeSubscriptionId(updatedSubscriptionId);
+                    }
+                } catch (Exception e) {
+                    log.error("Erro ao atualizar assinatura no Stripe: {}", e.getMessage(), e);
+                    // Continuar com a atualização no banco de dados mesmo se falhar no Stripe
+                }
+            } else {
+                log.warn("Assinatura não possui ID do Stripe, atualizando apenas no banco de dados");
+            }
+            
+            // Atualizar o plano da assinatura
+            assinatura.setPlano(novoPlano);
+            
+            // Se a assinatura estiver cancelada, reativar
+            if (assinatura.getStatus() == PlanoAssinatura.StatusAssinatura.CANCELADA) {
+                assinatura.setStatus(PlanoAssinatura.StatusAssinatura.ATIVA);
+                assinatura.setDataFim(null);
+            }
+            
+            // Salvar as alterações
+            salvaPlanoAssinaturaPort.salvar(assinatura);
+            log.info("Assinatura atualizada com sucesso para o plano: {}", novoPlano.getNome());
+            return true;
+        } catch (Exception e) {
+            log.error("Erro ao atualizar plano da assinatura: {}", e.getMessage(), e);
+            return false;
+        }
     }
 }

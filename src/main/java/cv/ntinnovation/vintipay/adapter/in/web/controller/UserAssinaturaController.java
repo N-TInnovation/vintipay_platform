@@ -1,78 +1,62 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
-import cv.ntinnovation.vintipay.adapter.out.db.repository.PagamentoRepository;
-import cv.ntinnovation.vintipay.adapter.out.db.entity.PagamentoEntity;
-import cv.ntinnovation.vintipay.adapter.out.db.entity.PlanoAssinaturaEntity;
-import cv.ntinnovation.vintipay.adapter.out.db.entity.PlanoEntity;
-import cv.ntinnovation.vintipay.adapter.out.db.mapper.PagamentoMapper;
-import cv.ntinnovation.vintipay.adapter.out.db.mapper.PlanoAssinaturaMapper;
-import cv.ntinnovation.vintipay.adapter.out.db.mapper.PlanoMapper;
-import cv.ntinnovation.vintipay.adapter.out.db.repository.PlanoAssinaturaRepository;
-import cv.ntinnovation.vintipay.adapter.out.db.repository.PlanoRepository;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.PlanoAssinatura;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Plano;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
+import cv.ntinnovation.vintipay.application.port.in.BuscaAssinaturaDirectaUseCase;
+import cv.ntinnovation.vintipay.application.port.in.BuscaHistoricoPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaAssinaturaUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaPlanoUseCase;
-import lombok.RequiredArgsConstructor;
+import cv.ntinnovation.vintipay.application.port.in.StripeIntegrationUseCase;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/user/assinatura")
 @Log
 public class UserAssinaturaController {
 
-    private final PagamentoRepository pagamentoRepository;
-    private final PagamentoMapper pagamentoMapper;
+    private final BuscaHistoricoPagamentoUseCase buscaHistoricoPagamentoUseCase;
     private final GerenciaAssinaturaUseCase gerenciaAssinaturaUseCase;
     private final GerenciaPlanoUseCase gerenciaPlanoUseCase;
-    private final PlanoAssinaturaRepository planoAssinaturaRepository;
-    private final PlanoRepository planoRepository;
-    private final PlanoAssinaturaMapper planoAssinaturaMapper;
-    private final PlanoMapper planoMapper;
+    private final BuscaAssinaturaDirectaUseCase buscaAssinaturaDirectaUseCase;
+    private final StripeIntegrationUseCase stripeIntegrationUseCase;
     
     @Value("${app.base-url:https://localhost:8443}")
     private String baseUrl;
 
     @Autowired
     public UserAssinaturaController(
-            PagamentoRepository pagamentoRepository,
-            PagamentoMapper pagamentoMapper,
+            BuscaHistoricoPagamentoUseCase buscaHistoricoPagamentoUseCase,
             GerenciaAssinaturaUseCase gerenciaAssinaturaUseCase,
             GerenciaPlanoUseCase gerenciaPlanoUseCase,
-            PlanoAssinaturaRepository planoAssinaturaRepository,
-            PlanoRepository planoRepository,
-            PlanoAssinaturaMapper planoAssinaturaMapper,
-            PlanoMapper planoMapper) {
-        this.pagamentoRepository = pagamentoRepository;
-        this.pagamentoMapper = pagamentoMapper;
+            BuscaAssinaturaDirectaUseCase buscaAssinaturaDirectaUseCase,
+            StripeIntegrationUseCase stripeIntegrationUseCase) {
+        this.buscaHistoricoPagamentoUseCase = buscaHistoricoPagamentoUseCase;
         this.gerenciaAssinaturaUseCase = gerenciaAssinaturaUseCase;
         this.gerenciaPlanoUseCase = gerenciaPlanoUseCase;
-        this.planoAssinaturaRepository = planoAssinaturaRepository;
-        this.planoRepository = planoRepository;
-        this.planoAssinaturaMapper = planoAssinaturaMapper;
-        this.planoMapper = planoMapper;
+        this.buscaAssinaturaDirectaUseCase = buscaAssinaturaDirectaUseCase;
+        this.stripeIntegrationUseCase = stripeIntegrationUseCase;
         log.info("UserAssinaturaController inicializado com sucesso");
     }
 
@@ -91,21 +75,20 @@ public class UserAssinaturaController {
             // Adicionar dados do usuário ao modelo
             model.addAttribute("usuario", usuarioAtual);
             
-            // Buscar assinatura do usuário (primeiro pelo repositório para garantir dados mais recentes)
-            Optional<PlanoAssinaturaEntity> assinaturaEntityOptional = planoAssinaturaRepository.findByUsuarioId(usuarioAtual.getId());
+            // Buscar assinatura do usuário usando o caso de uso dedicado
+            Optional<PlanoAssinatura> assinaturaDirectaOptional = buscaAssinaturaDirectaUseCase.buscarAssinaturaPorUsuarioId(usuarioAtual.getId());
             
-            if (assinaturaEntityOptional.isPresent()) {
-                log.info("Assinatura encontrada no repositório");
-                PlanoAssinaturaEntity assinaturaEntity = assinaturaEntityOptional.get();
+            if (assinaturaDirectaOptional.isPresent()) {
+                log.info("Assinatura encontrada pelo caso de uso direto");
+                PlanoAssinatura assinatura = assinaturaDirectaOptional.get();
                 
-                // Converter a entidade para o objeto de domínio
-                PlanoAssinatura assinatura = planoAssinaturaMapper.toDomain(assinaturaEntity);
+                // Buscar a assinatura completa usando o caso de uso
+                Optional<PlanoAssinatura> assinaturaDetalhadaOptional = gerenciaAssinaturaUseCase.buscarAssinaturaPorId(assinatura.getId());
                 
-                // Buscar o plano associado
-                Optional<PlanoEntity> planoEntityOptional = planoRepository.findById(assinaturaEntity.getPlanoId());
-                
-                if (planoEntityOptional.isPresent()) {
-                    Plano plano = planoMapper.toDomain(planoEntityOptional.get());
+                if (assinaturaDetalhadaOptional.isPresent()) {
+                    log.info("Detalhes da assinatura encontrados pelo caso de uso");
+                    assinatura = assinaturaDetalhadaOptional.get();
+                    Plano plano = assinatura.getPlano();
                     
                     // Formatar datas
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -129,16 +112,16 @@ public class UserAssinaturaController {
                     
                     log.info("Dados da assinatura adicionados ao modelo: " + plano.getNome() + ", Status: " + assinatura.getStatus());
                 } else {
-                    log.warning("Plano não encontrado para a assinatura ID: " + assinaturaEntity.getId());
+                    log.warning("Não foi possível obter detalhes completos da assinatura ID: " + assinatura.getId());
                     setDefaultSubscriptionData(model);
                 }
             } else {
                 // Tentar buscar pelo use case como fallback
-                log.info("Assinatura não encontrada no repositório, tentando pelo use case");
+                log.info("Assinatura não encontrada pelo caso de uso direto, tentando pelo use case padrão");
                 Optional<PlanoAssinatura> assinaturaOptional = gerenciaAssinaturaUseCase.buscarAssinaturaPorUsuario(usuarioAtual);
                 
                 if (assinaturaOptional.isPresent()) {
-                    log.info("Assinatura encontrada pelo use case");
+                    log.info("Assinatura encontrada pelo use case padrão");
                     PlanoAssinatura assinatura = assinaturaOptional.get();
                     Plano plano = assinatura.getPlano();
                     
@@ -181,53 +164,196 @@ public class UserAssinaturaController {
             
             model.addAttribute("planosDisponiveis", planosDisponiveis);
             
-            // Buscar histórico de pagamentos
+            // Buscar histórico de pagamentos usando o caso de uso dedicado
             try {
-                Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-                Page<PagamentoEntity> pagamentosPage = pagamentoRepository.findByUsuarioIdAndStatusIfPresent(
+                // Usar PageRequest sem ordenação para evitar conflito com a ordenação da consulta SQL
+                Pageable pageable = PageRequest.of(page, size);
+                Page<Pagamento> pagamentosPage = buscaHistoricoPagamentoUseCase.buscarHistoricoPagamentos(
                         usuarioAtual.getId(), null, pageable);
                 
-                List<Pagamento> pagamentos = pagamentosPage.getContent().stream()
-                        .map(pagamentoMapper::toDomain)
-                        .collect(Collectors.toList());
+                log.info("Histórico de pagamentos carregado: " + pagamentosPage.getContent().size() + " registros");
                 
-                log.info("Histórico de pagamentos carregado: " + pagamentos.size() + " registros");
-                
-                model.addAttribute("pagamentos", pagamentos);
+                model.addAttribute("pagamentos", pagamentosPage.getContent());
                 model.addAttribute("paginaAtual", pagamentosPage.getNumber());
                 model.addAttribute("totalPaginas", pagamentosPage.getTotalPages());
                 model.addAttribute("totalItens", pagamentosPage.getTotalElements());
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Erro ao buscar histórico de pagamentos: " + e.getMessage(), e);
-                model.addAttribute("mensagemErro", "Não foi possível carregar o histórico de pagamentos: " + e.getMessage());
+                model.addAttribute("pagamentos", new ArrayList<Pagamento>());
+                model.addAttribute("paginaAtual", 0);
+                model.addAttribute("totalPaginas", 0);
+                model.addAttribute("totalItens", 0);
             }
             
-            log.info("Página de assinatura carregada com sucesso");
+            // Adicionar URL base para links
+            model.addAttribute("baseUrl", baseUrl);
+            
+            return "user/assinatura";
         } catch (Exception e) {
             log.log(Level.SEVERE, "Erro ao carregar página de assinatura: " + e.getMessage(), e);
-            model.addAttribute("mensagemErro", "Ocorreu um erro ao carregar a página: " + e.getMessage());
+            return "error";
         }
-        
-        return "user/assinatura";
     }
     
-    /**
-     * Configura dados padrão para usuários sem assinatura
-     */
+    @PostMapping("/upgrade")
+    public String upgradeAssinatura(@RequestParam("planoId") Long planoId, RedirectAttributes redirectAttributes) {
+        try {
+            log.info("Iniciando processo de upgrade para o plano ID: " + planoId);
+            
+            // Obter o usuário autenticado
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            log.info("Usuário autenticado para upgrade: " + usuarioAtual.getEmail());
+            
+            // Verificar se o plano existe
+            Optional<Plano> planoOptional = gerenciaPlanoUseCase.buscarPlanoPorId(planoId);
+            if (planoOptional.isEmpty()) {
+                log.warning("Plano não encontrado para ID: " + planoId);
+                redirectAttributes.addFlashAttribute("error", "Plano não encontrado.");
+                return "redirect:/user/assinatura";
+            }
+            
+            Plano plano = planoOptional.get();
+            
+            // Verificar se o plano tem um stripePriceId válido
+            if (plano.getStripePriceId() == null || plano.getStripePriceId().isEmpty()) {
+                log.warning("Plano não possui um ID de preço do Stripe válido: " + planoId);
+                redirectAttributes.addFlashAttribute("error", "Plano não configurado corretamente para pagamento.");
+                return "redirect:/user/assinatura";
+            }
+            
+            // Criar uma sessão de checkout do Stripe
+            String successUrl = baseUrl + "/user/assinatura/checkout-success?planoId=" + planoId;
+            String cancelUrl = baseUrl + "/user/assinatura/checkout-cancel";
+            
+            String checkoutUrl = stripeIntegrationUseCase.criarCheckoutSession(
+                    usuarioAtual,
+                    plano.getStripePriceId(),
+                    successUrl,
+                    cancelUrl
+            );
+            
+            log.info("Sessão de checkout do Stripe criada com sucesso. Redirecionando para: " + checkoutUrl);
+            
+            // Redirecionar para a página de checkout do Stripe
+            return "redirect:" + checkoutUrl;
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Erro ao processar upgrade de assinatura: " + e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente.");
+            return "redirect:/user/assinatura";
+        }
+    }
+    
+    @GetMapping("/checkout-success")
+    public String checkoutSuccess(@RequestParam("planoId") Long planoId, RedirectAttributes redirectAttributes) {
+        try {
+            log.info("Checkout concluído com sucesso para o plano ID: " + planoId);
+            
+            // Obter o usuário autenticado
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            
+            // Buscar assinatura atual do usuário
+            Optional<PlanoAssinatura> assinaturaOptional = buscaAssinaturaDirectaUseCase.buscarAssinaturaPorUsuarioId(usuarioAtual.getId());
+            
+            if (assinaturaOptional.isPresent()) {
+                // Usuário já tem uma assinatura, realizar upgrade
+                PlanoAssinatura assinaturaAtual = assinaturaOptional.get();
+                
+                // Verificar se não é o mesmo plano
+                if (assinaturaAtual.getPlano().getId().equals(planoId)) {
+                    log.warning("Usuário já possui este plano: " + planoId);
+                    redirectAttributes.addFlashAttribute("warning", "Você já possui este plano.");
+                    return "redirect:/user/assinatura";
+                }
+                
+                // Realizar o upgrade da assinatura
+                boolean sucesso = gerenciaAssinaturaUseCase.atualizarPlanoAssinatura(assinaturaAtual.getId(), planoId);
+                
+                if (sucesso) {
+                    log.info("Upgrade realizado com sucesso para o plano ID: " + planoId);
+                    redirectAttributes.addFlashAttribute("success", "Upgrade realizado com sucesso! Sua assinatura foi atualizada.");
+                } else {
+                    log.warning("Falha ao realizar upgrade para o plano ID: " + planoId);
+                    redirectAttributes.addFlashAttribute("error", "Não foi possível realizar o upgrade. Por favor, tente novamente.");
+                }
+            } else {
+                // Usuário não tem assinatura, criar uma nova
+                boolean sucesso = gerenciaAssinaturaUseCase.criarNovaAssinatura(usuarioAtual, planoId);
+                
+                if (sucesso) {
+                    log.info("Nova assinatura criada com sucesso para o plano ID: " + planoId);
+                    redirectAttributes.addFlashAttribute("success", "Assinatura criada com sucesso!");
+                } else {
+                    log.warning("Falha ao criar nova assinatura para o plano ID: " + planoId);
+                    redirectAttributes.addFlashAttribute("error", "Não foi possível criar a assinatura. Por favor, tente novamente.");
+                }
+            }
+            
+            return "redirect:/user/assinatura";
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Erro ao processar sucesso do checkout: " + e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente.");
+            return "redirect:/user/assinatura";
+        }
+    }
+    
+    @GetMapping("/checkout-cancel")
+    public String checkoutCancel(RedirectAttributes redirectAttributes) {
+        log.info("Checkout cancelado pelo usuário");
+        redirectAttributes.addFlashAttribute("warning", "Processo de assinatura cancelado. Nenhuma alteração foi realizada.");
+        return "redirect:/user/assinatura";
+    }
+    
+    @PostMapping("/cancelar")
+    public String cancelarAssinatura(RedirectAttributes redirectAttributes) {
+        try {
+            log.info("Iniciando processo de cancelamento de assinatura");
+            
+            // Obter o usuário autenticado
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            log.info("Usuário autenticado para cancelamento: " + usuarioAtual.getEmail());
+            
+            // Buscar assinatura atual do usuário
+            Optional<PlanoAssinatura> assinaturaOptional = buscaAssinaturaDirectaUseCase.buscarAssinaturaPorUsuarioId(usuarioAtual.getId());
+            
+            if (assinaturaOptional.isPresent()) {
+                PlanoAssinatura assinatura = assinaturaOptional.get();
+                
+                // Cancelar a assinatura
+                boolean sucesso = gerenciaAssinaturaUseCase.cancelarAssinatura(assinatura.getId());
+                
+                if (sucesso) {
+                    log.info("Assinatura cancelada com sucesso: " + assinatura.getId());
+                    redirectAttributes.addFlashAttribute("success", "Sua assinatura foi cancelada com sucesso.");
+                } else {
+                    log.warning("Falha ao cancelar assinatura: " + assinatura.getId());
+                    redirectAttributes.addFlashAttribute("error", "Não foi possível cancelar sua assinatura. Por favor, tente novamente.");
+                }
+            } else {
+                log.warning("Usuário não possui assinatura para cancelar");
+                redirectAttributes.addFlashAttribute("warning", "Você não possui uma assinatura ativa para cancelar.");
+            }
+            
+            return "redirect:/user/assinatura";
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Erro ao processar cancelamento de assinatura: " + e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente.");
+            return "redirect:/user/assinatura";
+        }
+    }
+    
+    // Configura dados padrão para usuários sem assinatura
     private void setDefaultSubscriptionData(Model model) {
-        model.addAttribute("planoAtual", "Sem plano");
+        model.addAttribute("planoAtual", "Nenhum");
         model.addAttribute("dataInicio", "N/A");
         model.addAttribute("dataRenovacao", "N/A");
-        model.addAttribute("statusAssinatura", "Inativa");
+        model.addAttribute("statusAssinatura", "INATIVA");
         model.addAttribute("valorMensal", "R$ 0,00");
         model.addAttribute("assinaturaId", null);
         model.addAttribute("planoId", null);
-        
-        // Recursos padrão
-        String[] recursos = {
-            "Nenhum recurso disponível",
-            "Assine um plano para acessar os recursos"
-        };
-        model.addAttribute("recursos", recursos);
+        model.addAttribute("recursos", new String[]{"Nenhum recurso disponível"});
+        log.info("Configurados dados padrão para usuário sem assinatura");
     }
 }

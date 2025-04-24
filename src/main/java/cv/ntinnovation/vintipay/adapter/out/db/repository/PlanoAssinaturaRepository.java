@@ -3,6 +3,8 @@ package cv.ntinnovation.vintipay.adapter.out.db.repository;
 import cv.ntinnovation.vintipay.adapter.out.db.entity.PlanoAssinaturaEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.entity.UsuarioEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,4 +15,12 @@ public interface PlanoAssinaturaRepository extends JpaRepository<PlanoAssinatura
     Optional<PlanoAssinaturaEntity> findByUsuario(UsuarioEntity usuario);
     Optional<PlanoAssinaturaEntity> findByStripeSubscriptionId(String stripeSubscriptionId);
     List<PlanoAssinaturaEntity> findByStatus(PlanoAssinaturaEntity.StatusAssinatura status);
+    
+    /**
+     * Busca uma assinatura pelo ID do usuário
+     * @param usuarioId ID do usuário
+     * @return Optional contendo a assinatura se encontrada
+     */
+    @Query("SELECT p FROM PlanoAssinaturaEntity p WHERE p.usuario.id = :usuarioId")
+    Optional<PlanoAssinaturaEntity> findByUsuarioId(@Param("usuarioId") Long usuarioId);
 }

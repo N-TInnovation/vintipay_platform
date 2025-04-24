@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface GerenciaPlanoUseCase {
     List<Plano> listarPlanosAtivos();
+    List<Plano> listarTodosPlanos();
     Optional<Plano> buscarPlanoPorId(Long id);
     Plano criarPlano(String nome, String descricao, BigDecimal preco, 
                      Plano.PeriodoCobranca periodoCobranca, Integer diasTrial);

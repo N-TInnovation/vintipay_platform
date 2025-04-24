@@ -6,12 +6,14 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.out.BuscaPagamentoPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class BuscaPagamentoAdapter implements BuscaPagamentoPort {
@@ -43,6 +45,19 @@ public class BuscaPagamentoAdapter implements BuscaPagamentoPort {
             return pagamentos.map(pagamentoMapper::toDomain);
         } catch (Exception e) {
             // Em caso de erro na consulta, retornar uma página vazia
+            return Page.empty(pageable);
+        }
+    }
+    
+    @Override
+    public Page<Pagamento> buscarPorUsuarioIdEStatus(Long usuarioId, String status, Pageable pageable) {
+        log.info("Buscando pagamentos para usuário ID: {}, status: {}", usuarioId, status);
+        try {
+            var pagamentos = pagamentoRepository.findByUsuarioIdAndStatusIfPresent(usuarioId, status, pageable);
+            log.info("Encontrados {} pagamentos", pagamentos.getTotalElements());
+            return pagamentos.map(pagamentoMapper::toDomain);
+        } catch (Exception e) {
+            log.error("Erro ao buscar pagamentos para usuário ID: {}, status: {}", usuarioId, status, e);
             return Page.empty(pageable);
         }
     }

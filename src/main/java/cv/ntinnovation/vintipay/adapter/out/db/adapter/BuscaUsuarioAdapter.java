@@ -22,4 +22,10 @@ public class BuscaUsuarioAdapter implements BuscaUsuarioPort {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
         return Optional.of(ususarioMapper.toDomain(usuario));
     }
+    
+    @Override
+    public Optional<Usuario> buscarPorUsername(String username) {
+        return usuarioRepository.findByUsername(username)
+                .map(ususarioMapper::toDomain);
+    }
 }

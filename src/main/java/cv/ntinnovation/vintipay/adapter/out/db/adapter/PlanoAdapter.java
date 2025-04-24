@@ -26,6 +26,14 @@ public class PlanoAdapter implements BuscaPlanoPort, SalvaPlanoPort {
                 .map(planoMapper::toDomain)
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    public List<Plano> buscarTodos() {
+        return planoRepository.findAll()
+                .stream()
+                .map(planoMapper::toDomain)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public Optional<Plano> buscarPorId(Long id) {

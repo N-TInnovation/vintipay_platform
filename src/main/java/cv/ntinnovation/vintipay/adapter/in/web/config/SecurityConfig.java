@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -121,6 +122,8 @@ public class SecurityConfig {
                             .requestMatchers("/error").permitAll()
                             .requestMatchers("/login").permitAll()
                             .requestMatchers("/registro").permitAll()
+                            .requestMatchers("/registro/checkout-success").permitAll()
+                            .requestMatchers("/registro/checkout-cancel").permitAll()
                             .requestMatchers(HttpMethod.POST, "/login").permitAll()
                             .requestMatchers(HttpMethod.POST, "/registro").permitAll()
                             .requestMatchers("/images/**", "/css/**", "/js/**").permitAll()

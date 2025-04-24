@@ -11,4 +11,13 @@ public interface BuscaPagamentoPort {
     Page<Pagamento> buscarTodos(Pageable pageable, String reference, StatusPagamentoEnum status);
     Optional<Pagamento> buscarPorReferencia(String reference);
     Page<Pagamento> buscarPorUsuario(Pageable pageable, Long usuarioId, StatusPagamentoEnum status);
+    
+    /**
+     * Busca pagamentos por usuário e status (string)
+     * @param usuarioId ID do usuário
+     * @param status Status do pagamento (opcional, pode ser null)
+     * @param pageable Informações de paginação
+     * @return Página com os pagamentos do usuário
+     */
+    Page<Pagamento> buscarPorUsuarioIdEStatus(Long usuarioId, String status, Pageable pageable);
 }

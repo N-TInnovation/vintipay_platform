@@ -5,70 +5,570 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Usuário - VintiPay</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --primary-light: #e3f2fd;
+            --secondary-color: #2ecc71;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --background-light: #f8f9fa;
+            --background-dark: #343a40;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --card-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.15);
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--background-light) 0%, #e0e0e0 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+        
+        .registration-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 15px;
+        }
+        
+        .logo-area {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo-area img {
+            max-height: 60px;
+            transition: transform 0.3s;
+        }
+        
+        .logo-area img:hover {
+            transform: scale(1.05);
+        }
+        
+        .registration-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .registration-header h1 {
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+        }
+        
+        .registration-header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .registration-form {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .registration-form:hover {
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-floating label {
+            color: var(--text-light);
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .plan-selection {
+            margin-top: 2rem;
+        }
+        
+        .plan-card {
+            height: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+            margin-bottom: 1.5rem;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-7px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .plan-card.selected {
+            border-color: var(--primary-color);
+            transform: translateY(-7px);
+            box-shadow: 0 0.5rem 1.5rem rgba(52, 152, 219, 0.4);
+        }
+        
+        .plan-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .plan-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 80%);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        .plan-card:hover .plan-header::before,
+        .plan-card.selected .plan-header::before {
+            opacity: 1;
+        }
+        
+        .plan-price {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+        }
+        
+        .plan-period {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        .plan-features {
+            padding: 1.5rem;
+        }
+        
+        .plan-features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .plan-features li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f1f1;
+            display: flex;
+            align-items: center;
+        }
+        
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+        
+        .plan-features i {
+            color: var(--secondary-color);
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+        
+        .plan-footer {
+            padding: 1rem 1.5rem 1.5rem;
+            text-align: center;
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-register {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border: none;
+            padding: 0.85rem 2.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-register:hover {
+            background: linear-gradient(135deg, var(--primary-dark), #1a5276);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.5);
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 1.25rem;
+            color: var(--text-light);
+            font-size: 1.05rem;
+        }
+        
+        .login-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        
+        .login-link a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+        
+        .error-feedback {
+            color: var(--danger-color);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 120px;
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step.active .step-circle {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 0 5px rgba(52, 152, 219, 0.2);
+        }
+        
+        .step-title {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            text-align: center;
+        }
+        
+        .step.active .step-title {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .step-connector {
+            flex: 1;
+            height: 3px;
+            background-color: #e9ecef;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .popular-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: var(--warning-color);
+            color: white;
+            font-size: 0.8rem;
+            padding: 0.25rem 1rem;
+            border-bottom-left-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-section {
+            transition: all 0.3s ease;
+        }
+        
+        @media (max-width: 991.98px) {
+            .registration-header h1 {
+                font-size: 2rem;
+            }
+            
+            .plan-card {
+                margin-bottom: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 767.98px) {
+            .registration-header h1 {
+                font-size: 1.75rem;
+            }
+            
+            .registration-header p {
+                font-size: 1rem;
+            }
+            
+            .step {
+                width: 80px;
+            }
+            
+            .step-title {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="mb-0">Criar Conta</h3>
-                    </div>
-                    <div class="card-body">
-                        <div th:if="${erro}" class="alert alert-danger" role="alert" th:text="${erro}"></div>
+    <div class="registration-container">
+        <div class="logo-area animate__animated animate__fadeIn">
+            <img th:src="@{/img/logo.png}" alt="VintiPay Logo" onerror="this.src='https://via.placeholder.com/180x60?text=VintiPay'">
+        </div>
+        
+        <div class="registration-header animate__animated animate__fadeIn animate__delay-1s">
+            <h1>Crie sua conta VintiPay</h1>
+            <p>Escolha um plano e comece a usar nossa plataforma de pagamentos moderna e segura hoje mesmo</p>
+        </div>
+        
+        <div class="step-indicator animate__animated animate__fadeIn animate__delay-1s">
+            <div class="step active">
+                <div class="step-circle">1</div>
+                <div class="step-title">Informações</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step active">
+                <div class="step-circle">2</div>
+                <div class="step-title">Escolha do Plano</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-circle">3</div>
+                <div class="step-title">Confirmação</div>
+            </div>
+        </div>
+        
+        <div th:if="${erro}" class="alert alert-danger animate__animated animate__fadeIn" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${erro}"></span>
+        </div>
+        
+        <form th:action="@{/registro}" th:object="${registroRequest}" method="post" class="needs-validation" novalidate>
+            <div class="row">
+                <!-- Formulário de Registro -->
+                <div class="col-lg-6 animate__animated animate__fadeInLeft animate__delay-1s">
+                    <div class="registration-form form-section">
+                        <h4 class="section-title">Informações Pessoais</h4>
+                        <p class="text-muted mb-4">Preencha seus dados para criar sua conta</p>
                         
-                        <form th:action="@{/registro}" th:object="${registroRequest}" method="post">
-                            <div class="mb-3">
-                                <label for="username" class="form-label">Nome de Usuário</label>
-                                <input type="text" class="form-control" id="username" th:field="*{username}" required>
-                                <div class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="email" class="form-label">E-mail</label>
-                                <input type="email" class="form-control" id="email" th:field="*{email}" required>
-                                <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="nome" class="form-label">Nome Completo</label>
-                                <input type="text" class="form-control" id="nome" th:field="*{nome}" required>
-                                <div class="text-danger" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="telefone" class="form-label">Telefone</label>
-                                <input type="tel" class="form-control" id="telefone" th:field="*{telefone}" required>
-                                <div class="text-danger" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Senha</label>
-                                <input type="password" class="form-control" id="password" th:field="*{password}" required>
-                                <div class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="confirmPassword" class="form-label">Confirmar Senha</label>
-                                <input type="password" class="form-control" id="confirmPassword" th:field="*{confirmPassword}" required>
-                                <div class="text-danger" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
-                            </div>
-                            
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Registrar</button>
-                            </div>
-                        </form>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="username" th:field="*{username}" placeholder="Nome de usuário" required>
+                            <label for="username"><i class="fas fa-user me-2"></i>Nome de usuário</label>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                        </div>
                         
-                        <div class="mt-3 text-center">
-                            <p>Já tem uma conta? <a th:href="@{/login}">Faça login</a></p>
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="email" th:field="*{email}" placeholder="E-mail" required>
+                            <label for="email"><i class="fas fa-envelope me-2"></i>E-mail</label>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="nome" th:field="*{nome}" placeholder="Nome completo" required>
+                            <label for="nome"><i class="fas fa-id-card me-2"></i>Nome completo</label>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="tel" class="form-control" id="telefone" th:field="*{telefone}" placeholder="Telefone" required>
+                            <label for="telefone"><i class="fas fa-phone me-2"></i>Telefone</label>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="password" th:field="*{password}" placeholder="Senha" required>
+                            <label for="password"><i class="fas fa-lock me-2"></i>Senha</label>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="confirmPassword" th:field="*{confirmPassword}" placeholder="Confirmar senha" required>
+                            <label for="confirmPassword"><i class="fas fa-lock me-2"></i>Confirmar senha</label>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
                         </div>
                     </div>
                 </div>
+                
+                <!-- Seleção de Planos -->
+                <div class="col-lg-6 animate__animated animate__fadeInRight animate__delay-1s">
+                    <div class="registration-form form-section">
+                        <h4 class="section-title">Escolha seu plano</h4>
+                        <p class="text-muted mb-4">Selecione o plano que melhor atende às suas necessidades</p>
+                        
+                        <div class="error-feedback" th:if="${#fields.hasErrors('planoId')}" th:errors="*{planoId}"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-12 mb-4" th:each="plano, status : ${planosDisponiveis}">
+                                <div class="plan-card" th:attr="data-plan-id=${plano.id}">
+                                    <div class="plan-header">
+                                        <h5 class="text-white mb-3" th:text="${plano.nome}">Plano Básico</h5>
+                                        <div th:if="${status.index == 1}" class="popular-badge">Popular</div>
+                                        <p class="plan-price mb-0" th:text="${'R$ ' + plano.preco}">R$ 29,90</p>
+                                        <p class="plan-period">por mês</p>
+                                    </div>
+                                    <div class="plan-features">
+                                        <ul>
+                                            <li th:each="recurso : ${plano.descricao.split(',')}">
+                                                <i class="fas fa-check-circle"></i> <span th:text="${recurso}">Recurso</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="plan-footer">
+                                        <div class="form-check">
+                                            <input class="form-check-input plan-radio" type="radio" name="planoRadio" th:id="${'plano-' + plano.id}" th:value="${plano.id}" required>
+                                            <label class="form-check-label" th:for="${'plano-' + plano.id}">
+                                                Selecionar este plano
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Campo oculto para armazenar o ID do plano selecionado -->
+                        <input type="hidden" th:field="*{planoId}" id="planoId">
+                    </div>
+                </div>
             </div>
-        </div>
+            
+            <div class="d-grid gap-2 col-md-6 mx-auto mt-4 animate__animated animate__fadeInUp animate__delay-2s">
+                <button type="submit" class="btn btn-primary btn-lg btn-register">
+                    <i class="fas fa-user-plus me-2"></i>Criar minha conta
+                </button>
+                <div class="login-link">
+                    Já tem uma conta? <a th:href="@{/login}">Faça login</a>
+                </div>
+            </div>
+        </form>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Validação do formulário
+            const forms = document.querySelectorAll('.needs-validation');
+            
+            Array.prototype.slice.call(forms).forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+            
+            // Seleção de plano
+            const planCards = document.querySelectorAll('.plan-card');
+            const planoIdInput = document.getElementById('planoId');
+            const planRadios = document.querySelectorAll('.plan-radio');
+            
+            // Selecionar o plano popular por padrão
+            const popularPlan = document.querySelector('.popular-badge')?.closest('.plan-card');
+            if (popularPlan) {
+                const popularRadio = popularPlan.querySelector('.plan-radio');
+                if (popularRadio) {
+                    popularRadio.checked = true;
+                    planoIdInput.value = popularPlan.getAttribute('data-plan-id');
+                    popularPlan.classList.add('selected');
+                }
+            }
+            
+            planCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const planId = this.getAttribute('data-plan-id');
+                    const radio = this.querySelector('.plan-radio');
+                    
+                    // Marcar o radio button
+                    radio.checked = true;
+                    
+                    // Atualizar o campo oculto
+                    planoIdInput.value = planId;
+                    
+                    // Atualizar visual dos cards
+                    planCards.forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+            
+            // Quando um radio button é clicado diretamente
+            planRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.checked) {
+                        const planId = this.value;
+                        planoIdInput.value = planId;
+                        
+                        // Atualizar visual dos cards
+                        planCards.forEach(card => {
+                            if (card.getAttribute('data-plan-id') === planId) {
+                                card.classList.add('selected');
+                            } else {
+                                card.classList.remove('selected');
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Adicionar efeito de foco nos campos
+            const formControls = document.querySelectorAll('.form-control');
+            formControls.forEach(control => {
+                control.addEventListener('focus', function() {
+                    this.closest('.form-floating').classList.add('focused');
+                });
+                
+                control.addEventListener('blur', function() {
+                    this.closest('.form-floating').classList.remove('focused');
+                });
+            });
+        });
+    </script>
 </body>
 </html>

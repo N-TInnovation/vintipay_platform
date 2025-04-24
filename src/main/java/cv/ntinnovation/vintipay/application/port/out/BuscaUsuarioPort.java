@@ -6,4 +6,11 @@ import java.util.Optional;
 
 public interface BuscaUsuarioPort {
     Optional<Usuario> getUser(String username);
+    
+    /**
+     * Busca um usuário pelo seu nome de usuário
+     * @param username Nome de usuário a ser buscado
+     * @return Optional contendo o usuário se encontrado, ou vazio se não existir
+     */
+    Optional<Usuario> buscarPorUsername(String username);
 }

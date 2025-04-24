@@ -1,9 +1,10 @@
 package cv.ntinnovation.vintipay.config;
 
-import cv.ntinnovation.vintipay.adapter.out.db.repository.PagamentoRepository;
-import cv.ntinnovation.vintipay.adapter.out.db.mapper.PagamentoMapper;
+import cv.ntinnovation.vintipay.application.port.in.BuscaAssinaturaDirectaUseCase;
+import cv.ntinnovation.vintipay.application.port.in.BuscaHistoricoPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaAssinaturaUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaPlanoUseCase;
+import cv.ntinnovation.vintipay.application.port.in.StripeIntegrationUseCase;
 import cv.ntinnovation.vintipay.adapter.in.web.controller.UserAssinaturaController;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,16 +23,18 @@ public class AssinaturaConfig {
     @Bean
     @Primary
     public UserAssinaturaController userAssinaturaController(
-            PagamentoRepository pagamentoRepository,
-            PagamentoMapper pagamentoMapper,
+            BuscaHistoricoPagamentoUseCase buscaHistoricoPagamentoUseCase,
             GerenciaAssinaturaUseCase gerenciaAssinaturaUseCase,
-            GerenciaPlanoUseCase gerenciaPlanoUseCase) {
+            GerenciaPlanoUseCase gerenciaPlanoUseCase,
+            BuscaAssinaturaDirectaUseCase buscaAssinaturaDirectaUseCase,
+            StripeIntegrationUseCase stripeIntegrationUseCase) {
         
         return new UserAssinaturaController(
-                pagamentoRepository,
-                pagamentoMapper,
+                buscaHistoricoPagamentoUseCase,
                 gerenciaAssinaturaUseCase,
-                gerenciaPlanoUseCase
+                gerenciaPlanoUseCase,
+                buscaAssinaturaDirectaUseCase,
+                stripeIntegrationUseCase
         );
     }
 }

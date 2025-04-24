@@ -84,19 +84,34 @@
                 text-transform: uppercase;
             }
             
-            .status-active {
+            .status-badge.ATIVA {
                 background-color: #d1fae5;
                 color: #047857;
             }
             
-            .status-inactive {
+            .status-badge.INATIVA {
                 background-color: #fee2e2;
                 color: #b91c1c;
             }
             
-            .status-pending {
+            .status-badge.PENDENTE {
                 background-color: #fef3c7;
                 color: #b45309;
+            }
+            
+            .status-badge.TRIAL {
+                background-color: #dbeafe;
+                color: #1e40af;
+            }
+            
+            .status-badge.CANCELADA {
+                background-color: #fee2e2;
+                color: #b91c1c;
+            }
+            
+            .status-badge.EXPIRADA {
+                background-color: #f3f4f6;
+                color: #4b5563;
             }
             
             .upgrade-card {
@@ -133,7 +148,7 @@
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Detalhes da Assinatura</h5>
-                        <span class="status-badge status-active" th:text="${statusAssinatura}">Ativa</span>
+                        <span th:class="'status-badge ' + ${statusAssinatura}" th:text="${statusAssinatura}">Ativa</span>
                     </div>
                     <div class="card-body">
                         <div class="row mb-4">
@@ -170,7 +185,8 @@
                             <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#upgradeModal">
                                 <i class="fas fa-arrow-up me-2"></i> Fazer Upgrade
                             </button>
-                            <button class="btn btn-outline-danger">
+                            <button class="btn btn-outline-danger" th:if="${statusAssinatura != 'CANCELADA' && statusAssinatura != 'INATIVA'}" 
+                                    data-bs-toggle="modal" data-bs-target="#cancelModal">
                                 <i class="fas fa-times me-2"></i> Cancelar Assinatura
                             </button>
                         </div>
@@ -230,81 +246,59 @@
         </div>
         
         <!-- Planos Disponíveis para Upgrade -->
-        <h5 class="mb-3 mt-2">Planos Disponíveis para Upgrade</h5>
+        <h5 class="mb-3 mt-2" th:if="${!#lists.isEmpty(planosDisponiveis)}">Planos Disponíveis para Upgrade</h5>
         <div class="row">
-            <div class="col-md-4 mb-4" th:each="planoNome : ${planosDisponiveis}">
+            <div class="col-md-4 mb-4" th:each="plano : ${planosDisponiveis}" th:if="${plano.id != planoId}">
                 <div class="card plan-card">
                     <div class="plan-header">
-                        <h5 class="text-white mb-3" th:text="${planoNome}">Plano Profissional</h5>
-                        <p class="plan-price mb-0">R$ 99,90</p>
+                        <h5 class="text-white mb-3" th:text="${plano.nome}">Plano Profissional</h5>
+                        <p class="plan-price mb-0" th:text="${'R$ ' + plano.preco}">R$ 99,90</p>
                         <p class="plan-period">por mês</p>
                     </div>
                     <div class="plan-features">
                         <ul>
-                            <li><i class="fas fa-check"></i> Processamento ilimitado de pagamentos</li>
-                            <li><i class="fas fa-check"></i> Suporte prioritário</li>
-                            <li><i class="fas fa-check"></i> Relatórios avançados</li>
-                            <li><i class="fas fa-check"></i> Integrações premium</li>
+                            <li th:each="recurso : ${plano.descricao.split(',')}">
+                                <i class="fas fa-check"></i> <span th:text="${recurso}">Recurso</span>
+                            </li>
                         </ul>
                     </div>
                     <div class="plan-footer">
-                        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#upgradeModal">
-                            Fazer Upgrade
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Upgrade Modal -->
-            <div class="modal fade" id="upgradeModal" tabindex="-1" aria-labelledby="upgradeModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="upgradeModalLabel">Fazer Upgrade de Plano</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p>Você está prestes a fazer upgrade para um novo plano. Seu plano atual será substituído pelo novo plano selecionado.</p>
-                            <p>Deseja continuar?</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <a href="/assinaturas" class="btn btn-primary">Continuar para Planos</a>
-                        </div>
+                        <form th:action="@{/user/assinatura/upgrade}" method="post">
+                            <input type="hidden" name="planoId" th:value="${plano.id}" />
+                            <button type="submit" class="btn btn-primary w-100">
+                                Fazer Upgrade
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Modal de Upgrade -->
-        <div class="modal fade" id="upgradeModal" tabindex="-1" aria-labelledby="upgradeModalLabel" aria-hidden="true">
+        <!-- Modal de Cancelamento -->
+        <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="upgradeModalLabel">Fazer Upgrade de Plano</h5>
+                        <h5 class="modal-title" id="cancelModalLabel">Cancelar Assinatura</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                     </div>
                     <div class="modal-body">
-                        <p>Selecione o plano para o qual deseja fazer upgrade:</p>
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="planoUpgrade" id="planoProfissional" value="Profissional" checked>
-                            <label class="form-check-label" for="planoProfissional">
-                                <strong>Plano Profissional</strong> - R$ 59,90/mês
-                            </label>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Atenção!</strong> Ao cancelar sua assinatura:
                         </div>
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="planoUpgrade" id="planoEnterprise" value="Enterprise">
-                            <label class="form-check-label" for="planoEnterprise">
-                                <strong>Plano Enterprise</strong> - R$ 119,90/mês
-                            </label>
-                        </div>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i> O valor proporcional será cobrado imediatamente para o período restante do ciclo atual.
-                        </div>
+                        <ul class="mb-3">
+                            <li>Você perderá acesso aos recursos premium imediatamente</li>
+                            <li>Não haverá reembolso para o período já pago</li>
+                            <li>Seus dados serão mantidos por 30 dias</li>
+                        </ul>
+                        <p>Tem certeza que deseja cancelar sua assinatura?</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary">Confirmar Upgrade</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
+                        <form th:action="@{/user/assinatura/cancelar}" method="post">
+                            <button type="submit" class="btn btn-danger">Confirmar Cancelamento</button>
+                        </form>
                     </div>
                 </div>
             </div>

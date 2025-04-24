@@ -9,6 +9,7 @@ import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.PriceCreateParams;
 import com.stripe.param.ProductCreateParams;
 import com.stripe.param.SubscriptionCreateParams;
+import com.stripe.param.SubscriptionUpdateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.StripeIntegrationUseCase;
@@ -242,6 +243,37 @@ public class StripeIntegrationUseCaseImpl implements StripeIntegrationUseCase {
         } catch (StripeException e) {
             log.error("Erro ao atualizar produto no Stripe", e);
             throw new RuntimeException("Erro ao atualizar produto no Stripe: " + e.getMessage(), e);
+        }
+    }
+    
+    @Override
+    public String atualizarSubscription(String subscriptionId, String newPriceId) {
+        try {
+            log.info("Atualizando assinatura {} para o novo preço {}", subscriptionId, newPriceId);
+            
+            // Recuperar a assinatura atual
+            Subscription subscription = Subscription.retrieve(subscriptionId);
+            
+            // Criar parâmetros para atualizar a assinatura
+            SubscriptionUpdateParams.Item item = SubscriptionUpdateParams.Item.builder()
+                    .setId(subscription.getItems().getData().get(0).getId())
+                    .setPrice(newPriceId)
+                    .build();
+            
+            SubscriptionUpdateParams params = SubscriptionUpdateParams.builder()
+                    .addItem(item)
+                    .setCancelAtPeriodEnd(false)
+                    .setProrationBehavior(SubscriptionUpdateParams.ProrationBehavior.CREATE_PRORATIONS)
+                    .build();
+            
+            // Atualizar a assinatura
+            Subscription updatedSubscription = subscription.update(params);
+            log.info("Assinatura atualizada com sucesso: {}", updatedSubscription.getId());
+            
+            return updatedSubscription.getId();
+        } catch (StripeException e) {
+            log.error("Erro ao atualizar assinatura no Stripe: {}", e.getMessage(), e);
+            throw new RuntimeException("Erro ao atualizar assinatura no Stripe: " + e.getMessage(), e);
         }
     }
 

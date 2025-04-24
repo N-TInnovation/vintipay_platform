@@ -15,4 +15,12 @@ public interface StripeIntegrationUseCase {
     String criarSubscription(Usuario usuario, String priceId);
     void cancelarSubscription(String subscriptionId);
     Map<String, Object> processarWebhook(String payload, String sigHeader);
+    
+    /**
+     * Atualiza uma assinatura existente no Stripe para um novo plano/preço
+     * @param subscriptionId ID da assinatura no Stripe a ser atualizada
+     * @param newPriceId ID do novo preço/plano no Stripe
+     * @return ID da assinatura atualizada
+     */
+    String atualizarSubscription(String subscriptionId, String newPriceId);
 }

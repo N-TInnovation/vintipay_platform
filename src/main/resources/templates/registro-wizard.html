@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuário - VintiPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --secondary-color: #2ecc71;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --background-light: #f8f9fa;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+        }
+        
+        body {
+            background-color: var(--background-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+        
+        .registration-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 15px;
+        }
+        
+        .logo-area {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo-area img {
+            max-height: 60px;
+        }
+        
+        .step-container {
+            margin-bottom: 2rem;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: 25%;
+            right: 25%;
+            height: 2px;
+            background-color: #e9ecef;
+            z-index: 1;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 150px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+        }
+        
+        .step.active .step-circle {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 0 5px rgba(52, 152, 219, 0.2);
+        }
+        
+        .step.completed .step-circle {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .step-title {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active .step-title {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .step.completed .step-title {
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+        
+        .form-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-card h3 {
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        .form-card h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+        }
+        
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-floating label {
+            color: var(--text-light);
+        }
+        
+        .btn-nav {
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-next {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-next:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-prev {
+            background-color: #e9ecef;
+            color: var(--text-dark);
+        }
+        
+        .btn-prev:hover {
+            background-color: #dee2e6;
+        }
+        
+        .btn-submit {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.6rem 2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-submit:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .step-content {
+            display: none;
+        }
+        
+        .step-content.active {
+            display: block;
+        }
+        
+        .error-feedback {
+            color: var(--danger-color);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Estilos para os planos */
+        .plan-card {
+            height: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+            margin-bottom: 1.5rem;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        .plan-card.selected {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(52, 152, 219, 0.3);
+        }
+        
+        .plan-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .plan-price {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .plan-period {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        .plan-features {
+            padding: 1.5rem;
+        }
+        
+        .plan-features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .plan-features li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f1f1;
+        }
+        
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+        
+        .plan-features i {
+            color: var(--secondary-color);
+            margin-right: 0.5rem;
+        }
+        
+        .plan-footer {
+            padding: 1rem 1.5rem 1.5rem;
+            text-align: center;
+        }
+        
+        .popular-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: var(--warning-color);
+            color: white;
+            font-size: 0.8rem;
+            padding: 0.25rem 1rem;
+            border-bottom-left-radius: 10px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="registration-container">
+        <div class="logo-area">
+            <img th:src="@{/img/logo.png}" alt="VintiPay Logo" onerror="this.src='https://via.placeholder.com/180x60?text=VintiPay'">
+        </div>
+        
+        <div class="text-center mb-4">
+            <h2>Crie sua conta VintiPay</h2>
+            <p class="text-muted">Escolha um plano e comece a usar nossa plataforma de pagamentos moderna e segura hoje mesmo</p>
+        </div>
+        
+        <div th:if="${erro}" class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${erro}"></span>
+        </div>
+        
+        <div class="step-container">
+            <div class="step-indicator">
+                <div class="step active" id="step1-indicator">
+                    <div class="step-circle">1</div>
+                    <div class="step-title">Informações</div>
+                </div>
+                <div class="step" id="step2-indicator">
+                    <div class="step-circle">2</div>
+                    <div class="step-title">Escolha do Plano</div>
+                </div>
+                <div class="step" id="step3-indicator">
+                    <div class="step-circle">3</div>
+                    <div class="step-title">Confirmação</div>
+                </div>
+            </div>
+            
+            <form th:action="@{/registro}" th:object="${registroRequest}" method="post" id="registrationForm" class="needs-validation" novalidate>
+                <!-- Step 1: Informações Pessoais -->
+                <div class="step-content active" id="step1-content">
+                    <div class="form-card">
+                        <h3>Informações Pessoais</h3>
+                        <p class="text-muted mb-4">Preencha seus dados para criar sua conta</p>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="username" th:field="*{username}" placeholder="Nome de usuário" required>
+                            <label for="username"><i class="fas fa-user me-2"></i>Nome de usuário</label>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="email" th:field="*{email}" placeholder="E-mail" required>
+                            <label for="email"><i class="fas fa-envelope me-2"></i>E-mail</label>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="nome" th:field="*{nome}" placeholder="Nome completo" required>
+                            <label for="nome"><i class="fas fa-id-card me-2"></i>Nome completo</label>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="tel" class="form-control" id="telefone" th:field="*{telefone}" placeholder="Telefone" required>
+                            <label for="telefone"><i class="fas fa-phone me-2"></i>Telefone</label>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="password" th:field="*{password}" placeholder="Senha" required>
+                            <label for="password"><i class="fas fa-lock me-2"></i>Senha</label>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="confirmPassword" th:field="*{confirmPassword}" placeholder="Confirmar senha" required>
+                            <label for="confirmPassword"><i class="fas fa-lock me-2"></i>Confirmar senha</label>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn btn-next btn-nav" id="goToStep2">
+                                Próximo <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Escolha do Plano -->
+                <div class="step-content" id="step2-content">
+                    <div class="form-card">
+                        <h3>Escolha seu plano</h3>
+                        <p class="text-muted mb-4">Selecione o plano que melhor atende às suas necessidades</p>
+                        
+                        <div class="error-feedback" th:if="${#fields.hasErrors('planoId')}" th:errors="*{planoId}"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4" th:each="plano, status : ${planosDisponiveis}">
+                                <div class="plan-card" th:attr="data-plan-id=${plano.id}">
+                                    <div class="plan-header">
+                                        <h5 class="text-white mb-3" th:text="${plano.nome}">Plano Básico</h5>
+                                        <div th:if="${status.index == 1}" class="popular-badge">Popular</div>
+                                        <p class="plan-price mb-0" th:text="${'R$ ' + plano.preco}">R$ 29,90</p>
+                                        <p class="plan-period">por mês</p>
+                                    </div>
+                                    <div class="plan-features">
+                                        <ul>
+                                            <li th:each="recurso : ${plano.descricao.split(',')}">
+                                                <i class="fas fa-check-circle"></i> <span th:text="${recurso}">Recurso</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="plan-footer">
+                                        <div class="form-check">
+                                            <input class="form-check-input plan-radio" type="radio" name="planoRadio" th:id="${'plano-' + plano.id}" th:value="${plano.id}" required>
+                                            <label class="form-check-label" th:for="${'plano-' + plano.id}">
+                                                Selecionar este plano
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Campo oculto para armazenar o ID do plano selecionado -->
+                        <input type="hidden" th:field="*{planoId}" id="planoId">
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-prev btn-nav" id="backToStep1">
+                                <i class="fas fa-arrow-left me-2"></i> Anterior
+                            </button>
+                            <button type="button" class="btn btn-next btn-nav" id="goToStep3">
+                                Próximo <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Confirmação -->
+                <div class="step-content" id="step3-content">
+                    <div class="form-card">
+                        <h3>Confirmação</h3>
+                        <p class="text-muted mb-4">Revise seus dados antes de criar sua conta</p>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5>Informações Pessoais</h5>
+                                <div class="mb-2">
+                                    <strong>Nome de Usuário:</strong> <span id="confirm-username"></span>
+                                </div>
+                                <div class="mb-2">
+                                    <strong>E-mail:</strong> <span id="confirm-email"></span>
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Nome Completo:</strong> <span id="confirm-nome"></span>
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Telefone:</strong> <span id="confirm-telefone"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Plano Selecionado</h5>
+                                <div id="confirm-plan-details">
+                                    <div class="alert alert-info">
+                                        Por favor, selecione um plano na etapa anterior.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                            <label class="form-check-label" for="termsCheck">
+                                Eu li e concordo com os <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Termos de Serviço</a> e <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Política de Privacidade</a>
+                            </label>
+                            <div class="invalid-feedback">
+                                Você deve concordar com os termos para continuar.
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-prev btn-nav" id="backToStep2">
+                                <i class="fas fa-arrow-left me-2"></i> Anterior
+                            </button>
+                            <button type="submit" class="btn btn-submit">
+                                <i class="fas fa-user-plus me-2"></i> Criar minha conta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="text-center mt-3">
+            <p class="text-muted">Já tem uma conta? <a th:href="@{/login}">Faça login</a></p>
+        </div>
+    </div>
+    
+    <!-- Modal de Termos de Serviço -->
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsModalLabel">Termos de Serviço</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Conteúdo dos termos de serviço...</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Política de Privacidade -->
+    <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="privacyModalLabel">Política de Privacidade</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Conteúdo da política de privacidade...</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos do step
+            const step1Content = document.getElementById('step1-content');
+            const step2Content = document.getElementById('step2-content');
+            const step3Content = document.getElementById('step3-content');
+            
+            const step1Indicator = document.getElementById('step1-indicator');
+            const step2Indicator = document.getElementById('step2-indicator');
+            const step3Indicator = document.getElementById('step3-indicator');
+            
+            // Botões de navegação
+            const goToStep2 = document.getElementById('goToStep2');
+            const backToStep1 = document.getElementById('backToStep1');
+            const goToStep3 = document.getElementById('goToStep3');
+            const backToStep2 = document.getElementById('backToStep2');
+            
+            // Campos do formulário
+            const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
+            const nomeInput = document.getElementById('nome');
+            const telefoneInput = document.getElementById('telefone');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const planoIdInput = document.getElementById('planoId');
+            
+            // Campos de confirmação
+            const confirmUsername = document.getElementById('confirm-username');
+            const confirmEmail = document.getElementById('confirm-email');
+            const confirmNome = document.getElementById('confirm-nome');
+            const confirmTelefone = document.getElementById('confirm-telefone');
+            const confirmPlanDetails = document.getElementById('confirm-plan-details');
+            
+            // Validação do formulário
+            const form = document.getElementById('registrationForm');
+            
+            // Navegação entre steps
+            goToStep2.addEventListener('click', function() {
+                if (validateStep1()) {
+                    step1Content.classList.remove('active');
+                    step2Content.classList.add('active');
+                    step1Indicator.classList.remove('active');
+                    step1Indicator.classList.add('completed');
+                    step2Indicator.classList.add('active');
+                }
+            });
+            
+            backToStep1.addEventListener('click', function() {
+                step2Content.classList.remove('active');
+                step1Content.classList.add('active');
+                step2Indicator.classList.remove('active');
+                step1Indicator.classList.remove('completed');
+                step1Indicator.classList.add('active');
+            });
+            
+            goToStep3.addEventListener('click', function() {
+                if (validateStep2()) {
+                    step2Content.classList.remove('active');
+                    step3Content.classList.add('active');
+                    step2Indicator.classList.remove('active');
+                    step2Indicator.classList.add('completed');
+                    step3Indicator.classList.add('active');
+                    
+                    // Preencher os dados de confirmação
+                    updateConfirmationData();
+                }
+            });
+            
+            backToStep2.addEventListener('click', function() {
+                step3Content.classList.remove('active');
+                step2Content.classList.add('active');
+                step3Indicator.classList.remove('active');
+                step2Indicator.classList.remove('completed');
+                step2Indicator.classList.add('active');
+            });
+            
+            // Seleção de plano
+            const planCards = document.querySelectorAll('.plan-card');
+            const planRadios = document.querySelectorAll('.plan-radio');
+            
+            // Selecionar o plano popular por padrão
+            const popularPlan = document.querySelector('.popular-badge')?.closest('.plan-card');
+            if (popularPlan) {
+                const popularRadio = popularPlan.querySelector('.plan-radio');
+                if (popularRadio) {
+                    popularRadio.checked = true;
+                    planoIdInput.value = popularPlan.getAttribute('data-plan-id');
+                    popularPlan.classList.add('selected');
+                }
+            }
+            
+            planCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const planId = this.getAttribute('data-plan-id');
+                    const radio = this.querySelector('.plan-radio');
+                    
+                    // Marcar o radio button
+                    radio.checked = true;
+                    
+                    // Atualizar o campo oculto
+                    planoIdInput.value = planId;
+                    
+                    // Atualizar visual dos cards
+                    planCards.forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+            
+            // Validação do formulário
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                form.classList.add('was-validated');
+            });
+            
+            // Funções de validação
+            function validateStep1() {
+                // Validar campos obrigatórios
+                if (!usernameInput.value || !emailInput.value || !nomeInput.value || 
+                    !telefoneInput.value || !passwordInput.value || !confirmPasswordInput.value) {
+                    alert('Por favor, preencha todos os campos obrigatórios.');
+                    return false;
+                }
+                
+                // Validar formato de e-mail
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailInput.value)) {
+                    alert('Por favor, insira um e-mail válido.');
+                    return false;
+                }
+                
+                // Validar senha
+                if (passwordInput.value.length < 6) {
+                    alert('A senha deve ter pelo menos 6 caracteres.');
+                    return false;
+                }
+                
+                // Validar confirmação de senha
+                if (passwordInput.value !== confirmPasswordInput.value) {
+                    alert('As senhas não coincidem.');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            function validateStep2() {
+                // Verificar se um plano foi selecionado
+                if (!planoIdInput.value) {
+                    alert('Por favor, selecione um plano.');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            function updateConfirmationData() {
+                // Atualizar dados pessoais
+                confirmUsername.textContent = usernameInput.value;
+                confirmEmail.textContent = emailInput.value;
+                confirmNome.textContent = nomeInput.value;
+                confirmTelefone.textContent = telefoneInput.value;
+                
+                // Atualizar detalhes do plano
+                const selectedPlan = document.querySelector('.plan-card.selected');
+                if (selectedPlan) {
+                    const planName = selectedPlan.querySelector('h5').textContent;
+                    const planPrice = selectedPlan.querySelector('.plan-price').textContent;
+                    
+                    let planFeatures = '<ul class="list-unstyled">';
+                    selectedPlan.querySelectorAll('.plan-features li').forEach(li => {
+                        planFeatures += '<li><i class="fas fa-check-circle text-success me-2"></i>' + li.textContent + '</li>';
+                    });
+                    planFeatures += '</ul>';
+                    
+                    confirmPlanDetails.innerHTML = `
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">${planName}</h6>
+                                <p class="card-text fw-bold">${planPrice} por mês</p>
+                                ${planFeatures}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

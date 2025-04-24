@@ -31,6 +31,13 @@ public interface PagamentoRepository extends JpaRepository<PagamentoEntity, Long
            "JOIN conta_pagamento cp ON ip.conta_pagamento_id = cp.id " +
            "JOIN usuarios u ON cp.email = u.email " +
            "WHERE u.id = :usuarioId " +
+           "AND (:status IS NULL OR p.status = :status) " +
+           "ORDER BY created_at DESC",
+           countQuery = "SELECT COUNT(*) FROM pagamento p " +
+           "JOIN intencao_pagamento ip ON p.intencao_pagamento_id = ip.id " +
+           "JOIN conta_pagamento cp ON ip.conta_pagamento_id = cp.id " +
+           "JOIN usuarios u ON cp.email = u.email " +
+           "WHERE u.id = :usuarioId " +
            "AND (:status IS NULL OR p.status = :status)",
            nativeQuery = true)
     Page<PagamentoEntity> findByUsuarioIdAndStatusIfPresent(

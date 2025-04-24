@@ -27,6 +27,11 @@ public class GerenciaPlanoUseCaseImpl implements GerenciaPlanoUseCase {
     public List<Plano> listarPlanosAtivos() {
         return buscaPlanoPort.buscarTodosAtivos();
     }
+    
+    @Override
+    public List<Plano> listarTodosPlanos() {
+        return buscaPlanoPort.buscarTodos();
+    }
 
     @Override
     public Optional<Plano> buscarPlanoPorId(Long id) {
