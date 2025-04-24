@@ -9,12 +9,14 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.out.BuscaPlanoAssinaturaPort;
 import cv.ntinnovation.vintipay.application.port.out.SalvaPlanoAssinaturaPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class PlanoAssinaturaAdapter implements BuscaPlanoAssinaturaPort, SalvaPlanoAssinaturaPort {
@@ -33,6 +35,13 @@ public class PlanoAssinaturaAdapter implements BuscaPlanoAssinaturaPort, SalvaPl
     @Override
     public Optional<PlanoAssinatura> buscarPorStripeSubscriptionId(String stripeSubscriptionId) {
         return planoAssinaturaRepository.findByStripeSubscriptionId(stripeSubscriptionId)
+                .map(planoAssinaturaMapper::toDomain);
+    }
+    
+    @Override
+    public Optional<PlanoAssinatura> buscarPorId(Long id) {
+        log.debug("Buscando assinatura por ID: {}", id);
+        return planoAssinaturaRepository.findById(id)
                 .map(planoAssinaturaMapper::toDomain);
     }
 
@@ -54,8 +63,8 @@ public class PlanoAssinaturaAdapter implements BuscaPlanoAssinaturaPort, SalvaPl
 
     @Override
     public PlanoAssinatura salvar(PlanoAssinatura planoAssinatura) {
-        var entity = planoAssinaturaMapper.toEntity(planoAssinatura);
-        var savedEntity = planoAssinaturaRepository.save(entity);
+        var planoAssinaturaEntity = planoAssinaturaMapper.toEntity(planoAssinatura);
+        var savedEntity = planoAssinaturaRepository.save(planoAssinaturaEntity);
         return planoAssinaturaMapper.toDomain(savedEntity);
     }
 }
