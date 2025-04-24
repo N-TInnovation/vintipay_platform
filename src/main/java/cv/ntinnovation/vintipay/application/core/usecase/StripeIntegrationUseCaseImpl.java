@@ -170,17 +170,48 @@ public class StripeIntegrationUseCaseImpl implements StripeIntegrationUseCase {
                 usuario.setStripeCustomerId(customerId);
             }
 
-            SubscriptionCreateParams.Item item = SubscriptionCreateParams.Item.builder()
-                    .setPrice(priceId)
-                    .build();
+            // Verificar se o cliente tem um método de pagamento padrão
+            Customer customer = Customer.retrieve(customerId);
+            String defaultPaymentMethod = customer.getInvoiceSettings() != null ? 
+                    customer.getInvoiceSettings().getDefaultPaymentMethod() : null;
 
-            SubscriptionCreateParams params = SubscriptionCreateParams.builder()
-                    .setCustomer(customerId)
-                    .addItem(item)
-                    .build();
+            if (defaultPaymentMethod == null || defaultPaymentMethod.isEmpty()) {
+                // Se não tiver método de pagamento, criar uma sessão de checkout para coletar o método de pagamento
+                log.warn("Cliente {} não tem método de pagamento padrão. Criando uma sessão de checkout.", customerId);
+                
+                // Criar uma assinatura de teste sem cobrança real (modo de teste)
+                SubscriptionCreateParams.PaymentSettings paymentSettings = SubscriptionCreateParams.PaymentSettings.builder()
+                        .setSaveDefaultPaymentMethod(SubscriptionCreateParams.PaymentSettings.SaveDefaultPaymentMethod.ON_SUBSCRIPTION)
+                        .build();
+                
+                SubscriptionCreateParams.Item item = SubscriptionCreateParams.Item.builder()
+                        .setPrice(priceId)
+                        .build();
 
-            Subscription subscription = Subscription.create(params);
-            return subscription.getId();
+                SubscriptionCreateParams params = SubscriptionCreateParams.builder()
+                        .setCustomer(customerId)
+                        .addItem(item)
+                        .setPaymentSettings(paymentSettings)
+                        .setPaymentBehavior(SubscriptionCreateParams.PaymentBehavior.DEFAULT_INCOMPLETE)
+                        .setTrialPeriodDays(7L) // Período de teste para evitar cobrança imediata
+                        .build();
+
+                Subscription subscription = Subscription.create(params);
+                return subscription.getId();
+            } else {
+                // Se já tiver método de pagamento, criar a assinatura normalmente
+                SubscriptionCreateParams.Item item = SubscriptionCreateParams.Item.builder()
+                        .setPrice(priceId)
+                        .build();
+
+                SubscriptionCreateParams params = SubscriptionCreateParams.builder()
+                        .setCustomer(customerId)
+                        .addItem(item)
+                        .build();
+
+                Subscription subscription = Subscription.create(params);
+                return subscription.getId();
+            }
         } catch (StripeException e) {
             log.error("Erro ao criar assinatura no Stripe", e);
             throw new RuntimeException("Erro ao criar assinatura no Stripe: " + e.getMessage(), e);

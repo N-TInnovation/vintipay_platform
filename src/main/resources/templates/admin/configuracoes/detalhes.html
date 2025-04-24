@@ -1,72 +1,61 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{admin/layout/base :: html(
+        title='Detalhes da Configuração',
+        activeMenu='configuracoes',
+        pageTitle='Detalhes da Configuração',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalhes da Configuração</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .detail-label {
-            font-weight: bold;
-            color: #555;
-        }
-        .detail-value {
-            font-family: 'Courier New', monospace;
-            background-color: #f8f9fa;
-            padding: 0.5rem;
-            border-radius: 4px;
-            word-break: break-all;
-        }
-        .copy-btn {
-            cursor: pointer;
-        }
-        .card-header-tabs {
-            margin-bottom: -0.5rem;
-        }
-    </style>
+    <additionalCss>
+        <style>
+            .detail-label {
+                font-weight: bold;
+                color: #555;
+            }
+            .detail-value {
+                font-family: 'Courier New', monospace;
+                background-color: #f8f9fa;
+                padding: 0.5rem;
+                border-radius: 4px;
+                word-break: break-all;
+            }
+            .copy-btn {
+                cursor: pointer;
+            }
+            .card-header-tabs {
+                margin-bottom: -0.5rem;
+            }
+        </style>
+    </additionalCss>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Gateway de Pagamento</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+    <content>
+        <!-- Botões de ação -->
+        <div class="d-flex justify-content-end mb-4">
+            <a th:href="@{/admin/configuracoes}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+            <a th:href="@{/admin/configuracoes/{id}/editar(id=${configuracao.id})}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-edit"></i> Editar
+            </a>
+            <a th:href="@{/admin/configuracoes/{id}/testar(id=${configuracao.id})}" class="btn btn-outline-info me-2">
+                <i class="fas fa-plug"></i> Testar Conexão
+            </a>
+            <button th:if="${configuracao.ativo}" class="btn btn-outline-danger" 
+                    th:onclick="'alterarStatus(' + ${configuracao.id} + ', false)'">
+                <i class="fas fa-ban"></i> Desativar
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/pagamentos">Pagamentos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/admin/configuracoes">Configurações</a>
-                    </li>
-                </ul>
-                <form th:action="@{/logout}" method="post" class="d-flex">
-                    <button class="btn btn-outline-light" type="submit">Sair</button>
-                </form>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Detalhes da Configuração</h2>
-            <div class="d-flex gap-2">
-                <a href="/admin/configuracoes" class="btn btn-outline-secondary me-2">
-                    <i class="fas fa-arrow-left"></i> Voltar às Configurações
-                </a>
-                <a th:href="@{/admin/configuracoes/{id}(id=${configuracao.id})}" class="btn btn-info">
-                    <i class="bi bi-pencil"></i> Editar
-                </a>
-            </div>
+            <button th:unless="${configuracao.ativo}" class="btn btn-outline-success" 
+                    th:onclick="'alterarStatus(' + ${configuracao.id} + ', true)'">
+                <i class="fas fa-check"></i> Ativar
+            </button>
         </div>
 
-        <div class="card">
+        <!-- Conteúdo principal -->
+        <div class="card shadow-sm">
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -91,52 +80,44 @@
                                     <div class="detail-value" th:text="${configuracao.id}">1</div>
                                 </div>
                                 <div class="mb-3">
-                                    <div class="detail-label">POS ID</div>
-                                    <div class="detail-value" th:text="${configuracao.posId}">POS123</div>
+                                    <div class="detail-label">Nome da Loja</div>
+                                    <div class="detail-value" th:text="${configuracao.nomeLoja}">Loja Exemplo</div>
                                 </div>
                                 <div class="mb-3">
                                     <div class="detail-label">Merchant ID</div>
                                     <div class="detail-value" th:text="${configuracao.merchantId}">MERCH123</div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <div class="detail-label">Terminal ID</div>
                                     <div class="detail-value" th:text="${configuracao.terminalId}">TERM123</div>
                                 </div>
-                                <div class="mb-3">
-                                    <div class="detail-label">URL de Retorno</div>
-                                    <div class="detail-value" th:text="${configuracao.returnUrl}">https://example.com/return</div>
-                                </div>
+                            </div>
+                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <div class="detail-label">Status</div>
                                     <div>
-                                        <span th:if="${configuracao.isActive}" class="badge bg-success">Ativo</span>
-                                        <span th:unless="${configuracao.isActive}" class="badge bg-danger">Inativo</span>
+                                        <span th:if="${configuracao.ativo}" class="badge bg-success">Ativo</span>
+                                        <span th:unless="${configuracao.ativo}" class="badge bg-danger">Inativo</span>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row mb-4">
-                            <div class="col-md-6">
                                 <div class="mb-3">
-                                    <div class="detail-label">Nome da Loja/Marca</div>
-                                    <div class="detail-value" th:text="${configuracao.nomeLoja}">Loja Exemplo</div>
+                                    <div class="detail-label">Usuário</div>
+                                    <div class="detail-value">
+                                        <a th:if="${configuracao.usuario != null}" th:href="@{/admin/usuarios/{id}(id=${configuracao.usuario.id})}" th:text="${configuracao.usuario.username}">usuario@exemplo.com</a>
+                                        <span th:unless="${configuracao.usuario != null}">-</span>
+                                    </div>
                                 </div>
                                 <div class="mb-3">
-                                    <div class="detail-label">URL da Loja/Canal de Vendas</div>
-                                    <div class="detail-value" th:text="${configuracao.urlLoja}">https://exemplo.com</div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <div class="detail-label">Telefone</div>
-                                    <div class="detail-value" th:text="${configuracao.telefone ?: 'Não informado'}">+238 999 9999</div>
+                                    <div class="detail-label">URL do Serviço</div>
+                                    <div class="detail-value" th:text="${configuracao.serviceUrl}">https://api.exemplo.com</div>
                                 </div>
                                 <div class="mb-3">
-                                    <div class="detail-label">Email</div>
-                                    <div class="detail-value" th:text="${configuracao.email ?: 'Não informado'}">contato@exemplo.com</div>
+                                    <div class="detail-label">Ambiente</div>
+                                    <div class="detail-value">
+                                        <span th:if="${configuracao.ambiente == 'PRODUCAO'}" class="badge bg-danger">Produção</span>
+                                        <span th:if="${configuracao.ambiente == 'HOMOLOGACAO'}" class="badge bg-warning">Homologação</span>
+                                        <span th:if="${configuracao.ambiente == 'DESENVOLVIMENTO'}" class="badge bg-info">Desenvolvimento</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -145,7 +126,7 @@
                     <!-- Credenciais -->
                     <div class="tab-pane fade" id="credentials" role="tabpanel" aria-labelledby="credentials-tab">
                         <div class="alert alert-warning">
-                            <i class="bi bi-exclamation-triangle-fill"></i> 
+                            <i class="fas fa-exclamation-triangle me-2"></i> 
                             As informações abaixo são sensíveis. Não compartilhe com pessoas não autorizadas.
                         </div>
                         
@@ -154,48 +135,53 @@
                                 <div class="mb-3">
                                     <div class="detail-label">API Key</div>
                                     <div class="input-group">
-                                        <input type="text" class="form-control detail-value" readonly th:value="${configuracao.apiKey}" id="apiKeyInput">
-                                        <button class="btn btn-outline-secondary copy-btn" type="button" onclick="copyToClipboard('apiKeyInput', this)">
-                                            <i class="bi bi-clipboard"></i>
+                                        <input type="text" class="form-control detail-value" id="apiKey" th:value="${configuracao.apiKey}" readonly>
+                                        <button class="btn btn-outline-secondary copy-btn" type="button" onclick="copyToClipboard('apiKey', this)" title="Copiar">
+                                            <i class="fas fa-copy"></i>
                                         </button>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
+                                
                                 <div class="mb-3">
                                     <div class="detail-label">API Secret</div>
                                     <div class="input-group">
-                                        <input type="text" class="form-control detail-value" readonly value="••••••••••••••••" id="apiSecretInput">
-                                        <button class="btn btn-warning" type="button" onclick="regenerateSecret()">
-                                            <i class="bi bi-arrow-repeat"></i> Gerar Nova
+                                        <input type="password" class="form-control detail-value" id="apiSecret" th:value="${configuracao.apiSecret}" readonly>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('apiSecret')" title="Mostrar/Ocultar">
+                                            <i class="fas fa-eye" id="apiSecret-toggle-icon"></i>
                                         </button>
-                                    </div>
-                                    <small class="text-muted mt-1">
-                                        <i class="bi bi-info-circle"></i> Gerar uma nova secret invalidará a anterior.
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <div class="detail-label">POS Aut Code</div>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control detail-value" readonly th:value="${configuracao.posAutCode}" id="posAutCodeInput">
-                                        <button class="btn btn-outline-secondary copy-btn" type="button" onclick="copyToClipboard('posAutCodeInput', this)">
-                                            <i class="bi bi-clipboard"></i>
+                                        <button class="btn btn-outline-secondary copy-btn" type="button" onclick="copyToClipboard('apiSecret', this)" title="Copiar">
+                                            <i class="fas fa-copy"></i>
                                         </button>
                                     </div>
                                 </div>
+                                
+                                <div class="mb-3">
+                                    <button class="btn btn-warning" onclick="regenerateSecret()">
+                                        <i class="fas fa-sync-alt me-2"></i> Regenerar Secret
+                                    </button>
+                                </div>
                             </div>
+                            
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <div class="detail-label">Return Aut Code</div>
+                                    <div class="detail-label">Webhook URL</div>
                                     <div class="input-group">
-                                        <input type="text" class="form-control detail-value" readonly th:value="${configuracao.returnAutCode}" id="returnAutCodeInput">
-                                        <button class="btn btn-outline-secondary copy-btn" type="button" onclick="copyToClipboard('returnAutCodeInput', this)">
-                                            <i class="bi bi-clipboard"></i>
+                                        <input type="text" class="form-control detail-value" id="webhookUrl" th:value="${configuracao.webhookUrl}" readonly>
+                                        <button class="btn btn-outline-secondary copy-btn" type="button" onclick="copyToClipboard('webhookUrl', this)" title="Copiar">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="detail-label">Webhook Secret</div>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control detail-value" id="webhookSecret" th:value="${configuracao.webhookSecret}" readonly>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('webhookSecret')" title="Mostrar/Ocultar">
+                                            <i class="fas fa-eye" id="webhookSecret-toggle-icon"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary copy-btn" type="button" onclick="copyToClipboard('webhookSecret', this)" title="Copiar">
+                                            <i class="fas fa-copy"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -209,13 +195,25 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <div class="detail-label">Data de Criação</div>
-                                    <div class="detail-value" th:text="${#temporals.format(configuracao.createdAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2023 12:00:00</div>
+                                    <div class="detail-value" th:text="${#temporals.format(configuracao.dataCriacao, 'dd/MM/yyyy HH:mm')}">01/01/2025 12:00</div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="detail-label">Última Atualização</div>
+                                    <div class="detail-value" th:text="${configuracao.dataAtualizacao != null ? #temporals.format(configuracao.dataAtualizacao, 'dd/MM/yyyy HH:mm') : '-'}">15/01/2025 14:30</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <div class="detail-label">Última Atualização</div>
-                                    <div class="detail-value" th:text="${#temporals.format(configuracao.updatedAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2023 12:00:00</div>
+                                    <div class="detail-label">Último Teste de Conexão</div>
+                                    <div class="detail-value" th:text="${configuracao.ultimoTeste != null ? #temporals.format(configuracao.ultimoTeste, 'dd/MM/yyyy HH:mm') : 'Nunca testado'}">-</div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="detail-label">Status do Último Teste</div>
+                                    <div>
+                                        <span th:if="${configuracao.statusUltimoTeste == 'SUCESSO'}" class="badge bg-success">Sucesso</span>
+                                        <span th:if="${configuracao.statusUltimoTeste == 'FALHA'}" class="badge bg-danger">Falha</span>
+                                        <span th:if="${configuracao.statusUltimoTeste == null}" class="badge bg-secondary">Não testado</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -223,104 +221,92 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script th:inline="javascript">
-        const configId = [[${configuracao.id}]];
-        
-        function copyToClipboard(inputId, button) {
-            const input = document.getElementById(inputId);
-            input.select();
-            document.execCommand('copy');
+    </content>
+    
+    <additionalJs>
+        <script th:inline="javascript">
+            function copyToClipboard(inputId, button) {
+                const input = document.getElementById(inputId);
+                input.select();
+                document.execCommand('copy');
+                
+                // Mudar ícone temporariamente
+                const icon = button.querySelector('i');
+                icon.classList.remove('fa-copy');
+                icon.classList.add('fa-check');
+                
+                setTimeout(() => {
+                    icon.classList.remove('fa-check');
+                    icon.classList.add('fa-copy');
+                }, 2000);
+            }
             
-            const originalHtml = button.innerHTML;
-            button.innerHTML = '<i class="bi bi-check"></i>';
+            function togglePasswordVisibility(inputId) {
+                const input = document.getElementById(inputId);
+                const icon = document.getElementById(inputId + '-toggle-icon');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
             
-            setTimeout(() => {
-                button.innerHTML = originalHtml;
-            }, 1500);
-        }
-        
-        function regenerateSecret() {
-            Swal.fire({
-                title: 'Gerar nova API Secret?',
-                text: 'Atenção: Esta ação irá invalidar a API Secret atual. Todos os sistemas que utilizam esta credencial precisarão ser atualizados. Deseja continuar?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sim, gerar nova secret',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Gerando nova secret...',
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                    
-                    fetch(`/admin/configuracoes/${configId}/regenerate-secret`, {
+            function alterarStatus(id, ativo) {
+                const acao = ativo ? 'ativar' : 'desativar';
+                const mensagem = ativo ? 'Tem certeza que deseja ativar esta configuração?' : 'Tem certeza que deseja desativar esta configuração?';
+                
+                if (confirm(mensagem)) {
+                    fetch(`/admin/configuracoes/${id}/${acao}`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').getAttribute('content')
                         }
                     })
                     .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Erro ao gerar nova API Secret');
-                        }
-                        return response.json();
-                    })
-                    .then(result => {
-                        if (result.success) {
-                            Swal.fire({
-                                title: 'Nova API Secret gerada!',
-                                html: `
-                                    <p>Sua nova API Secret foi gerada com sucesso. Guarde-a em um local seguro:</p>
-                                    <div class="input-group mb-3">
-                                        <input type="text" class="form-control" value="${result.apiSecret}" id="newSecretInput" readonly>
-                                        <button class="btn btn-outline-secondary" type="button" onclick="copyNewSecret()">
-                                            <i class="bi bi-clipboard"></i>
-                                        </button>
-                                    </div>
-                                    <p class="text-danger">Importante: Esta é a única vez que você verá esta secret!</p>
-                                `,
-                                icon: 'success',
-                                confirmButtonText: 'OK'
-                            });
-                            
-                            // Adicionar função para copiar a nova secret
-                            window.copyNewSecret = function() {
-                                const input = document.getElementById('newSecretInput');
-                                input.select();
-                                document.execCommand('copy');
-                                
-                                const button = document.querySelector('#newSecretInput + button');
-                                const originalHtml = button.innerHTML;
-                                button.innerHTML = '<i class="bi bi-check"></i>';
-                                
-                                setTimeout(() => {
-                                    button.innerHTML = originalHtml;
-                                }, 1500);
-                            };
+                        if (response.ok) {
+                            window.location.reload();
                         } else {
-                            throw new Error(result.message || 'Erro ao gerar nova API Secret');
+                            throw new Error('Erro ao alterar status');
                         }
                     })
                     .catch(error => {
-                        Swal.fire({
-                            title: 'Erro!',
-                            text: error.message,
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
+                        alert('Ocorreu um erro ao alterar o status da configuração: ' + error.message);
                     });
                 }
-            });
-        }
-    </script>
+            }
+            
+            function regenerateSecret() {
+                if (confirm('Tem certeza que deseja regenerar o API Secret? Esta ação não pode ser desfeita e invalidará todas as requisições atuais.')) {
+                    fetch(`/admin/configuracoes/${[[${configuracao.id}]]}/regenerar-secret`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('Erro ao regenerar secret');
+                        }
+                    })
+                    .then(data => {
+                        document.getElementById('apiSecret').value = data.apiSecret;
+                        alert('API Secret regenerado com sucesso!');
+                    })
+                    .catch(error => {
+                        alert('Ocorreu um erro ao regenerar o API Secret: ' + error.message);
+                    });
+                }
+            }
+        </script>
+    </additionalJs>
 </body>
 </html>

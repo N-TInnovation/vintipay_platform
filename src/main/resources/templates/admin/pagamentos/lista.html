@@ -1,133 +1,139 @@
 <!DOCTYPE html>
-<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{admin/layout/base :: html(
+        title='Pagamentos',
+        activeMenu='pagamentos',
+        pageTitle='Gerenciamento de Pagamentos',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administração - Lista de Pagamentos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .status-badge {
-            width: 100px;
-        }
-        .table-actions {
-            width: 100px;
-        }
-        .status-PENDENTE {
-            background-color: #ffc107;
-        }
-        .status-PAGO {
-            background-color: #198754;
-            color: white;
-        }
-        .status-CANCELADO {
-            background-color: #dc3545;
-            color: white;
-        }
-        .status-ERRO {
-            background-color: #6c757d;
-            color: white;
-        }
-        .pan-mascarado {
-            font-family: monospace;
-        }
-    </style>
+    <additionalCss>
+        <style>
+            .status-badge {
+                width: 100px;
+            }
+            .table-actions {
+                width: 100px;
+            }
+            .status-PENDENTE {
+                background-color: #ffc107;
+            }
+            .status-PAGO {
+                background-color: #198754;
+                color: white;
+            }
+            .status-CANCELADO {
+                background-color: #dc3545;
+                color: white;
+            }
+            .status-ERRO {
+                background-color: #6c757d;
+                color: white;
+            }
+            .pan-mascarado {
+                font-family: monospace;
+            }
+        </style>
+    </additionalCss>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Gateway de Pagamento</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/admin/pagamentos">Pagamentos</a>
-                    </li>
-                </ul>
-                <form th:action="@{/logout}" method="post" class="d-flex">
-                    <button class="btn btn-outline-light" type="submit">Sair</button>
-                </form>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
+    <content>
+        <!-- Filtros e Botões -->
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Lista de Pagamentos</h1>
-            <div class="d-flex gap-2">
-                <a href="/admin" class="btn btn-outline-secondary me-2">
-                    <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
-                </a>
-                <form th:action="@{/admin/pagamentos}" method="get" class="d-flex gap-2">
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="reference" th:value="${reference}"
-                               placeholder="Buscar por referência...">
-                        <button class="btn btn-outline-secondary" type="submit">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                    <select class="form-select" style="width: auto;" name="status" onchange="this.form.submit()">
-                        <option value="">Todos os Status</option>
-                        <option value="PENDENTE" th:selected="${statusSelecionado == 'PENDENTE'}">Pendente</option>
-                        <option value="PAGO" th:selected="${statusSelecionado == 'PAGO'}">Pago</option>
-                        <option value="CANCELADO" th:selected="${statusSelecionado == 'CANCELADO'}">Cancelado</option>
-                        <option value="ERRO" th:selected="${statusSelecionado == 'ERRO'}">Erro</option>
+            <div>
+                <form class="d-flex gap-2" method="get" th:action="@{/admin/pagamentos}">
+                    <select class="form-select" name="status" onchange="this.form.submit()">
+                        <option value="" th:selected="${param.status == null}">Todos os Status</option>
+                        <option value="PENDENTE" th:selected="${param.status != null && param.status[0] == 'PENDENTE'}">Pendentes</option>
+                        <option value="PAGO" th:selected="${param.status != null && param.status[0] == 'PAGO'}">Pagos</option>
+                        <option value="CANCELADO" th:selected="${param.status != null && param.status[0] == 'CANCELADO'}">Cancelados</option>
+                        <option value="ERRO" th:selected="${param.status != null && param.status[0] == 'ERRO'}">Com Erro</option>
                     </select>
+                    <input type="text" class="form-control" placeholder="Buscar por referência" name="referencia" th:value="${param.referencia != null ? param.referencia[0] : ''}">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Filtrar
+                    </button>
                 </form>
             </div>
+            <div>
+                <a th:href="@{/admin/pagamentos/exportar}" class="btn btn-outline-secondary">
+                    <i class="fas fa-file-export me-2"></i> Exportar
+                </a>
+            </div>
+        </div>
+        
+        <!-- Alerts -->
+        <div th:if="${mensagem}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> <span th:text="${mensagem}">Operação realizada com sucesso!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        
+        <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${erro}">Ocorreu um erro!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        <div class="card">
+        <!-- Tabela de Pagamentos -->
+        <div class="card shadow-sm">
             <div class="card-body p-0">
-                <div class="table-responsive">
+                <div th:if="${#lists.isEmpty(pagamentos)}" class="text-center py-5">
+                    <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
+                    <h5>Nenhum pagamento encontrado</h5>
+                    <p class="text-muted">Não há pagamentos que correspondam aos critérios de busca.</p>
+                </div>
+                
+                <div th:if="${not #lists.isEmpty(pagamentos)}" class="table-responsive">
                     <table class="table table-striped table-hover mb-0">
                         <thead>
                             <tr>
+                                <th>ID</th>
                                 <th>Referência</th>
-                                <th>Data/Hora</th>
+                                <th>Usuário</th>
                                 <th>Valor</th>
+                                <th>Data</th>
+                                <th>Método</th>
                                 <th>Status</th>
-                                <th>PAN</th>
                                 <th class="table-actions">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="pagamento : ${pagamentos}">
+                                <td th:text="${pagamento.id}">1</td>
+                                <td th:text="${pagamento.referencia}">REF123456</td>
                                 <td>
-                                    <span th:text="${pagamento.reference}">REF123</span>
-                                    <small class="d-block text-muted" th:text="${pagamento.fingerprint}">fp123</small>
+                                    <a th:if="${pagamento.usuario != null}" th:href="@{/admin/usuarios/{id}(id=${pagamento.usuario.id})}" th:text="${pagamento.usuario.username}">usuario@exemplo.com</a>
+                                    <span th:unless="${pagamento.usuario != null}">-</span>
+                                </td>
+                                <td th:text="${#numbers.formatCurrency(pagamento.valor)}">R$ 99,90</td>
+                                <td th:text="${#temporals.format(pagamento.dataPagamento, 'dd/MM/yyyy HH:mm')}">01/01/2025 12:30</td>
+                                <td>
+                                    <span th:if="${pagamento.metodoPagamento == 'CARTAO'}" title="Cartão">
+                                        <i class="fas fa-credit-card me-1"></i>
+                                        <span th:if="${pagamento.panMascarado != null}" class="pan-mascarado" th:text="${pagamento.panMascarado}">**** 1234</span>
+                                    </span>
+                                    <span th:if="${pagamento.metodoPagamento == 'BOLETO'}" title="Boleto">
+                                        <i class="fas fa-file-invoice-dollar me-1"></i> Boleto
+                                    </span>
+                                    <span th:if="${pagamento.metodoPagamento == 'PIX'}" title="PIX">
+                                        <i class="fas fa-qrcode me-1"></i> PIX
+                                    </span>
                                 </td>
                                 <td>
-                                    <span th:text="${#temporals.format(pagamento.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2025 10:00</span>
-                                    <small class="d-block text-muted" th:text="${pagamento.timestamp}">2025-01-01 10:00:00</small>
+                                    <span th:class="'badge status-badge status-' + ${pagamento.status}" th:text="${pagamento.status}">PENDENTE</span>
                                 </td>
                                 <td>
-                                    <span th:if="${pagamento.intencaoPagamento != null}" 
-                                          th:text="${#numbers.formatDecimal(pagamento.intencaoPagamento.amount, 1, 2)} + ' ' + ${pagamento.intencaoPagamento.currency}">1000.00 CVE</span>
-                                    <span th:unless="${pagamento.intencaoPagamento != null}">-</span>
-                                </td>
-                                <td>
-                                    <span th:class="'badge status-' + ${pagamento.status}" 
-                                          th:text="${pagamento.status}"
-                                          class="badge status-badge">PENDENTE</span>
-                                    <small th:if="${pagamento.mensagem}" class="d-block text-muted" th:text="${pagamento.mensagem}">Mensagem</small>
-                                </td>
-                                <td class="pan-mascarado" th:text="${pagamento.panMascarado ?: '-'}">****1234</td>
-                                <td class="table-actions">
                                     <div class="btn-group">
-                                        <a th:href="@{/admin/pagamentos/{reference}(reference=${pagamento.reference})}" 
-                                           class="btn btn-sm btn-outline-primary" 
-                                           title="Ver detalhes">
+                                        <a th:href="@{/admin/pagamentos/{id}(id=${pagamento.id})}" class="btn btn-sm btn-outline-primary" title="Detalhes" data-bs-toggle="tooltip">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <button class="btn btn-sm btn-outline-secondary" title="Histórico">
-                                            <i class="fas fa-history"></i>
-                                        </button>
+                                        <a th:if="${pagamento.status == 'PENDENTE'}" th:href="@{/admin/pagamentos/{id}/confirmar(id=${pagamento.id})}" class="btn btn-sm btn-outline-success" title="Confirmar" data-bs-toggle="tooltip" onclick="return confirm('Tem certeza que deseja confirmar este pagamento?');">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                        <a th:if="${pagamento.status == 'PENDENTE'}" th:href="@{/admin/pagamentos/{id}/cancelar(id=${pagamento.id})}" class="btn btn-sm btn-outline-danger" title="Cancelar" data-bs-toggle="tooltip" onclick="return confirm('Tem certeza que deseja cancelar este pagamento?');">
+                                            <i class="fas fa-times"></i>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
@@ -136,34 +142,31 @@
                 </div>
             </div>
         </div>
-
+        
         <!-- Paginação -->
-        <nav th:if="${page.totalPages > 1}" class="mt-4">
-            <ul class="pagination justify-content-center">
-                <li class="page-item" th:classappend="${!page.hasPrevious()} ? disabled">
-                    <a class="page-link" 
-                       th:href="@{/admin/pagamentos(page=${page.number - 1}, reference=${reference}, status=${statusSelecionado})}" 
-                       aria-label="Anterior">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                <li class="page-item" th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
-                    th:classappend="${page.number == i} ? active">
-                    <a class="page-link" 
-                       th:href="@{/admin/pagamentos(page=${i}, reference=${reference}, status=${statusSelecionado})}"
-                       th:text="${i + 1}">1</a>
-                </li>
-                <li class="page-item" th:classappend="${!page.hasNext()} ? disabled">
-                    <a class="page-link" 
-                       th:href="@{/admin/pagamentos(page=${page.number + 1}, reference=${reference}, status=${statusSelecionado})}"
-                       aria-label="Próximo">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <div th:if="${paginas > 1}" class="d-flex justify-content-center mt-4">
+            <nav aria-label="Navegação de páginas">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${pagina == 1 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/admin/pagamentos(pagina=${pagina - 1}, status=${param.status}, referencia=${param.referencia})}" aria-label="Anterior">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" th:each="p : ${#numbers.sequence(1, paginas)}" th:classappend="${p == pagina ? 'active' : ''}">
+                        <a class="page-link" th:href="@{/admin/pagamentos(pagina=${p}, status=${param.status}, referencia=${param.referencia})}" th:text="${p}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${pagina == paginas ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/admin/pagamentos(pagina=${pagina + 1}, status=${param.status}, referencia=${param.referencia})}" aria-label="Próximo">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- Adicione JavaScript específico da página aqui, se necessário -->
+    </additionalJs>
 </body>
 </html>

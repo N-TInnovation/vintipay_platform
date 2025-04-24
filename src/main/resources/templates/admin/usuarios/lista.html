@@ -1,105 +1,112 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{admin/layout/base :: html(
+        title='Usuários',
+        activeMenu='usuarios',
+        pageTitle='Gerenciamento de Usuários',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciar Usuários - VintiPay</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <additionalCss>
+        <!-- Adicione CSS específico da página aqui, se necessário -->
+    </additionalCss>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link text-white" th:href="@{/admin}">
-                                <i class="bi bi-speedometer2 me-2"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" th:href="@{/admin/planos}">
-                                <i class="bi bi-card-list me-2"></i> Planos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active text-white" th:href="@{/admin/usuarios}">
-                                <i class="bi bi-people me-2"></i> Usuários
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" th:href="@{/admin/assinaturas}">
-                                <i class="bi bi-credit-card me-2"></i> Assinaturas
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-            
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Gerenciar Usuários</h1>
+    <content>
+        <!-- Botão de adicionar usuário -->
+        <div class="d-flex justify-content-end mb-4">
+            <a th:href="@{/admin/usuarios/novo}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i> Novo Usuário
+            </a>
+        </div>
+        
+        <!-- Tabela de Usuários -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(usuarios)}" class="text-center py-5">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h5>Nenhum usuário encontrado</h5>
+                    <p class="text-muted">Não há usuários cadastrados no sistema.</p>
                 </div>
                 
-                <div th:if="${param.sucesso}" class="alert alert-success" role="alert" th:text="${param.sucesso}"></div>
-                <div th:if="${param.erro}" class="alert alert-danger" role="alert" th:text="${param.erro}"></div>
-                
-                <div class="table-responsive">
+                <div th:if="${not #lists.isEmpty(usuarios)}" class="table-responsive">
                     <table class="table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Username</th>
                                 <th>Nome</th>
                                 <th>Email</th>
+                                <th>Perfil</th>
                                 <th>Status</th>
+                                <th>Assinatura</th>
                                 <th>Data de Registro</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="usuario : ${usuarios}">
-                                <td th:text="${usuario.id}"></td>
-                                <td th:text="${usuario.username}"></td>
-                                <td th:text="${usuario.nome != null ? usuario.nome : '-'}"></td>
-                                <td th:text="${usuario.email != null ? usuario.email : '-'}"></td>
+                                <td th:text="${usuario.id}">1</td>
+                                <td th:text="${usuario.nome != null ? usuario.nome : '-'}">João Silva</td>
+                                <td th:text="${usuario.username}">joao@exemplo.com</td>
+                                <td>
+                                    <span th:each="role : ${usuario.role}" class="badge me-1" th:classappend="${role == 'ADMIN' ? 'bg-danger' : (role == 'USER' ? 'bg-primary' : 'bg-secondary')}">
+                                        <span th:text="${role == 'ADMIN' ? 'Admin' : (role == 'USER' ? 'Usuário' : role)}">Perfil</span>
+                                    </span>
+                                </td>
                                 <td>
                                     <span th:if="${usuario.ativo}" class="badge bg-success">Ativo</span>
                                     <span th:unless="${usuario.ativo}" class="badge bg-danger">Inativo</span>
                                 </td>
-                                <td th:text="${usuario.dataRegistro != null ? #temporals.format(usuario.dataRegistro, 'dd/MM/yyyy HH:mm') : '-'}"></td>
                                 <td>
-                                    <div class="btn-group">
-                                        <a th:href="@{'/admin/usuarios/' + ${usuario.id}}" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <form th:if="${usuario.ativo}" th:action="@{'/admin/usuarios/' + ${usuario.id} + '/desativar'}" method="post" style="display: inline;">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja desativar este usuário?')">
-                                                <i class="bi bi-x-circle"></i>
-                                            </button>
-                                        </form>
-                                        <form th:unless="${usuario.ativo}" th:action="@{'/admin/usuarios/' + ${usuario.id} + '/ativar'}" method="post" style="display: inline;">
-                                            <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('Tem certeza que deseja ativar este usuário?')">
-                                                <i class="bi bi-check-circle"></i>
-                                            </button>
-                                        </form>
+                                    <div th:with="assinatura=${assinaturasMap.get(usuario.id).orElse(null)}">
+                                        <div th:if="${assinatura != null}">
+                                            <span class="badge" th:classappend="${assinatura.status.name() == 'ATIVA' ? 'bg-success' : (assinatura.status.name() == 'TRIAL' ? 'bg-info' : (assinatura.status.name() == 'CANCELADA' ? 'bg-danger' : 'bg-secondary'))}" 
+                                                  th:text="${assinatura.status.name() == 'ATIVA' ? 'Ativa' : (assinatura.status.name() == 'TRIAL' ? 'Trial' : (assinatura.status.name() == 'CANCELADA' ? 'Cancelada' : assinatura.status.name()))}">
+                                                Status
+                                            </span>
+                                            <small class="d-block text-muted" th:text="${assinatura.plano.nome}">Plano</small>
+                                        </div>
+                                        <div th:if="${assinatura == null}">
+                                            <a th:href="@{/admin/assinaturas/nova?usuario={id}(id=${usuario.id})}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-plus-circle"></i> Adicionar
+                                            </a>
+                                        </div>
                                     </div>
                                 </td>
-                            </tr>
-                            <tr th:if="${#lists.isEmpty(usuarios)}">
-                                <td colspan="7" class="text-center">Nenhum usuário cadastrado</td>
+                                <td th:text="${usuario.dataRegistro != null ? #temporals.format(usuario.dataRegistro, 'dd/MM/yyyy') : '-'}">01/01/2025</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a th:href="@{/admin/usuarios/{id}(id=${usuario.id})}" class="btn btn-sm btn-outline-primary" title="Detalhes" data-bs-toggle="tooltip">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a th:href="@{/admin/usuarios/{id}/editar(id=${usuario.id})}" class="btn btn-sm btn-outline-secondary" title="Editar" data-bs-toggle="tooltip">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button th:if="${usuario.ativo}" class="btn btn-sm btn-outline-danger" title="Desativar" data-bs-toggle="tooltip"
+                                                th:onclick="'confirmAction(\'Tem certeza que deseja desativar este usuário?\', function() { document.getElementById(\'form-desativar-' + ${usuario.id} + '\').submit(); }, \'Confirmação\');'">
+                                            <i class="fas fa-user-slash"></i>
+                                        </button>
+                                        <form th:if="${usuario.ativo}" th:id="'form-desativar-' + ${usuario.id}" th:action="@{/admin/usuarios/{id}/desativar(id=${usuario.id})}" method="post" style="display: none;"></form>
+                                        
+                                        <button th:unless="${usuario.ativo}" class="btn btn-sm btn-outline-success" title="Ativar" data-bs-toggle="tooltip"
+                                                th:onclick="'confirmAction(\'Tem certeza que deseja ativar este usuário?\', function() { document.getElementById(\'form-ativar-' + ${usuario.id} + '\').submit(); }, \'Confirmação\');'">
+                                            <i class="fas fa-user-check"></i>
+                                        </button>
+                                        <form th:unless="${usuario.ativo}" th:id="'form-ativar-' + ${usuario.id}" th:action="@{/admin/usuarios/{id}/ativar(id=${usuario.id})}" method="post" style="display: none;"></form>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-            </main>
+            </div>
         </div>
-    </div>
+    </content>
     
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <additionalJs>
+        <!-- Adicione JavaScript específico da página aqui, se necessário -->
+    </additionalJs>
 </body>
 </html>

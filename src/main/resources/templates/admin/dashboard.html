@@ -1,154 +1,205 @@
 <!DOCTYPE html>
-<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{admin/layout/base :: html(
+        title='Dashboard',
+        activeMenu='dashboard',
+        pageTitle='Dashboard',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Gateway de Pagamento</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .stat-card {
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            color: white;
-            min-height: 120px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .stat-card.total { background-color: #0d6efd; }
-        .stat-card.confirmados { background-color: #198754; }
-        .stat-card.pendentes { 
-            background-color: #ffc107; 
-            color: #000; /* Texto preto para o card amarelo */
-        }
-        .stat-card.cancelados { background-color: #dc3545; }
-        
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* Sombra suave para melhor legibilidade */
-        }
-        .stat-label {
-            font-size: 0.9rem;
-            font-weight: 500; /* Aumentado peso da fonte */
-            opacity: 1; /* Removida opacidade */
-        }
-        .stat-icon {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-        .quick-actions {
-            margin-top: 2rem;
-        }
-        .action-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: #333;
-            display: flex;
-            align-items: center;
-            border: 1px solid #e9ecef;
-        }
-        .action-card:hover {
-            transform: translateX(5px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .action-icon {
-            font-size: 1.5rem;
-            margin-right: 1rem;
-            width: 40px;
-            text-align: center;
-        }
-    </style>
+    <additionalCss>
+        <!-- Adicione CSS específico da página aqui, se necessário -->
+    </additionalCss>
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Gateway de Pagamento</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/admin">Dashboard</a>
-                    </li>
-                </ul>
-                <form th:action="@{/logout}" method="post" class="d-flex">
-                    <button class="btn btn-outline-light" type="submit">Sair</button>
-                </form>
+<body>
+    <content>
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card stats-card-primary">
+                    <div class="stats-card-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stats-card-content">
+                        <h3 th:text="${totalPagamentos ?: 0}">0</h3>
+                        <p>Total de Pagamentos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card stats-card-success">
+                    <div class="stats-card-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stats-card-content">
+                        <h3 th:text="${pagamentosConfirmados ?: 0}">0</h3>
+                        <p>Pagamentos Confirmados</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card stats-card-warning">
+                    <div class="stats-card-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stats-card-content">
+                        <h3 th:text="${pagamentosPendentes ?: 0}">0</h3>
+                        <p>Pagamentos Pendentes</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card stats-card-danger">
+                    <div class="stats-card-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stats-card-content">
+                        <h3 th:text="${pagamentosCancelados ?: 0}">0</h3>
+                        <p>Pagamentos Cancelados</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </nav>
-
-    <div class="container py-4 mt-4">
-        <h2 class="mb-4">Dashboard</h2>
         
-        <!-- Statistics -->
-        <div class="row g-3">
-            <div class="col-md-3">
-                <div class="stat-card total">
-                    <i class="fas fa-money-bill-wave stat-icon"></i>
-                    <div class="stat-value" th:text="${totalPagamentos ?: 2}">2</div>
-                    <div class="stat-label">Total de Pagamentos</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card confirmados">
-                    <i class="fas fa-check-circle stat-icon"></i>
-                    <div class="stat-value" th:text="${pagamentosPagos ?: 0}">0</div>
-                    <div class="stat-label">Pagamentos Confirmados</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card pendentes">
-                    <i class="fas fa-clock stat-icon"></i>
-                    <div class="stat-value" th:text="${pagamentosPendentes ?: 1}">1</div>
-                    <div class="stat-label">Pagamentos Pendentes</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card cancelados">
-                    <i class="fas fa-times-circle stat-icon"></i>
-                    <div class="stat-value" th:text="${pagamentosCancelados ?: 1}">1</div>
-                    <div class="stat-label">Pagamentos Cancelados</div>
-                </div>
-            </div>
-        </div>
-
         <!-- Quick Actions -->
-        <div class="quick-actions">
-            <h4 class="mb-4">Ações Rápidas</h4>
-            <div class="row">
-                <div class="col-md-6">
-                    <a href="/admin/pagamentos" class="action-card">
-                        <i class="fas fa-list action-icon"></i>
-                        <div>
-                            <h5 class="mb-1">Lista de Pagamentos</h5>
-                            <p class="mb-0 text-muted">Visualize e gerencie todos os pagamentos</p>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Ações Rápidas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <a th:href="@{/admin/pagamentos}" class="btn btn-outline-primary w-100 p-3">
+                                    <i class="fas fa-money-bill-wave mb-2 fa-2x"></i>
+                                    <div>Gerenciar Pagamentos</div>
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a th:href="@{/admin/usuarios}" class="btn btn-outline-primary w-100 p-3">
+                                    <i class="fas fa-users mb-2 fa-2x"></i>
+                                    <div>Gerenciar Usuários</div>
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a th:href="@{/admin/planos}" class="btn btn-outline-primary w-100 p-3">
+                                    <i class="fas fa-tags mb-2 fa-2x"></i>
+                                    <div>Gerenciar Planos</div>
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a th:href="@{/admin/configuracoes}" class="btn btn-outline-primary w-100 p-3">
+                                    <i class="fas fa-cog mb-2 fa-2x"></i>
+                                    <div>Configurações</div>
+                                </a>
+                            </div>
                         </div>
-                    </a>
-                </div>
-                <div class="col-md-6">
-                    <a href="/admin/configuracoes" class="action-card">
-                        <i class="fas fa-cog action-icon"></i>
-                        <div>
-                            <h5 class="mb-1">Configurações</h5>
-                            <p class="mb-0 text-muted">Configure parâmetros do gateway</p>
-                        </div>
-                    </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        
+        <!-- Recent Transactions -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Transações Recentes</h5>
+                        <a th:href="@{/admin/pagamentos}" class="btn btn-sm btn-primary">Ver Todos</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Cliente</th>
+                                        <th>Valor</th>
+                                        <th>Data</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${#lists.isEmpty(transacoesRecentes)}">
+                                        <td colspan="5" class="text-center py-4">Nenhuma transação recente encontrada</td>
+                                    </tr>
+                                    <tr th:each="transacao : ${transacoesRecentes}">
+                                        <td th:text="${transacao.id}">1</td>
+                                        <td th:text="${transacao.cliente}">João Silva</td>
+                                        <td th:text="${#numbers.formatCurrency(transacao.valor)}">R$ 100,00</td>
+                                        <td th:text="${#temporals.format(transacao.data, 'dd/MM/yyyy HH:mm')}">01/01/2025 12:00</td>
+                                        <td>
+                                            <span th:if="${transacao.status == 'CONFIRMADO'}" class="badge bg-success">Confirmado</span>
+                                            <span th:if="${transacao.status == 'PENDENTE'}" class="badge bg-warning">Pendente</span>
+                                            <span th:if="${transacao.status == 'CANCELADO'}" class="badge bg-danger">Cancelado</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <!-- New Users -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Novos Usuários</h5>
+                        <a th:href="@{/admin/usuarios}" class="btn btn-sm btn-primary">Ver Todos</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <li th:if="${#lists.isEmpty(novosUsuarios)}" class="list-group-item text-center py-4">
+                                Nenhum novo usuário encontrado
+                            </li>
+                            <li th:each="usuario : ${novosUsuarios}" class="list-group-item d-flex align-items-center">
+                                <img th:src="@{'https://ui-avatars.com/api/?name=' + ${usuario.nome} + '&background=2563eb&color=fff'}" 
+                                     alt="Avatar" class="rounded-circle me-3" style="width: 40px; height: 40px;">
+                                <div>
+                                    <h6 class="mb-0" th:text="${usuario.nome}">João Silva</h6>
+                                    <small class="text-muted" th:text="${usuario.email}">joao@exemplo.com</small>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- System Info -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Informações do Sistema</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Versão</span>
+                                <span class="badge bg-primary">1.0.0</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Ambiente</span>
+                                <span class="badge bg-info" th:text="${ambiente ?: 'Produção'}">Produção</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Status do Servidor</span>
+                                <span class="badge bg-success">Online</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Último Backup</span>
+                                <span th:text="${ultimoBackup ?: 'Nunca'}">01/01/2025</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- Adicione JavaScript específico da página aqui, se necessário -->
+    </additionalJs>
 </body>
 </html>

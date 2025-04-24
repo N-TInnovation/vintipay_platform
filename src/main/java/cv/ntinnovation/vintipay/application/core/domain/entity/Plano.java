@@ -38,5 +38,14 @@ public class Plano {
         public Period getPeriodo() {
             return periodo;
         }
+        
+        public String getDescricao() {
+            return switch (this) {
+                case MENSAL -> "Mensal";
+                case TRIMESTRAL -> "Trimestral";
+                case SEMESTRAL -> "Semestral";
+                case ANUAL -> "Anual";
+            };
+        }
     }
 }

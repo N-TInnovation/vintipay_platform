@@ -54,12 +54,20 @@ public class PlanoController {
                     request.getDescricao(),
                     request.getPreco(),
                     request.getPeriodoCobranca(),
-                    request.getDiasTrial()
+                    request.getDiasTrial(),
+                    request.getStripePriceId(),
+                    request.isAtivo()
             );
-            return "redirect:/admin/planos?sucesso";
+            return "redirect:/admin/planos?sucesso=Plano+criado+com+sucesso";
+        } catch (IllegalArgumentException e) {
+            // Erro de validação (como nome duplicado)
+            log.warn("Erro de validação ao criar plano: {}", e.getMessage());
+            model.addAttribute("mensagemErro", e.getMessage());
+            model.addAttribute("periodosCobranca", Plano.PeriodoCobranca.values());
+            return "admin/planos/form";
         } catch (Exception e) {
             log.error("Erro ao criar plano", e);
-            model.addAttribute("erro", "Erro ao criar plano: " + e.getMessage());
+            model.addAttribute("mensagemErro", "Erro ao criar plano: " + e.getMessage());
             model.addAttribute("periodosCobranca", Plano.PeriodoCobranca.values());
             return "admin/planos/form";
         }
@@ -68,23 +76,36 @@ public class PlanoController {
     @GetMapping("/editar/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public String exibirFormularioEditarPlano(@PathVariable Long id, Model model) {
-        Optional<Plano> planoOptional = gerenciaPlanoUseCase.buscarPlanoPorId(id);
-        if (planoOptional.isEmpty()) {
-            return "redirect:/admin/planos?erro=Plano+não+encontrado";
+        try {
+            log.info("Exibindo formulário de edição para o plano ID: {}", id);
+            Optional<Plano> planoOptional = gerenciaPlanoUseCase.buscarPlanoPorId(id);
+            if (planoOptional.isEmpty()) {
+                log.warn("Plano não encontrado com ID: {}", id);
+                return "redirect:/admin/planos?erro=Plano+não+encontrado";
+            }
+
+            Plano plano = planoOptional.get();
+            log.info("Plano encontrado: {}", plano);
+            
+            PlanoRequest request = new PlanoRequest();
+            request.setNome(plano.getNome());
+            request.setDescricao(plano.getDescricao());
+            request.setPreco(plano.getPreco());
+            request.setPeriodoCobranca(plano.getPeriodoCobranca());
+            request.setDiasTrial(plano.getDiasTrial());
+            request.setStripePriceId(plano.getStripePriceId());
+            request.setAtivo(plano.isAtivo());
+
+            model.addAttribute("planoRequest", request);
+            model.addAttribute("planoId", id);
+            model.addAttribute("periodosCobranca", Plano.PeriodoCobranca.values());
+            
+            log.info("Formulário de edição preparado com sucesso para o plano ID: {}", id);
+            return "admin/planos/form";
+        } catch (Exception e) {
+            log.error("Erro ao exibir formulário de edição para o plano ID: {}", id, e);
+            return "redirect:/admin/planos?erro=" + e.getMessage();
         }
-
-        Plano plano = planoOptional.get();
-        PlanoRequest request = new PlanoRequest();
-        request.setNome(plano.getNome());
-        request.setDescricao(plano.getDescricao());
-        request.setPreco(plano.getPreco());
-        request.setPeriodoCobranca(plano.getPeriodoCobranca());
-        request.setDiasTrial(plano.getDiasTrial());
-
-        model.addAttribute("planoRequest", request);
-        model.addAttribute("planoId", id);
-        model.addAttribute("periodosCobranca", Plano.PeriodoCobranca.values());
-        return "admin/planos/form";
     }
 
     @PostMapping("/editar/{id}")
@@ -105,36 +126,78 @@ public class PlanoController {
                     request.getDescricao(),
                     request.getPreco(),
                     request.getPeriodoCobranca(),
-                    request.getDiasTrial()
+                    request.getDiasTrial(),
+                    request.getStripePriceId(),
+                    request.isAtivo()
             );
-            return "redirect:/admin/planos?sucesso";
+            model.addAttribute("mensagemSucesso", "Plano atualizado com sucesso!");
+            model.addAttribute("planoId", id);
+            model.addAttribute("periodosCobranca", Plano.PeriodoCobranca.values());
+            return "admin/planos/form";
+        } catch (IllegalArgumentException e) {
+            // Erro de validação (como nome duplicado)
+            log.warn("Erro de validação ao atualizar plano: {}", e.getMessage());
+            model.addAttribute("mensagemErro", e.getMessage());
+            model.addAttribute("planoId", id);
+            model.addAttribute("periodosCobranca", Plano.PeriodoCobranca.values());
+            return "admin/planos/form";
         } catch (Exception e) {
             log.error("Erro ao atualizar plano", e);
-            model.addAttribute("erro", "Erro ao atualizar plano: " + e.getMessage());
+            model.addAttribute("mensagemErro", "Erro ao atualizar plano: " + e.getMessage());
             model.addAttribute("planoId", id);
             model.addAttribute("periodosCobranca", Plano.PeriodoCobranca.values());
             return "admin/planos/form";
         }
     }
 
-    @PostMapping("/ativar/{id}")
+    @GetMapping("/ativar/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public String ativarPlano(@PathVariable Long id) {
         try {
-            gerenciaPlanoUseCase.ativarPlano(id);
-            return "redirect:/admin/planos?sucesso";
+            Optional<Plano> planoOptional = gerenciaPlanoUseCase.buscarPlanoPorId(id);
+            if (planoOptional.isEmpty()) {
+                return "redirect:/admin/planos?erro=Plano+não+encontrado";
+            }
+
+            Plano plano = planoOptional.get();
+            gerenciaPlanoUseCase.atualizarPlano(
+                    id,
+                    plano.getNome(),
+                    plano.getDescricao(),
+                    plano.getPreco(),
+                    plano.getPeriodoCobranca(),
+                    plano.getDiasTrial(),
+                    plano.getStripePriceId(),
+                    true
+            );
+            return "redirect:/admin/planos?sucesso=Plano+ativado+com+sucesso";
         } catch (Exception e) {
             log.error("Erro ao ativar plano", e);
             return "redirect:/admin/planos?erro=" + e.getMessage();
         }
     }
 
-    @PostMapping("/desativar/{id}")
+    @GetMapping("/desativar/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public String desativarPlano(@PathVariable Long id) {
         try {
-            gerenciaPlanoUseCase.desativarPlano(id);
-            return "redirect:/admin/planos?sucesso";
+            Optional<Plano> planoOptional = gerenciaPlanoUseCase.buscarPlanoPorId(id);
+            if (planoOptional.isEmpty()) {
+                return "redirect:/admin/planos?erro=Plano+não+encontrado";
+            }
+
+            Plano plano = planoOptional.get();
+            gerenciaPlanoUseCase.atualizarPlano(
+                    id,
+                    plano.getNome(),
+                    plano.getDescricao(),
+                    plano.getPreco(),
+                    plano.getPeriodoCobranca(),
+                    plano.getDiasTrial(),
+                    plano.getStripePriceId(),
+                    false
+            );
+            return "redirect:/admin/planos?sucesso=Plano+desativado+com+sucesso";
         } catch (Exception e) {
             log.error("Erro ao desativar plano", e);
             return "redirect:/admin/planos?erro=" + e.getMessage();

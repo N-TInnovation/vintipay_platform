@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "configuracao_pagamento")
+@Table(name = "configuracao_pagamento", 
+       uniqueConstraints = {
+           @UniqueConstraint(name = "UK_POS_ID", columnNames = "pos_id")
+       })
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,7 +23,7 @@ public class ConfiguracaoPagamentoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "pos_id", nullable = false)
+    @Column(name = "pos_id", nullable = false, unique = true)
     private String posId;
 
     @Column(name = "merchant_id", nullable = false)
@@ -58,6 +61,24 @@ public class ConfiguracaoPagamentoEntity {
     
     @Column(name = "email")
     private String email;
+
+    @Column(name = "ambiente", nullable = false)
+    private String ambiente;
+    
+    @Column(name = "service_url", nullable = false)
+    private String serviceUrl;
+
+    @Column(name = "webhook_url")
+    private String webhookUrl;
+    
+    @Column(name = "webhook_secret")
+    private String webhookSecret;
+
+    @Column(name = "ativo")
+    private Boolean ativo;
+    
+    @Column(name = "observacoes", columnDefinition = "TEXT")
+    private String observacoes;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")

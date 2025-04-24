@@ -25,6 +25,13 @@ public class ConfiguracaoPagamentoResponse {
     private String urlLoja;
     private String telefone;
     private String email;
+    private String ambiente;
+    private String serviceUrl;
+    private String webhookUrl;
+    private String webhookSecret;
+    private Boolean ativo;
+    private String observacoes;
+    private Long usuarioId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

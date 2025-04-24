@@ -11,8 +11,14 @@ public interface GerenciaPlanoUseCase {
     Optional<Plano> buscarPlanoPorId(Long id);
     Plano criarPlano(String nome, String descricao, BigDecimal preco, 
                      Plano.PeriodoCobranca periodoCobranca, Integer diasTrial);
+    Plano criarPlano(String nome, String descricao, BigDecimal preco, 
+                     Plano.PeriodoCobranca periodoCobranca, Integer diasTrial,
+                     String stripePriceId, boolean ativo);
     Plano atualizarPlano(Long id, String nome, String descricao, BigDecimal preco, 
                          Plano.PeriodoCobranca periodoCobranca, Integer diasTrial);
+    Plano atualizarPlano(Long id, String nome, String descricao, BigDecimal preco, 
+                         Plano.PeriodoCobranca periodoCobranca, Integer diasTrial,
+                         String stripePriceId, boolean ativo);
     void ativarPlano(Long id);
     void desativarPlano(Long id);
 }

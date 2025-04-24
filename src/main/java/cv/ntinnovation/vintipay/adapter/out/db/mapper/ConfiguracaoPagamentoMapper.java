@@ -12,34 +12,46 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ConfiguracaoPagamentoMapper {
 
-    private final UsusarioMapper ususarioMapper;
+    private final UsuarioMapper usuarioMapper;
 
     public ConfiguracaoPagamentoEntity toEntity(ConfiguracaoPagamento domain) {
         if (domain == null) {
             return null;
         }
 
-        ConfiguracaoPagamentoEntity entity = ConfiguracaoPagamentoEntity.builder()
+        ConfiguracaoPagamentoEntity.ConfiguracaoPagamentoEntityBuilder builder = ConfiguracaoPagamentoEntity.builder()
                 .id(domain.getId())
                 .posId(domain.getPosId())
-                .merchantId(domain.getMerchantId())
-                .terminalId(domain.getTerminalId())
+                .merchantId(domain.getMerchantId() != null ? domain.getMerchantId() : "")
+                .terminalId(domain.getTerminalId() != null ? domain.getTerminalId() : "")
                 .apiKey(domain.getApiKey())
                 .apiSecret(domain.getApiSecret())
                 .posAutCode(domain.getPosAutCode())
-                .returnUrl(domain.getReturnUrl())
-                .isActive(domain.getIsActive())
-                .returnAutCode(domain.getReturnAutCode())
-                .nomeLoja(domain.getNomeLoja())
-                .urlLoja(domain.getUrlLoja())
+                .returnUrl(domain.getReturnUrl() != null ? domain.getReturnUrl() : "")
+                .isActive(domain.getIsActive() != null ? domain.getIsActive() : true)
+                .returnAutCode(domain.getReturnAutCode() != null ? domain.getReturnAutCode() : "")
+                .nomeLoja(domain.getNomeLoja() != null ? domain.getNomeLoja() : "")
+                .urlLoja(domain.getUrlLoja() != null ? domain.getUrlLoja() : "")
                 .telefone(domain.getTelefone())
                 .email(domain.getEmail())
+                .ambiente(domain.getAmbiente() != null ? domain.getAmbiente() : "DESENVOLVIMENTO")
+                .serviceUrl(domain.getServiceUrl() != null ? domain.getServiceUrl() : "")
+                .webhookUrl(domain.getWebhookUrl())
+                .webhookSecret(domain.getWebhookSecret())
+                .ativo(domain.getAtivo() != null ? domain.getAtivo() : true)
+                .observacoes(domain.getObservacoes())
                 .createdAt(domain.getCreatedAt() != null ? domain.getCreatedAt() : LocalDateTime.now())
-                .updatedAt(domain.getUpdatedAt() != null ? domain.getUpdatedAt() : LocalDateTime.now())
-                .build();
+                .updatedAt(domain.getUpdatedAt() != null ? domain.getUpdatedAt() : LocalDateTime.now());
+        
+        ConfiguracaoPagamentoEntity entity = builder.build();
         
         if (domain.getUsuario() != null) {
-            UsuarioEntity usuarioEntity = ususarioMapper.toEntity(domain.getUsuario());
+            UsuarioEntity usuarioEntity = usuarioMapper.toEntity(domain.getUsuario());
+            entity.setUsuario(usuarioEntity);
+        } else if (domain.getUsuarioId() != null) {
+            // Se não tiver o objeto Usuario mas tiver o ID, criar uma referência apenas com o ID
+            UsuarioEntity usuarioEntity = new UsuarioEntity();
+            usuarioEntity.setId(domain.getUsuarioId());
             entity.setUsuario(usuarioEntity);
         }
         
@@ -66,13 +78,28 @@ public class ConfiguracaoPagamentoMapper {
                 .urlLoja(entity.getUrlLoja())
                 .telefone(entity.getTelefone())
                 .email(entity.getEmail())
+                .ambiente(entity.getAmbiente())
+                .serviceUrl(entity.getServiceUrl())
+                .webhookUrl(entity.getWebhookUrl())
+                .webhookSecret(entity.getWebhookSecret())
+                .ativo(entity.getAtivo())
+                .observacoes(entity.getObservacoes())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
         
         if (entity.getUsuario() != null) {
-            Usuario usuario = ususarioMapper.toDomain(entity.getUsuario());
-            domain.setUsuario(usuario);
+            try {
+                Usuario usuario = usuarioMapper.toDomain(entity.getUsuario());
+                if (usuario != null) {
+                    domain.setUsuario(usuario);
+                }
+                // Sempre definir o ID do usuário, mesmo que o mapeamento falhe
+                domain.setUsuarioId(entity.getUsuario().getId());
+            } catch (Exception e) {
+                // Se houver erro no mapeamento do usuário, pelo menos definir o ID
+                domain.setUsuarioId(entity.getUsuario().getId());
+            }
         }
         
         return domain;

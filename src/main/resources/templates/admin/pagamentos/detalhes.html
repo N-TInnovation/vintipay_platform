@@ -1,242 +1,306 @@
 <!DOCTYPE html>
-<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{admin/layout/base :: html(
+        title='Detalhes do Pagamento',
+        activeMenu='pagamentos',
+        pageTitle='Detalhes do Pagamento',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalhes do Pagamento</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .status-badge {
-            font-size: 1rem;
-            padding: 0.5rem 1rem;
-        }
-        .status-PENDENTE {
-            background-color: #ffc107;
-        }
-        .status-PAGO {
-            background-color: #198754;
-            color: white;
-        }
-        .status-CANCELADO {
-            background-color: #dc3545;
-            color: white;
-        }
-        .status-ERRO {
-            background-color: #6c757d;
-            color: white;
-        }
-        .pan-mascarado {
-            font-family: monospace;
-        }
-        .detail-label {
-            font-weight: 600;
-            color: #6c757d;
-        }
-        .detail-value {
-            font-size: 1.1rem;
-        }
-    </style>
+    <additionalCss>
+        <style>
+            .status-badge {
+                font-size: 1rem;
+                padding: 0.5rem 1rem;
+            }
+            .status-PENDENTE {
+                background-color: #ffc107;
+            }
+            .status-PAGO {
+                background-color: #198754;
+                color: white;
+            }
+            .status-CANCELADO {
+                background-color: #dc3545;
+                color: white;
+            }
+            .status-ERRO {
+                background-color: #6c757d;
+                color: white;
+            }
+            .pan-mascarado {
+                font-family: monospace;
+            }
+            .timeline {
+                position: relative;
+                padding-left: 30px;
+            }
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: 10px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: #e9ecef;
+            }
+            .timeline-item {
+                position: relative;
+                margin-bottom: 1.5rem;
+            }
+            .timeline-item::before {
+                content: '';
+                position: absolute;
+                left: -30px;
+                top: 0;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background: #3b82f6;
+                border: 2px solid white;
+            }
+        </style>
+    </additionalCss>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Gateway de Pagamento</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/admin/pagamentos">Pagamentos</a>
-                    </li>
-                </ul>
-                <form th:action="@{/logout}" method="post" class="d-flex">
-                    <button class="btn btn-outline-light" type="submit">Sair</button>
-                </form>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Detalhes do Pagamento</h1>
-            <div>
-                <a href="/admin" class="btn btn-outline-secondary me-2">
-                    <i class="fas fa-home"></i> Dashboard
+    <content>
+        <!-- Botões de ação -->
+        <div class="d-flex justify-content-end mb-4">
+            <a th:href="@{/admin/pagamentos}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+            
+            <div th:if="${pagamento.status == 'PENDENTE'}" class="btn-group">
+                <a th:href="@{/admin/pagamentos/{id}/confirmar(id=${pagamento.id})}" class="btn btn-outline-success me-2" onclick="return confirm('Tem certeza que deseja confirmar este pagamento?');">
+                    <i class="fas fa-check me-2"></i> Confirmar Pagamento
                 </a>
-                <a th:href="@{/admin/pagamentos}" class="btn btn-outline-primary">
-                    <i class="fas fa-arrow-left"></i> Voltar para Lista
+                <a th:href="@{/admin/pagamentos/{id}/cancelar(id=${pagamento.id})}" class="btn btn-outline-danger" onclick="return confirm('Tem certeza que deseja cancelar este pagamento?');">
+                    <i class="fas fa-times me-2"></i> Cancelar Pagamento
                 </a>
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-8">
-                <div class="card mb-4">
+                <!-- Informações do Pagamento -->
+                <div class="card shadow-sm mb-4">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Informações do Pagamento</h5>
+                        <h5 class="mb-0">Informações do Pagamento</h5>
                     </div>
                     <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <div class="detail-label">Referência</div>
-                                <div class="detail-value" th:text="${pagamento.reference}">REF123</div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="detail-label">Status</div>
-                                <div>
-                                    <span th:class="'badge status-' + ${pagamento.status}" 
-                                          th:text="${pagamento.status}"
-                                          class="badge status-badge">PENDENTE</span>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="detail-label">Valor</div>
-                                <div class="detail-value">
-                                    <span th:if="${pagamento.intencaoPagamento != null}" 
-                                          th:text="${#numbers.formatDecimal(pagamento.intencaoPagamento.amount, 1, 2)} + ' ' + ${pagamento.intencaoPagamento.currency}">1000.00 CVE</span>
-                                    <span th:unless="${pagamento.intencaoPagamento != null}">-</span>
-                                </div>
-                            </div>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 class="mb-0" th:text="${#numbers.formatCurrency(pagamento.valor)}">R$ 99,90</h2>
+                            <span th:class="'badge status-badge status-' + ${pagamento.status}" th:text="${pagamento.status}">PENDENTE</span>
                         </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <div class="detail-label">Data de Criação</div>
-                                <div class="detail-value" th:text="${#temporals.format(pagamento.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2025 10:00</div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="detail-label">Timestamp</div>
-                                <div class="detail-value" th:text="${pagamento.timestamp}">2025-01-01 10:00:00</div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="detail-label">PAN</div>
-                                <div class="detail-value pan-mascarado" th:text="${pagamento.panMascarado ?: '-'}">****1234</div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
+                        
+                        <div class="row mb-4">
                             <div class="col-md-6">
-                                <div class="detail-label">Fingerprint</div>
-                                <div class="detail-value" th:text="${pagamento.fingerprint ?: '-'}">fp123</div>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th style="width: 40%">ID:</th>
+                                        <td th:text="${pagamento.id}">1</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Referência:</th>
+                                        <td th:text="${pagamento.referencia}">REF123456</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Data:</th>
+                                        <td th:text="${#temporals.format(pagamento.dataPagamento, 'dd/MM/yyyy HH:mm')}">01/01/2025 12:30</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Método:</th>
+                                        <td>
+                                            <span th:if="${pagamento.metodoPagamento == 'CARTAO'}">
+                                                <i class="fas fa-credit-card me-1"></i> Cartão de Crédito
+                                            </span>
+                                            <span th:if="${pagamento.metodoPagamento == 'BOLETO'}">
+                                                <i class="fas fa-file-invoice-dollar me-1"></i> Boleto
+                                            </span>
+                                            <span th:if="${pagamento.metodoPagamento == 'PIX'}">
+                                                <i class="fas fa-qrcode me-1"></i> PIX
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
                             <div class="col-md-6">
-                                <div class="detail-label">Mensagem</div>
-                                <div class="detail-value" th:text="${pagamento.mensagem ?: '-'}">Mensagem de status</div>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th style="width: 40%">Usuário:</th>
+                                        <td>
+                                            <a th:if="${pagamento.usuario != null}" th:href="@{/admin/usuarios/{id}(id=${pagamento.usuario.id})}" th:text="${pagamento.usuario.username}">usuario@exemplo.com</a>
+                                            <span th:unless="${pagamento.usuario != null}">-</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Assinatura:</th>
+                                        <td>
+                                            <a th:if="${pagamento.assinatura != null}" th:href="@{/admin/assinaturas/{id}(id=${pagamento.assinatura.id})}" th:text="${pagamento.assinatura.plano.nome}">Plano Premium</a>
+                                            <span th:unless="${pagamento.assinatura != null}">-</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Moeda:</th>
+                                        <td th:text="${pagamento.moeda}">CVE</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Fingerprint:</th>
+                                        <td th:text="${pagamento.fingerprint ?: '-'}">fp123456</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${pagamento.mensagem}" class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> <span th:text="${pagamento.mensagem}">Mensagem do pagamento</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dados do Cartão -->
+                <div class="card shadow-sm mb-4" th:if="${pagamento.metodoPagamento == 'CARTAO'}">
+                    <div class="card-header">
+                        <h5 class="mb-0">Dados do Cartão</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th style="width: 40%">Número:</th>
+                                        <td class="pan-mascarado" th:text="${pagamento.panMascarado ?: '-'}">**** 1234</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Bandeira:</th>
+                                        <td th:text="${pagamento.bandeira ?: '-'}">VISA</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th style="width: 40%">Titular:</th>
+                                        <td th:text="${pagamento.titularCartao ?: '-'}">João Silva</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Expiração:</th>
+                                        <td th:text="${pagamento.expiracaoCartao ?: '-'}">12/25</td>
+                                    </tr>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="card mb-4" th:if="${pagamento.intencaoPagamento != null}">
+                
+                <!-- Dados da Transação -->
+                <div class="card shadow-sm mb-4" th:if="${pagamento.dadosTransacao != null}">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Dados da Intenção de Pagamento</h5>
+                        <h5 class="mb-0">Dados da Transação</h5>
                     </div>
                     <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <div class="detail-label">Merchant Ref</div>
-                                <div class="detail-value" th:text="${pagamento.intencaoPagamento.merchantRef ?: '-'}">123456</div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th style="width: 40%">ID Transação:</th>
+                                        <td th:text="${pagamento.dadosTransacao.idTransacao ?: '-'}">tx123456</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Autorização:</th>
+                                        <td th:text="${pagamento.dadosTransacao.codigoAutorizacao ?: '-'}">123456</td>
+                                    </tr>
+                                </table>
                             </div>
-                            <div class="col-md-4">
-                                <div class="detail-label">Merchant Session</div>
-                                <div class="detail-value" th:text="${pagamento.intencaoPagamento.merchantSession ?: '-'}">SESSION123</div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="detail-label">POS ID</div>
-                                <div class="detail-value" th:text="${pagamento.intencaoPagamento.posId ?: '-'}">POS123</div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <div class="detail-label">Entity Code</div>
-                                <div class="detail-value" th:text="${pagamento.intencaoPagamento.entityCode ?: '-'}">123</div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="detail-label">Reference Number</div>
-                                <div class="detail-value" th:text="${pagamento.intencaoPagamento.referenceNumber ?: '-'}">123456789</div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="detail-label">Transaction Code</div>
-                                <div class="detail-value" th:text="${pagamento.intencaoPagamento.transactionCode ?: '-'}">TX123</div>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 mb-3">
-                            <h6 class="text-muted mb-3">Dados do Cliente</h6>
-                            <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <div class="detail-label">Email</div>
-                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.email ?: '-'}">email@exemplo.com</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 mb-3">
-                            <h6 class="text-muted mb-3">Dados de Endereço</h6>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <div class="detail-label">Endereço</div>
-                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.billAddrLine1 ?: '-'}">Rua Exemplo, 123</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="detail-label">Cidade</div>
-                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.billAddrCity ?: '-'}">Cidade Exemplo</div>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <div class="detail-label">Estado</div>
-                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.billAddrState ?: '-'}">Estado Exemplo</div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="detail-label">País</div>
-                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.billAddrCountry ?: '-'}">País Exemplo</div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="detail-label">CEP</div>
-                                    <div class="detail-value" th:text="${pagamento.intencaoPagamento.billAddrPostCode ?: '-'}">12345-678</div>
-                                </div>
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th style="width: 40%">NSU:</th>
+                                        <td th:text="${pagamento.dadosTransacao.nsu ?: '-'}">987654</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Data Processamento:</th>
+                                        <td th:text="${pagamento.dadosTransacao.dataProcessamento != null ? #temporals.format(pagamento.dadosTransacao.dataProcessamento, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2025 12:35</td>
+                                    </tr>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
+            
             <!-- Sidebar -->
             <div class="col-md-4">
                 <!-- Histórico -->
-                <div class="card mb-4">
+                <div class="card shadow-sm mb-4">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Histórico</h5>
+                        <h5 class="mb-0">Histórico</h5>
                     </div>
-                    <div class="card-body p-0">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item py-3">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <div class="fw-bold">Criação do Pagamento</div>
-                                        <div class="text-muted">Pagamento iniciado</div>
-                                    </div>
-                                    <div class="text-end">
-                                        <div th:text="${#temporals.format(pagamento.createdAt, 'dd/MM/yyyy')}">01/01/2025</div>
-                                        <div class="text-muted" th:text="${#temporals.format(pagamento.createdAt, 'HH:mm')}">10:00</div>
-                                    </div>
-                                </div>
-                            </li>
-                            <!-- Adicionar mais eventos de histórico conforme necessário -->
-                        </ul>
+                    <div class="card-body">
+                        <div th:if="${#lists.isEmpty(pagamento.historico)}" class="text-center py-3">
+                            <p class="text-muted">Nenhum registro de histórico encontrado.</p>
+                        </div>
+                        
+                        <div th:if="${not #lists.isEmpty(pagamento.historico)}" class="timeline">
+                            <div class="timeline-item" th:each="evento : ${pagamento.historico}">
+                                <p class="mb-0 fw-bold" th:text="${evento.descricao}">Pagamento criado</p>
+                                <small class="text-muted" th:text="${#temporals.format(evento.data, 'dd/MM/yyyy HH:mm')}">01/01/2025 12:30</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ações -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Ações</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/admin/pagamentos/{id}/reenviar-comprovante(id=${pagamento.id})}" class="btn btn-outline-primary">
+                                <i class="fas fa-envelope me-2"></i> Reenviar Comprovante
+                            </a>
+                            <a th:href="@{/admin/pagamentos/{id}/gerar-pdf(id=${pagamento.id})}" class="btn btn-outline-secondary" target="_blank">
+                                <i class="fas fa-file-pdf me-2"></i> Gerar PDF
+                            </a>
+                            <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#notasModal">
+                                <i class="fas fa-sticky-note me-2"></i> Adicionar Nota
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        
+        <!-- Modal para Adicionar Nota -->
+        <div class="modal fade" id="notasModal" tabindex="-1" aria-labelledby="notasModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="notasModalLabel">Adicionar Nota</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <form th:action="@{/admin/pagamentos/{id}/adicionar-nota(id=${pagamento.id})}" method="post">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="nota" class="form-label">Nota</label>
+                                <textarea class="form-control" id="nota" name="nota" rows="3" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- Adicione JavaScript específico da página aqui, se necessário -->
+    </additionalJs>
 </body>
 </html>

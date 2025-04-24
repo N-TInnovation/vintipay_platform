@@ -1,116 +1,106 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{admin/layout/base :: html(
+        title=${configuracao.id != null ? 'Editar Configuração' : 'Nova Configuração'},
+        activeMenu='configuracoes',
+        pageTitle=${configuracao.id != null ? 'Editar Configuração' : 'Nova Configuração'},
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuração de Pagamento</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <additionalCss>
+        <style>
+            .required-field::after {
+                content: "*";
+                color: red;
+                margin-left: 4px;
+            }
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+            .card-tabs .nav-link {
+                padding: 0.75rem 1rem;
+            }
+            .form-section {
+                padding: 1.5rem;
+                background-color: #f8f9fa;
+                border-radius: 0.25rem;
+                margin-bottom: 1.5rem;
+            }
+            .form-section-title {
+                margin-bottom: 1.25rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 1px solid #dee2e6;
+            }
+        </style>
+    </additionalCss>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Gateway de Pagamento</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+    <content>
+        <!-- Botões de ação -->
+        <div class="d-flex justify-content-end mb-4">
+            <a th:href="@{/admin/configuracoes}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+            <button type="button" class="btn btn-primary" onclick="salvarConfiguracao()">
+                <i class="fas fa-save"></i> Salvar
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin">Dashboard</a>
+        </div>
+
+        <!-- Mensagens de alerta -->
+        <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${erro}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> <span th:text="${sucesso}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        
+        <div class="alert alert-info mb-4">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Informação:</strong> Cada usuário pode ter múltiplas configurações de pagamento, uma para cada loja ou serviço.
+            Cada configuração deve ter um POS ID único para aquele usuário.
+        </div>
+
+        <!-- Conteúdo principal -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="configTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab" aria-controls="info" aria-selected="true">Informações Básicas</button>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/pagamentos">Pagamentos</a>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="credentials-tab" data-bs-toggle="tab" data-bs-target="#credentials" type="button" role="tab" aria-controls="credentials" aria-selected="false">Credenciais</button>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/admin/configuracoes">Configurações</a>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="advanced-tab" data-bs-toggle="tab" data-bs-target="#advanced" type="button" role="tab" aria-controls="advanced" aria-selected="false">Configurações Avançadas</button>
                     </li>
                 </ul>
-                <form th:action="@{/logout}" method="post" class="d-flex">
-                    <button class="btn btn-outline-light" type="submit">Sair</button>
-                </form>
             </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="card-title mb-0" th:text="${configuracao.id != null ? 'Editar Configuração' : 'Nova Configuração'}"></h3>
-                        <div>
-                            <a href="/admin" class="btn btn-outline-secondary btn-sm me-2">
-                                <i class="fas fa-home"></i> Dashboard
-                            </a>
-                            <a href="/admin/configuracoes" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-list"></i> Lista de Configurações
-                            </a>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <form id="configForm" class="needs-validation" novalidate>
-                            <input type="hidden" id="id" th:value="${configuracao.id}">
-                            <input type="hidden" id="returnAutCode" th:value="${configuracao.returnAutCode}">
-                            
+            <div class="card-body">
+                <form id="configForm" class="needs-validation" novalidate>
+                    <input type="hidden" id="id" th:value="${configuracao.id}">
+                    <input type="hidden" id="returnAutCode" th:value="${configuracao.returnAutCode}">
+                    <input type="hidden" id="usuarioId" th:value="${usuarioId != null ? usuarioId : configuracao.usuarioId}">
+                    
+                    <div class="tab-content" id="configTabsContent">
+                        <!-- Informações Básicas -->
+                        <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label for="posId" class="form-label">POS ID *</label>
-                                    <input type="text" class="form-control" id="posId" th:value="${configuracao.posId}" required>
-                                    <div class="invalid-feedback">
-                                        POS ID é obrigatório
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="merchantId" class="form-label">Merchant ID *</label>
-                                    <input type="text" class="form-control" id="merchantId" th:value="${configuracao.merchantId}" required>
-                                    <div class="invalid-feedback">
-                                        Merchant ID é obrigatório
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="terminalId" class="form-label">Terminal ID *</label>
-                                    <input type="text" class="form-control" id="terminalId" th:value="${configuracao.terminalId}" required>
-                                    <div class="invalid-feedback">
-                                        Terminal ID é obrigatório
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="posAutCode" class="form-label">POS Aut Code *</label>
-                                    <input type="text" class="form-control" id="posAutCode" th:value="${configuracao.posAutCode}" required>
-                                    <div class="invalid-feedback">
-                                        POS Aut Code é obrigatório
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <label for="returnUrl" class="form-label">URL de Retorno *</label>
-                                    <input type="url" class="form-control" id="returnUrl" th:value="${configuracao.returnUrl}" required>
-                                    <div class="invalid-feedback">
-                                        URL de Retorno é obrigatória e deve ser uma URL válida
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="nomeLoja" class="form-label">Nome da Loja/Marca *</label>
+                                    <label for="nomeLoja" class="form-label required-field">Nome da Loja</label>
                                     <input type="text" class="form-control" id="nomeLoja" th:value="${configuracao.nomeLoja}" required>
                                     <div class="invalid-feedback">
-                                        Nome da Loja é obrigatório
+                                        Por favor, informe o nome da loja.
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="urlLoja" class="form-label">URL da Loja/Canal de Vendas *</label>
-                                    <input type="url" class="form-control" id="urlLoja" th:value="${configuracao.urlLoja}" required>
+                                    <label for="urlLoja" class="form-label">URL da Loja/Canal de Vendas</label>
+                                    <input type="url" class="form-control" id="urlLoja" th:value="${configuracao.urlLoja}">
                                     <div class="invalid-feedback">
-                                        URL da Loja é obrigatória e deve ser uma URL válida
+                                        Por favor, informe uma URL válida.
                                     </div>
                                 </div>
                             </div>
@@ -124,171 +114,439 @@
                                     <label for="email" class="form-label">Email</label>
                                     <input type="email" class="form-control" id="email" th:value="${configuracao.email}">
                                     <div class="invalid-feedback">
-                                        Formato de email inválido
+                                        Por favor, informe um email válido.
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="isActive" th:checked="${configuracao.isActive}">
-                                    <label class="form-check-label" for="isActive">Ativo</label>
-                                </div>
-                            </div>
-
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-save"></i> Salvar
-                                </button>
-                                <a href="/admin/configuracoes" class="btn btn-secondary">
-                                    <i class="bi bi-arrow-left"></i> Voltar
-                                </a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.getElementById('configForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (!this.checkValidity()) {
-                e.stopPropagation();
-                this.classList.add('was-validated');
-                return;
-            }
-
-            const data = {
-                id: document.getElementById('id').value || null,
-                posId: document.getElementById('posId').value,
-                merchantId: document.getElementById('merchantId').value,
-                terminalId: document.getElementById('terminalId').value,
-                posAutCode: document.getElementById('posAutCode').value,
-                returnUrl: document.getElementById('returnUrl').value,
-                isActive: document.getElementById('isActive').checked,
-                returnAutCode: document.getElementById('returnAutCode').value || null,
-                nomeLoja: document.getElementById('nomeLoja').value,
-                urlLoja: document.getElementById('urlLoja').value,
-                telefone: document.getElementById('telefone').value,
-                email: document.getElementById('email').value
-            };
-
-            // Gera API Key automaticamente para novas configurações
-            if (!data.id) {
-                data.apiKey = generateApiKey();
-            }
-
-            Swal.fire({
-                title: 'Salvando...',
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            fetch('/admin/configuracoes', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro ao salvar configuração');
-                }
-                return response.json();
-            })
-            .then(result => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Sucesso!',
-                    text: 'Configuração salva com sucesso.',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    if (!data.id && result.apiKey) {
-                        let htmlContent = `
-                            <p>Suas credenciais foram geradas. Guarde-as em um local seguro:</p>
-                            <div class="mb-3">
-                                <label class="form-label">API Key:</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" value="${result.apiKey}" id="apiKeyInput" readonly>
-                                    <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(this, 'apiKeyInput')">
-                                        <i class="bi bi-clipboard"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">API Secret:</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" value="${result.apiSecret}" id="apiSecretInput" readonly>
-                                    <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(this, 'apiSecretInput')">
-                                        <i class="bi bi-clipboard"></i>
-                                    </button>
-                                </div>
-                            </div>`;
                             
-                        // Adicionar o Return Auth Code se estiver disponível
-                        if (result.returnAutCode) {
-                            htmlContent += `
-                                <div class="mb-3">
-                                    <label class="form-label">Return Auth Code:</label>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="ambiente" class="form-label required-field">Ambiente</label>
+                                    <select class="form-select" id="ambiente" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="DESENVOLVIMENTO" th:selected="${configuracao.ambiente == 'DESENVOLVIMENTO'}">Desenvolvimento</option>
+                                        <option value="HOMOLOGACAO" th:selected="${configuracao.ambiente == 'HOMOLOGACAO'}">Homologação</option>
+                                        <option value="PRODUCAO" th:selected="${configuracao.ambiente == 'PRODUCAO'}">Produção</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Por favor, selecione o ambiente.
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="serviceUrl" class="form-label required-field">URL do Serviço</label>
+                                    <input type="url" class="form-control" id="serviceUrl" th:value="${configuracao.serviceUrl}" required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe a URL do serviço.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Credenciais -->
+                        <div class="tab-pane fade" id="credentials" role="tabpanel" aria-labelledby="credentials-tab">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i> 
+                                As informações abaixo são sensíveis. Não compartilhe com pessoas não autorizadas.
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="merchantId" class="form-label required-field">Merchant ID</label>
+                                    <input type="text" class="form-control" id="merchantId" th:value="${configuracao.merchantId}" required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o Merchant ID.
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="terminalId" class="form-label required-field">Terminal ID</label>
+                                    <input type="text" class="form-control" id="terminalId" th:value="${configuracao.terminalId}" required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o Terminal ID.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="apiKey" class="form-label required-field">API Key</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" value="${result.returnAutCode}" id="returnAutCodeInput" readonly>
-                                        <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(this, 'returnAutCodeInput')">
-                                            <i class="bi bi-clipboard"></i>
+                                        <input type="text" class="form-control" id="apiKey" th:value="${configuracao.apiKey}" required>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="generateApiKey()">
+                                            <i class="fas fa-sync-alt"></i> Gerar
+                                        </button>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(this, 'apiKey')">
+                                            <i class="fas fa-copy"></i>
                                         </button>
                                     </div>
-                                </div>`;
-                        }
+                                    <div class="invalid-feedback">
+                                        Por favor, informe ou gere uma API Key.
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="apiSecret" class="form-label required-field">API Secret</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="apiSecret" th:value="${configuracao.apiSecret}" required>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('apiSecret')">
+                                            <i class="fas fa-eye" id="apiSecret-toggle-icon"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="generateApiSecret()">
+                                            <i class="fas fa-sync-alt"></i> Gerar
+                                        </button>
+                                    </div>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe ou gere um API Secret.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label for="webhookUrl" class="form-label">Webhook URL</label>
+                                    <input type="url" class="form-control" id="webhookUrl" th:value="${configuracao.webhookUrl}">
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="webhookSecret" class="form-label">Webhook Secret</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="webhookSecret" th:value="${configuracao.webhookSecret}">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('webhookSecret')">
+                                            <i class="fas fa-eye" id="webhookSecret-toggle-icon"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="generateWebhookSecret()">
+                                            <i class="fas fa-sync-alt"></i> Gerar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
-                        Swal.fire({
-                            icon: 'info',
-                            title: 'Credenciais Geradas',
-                            html: htmlContent,
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            window.location.href = '/admin/configuracoes';
-                        });
-                    } else {
-                        window.location.href = '/admin/configuracoes';
+                        <!-- Configurações Avançadas -->
+                        <div class="tab-pane fade" id="advanced" role="tabpanel" aria-labelledby="advanced-tab">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="returnUrl" class="form-label">URL de Retorno</label>
+                                    <input type="url" class="form-control" id="returnUrl" th:value="${configuracao.returnUrl}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="posId" class="form-label">POS ID</label>
+                                    <input type="text" class="form-control" id="posId" th:value="${configuracao.posId}">
+                                    <div id="posIdFeedback" class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="posAutCode" class="form-label">POS Aut Code</label>
+                                    <input type="text" class="form-control" id="posAutCode" th:value="${configuracao.posAutCode}">
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch mt-4">
+                                        <input class="form-check-input" type="checkbox" id="ativo" th:checked="${configuracao.ativo}">
+                                        <label class="form-check-label" for="ativo">Configuração Ativa</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label for="observacoes" class="form-label">Observações</label>
+                                    <textarea class="form-control" id="observacoes" rows="3" th:text="${configuracao.observacoes}"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </content>
+    
+    <!-- Incluir o modal de alerta -->
+    <div th:replace="~{admin/fragments/alert-modal :: alertModal}"></div>
+    
+    <additionalJs>
+        <!-- Incluir o script do modal de alerta -->
+        <div th:replace="~{admin/fragments/alert-modal :: alertScript}"></div>
+        
+        <script th:inline="javascript">
+            function togglePasswordVisibility(inputId) {
+                const input = document.getElementById(inputId);
+                const icon = document.getElementById(inputId + '-toggle-icon');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+            
+            function generateApiKey() {
+                const apiKey = 'key_' + Math.random().toString(36).substring(2, 15) + 
+                               Math.random().toString(36).substring(2, 15);
+                document.getElementById('apiKey').value = apiKey;
+            }
+            
+            function generateApiSecret() {
+                const apiSecret = 'secret_' + Math.random().toString(36).substring(2, 15) + 
+                                 Math.random().toString(36).substring(2, 15) +
+                                 Math.random().toString(36).substring(2, 15);
+                document.getElementById('apiSecret').value = apiSecret;
+            }
+            
+            function generateWebhookSecret() {
+                const webhookSecret = 'whsec_' + Math.random().toString(36).substring(2, 15) + 
+                                     Math.random().toString(36).substring(2, 15);
+                document.getElementById('webhookSecret').value = webhookSecret;
+            }
+            
+            function copyToClipboard(button, inputId) {
+                const input = document.getElementById(inputId);
+                input.select();
+                document.execCommand('copy');
+                
+                // Mudar ícone temporariamente
+                const icon = button.querySelector('i');
+                icon.classList.remove('fa-copy');
+                icon.classList.add('fa-check');
+                
+                setTimeout(() => {
+                    icon.classList.remove('fa-check');
+                    icon.classList.add('fa-copy');
+                }, 2000);
+            }
+            
+            function salvarConfiguracao() {
+                // Validar formulário
+                const form = document.getElementById('configForm');
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    form.classList.add('was-validated');
+                    
+                    // Encontrar a primeira aba com erro e ativá-la
+                    const tabs = ['info', 'credentials', 'advanced'];
+                    for (const tabId of tabs) {
+                        const tab = document.getElementById(tabId);
+                        const hasError = tab.querySelector(':invalid');
+                        if (hasError) {
+                            const tabButton = document.querySelector(`[data-bs-target="#${tabId}"]`);
+                            bootstrap.Tab.getInstance(tabButton).show();
+                            break;
+                        }
                     }
+                    
+                    return;
+                }
+                
+                // Verificar se o POS ID já existe (para novas configurações)
+                const posId = document.getElementById('posId').value;
+                const configId = document.getElementById('id').value;
+                
+                // Se for uma nova configuração, verificar o POS ID antes de salvar
+                if (!configId) {
+                    // Mostrar indicador de carregamento
+                    const saveButton = document.querySelector('button[onclick="salvarConfiguracao()"]');
+                    const originalText = saveButton.innerHTML;
+                    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+                    saveButton.disabled = true;
+                    
+                    // Verificar se o POS ID já existe antes de salvar
+                    fetch(`/admin/configuracoes/verificar-posid?posId=${posId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.exists) {
+                                // POS ID já existe, mostrar erro
+                                showAlert('error', 'Erro!', 'Este POS ID já está em uso. Por favor, escolha outro valor.');
+                                document.getElementById('posId').classList.add('is-invalid');
+                                const feedbackElement = document.getElementById('posIdFeedback');
+                                if (feedbackElement) {
+                                    feedbackElement.textContent = 'Este POS ID já está em uso. Por favor, escolha outro.';
+                                }
+                                
+                                // Restaurar o botão
+                                saveButton.innerHTML = originalText;
+                                saveButton.disabled = false;
+                                
+                                // Focar no campo POS ID
+                                document.getElementById('posId').focus();
+                            } else {
+                                // POS ID disponível, prosseguir com o salvamento
+                                enviarConfiguracao();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro ao verificar POS ID:', error);
+                            // Em caso de erro na verificação, tentar salvar mesmo assim
+                            enviarConfiguracao();
+                        });
+                } else {
+                    // Configuração existente, prosseguir com a atualização
+                    enviarConfiguracao();
+                }
+            }
+            
+            function enviarConfiguracao() {
+                // Coletar dados do formulário
+                const configuracao = {
+                    id: document.getElementById('id').value || null,
+                    nomeLoja: document.getElementById('nomeLoja').value,
+                    urlLoja: document.getElementById('urlLoja').value,
+                    telefone: document.getElementById('telefone').value,
+                    email: document.getElementById('email').value,
+                    ambiente: document.getElementById('ambiente').value,
+                    serviceUrl: document.getElementById('serviceUrl').value,
+                    merchantId: document.getElementById('merchantId').value,
+                    terminalId: document.getElementById('terminalId').value,
+                    apiKey: document.getElementById('apiKey').value,
+                    apiSecret: document.getElementById('apiSecret').value,
+                    webhookUrl: document.getElementById('webhookUrl').value,
+                    webhookSecret: document.getElementById('webhookSecret').value,
+                    returnUrl: document.getElementById('returnUrl').value,
+                    posId: document.getElementById('posId').value,
+                    posAutCode: document.getElementById('posAutCode').value,
+                    returnAutCode: document.getElementById('returnAutCode').value,
+                    ativo: document.getElementById('ativo').checked,
+                    observacoes: document.getElementById('observacoes').value,
+                    usuarioId: document.getElementById('usuarioId').value || null
+                };
+                
+                console.log('Enviando configuração:', configuracao);
+                
+                // Mostrar indicador de carregamento
+                const saveButton = document.querySelector('button[onclick="salvarConfiguracao()"]');
+                const originalText = saveButton.innerHTML;
+                saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+                saveButton.disabled = true;
+                
+                // Enviar requisição
+                fetch('/admin/configuracoes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(configuracao)
+                })
+                .then(response => {
+                    // Armazenar o status para verificação posterior
+                    const status = response.status;
+                    return response.json().then(data => {
+                        // Adicionar o status à resposta para poder verificar depois
+                        return { ...data, status };
+                    });
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Se for uma nova configuração, mostrar as credenciais e redirecionar
+                        if (!configuracao.id) {
+                            // Mostrar mensagem de sucesso usando o modal
+                            showAlert('success', 'Sucesso!', 'Configuração salva com sucesso. Você será redirecionado para a lista de configurações.', function() {
+                                // Redirecionar para a lista após fechar o modal
+                                window.location.href = '/admin/configuracoes';
+                            });
+                        } else {
+                            // Mostrar mensagem de sucesso usando o modal
+                            showAlert('success', 'Sucesso!', 'Configuração atualizada com sucesso.', function() {
+                                // Redirecionar para a lista após fechar o modal
+                                window.location.href = '/admin/configuracoes';
+                            });
+                        }
+                    } else {
+                        // Verificar se é um erro de POS ID duplicado
+                        if (data.message && data.message.includes('POS ID')) {
+                            // Destacar o campo POS ID como inválido
+                            document.getElementById('posId').classList.add('is-invalid');
+                            const feedbackElement = document.getElementById('posIdFeedback');
+                            if (feedbackElement) {
+                                feedbackElement.textContent = data.message;
+                            }
+                            
+                            // Focar no campo POS ID
+                            document.getElementById('posId').focus();
+                            
+                            // Mostrar alerta de erro
+                            showAlert('error', 'Erro de Validação', data.message);
+                        } else {
+                            // Outros erros
+                            showAlert('error', 'Erro!', 'Erro ao salvar configuração: ' + data.message);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao processar resposta:', error);
+                    showAlert('error', 'Erro!', 'Ocorreu um erro ao salvar a configuração. Por favor, tente novamente.');
+                })
+                .finally(() => {
+                    // Restaurar o botão
+                    saveButton.innerHTML = originalText;
+                    saveButton.disabled = false;
                 });
-            })
-            .catch(error => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro!',
-                    text: error.message,
-                    confirmButtonText: 'OK'
+            }
+            
+            // Verificar se o POS ID já existe
+            function verificarPosIdExistente() {
+                const posIdInput = document.getElementById('posId');
+                const posId = posIdInput.value.trim();
+                const configId = document.getElementById('id').value;
+                
+                // Se estiver editando uma configuração existente ou o campo estiver vazio, não verificar
+                if (configId || posId.length === 0) return;
+                
+                // Adicionar classe de validação
+                posIdInput.classList.add('is-validating');
+                
+                // Fazer uma requisição para verificar se o POS ID já existe
+                fetch(`/admin/configuracoes/verificar-posid?posId=${posId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            // POS ID já existe
+                            posIdInput.classList.add('is-invalid');
+                            posIdInput.classList.remove('is-valid');
+                            const feedbackElement = document.getElementById('posIdFeedback');
+                            if (feedbackElement) {
+                                feedbackElement.textContent = 'Este POS ID já está em uso. Por favor, escolha outro.';
+                            }
+                        } else {
+                            // POS ID disponível
+                            posIdInput.classList.add('is-valid');
+                            posIdInput.classList.remove('is-invalid');
+                            const feedbackElement = document.getElementById('posIdFeedback');
+                            if (feedbackElement) {
+                                feedbackElement.textContent = 'POS ID disponível.';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao verificar POS ID:', error);
+                    })
+                    .finally(() => {
+                        posIdInput.classList.remove('is-validating');
+                    });
+            }
+
+            // Adicionar evento para verificar POS ID quando o usuário terminar de digitar
+            document.getElementById('posId').addEventListener('blur', verificarPosIdExistente);
+            
+            // Adicionar evento para verificar POS ID quando o usuário digitar (com debounce)
+            let timeoutId;
+            document.getElementById('posId').addEventListener('input', function() {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(verificarPosIdExistente, 500); // Verificar após 500ms de inatividade
+            });
+            
+            // Inicializar tooltips
+            document.addEventListener('DOMContentLoaded', function() {
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function(tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
             });
-        });
-
-        function generateApiKey() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let apiKey = '';
-            for (let i = 0; i < 32; i++) {
-                apiKey += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return apiKey;
-        }
-
-        function copyToClipboard(button, inputId) {
-            const input = document.getElementById(inputId);
-            input.select();
-            document.execCommand('copy');
-            
-            const originalHtml = button.innerHTML;
-            button.innerHTML = '<i class="bi bi-check"></i>';
-            setTimeout(() => {
-                button.innerHTML = originalHtml;
-            }, 1500);
-        }
-    </script>
+        </script>
+    </additionalJs>
 </body>
 </html>

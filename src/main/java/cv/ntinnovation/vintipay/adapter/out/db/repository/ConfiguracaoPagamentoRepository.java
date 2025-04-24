@@ -18,4 +18,16 @@ public interface ConfiguracaoPagamentoRepository extends JpaRepository<Configura
     List<ConfiguracaoPagamentoEntity> findByUsuarioId(Long usuarioId);
     List<ConfiguracaoPagamentoEntity> findByUsuarioIdAndIsActiveTrue(Long usuarioId);
     Optional<ConfiguracaoPagamentoEntity> findByUsuarioIdAndPosId(Long usuarioId, String posId);
+    
+    // Método para verificar se existe configuração com o POS ID fornecido
+    boolean existsByPosId(String posId);
+    
+    // Método para verificar se existe configuração com o POS ID para um usuário específico
+    boolean existsByPosIdAndUsuarioId(String posId, Long usuarioId);
+    
+    // Método para verificar se existe configuração com o POS ID para outros usuários
+    boolean existsByPosIdAndUsuarioIdNot(String posId, Long usuarioId);
+    
+    // Método para buscar configuração por POS ID (para depuração)
+    Optional<ConfiguracaoPagamentoEntity> findByPosId(String posId);
 }

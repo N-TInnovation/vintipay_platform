@@ -28,6 +28,13 @@ public class ConfiguracaoPagamentoWebMapper {
                 .urlLoja(request.getUrlLoja())
                 .telefone(request.getTelefone())
                 .email(request.getEmail())
+                .usuarioId(request.getUsuarioId())
+                .ambiente(request.getAmbiente())
+                .serviceUrl(request.getServiceUrl())
+                .webhookUrl(request.getWebhookUrl())
+                .webhookSecret(request.getWebhookSecret())
+                .ativo(request.getAtivo())
+                .observacoes(request.getObservacoes())
                 .build();
     }
     
@@ -51,6 +58,12 @@ public class ConfiguracaoPagamentoWebMapper {
         request.setUrlLoja(domain.getUrlLoja());
         request.setTelefone(domain.getTelefone());
         request.setEmail(domain.getEmail());
+        request.setAmbiente(domain.getAmbiente());
+        request.setServiceUrl(domain.getServiceUrl());
+        request.setWebhookUrl(domain.getWebhookUrl());
+        request.setWebhookSecret(domain.getWebhookSecret());
+        request.setAtivo(domain.getAtivo());
+        request.setObservacoes(domain.getObservacoes());
         return request;
     }
 
@@ -74,6 +87,13 @@ public class ConfiguracaoPagamentoWebMapper {
                 .urlLoja(domain.getUrlLoja())
                 .telefone(domain.getTelefone())
                 .email(domain.getEmail())
+                .ambiente(domain.getAmbiente())
+                .serviceUrl(domain.getServiceUrl())
+                .webhookUrl(domain.getWebhookUrl())
+                .webhookSecret(domain.getWebhookSecret())
+                .ativo(domain.getAtivo())
+                .observacoes(domain.getObservacoes())
+                .usuarioId(domain.getUsuarioId())
                 .createdAt(domain.getCreatedAt())
                 .updatedAt(domain.getUpdatedAt())
                 .build();

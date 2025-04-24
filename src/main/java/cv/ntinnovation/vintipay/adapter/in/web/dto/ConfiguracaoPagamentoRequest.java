@@ -18,16 +18,12 @@ public class ConfiguracaoPagamentoRequest {
     @NotBlank(message = "O POS ID é obrigatório")
     private String posId;
 
-    @NotBlank(message = "O Merchant ID é obrigatório")
     private String merchantId;
 
-    @NotBlank(message = "O Terminal ID é obrigatório")
     private String terminalId;
     
-    @NotBlank(message = "A API Key é obrigatória")
     private String apiKey;
     
-    @NotBlank(message = "A API Secret é obrigatória")
     private String apiSecret;
 
     @NotBlank(message = "O POS Aut Code é obrigatório")
@@ -35,19 +31,30 @@ public class ConfiguracaoPagamentoRequest {
     
     private String returnAutCode;
 
-    @NotBlank(message = "A URL de retorno é obrigatória")
     private String returnUrl;
 
     private Boolean isActive;
     
-    @NotBlank(message = "O nome da loja é obrigatório")
     private String nomeLoja;
     
-    @NotBlank(message = "A URL da loja é obrigatória")
     private String urlLoja;
     
     private String telefone;
     
     @Email(message = "Formato de e-mail inválido")
     private String email;
+    
+    private Long usuarioId;
+    
+    private String ambiente;
+    
+    private String serviceUrl;
+    
+    private String webhookUrl;
+    
+    private String webhookSecret;
+    
+    private Boolean ativo;
+    
+    private String observacoes;
 }

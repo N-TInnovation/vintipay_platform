@@ -31,6 +31,12 @@ public class GerenciaAssinaturaUseCaseImpl implements GerenciaAssinaturaUseCase 
     @Override
     @Transactional
     public PlanoAssinatura criarAssinatura(Usuario usuario, Long planoId) {
+        return criarAssinatura(usuario, planoId, false);
+    }
+
+    @Override
+    @Transactional
+    public PlanoAssinatura criarAssinatura(Usuario usuario, Long planoId, boolean skipStripeIntegration) {
         // Buscar o plano
         Optional<Plano> planoOptional = buscaPlanoPort.buscarPorId(planoId);
         if (planoOptional.isEmpty()) {
@@ -45,15 +51,20 @@ public class GerenciaAssinaturaUseCaseImpl implements GerenciaAssinaturaUseCase 
             throw new RuntimeException("Usuário já possui uma assinatura ativa");
         }
         
-        // Criar customer no Stripe se ainda não existir
-        if (usuario.getStripeCustomerId() == null || usuario.getStripeCustomerId().isEmpty()) {
-            String stripeCustomerId = stripeIntegrationUseCase.criarCustomer(usuario);
-            usuario.setStripeCustomerId(stripeCustomerId);
-            salvaUsuario.salvar(usuario);
-        }
+        String stripeSubscriptionId = null;
         
-        // Criar assinatura no Stripe
-        String stripeSubscriptionId = stripeIntegrationUseCase.criarSubscription(usuario, plano.getStripePriceId());
+        // Se não estamos pulando a integração com o Stripe
+        if (!skipStripeIntegration) {
+            // Criar customer no Stripe se ainda não existir
+            if (usuario.getStripeCustomerId() == null || usuario.getStripeCustomerId().isEmpty()) {
+                String stripeCustomerId = stripeIntegrationUseCase.criarCustomer(usuario);
+                usuario.setStripeCustomerId(stripeCustomerId);
+                salvaUsuario.salvar(usuario);
+            }
+            
+            // Criar assinatura no Stripe
+            stripeSubscriptionId = stripeIntegrationUseCase.criarSubscription(usuario, plano.getStripePriceId());
+        }
         
         // Calcular datas de início e fim
         LocalDateTime dataInicio = LocalDateTime.now();

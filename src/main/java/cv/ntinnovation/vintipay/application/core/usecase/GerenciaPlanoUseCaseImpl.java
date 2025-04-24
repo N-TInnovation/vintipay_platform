@@ -37,29 +37,49 @@ public class GerenciaPlanoUseCaseImpl implements GerenciaPlanoUseCase {
     @Transactional
     public Plano criarPlano(String nome, String descricao, BigDecimal preco, 
                            Plano.PeriodoCobranca periodoCobranca, Integer diasTrial) {
+        return criarPlano(nome, descricao, preco, periodoCobranca, diasTrial, null, true);
+    }
+
+    @Override
+    @Transactional
+    public Plano criarPlano(String nome, String descricao, BigDecimal preco, 
+                           Plano.PeriodoCobranca periodoCobranca, Integer diasTrial,
+                           String stripePriceId, boolean ativo) {
         try {
             log.debug("Criando plano: {}, preço: {}, período: {}", nome, preco, periodoCobranca);
             
-            // Criar o produto no Stripe
-            String stripeProductId = stripeIntegrationUseCase.criarProduto(nome, descricao);
-            log.debug("Produto criado no Stripe: {}", stripeProductId);
+            // Verificar se já existe um plano com o mesmo nome
+            Optional<Plano> planoExistente = buscaPlanoPort.buscarPorNome(nome);
+            if (planoExistente.isPresent()) {
+                throw new IllegalArgumentException("Já existe um plano com o nome '" + nome + "'. Por favor, escolha um nome diferente.");
+            }
             
-            // Criar o preço no Stripe
-            long valorCentavos = preco.multiply(new BigDecimal("100")).longValue();
-            String intervalo = mapPeriodoCobrancaParaStripe(periodoCobranca);
-            int intervalCount = getIntervalCount(periodoCobranca);
+            String stripeProductId = null;
+            String stripePriceIdFinal = stripePriceId;
             
-            log.debug("Criando preço no Stripe: valor={}, moeda=brl, intervalo={}, contagem={}", 
-                     valorCentavos, intervalo, intervalCount);
-            
-            String stripePriceId = stripeIntegrationUseCase.criarPreco(
-                stripeProductId, 
-                valorCentavos, 
-                "brl", 
-                intervalo,
-                intervalCount
-            );
-            log.debug("Preço criado no Stripe: {}", stripePriceId);
+            // Se não foi fornecido um stripePriceId, criar no Stripe
+            if (stripePriceIdFinal == null || stripePriceIdFinal.isEmpty()) {
+                // Criar o produto no Stripe
+                stripeProductId = stripeIntegrationUseCase.criarProduto(nome, descricao);
+                log.debug("Produto criado no Stripe: {}", stripeProductId);
+                
+                // Criar o preço no Stripe
+                long valorCentavos = preco.multiply(new BigDecimal("100")).longValue();
+                String intervalo = mapPeriodoCobrancaParaStripe(periodoCobranca);
+                int intervalCount = getIntervalCount(periodoCobranca);
+                
+                log.debug("Criando preço no Stripe: valor={}, moeda=brl, intervalo={}, contagem={}", 
+                         valorCentavos, intervalo, intervalCount);
+                
+                stripePriceIdFinal = stripeIntegrationUseCase.criarPreco(
+                    stripeProductId, 
+                    valorCentavos, 
+                    "brl", 
+                    intervalo,
+                    intervalCount
+                );
+                log.debug("Preço criado no Stripe: {}", stripePriceIdFinal);
+            }
             
             // Criar o plano no banco de dados
             Plano plano = Plano.builder()
@@ -69,8 +89,8 @@ public class GerenciaPlanoUseCaseImpl implements GerenciaPlanoUseCase {
                     .periodoCobranca(periodoCobranca)
                     .diasTrial(diasTrial)
                     .stripeProductId(stripeProductId)
-                    .stripePriceId(stripePriceId)
-                    .ativo(true)
+                    .stripePriceId(stripePriceIdFinal)
+                    .ativo(ativo)
                     .build();
             
             Plano planoSalvo = salvaPlanoPort.salvar(plano);
@@ -86,47 +106,50 @@ public class GerenciaPlanoUseCaseImpl implements GerenciaPlanoUseCase {
     @Transactional
     public Plano atualizarPlano(Long id, String nome, String descricao, BigDecimal preco, 
                                Plano.PeriodoCobranca periodoCobranca, Integer diasTrial) {
-        Optional<Plano> planoOptional = buscaPlanoPort.buscarPorId(id);
-        if (planoOptional.isEmpty()) {
-            throw new RuntimeException("Plano não encontrado com o ID: " + id);
-        }
-        
-        Plano plano = planoOptional.get();
-        plano.setNome(nome);
-        plano.setDescricao(descricao);
-        plano.setPreco(preco);
-        plano.setPeriodoCobranca(periodoCobranca);
-        plano.setDiasTrial(diasTrial);
-        
-        // Atualizar no Stripe
+        return atualizarPlano(id, nome, descricao, preco, periodoCobranca, diasTrial, null, true);
+    }
+
+    @Override
+    @Transactional
+    public Plano atualizarPlano(Long id, String nome, String descricao, BigDecimal preco, 
+                               Plano.PeriodoCobranca periodoCobranca, Integer diasTrial,
+                               String stripePriceId, boolean ativo) {
         try {
-            // Atualizar produto no Stripe
-            stripeIntegrationUseCase.atualizarProduto(plano.getStripeProductId(), nome, descricao);
+            log.debug("Atualizando plano: {}, nome: {}, preço: {}, período: {}", id, nome, preco, periodoCobranca);
             
-            // Para atualizar o preço, precisamos criar um novo preço no Stripe
-            // já que o Stripe não permite atualizar preços existentes
-            long valorCentavos = preco.multiply(new BigDecimal("100")).longValue();
-            String intervalo = mapPeriodoCobrancaParaStripe(periodoCobranca);
-            int intervalCount = getIntervalCount(periodoCobranca);
+            // Verificar se o plano existe
+            Optional<Plano> planoOptional = buscaPlanoPort.buscarPorId(id);
+            if (planoOptional.isEmpty()) {
+                throw new IllegalArgumentException("Plano não encontrado com ID: " + id);
+            }
             
-            String novoStripePriceId = stripeIntegrationUseCase.criarPreco(
-                plano.getStripeProductId(), 
-                valorCentavos, 
-                "brl", 
-                intervalo,
-                intervalCount
-            );
+            Plano planoExistente = planoOptional.get();
             
-            // Atualizar o ID do preço no plano
-            plano.setStripePriceId(novoStripePriceId);
+            // Verificar se já existe outro plano com o mesmo nome (exceto o próprio plano sendo atualizado)
+            if (!planoExistente.getNome().equals(nome)) {
+                Optional<Plano> outroPlanoComMesmoNome = buscaPlanoPort.buscarPorNome(nome);
+                if (outroPlanoComMesmoNome.isPresent() && !outroPlanoComMesmoNome.get().getId().equals(id)) {
+                    throw new IllegalArgumentException("Já existe um plano com o nome '" + nome + "'. Por favor, escolha um nome diferente.");
+                }
+            }
             
-            log.info("Plano atualizado com sucesso: {}", id);
+            // Atualizar os dados do plano
+            planoExistente.setNome(nome);
+            planoExistente.setDescricao(descricao);
+            planoExistente.setPreco(preco);
+            planoExistente.setPeriodoCobranca(periodoCobranca);
+            planoExistente.setDiasTrial(diasTrial);
+            planoExistente.setStripePriceId(stripePriceId);
+            planoExistente.setAtivo(ativo);
+            
+            // Salvar as alterações
+            Plano planoAtualizado = salvaPlanoPort.salvar(planoExistente);
+            log.info("Plano atualizado com sucesso: {}", planoAtualizado.getId());
+            return planoAtualizado;
         } catch (Exception e) {
-            log.error("Erro ao atualizar plano no Stripe: {}", e.getMessage(), e);
-            // Continuar com a atualização no banco de dados mesmo se falhar no Stripe
+            log.error("Erro ao atualizar plano: {}", e.getMessage(), e);
+            throw new RuntimeException("Erro ao atualizar plano: " + e.getMessage(), e);
         }
-        
-        return salvaPlanoPort.salvar(plano);
     }
 
     @Override

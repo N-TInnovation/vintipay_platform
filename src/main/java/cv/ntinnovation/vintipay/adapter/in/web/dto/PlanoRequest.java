@@ -31,4 +31,8 @@ public class PlanoRequest {
     private Plano.PeriodoCobranca periodoCobranca;
 
     private Integer diasTrial;
+    
+    private String stripePriceId;
+    
+    private boolean ativo = true;
 }

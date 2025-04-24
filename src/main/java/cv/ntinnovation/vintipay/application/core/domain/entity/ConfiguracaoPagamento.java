@@ -29,4 +29,11 @@ public class ConfiguracaoPagamento {
     private String telefone;
     private String email;
     private Usuario usuario;
+    private Long usuarioId;
+    private String ambiente;
+    private String serviceUrl;
+    private String webhookUrl;
+    private String webhookSecret;
+    private Boolean ativo;
+    private String observacoes;
 }
