@@ -5,6 +5,7 @@ import cv.ntinnovation.vintipay.adapter.in.web.dto.LinkPagamentoResponse;
 import cv.ntinnovation.vintipay.adapter.in.web.mapper.LinkPagamentoWebMapper;
 import cv.ntinnovation.vintipay.application.core.domain.entity.LinkPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
+import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusLinkPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaLinkPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaProdutoUseCase;
@@ -38,15 +39,20 @@ public class LinkPagamentoController {
 
     @GetMapping
     public String listarLinks(Model model, Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
+        
         List<LinkPagamento> links = gerenciaLinkPagamentoUseCase.listarLinksPorProprietario(usuarioId);
         model.addAttribute("links", links);
-        return "links/lista";
+        return "user/links-pagamento";
     }
 
     @GetMapping("/novo")
     public String formularioNovoLink(Model model, Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         // Buscar produtos do usuário para o dropdown
         List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
@@ -60,7 +66,9 @@ public class LinkPagamentoController {
     @PostMapping("/novo")
     public String criarLink(@Valid @ModelAttribute("link") LinkPagamentoRequest request, 
                            Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         // Verificar se o produto pertence ao usuário
         if (!gerenciaProdutoUseCase.verificarPropriedadeProduto(request.getProdutoId(), usuarioId)) {
@@ -83,7 +91,9 @@ public class LinkPagamentoController {
 
     @GetMapping("/{id}/editar")
     public String formularioEditarLink(@PathVariable Long id, Model model, Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorId(id);
         if (linkOpt.isEmpty() || !gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
@@ -106,7 +116,9 @@ public class LinkPagamentoController {
     public String atualizarLink(@PathVariable Long id, 
                                @Valid @ModelAttribute("link") LinkPagamentoRequest request,
                                Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
             return "redirect:/user/links-pagamento";
@@ -128,7 +140,9 @@ public class LinkPagamentoController {
 
     @PostMapping("/{id}/excluir")
     public String excluirLink(@PathVariable Long id, Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         if (gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
             gerenciaLinkPagamentoUseCase.excluirLinkPagamento(id);
@@ -241,7 +255,10 @@ public class LinkPagamentoController {
     @GetMapping("/api")
     @ResponseBody
     public ResponseEntity<List<LinkPagamentoResponse>> listarLinksApi(Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
+        
         List<LinkPagamento> links = gerenciaLinkPagamentoUseCase.listarLinksPorProprietario(usuarioId);
         
         List<LinkPagamentoResponse> response = links.stream()
@@ -254,7 +271,9 @@ public class LinkPagamentoController {
     @GetMapping("/api/{id}")
     @ResponseBody
     public ResponseEntity<LinkPagamentoResponse> buscarLinkApi(@PathVariable Long id, Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorId(id);
         if (linkOpt.isEmpty() || !gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
@@ -269,7 +288,9 @@ public class LinkPagamentoController {
     @ResponseBody
     public ResponseEntity<LinkPagamentoResponse> criarLinkApi(@Valid @RequestBody LinkPagamentoRequest request, 
                                                             Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         // Verificar se o produto pertence ao usuário
         if (!gerenciaProdutoUseCase.verificarPropriedadeProduto(request.getProdutoId(), usuarioId)) {
@@ -296,7 +317,9 @@ public class LinkPagamentoController {
     public ResponseEntity<LinkPagamentoResponse> atualizarLinkApi(@PathVariable Long id, 
                                                                 @Valid @RequestBody LinkPagamentoRequest request,
                                                                 Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
             return ResponseEntity.notFound().build();
@@ -320,7 +343,9 @@ public class LinkPagamentoController {
     @DeleteMapping("/api/{id}")
     @ResponseBody
     public ResponseEntity<Void> excluirLinkApi(@PathVariable Long id, Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
             return ResponseEntity.notFound().build();
@@ -339,7 +364,9 @@ public class LinkPagamentoController {
     @ResponseBody
     public ResponseEntity<List<LinkPagamentoResponse>> listarLinksPorProdutoApi(@PathVariable Long produtoId,
                                                                               Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         // Verificar se o produto pertence ao usuário
         if (!gerenciaProdutoUseCase.verificarPropriedadeProduto(produtoId, usuarioId)) {
