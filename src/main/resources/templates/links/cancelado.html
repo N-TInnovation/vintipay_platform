@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento Cancelado - VintiPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --secondary-color: #2ecc71;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --background-light: #f8f9fa;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+        }
+        
+        body {
+            background-color: var(--background-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .cancel-container {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 0 15px;
+            flex: 1;
+        }
+        
+        .logo-area {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo-area img {
+            max-height: 60px;
+        }
+        
+        .cancel-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            text-align: center;
+        }
+        
+        .cancel-icon {
+            width: 100px;
+            height: 100px;
+            background-color: var(--warning-color);
+            color: white;
+            font-size: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+        }
+        
+        .cancel-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--warning-color);
+        }
+        
+        .cancel-message {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .product-details {
+            background-color: var(--background-light);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .product-details h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+        
+        .product-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .product-item-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 1rem;
+        }
+        
+        .product-item-details {
+            flex: 1;
+        }
+        
+        .product-item-price {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .action-btns {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .retry-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            border: none;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .retry-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+        
+        .back-btn {
+            background-color: var(--text-light);
+            color: white;
+            padding: 0.8rem 2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            border: none;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .back-btn:hover {
+            background-color: var(--text-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+        
+        .footer {
+            background-color: white;
+            padding: 1rem 0;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="cancel-container">
+        <div class="logo-area">
+            <img th:src="@{/img/logo.png}" alt="VintiPay Logo" onerror="this.src='https://via.placeholder.com/180x60?text=VintiPay'">
+        </div>
+        
+        <div class="cancel-card">
+            <div class="cancel-icon">
+                <i class="fas fa-times"></i>
+            </div>
+            
+            <h1 class="cancel-title">Pagamento Cancelado</h1>
+            
+            <p class="cancel-message">
+                Seu pagamento foi cancelado. Nenhum valor foi cobrado.
+            </p>
+            
+            <div class="product-details" th:if="${produto != null}">
+                <h3>Detalhes do Produto</h3>
+                
+                <div class="product-item">
+                    <img th:if="${produto.imagem != null}" th:src="${produto.imagem}" class="product-item-image" th:alt="${produto.nome}">
+                    <img th:unless="${produto.imagem != null}" src="https://via.placeholder.com/60?text=Produto" class="product-item-image" alt="Produto">
+                    
+                    <div class="product-item-details">
+                        <div class="fw-bold" th:text="${produto.nome}">Nome do Produto</div>
+                        <div class="small text-muted" th:text="${#strings.abbreviate(produto.descricao, 100)}">Descrição do produto...</div>
+                    </div>
+                    
+                    <div class="product-item-price" th:text="${#numbers.formatCurrency(produto.preco)}">R$ 99,90</div>
+                </div>
+            </div>
+            
+            <div class="action-btns">
+                <a th:href="@{/links-pagamento/p/{codigo}(codigo=${link.codigo})}" class="retry-btn">
+                    <i class="fas fa-redo me-2"></i> Tentar Novamente
+                </a>
+                
+                <a href="/" class="back-btn">
+                    <i class="fas fa-home me-2"></i> Página Inicial
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>© 2025 VintiPay - Plataforma de Pagamentos de Cabo Verde</p>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

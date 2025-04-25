@@ -21,7 +21,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -119,6 +118,10 @@ public class SecurityConfig {
                             .requestMatchers("/permissoes/**").hasRole("ADMIN")
                             .requestMatchers("/papeis/**").hasRole("ADMIN")
                             .requestMatchers("/pagamento/checkout/{reference}").permitAll()
+                            .requestMatchers("/links-pagamento/p/{codigo}").permitAll()
+                            .requestMatchers("/links-pagamento/sucesso").permitAll()
+                            .requestMatchers("/links-pagamento/cancelado").permitAll()
+                            .requestMatchers("/links-pagamento/erro").permitAll()
                             .requestMatchers("/error").permitAll()
                             .requestMatchers("/login").permitAll()
                             .requestMatchers("/registro").permitAll()

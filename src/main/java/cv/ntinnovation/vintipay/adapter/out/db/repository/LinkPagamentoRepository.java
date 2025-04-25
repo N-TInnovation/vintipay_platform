@@ -1,8 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.out.db.repository;
 
 import cv.ntinnovation.vintipay.adapter.out.db.entity.LinkPagamentoEntity;
-import cv.ntinnovation.vintipay.adapter.out.db.entity.ProdutoEntity;
-import cv.ntinnovation.vintipay.adapter.out.db.entity.UsuarioEntity;
+import cv.ntinnovation.vintipay.application.core.domain.enums.StatusLinkPagamentoEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,13 +13,11 @@ public interface LinkPagamentoRepository extends JpaRepository<LinkPagamentoEnti
     
     Optional<LinkPagamentoEntity> findByCodigo(String codigo);
     
-    List<LinkPagamentoEntity> findByProprietarioOrderByDataCriacaoDesc(UsuarioEntity proprietario);
-    
     List<LinkPagamentoEntity> findByProprietarioIdOrderByDataCriacaoDesc(Long proprietarioId);
-    
-    List<LinkPagamentoEntity> findByProdutoOrderByDataCriacaoDesc(ProdutoEntity produto);
     
     List<LinkPagamentoEntity> findByProdutoIdOrderByDataCriacaoDesc(Long produtoId);
     
-    boolean existsByIdAndProprietarioId(Long id, Long proprietarioId);
+    List<LinkPagamentoEntity> findByStatus(StatusLinkPagamentoEnum status);
+    
+    List<LinkPagamentoEntity> findByStatusAndProprietarioId(StatusLinkPagamentoEnum status, Long proprietarioId);
 }
