@@ -48,4 +48,14 @@ public class ProdutoRepositoryAdapter implements SalvaProduto, BuscaProduto {
                 .map(produtoMapper::toDomain)
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    public boolean existePorId(Long id) {
+        return produtoRepository.existsById(id);
+    }
+    
+    @Override
+    public boolean existePorIdEProprietarioId(Long id, Long proprietarioId) {
+        return produtoRepository.existsByIdAndProprietarioId(id, proprietarioId);
+    }
 }

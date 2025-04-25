@@ -54,4 +54,14 @@ public class LinkPagamentoRepositoryAdapter implements SalvaLinkPagamento, Busca
                 .map(linkPagamentoMapper::toDomain)
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    public boolean existePorId(Long id) {
+        return linkPagamentoRepository.existsById(id);
+    }
+    
+    @Override
+    public boolean existePorIdEProprietarioId(Long id, Long proprietarioId) {
+        return linkPagamentoRepository.existsByIdAndProprietarioId(id, proprietarioId);
+    }
 }
