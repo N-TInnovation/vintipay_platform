@@ -7,11 +7,13 @@
         .produto-card {
             transition: transform 0.3s, box-shadow 0.3s;
             height: 100%;
+            border-radius: 10px;
+            overflow: hidden;
         }
         
         .produto-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
         }
         
         .produto-imagem {
@@ -28,6 +30,45 @@
         .badge-inactive {
             background-color: #6c757d;
         }
+        
+        .produto-categoria {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        
+        .produto-status {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            color: #e9ecef;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filters {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
     </style>
 </head>
 <body>
@@ -35,24 +76,76 @@
         <div class="container py-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h3 mb-0">Meus Produtos</h1>
-                <a th:href="@{/produtos/novo}" class="btn btn-primary">
+                <a th:href="@{/user/produtos/novo}" class="btn btn-primary">
                     <i class="fas fa-plus-circle me-2"></i> Novo Produto
                 </a>
             </div>
             
-            <div class="alert alert-info" th:if="${produtos.empty}">
-                <i class="fas fa-info-circle me-2"></i> Você ainda não tem produtos cadastrados.
-                <a th:href="@{/produtos/novo}" class="alert-link">Clique aqui</a> para criar seu primeiro produto.
+            <!-- Filtros -->
+            <div class="filters mb-4" th:unless="${produtos.empty}">
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" id="searchInput" class="form-control" placeholder="Buscar produtos...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="categoryFilter" class="form-select">
+                            <option value="">Todas as categorias</option>
+                            <option th:each="categoria : ${#lists.toSet(#lists.collectAndSortNullsFirst(produtos, 'categoria'))}" 
+                                    th:value="${categoria}" 
+                                    th:text="${categoria ?: 'Sem categoria'}">Categoria</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="statusFilter" class="form-select">
+                            <option value="">Todos os status</option>
+                            <option value="true">Ativos</option>
+                            <option value="false">Inativos</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select id="sortOrder" class="form-select">
+                            <option value="name_asc">Nome (A-Z)</option>
+                            <option value="name_desc">Nome (Z-A)</option>
+                            <option value="price_asc">Preço (menor)</option>
+                            <option value="price_desc">Preço (maior)</option>
+                            <option value="date_desc">Mais recentes</option>
+                            <option value="date_asc">Mais antigos</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             
-            <div class="row g-4" th:unless="${produtos.empty}">
-                <div class="col-md-4 col-lg-3" th:each="produto : ${produtos}">
+            <!-- Estado vazio -->
+            <div class="empty-state" th:if="${produtos.empty}">
+                <div class="empty-state-icon">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <h3>Nenhum produto cadastrado</h3>
+                <p class="text-muted mb-4">Você ainda não tem produtos cadastrados no sistema.</p>
+                <a th:href="@{/user/produtos/novo}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i> Criar meu primeiro produto
+                </a>
+            </div>
+            
+            <!-- Lista de produtos -->
+            <div class="row g-4" th:unless="${produtos.empty}" id="productList">
+                <div class="col-md-4 col-lg-3 product-item" th:each="produto : ${produtos}" 
+                     th:data-name="${produto.nome}"
+                     th:data-price="${produto.preco}"
+                     th:data-category="${produto.categoria}"
+                     th:data-status="${produto.ativo}"
+                     th:data-date="${produto.dataCriacao}">
                     <div class="card produto-card">
                         <div class="position-relative">
                             <img th:if="${produto.imagem}" th:src="${produto.imagem}" class="card-img-top produto-imagem" th:alt="${produto.nome}">
                             <img th:unless="${produto.imagem}" src="https://via.placeholder.com/300x180?text=Sem+Imagem" class="card-img-top produto-imagem" th:alt="${produto.nome}">
                             
-                            <span th:if="${!produto.ativo}" class="badge bg-secondary position-absolute top-0 end-0 m-2">Inativo</span>
+                            <span th:if="${produto.categoria}" class="produto-categoria" th:text="${produto.categoria}">Categoria</span>
+                            <span th:if="${!produto.ativo}" class="badge bg-secondary produto-status">Inativo</span>
+                            <span th:if="${produto.ativo}" class="badge bg-success produto-status">Ativo</span>
                         </div>
                         
                         <div class="card-body">
@@ -67,7 +160,7 @@
                             </div>
                             
                             <div class="produto-actions">
-                                <a th:href="@{/produtos/{id}/editar(id=${produto.id})}" class="btn btn-sm btn-outline-primary">
+                                <a th:href="@{/user/produtos/{id}/editar(id=${produto.id})}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit"></i> Editar
                                 </a>
                                 
@@ -77,18 +170,18 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
                                         <li>
-                                            <a class="dropdown-item" th:href="@{/links-pagamento/novo(produtoId=${produto.id})}">
+                                            <a class="dropdown-item" th:href="@{/user/links-pagamento/novo(produtoId=${produto.id})}">
                                                 <i class="fas fa-link me-2"></i> Criar Link de Pagamento
                                             </a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" th:href="@{/links-pagamento?produtoId={id}(id=${produto.id})}">
+                                            <a class="dropdown-item" th:href="@{/user/links-pagamento?produtoId={id}(id=${produto.id})}">
                                                 <i class="fas fa-list me-2"></i> Ver Links de Pagamento
                                             </a>
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <form th:action="@{/produtos/{id}/excluir(id=${produto.id})}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir este produto?');">
+                                            <form th:action="@{/user/produtos/{id}/excluir(id=${produto.id})}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir este produto?');">
                                                 <button type="submit" class="dropdown-item text-danger">
                                                     <i class="fas fa-trash-alt me-2"></i> Excluir
                                                 </button>
@@ -105,7 +198,96 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Mensagem de nenhum resultado encontrado após filtro -->
+            <div id="noResults" class="alert alert-info mt-4 d-none">
+                <i class="fas fa-info-circle me-2"></i> Nenhum produto encontrado com os filtros selecionados.
+            </div>
         </div>
     </div>
+    
+    <!-- Scripts específicos para esta página -->
+    <th:block layout:fragment="scripts">
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Elementos DOM
+                const searchInput = document.getElementById('searchInput');
+                const categoryFilter = document.getElementById('categoryFilter');
+                const statusFilter = document.getElementById('statusFilter');
+                const sortOrder = document.getElementById('sortOrder');
+                const productList = document.getElementById('productList');
+                const productItems = document.querySelectorAll('.product-item');
+                const noResults = document.getElementById('noResults');
+                
+                // Função para filtrar e ordenar produtos
+                function filterAndSortProducts() {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    const category = categoryFilter.value;
+                    const status = statusFilter.value;
+                    const sort = sortOrder.value;
+                    
+                    let visibleCount = 0;
+                    
+                    // Filtrar produtos
+                    productItems.forEach(item => {
+                        const name = item.getAttribute('data-name').toLowerCase();
+                        const itemCategory = item.getAttribute('data-category');
+                        const itemStatus = item.getAttribute('data-status');
+                        
+                        const matchesSearch = name.includes(searchTerm);
+                        const matchesCategory = category === '' || itemCategory === category;
+                        const matchesStatus = status === '' || itemStatus === status;
+                        
+                        const isVisible = matchesSearch && matchesCategory && matchesStatus;
+                        
+                        item.style.display = isVisible ? 'block' : 'none';
+                        
+                        if (isVisible) {
+                            visibleCount++;
+                        }
+                    });
+                    
+                    // Mostrar mensagem se nenhum resultado
+                    if (visibleCount === 0) {
+                        noResults.classList.remove('d-none');
+                    } else {
+                        noResults.classList.add('d-none');
+                    }
+                    
+                    // Ordenar produtos
+                    const items = Array.from(productItems);
+                    items.sort((a, b) => {
+                        switch(sort) {
+                            case 'name_asc':
+                                return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
+                            case 'name_desc':
+                                return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name'));
+                            case 'price_asc':
+                                return parseFloat(a.getAttribute('data-price')) - parseFloat(b.getAttribute('data-price'));
+                            case 'price_desc':
+                                return parseFloat(b.getAttribute('data-price')) - parseFloat(a.getAttribute('data-price'));
+                            case 'date_desc':
+                                return new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date'));
+                            case 'date_asc':
+                                return new Date(a.getAttribute('data-date')) - new Date(b.getAttribute('data-date'));
+                            default:
+                                return 0;
+                        }
+                    });
+                    
+                    // Reordenar no DOM
+                    items.forEach(item => {
+                        productList.appendChild(item);
+                    });
+                }
+                
+                // Adicionar event listeners
+                searchInput.addEventListener('input', filterAndSortProducts);
+                categoryFilter.addEventListener('change', filterAndSortProducts);
+                statusFilter.addEventListener('change', filterAndSortProducts);
+                sortOrder.addEventListener('change', filterAndSortProducts);
+            });
+        </script>
+    </th:block>
 </body>
 </html>

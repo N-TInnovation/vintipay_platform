@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/produtos")
+@RequestMapping("/user/produtos")
 @RequiredArgsConstructor
 public class ProdutoController {
 
@@ -64,7 +64,7 @@ public class ProdutoController {
             usuarioId
         );
         
-        return "redirect:/produtos";
+        return "redirect:/user/produtos";
     }
 
     @GetMapping("/{id}/editar")
@@ -75,7 +75,7 @@ public class ProdutoController {
         
         Optional<Produto> produtoOpt = gerenciaProdutoUseCase.buscarProdutoPorId(id);
         if (produtoOpt.isEmpty() || !gerenciaProdutoUseCase.verificarPropriedadeProduto(id, usuarioId)) {
-            return "redirect:/produtos";
+            return "redirect:/user/produtos";
         }
         
         Produto produto = produtoOpt.get();
@@ -94,7 +94,7 @@ public class ProdutoController {
         Long usuarioId = usuario.getId();
         
         if (!gerenciaProdutoUseCase.verificarPropriedadeProduto(id, usuarioId)) {
-            return "redirect:/produtos";
+            return "redirect:/user/produtos";
         }
         
         gerenciaProdutoUseCase.atualizarProduto(
@@ -109,7 +109,7 @@ public class ProdutoController {
             request.isAtivo()
         );
         
-        return "redirect:/produtos";
+        return "redirect:/user/produtos";
     }
 
     @PostMapping("/{id}/excluir")
@@ -122,7 +122,7 @@ public class ProdutoController {
             gerenciaProdutoUseCase.excluirProduto(id);
         }
         
-        return "redirect:/produtos";
+        return "redirect:/user/produtos";
     }
 
     // ===== API REST =====

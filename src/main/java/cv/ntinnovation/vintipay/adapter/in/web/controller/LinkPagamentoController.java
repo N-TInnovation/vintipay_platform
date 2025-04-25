@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/links-pagamento")
+@RequestMapping("/user/links-pagamento")
 @RequiredArgsConstructor
 public class LinkPagamentoController {
 
@@ -64,7 +64,7 @@ public class LinkPagamentoController {
         
         // Verificar se o produto pertence ao usuário
         if (!gerenciaProdutoUseCase.verificarPropriedadeProduto(request.getProdutoId(), usuarioId)) {
-            return "redirect:/links-pagamento";
+            return "redirect:/user/links-pagamento";
         }
         
         gerenciaLinkPagamentoUseCase.criarLinkPagamento(
@@ -78,7 +78,7 @@ public class LinkPagamentoController {
             request.getUrlRetornoCancelamento()
         );
         
-        return "redirect:/links-pagamento";
+        return "redirect:/user/links-pagamento";
     }
 
     @GetMapping("/{id}/editar")
@@ -87,7 +87,7 @@ public class LinkPagamentoController {
         
         Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorId(id);
         if (linkOpt.isEmpty() || !gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
-            return "redirect:/links-pagamento";
+            return "redirect:/user/links-pagamento";
         }
         
         LinkPagamento link = linkOpt.get();
@@ -109,7 +109,7 @@ public class LinkPagamentoController {
         Long usuarioId = Long.parseLong(authentication.getName());
         
         if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
-            return "redirect:/links-pagamento";
+            return "redirect:/user/links-pagamento";
         }
         
         gerenciaLinkPagamentoUseCase.atualizarLinkPagamento(
@@ -123,7 +123,7 @@ public class LinkPagamentoController {
             request.getUrlRetornoCancelamento()
         );
         
-        return "redirect:/links-pagamento";
+        return "redirect:/user/links-pagamento";
     }
 
     @PostMapping("/{id}/excluir")
@@ -134,7 +134,7 @@ public class LinkPagamentoController {
             gerenciaLinkPagamentoUseCase.excluirLinkPagamento(id);
         }
         
-        return "redirect:/links-pagamento";
+        return "redirect:/user/links-pagamento";
     }
 
     // ===== Endpoints públicos para checkout =====
@@ -163,7 +163,7 @@ public class LinkPagamentoController {
         Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigo);
         
         if (linkOpt.isEmpty() || !linkOpt.get().isDisponivel()) {
-            return "redirect:/links-pagamento/p/" + codigo + "?erro=link_invalido";
+            return "redirect:/user/links-pagamento/p/" + codigo + "?erro=link_invalido";
         }
         
         LinkPagamento link = linkOpt.get();
@@ -176,12 +176,12 @@ public class LinkPagamentoController {
         
         String successUrl = link.getUrlRetornoSucesso();
         if (successUrl == null || successUrl.isEmpty()) {
-            successUrl = baseUrl + "/links-pagamento/p/" + codigo + "/sucesso";
+            successUrl = baseUrl + "/user/links-pagamento/p/" + codigo + "/sucesso";
         }
         
         String cancelUrl = link.getUrlRetornoCancelamento();
         if (cancelUrl == null || cancelUrl.isEmpty()) {
-            cancelUrl = baseUrl + "/links-pagamento/p/" + codigo + "/cancelado";
+            cancelUrl = baseUrl + "/user/links-pagamento/p/" + codigo + "/cancelado";
         }
         
         // Criar sessão de pagamento
