@@ -14,6 +14,7 @@ import cv.ntinnovation.vintipay.application.port.out.SalvaIntencaoPagamento;
 import cv.ntinnovation.vintipay.application.port.out.SalvaSessaoPagamento;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
+@Primary
 @Service
 @RequiredArgsConstructor
 public class ProcessamentoPagamentoLinkUseCaseImpl implements ProcessamentoPagamentoLinkUseCase {

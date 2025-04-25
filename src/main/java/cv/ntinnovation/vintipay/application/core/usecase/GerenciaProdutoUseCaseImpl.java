@@ -7,6 +7,8 @@ import cv.ntinnovation.vintipay.application.port.out.BuscaProduto;
 import cv.ntinnovation.vintipay.application.port.out.BuscaUsuarioPort;
 import cv.ntinnovation.vintipay.application.port.out.SalvaProduto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
+@Primary
 @Service
 @RequiredArgsConstructor
 public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
@@ -29,6 +33,8 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
     public Produto criarProduto(String nome, String descricao, BigDecimal preco, 
                               String imagem, String codigoSku, Integer estoque,
                               String categoria, Long proprietarioId) {
+        log.info("Criando produto: {}, proprietário: {}", nome, proprietarioId);
+        
         // Validações
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("Nome do produto é obrigatório");
@@ -68,8 +74,10 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
     @Override
     @Transactional
     public Produto atualizarProduto(Long produtoId, String nome, String descricao, 
-                                  BigDecimal preco, String imagem, String codigoSku,
-                                  Integer estoque, String categoria, boolean ativo) {
+                                   BigDecimal preco, String imagem, String codigoSku,
+                                   Integer estoque, String categoria, boolean ativo) {
+        log.info("Atualizando produto: {}", produtoId);
+        
         // Buscar o produto
         Optional<Produto> produtoOpt = buscaProduto.buscarPorId(produtoId);
         if (produtoOpt.isEmpty()) {
@@ -117,6 +125,8 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
     @Override
     @Transactional
     public boolean alterarStatusProduto(Long produtoId, boolean ativo) {
+        log.info("Alterando status do produto: {} para {}", produtoId, ativo ? "ativo" : "inativo");
+        
         // Buscar o produto
         Optional<Produto> produtoOpt = buscaProduto.buscarPorId(produtoId);
         if (produtoOpt.isEmpty()) {
@@ -138,6 +148,8 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
     @Override
     @Transactional
     public boolean excluirProduto(Long produtoId) {
+        log.info("Excluindo produto: {}", produtoId);
+        
         // Buscar o produto
         Optional<Produto> produtoOpt = buscaProduto.buscarPorId(produtoId);
         if (produtoOpt.isEmpty()) {
@@ -159,18 +171,32 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<Produto> listarProdutosPorProprietario(Long proprietarioId) {
+        log.info("Listando produtos do proprietário: {}", proprietarioId);
         return buscaProduto.buscarPorProprietarioId(proprietarioId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<Produto> buscarProdutoPorId(Long produtoId) {
+        log.info("Buscando produto por ID: {}", produtoId);
         return buscaProduto.buscarPorId(produtoId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean verificarPropriedadeProduto(Long produtoId, Long proprietarioId) {
+        log.info("Verificando propriedade do produto: {}, proprietário: {}", produtoId, proprietarioId);
         return buscaProduto.existePorIdEProprietarioId(produtoId, proprietarioId);
+    }
+    
+    /**
+     * Lista todos os produtos ativos
+     * 
+     * @return Lista de produtos ativos
+     */
+    @Transactional(readOnly = true)
+    public List<Produto> listarProdutosAtivos() {
+        log.info("Listando todos os produtos ativos");
+        return buscaProduto.buscarTodosAtivos();
     }
 }

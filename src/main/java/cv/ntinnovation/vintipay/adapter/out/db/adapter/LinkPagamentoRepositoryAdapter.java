@@ -7,12 +7,14 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.LinkPagamento;
 import cv.ntinnovation.vintipay.application.port.out.BuscaLinkPagamento;
 import cv.ntinnovation.vintipay.application.port.out.SalvaLinkPagamento;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Primary
 @Component
 @RequiredArgsConstructor
 public class LinkPagamentoRepositoryAdapter implements SalvaLinkPagamento, BuscaLinkPagamento {
