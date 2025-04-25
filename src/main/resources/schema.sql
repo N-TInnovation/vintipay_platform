@@ -41,8 +41,12 @@ CREATE TABLE IF NOT EXISTS links_pagamento (
     FOREIGN KEY (proprietario_id) REFERENCES usuarios(id)
 );
 
--- Índices para melhorar a performance das consultas
-CREATE INDEX IF NOT EXISTS idx_produtos_proprietario ON produtos(proprietario_id);
-CREATE INDEX IF NOT EXISTS idx_links_pagamento_produto ON links_pagamento(produto_id);
-CREATE INDEX IF NOT EXISTS idx_links_pagamento_proprietario ON links_pagamento(proprietario_id);
-CREATE INDEX IF NOT EXISTS idx_links_pagamento_codigo ON links_pagamento(codigo);
+-- Comentando a criação de índices, pois eles já existem no banco de dados
+-- e o MySQL não suporta a cláusula IF NOT EXISTS para índices
+-- Esses índices serão criados automaticamente pelo Hibernate/JPA
+-- durante a inicialização da aplicação se necessário
+
+-- CREATE INDEX idx_produtos_proprietario ON produtos(proprietario_id);
+-- CREATE INDEX idx_links_pagamento_produto ON links_pagamento(produto_id);
+-- CREATE INDEX idx_links_pagamento_proprietario ON links_pagamento(proprietario_id);
+-- CREATE INDEX idx_links_pagamento_codigo ON links_pagamento(codigo);

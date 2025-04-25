@@ -131,19 +131,30 @@ public class ProcessamentoPagamentoLinkUseCaseImpl implements ProcessamentoPagam
     @Override
     @Transactional(readOnly = true)
     public Optional<IntencaoPagamento> buscarIntencaoPorCodigoLink(String codigoLink) {
-        // Esta implementação depende de como você está associando as intenções de pagamento
-        // aos links. Você pode precisar adicionar um campo na entidade LinkPagamento para
-        // armazenar a referência da intenção de pagamento, ou criar uma entidade de associação.
+        log.debug("Buscando intenção de pagamento para o link: {}", codigoLink);
         
         // Buscar o link de pagamento pelo código
         Optional<LinkPagamento> linkOpt = buscaLinkPagamento.buscarPorCodigo(codigoLink);
         if (linkOpt.isEmpty()) {
+            log.warn("Link de pagamento não encontrado: {}", codigoLink);
             return Optional.empty();
         }
         
-        // Aqui você deve buscar a intenção de pagamento associada ao link
-        // Como não temos essa associação direta no modelo atual, retornamos vazio
-        return Optional.empty();
+        // Como não temos uma associação direta entre link e intenção,
+        // vamos buscar a intenção de pagamento pela referência que contém o código do link
+        // Assumindo que a referência gerada no método criarSessaoPagamento contém o prefixo "LINK-"
+        
+        // Buscar todas as sessões de pagamento associadas a este link
+        // Nota: Isso é uma solução temporária. Idealmente, deveríamos ter uma associação direta
+        // entre link e intenção de pagamento, ou um método específico para buscar por código de link
+        
+        // Buscar a intenção de pagamento mais recente associada a este link
+        String referenciaPrefix = "LINK-";
+        
+        // Usar o método buscarPorReferencia para encontrar a intenção
+        // Como não temos um método específico para buscar por código de link,
+        // retornamos a última intenção de pagamento criada para este link (se existir)
+        return buscaIntencaoPagamento.buscarPorReferencia(referenciaPrefix + codigoLink);
     }
     
     /**

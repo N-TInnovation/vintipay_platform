@@ -4,6 +4,7 @@ import cv.ntinnovation.vintipay.adapter.in.web.dto.IntencaoPagamentoRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.IntencaoPagamentoResponse;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ContaPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.IntencaoPagamento;
+import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,8 +40,8 @@ class IntencaoPagamentoWebMapperTest {
 
         // Assert
         assertNotNull(result);
-        assertEquals(BigDecimal.valueOf(100.50), result.getAmount());
-        assertEquals("CVE", result.getCurrency());
+        assertEquals(BigDecimal.valueOf(100.50), result.getValor());
+        assertEquals("CVE", result.getMoeda());
         assertNotNull(result.getContaPagamento());
         assertEquals(2L, result.getContaPagamento().getId());
         assertEquals("MERCHANT123", result.getMerchantRef());
@@ -73,8 +74,8 @@ class IntencaoPagamentoWebMapperTest {
 
         // Assert
         assertNotNull(result);
-        assertEquals(BigDecimal.valueOf(100.50), result.getAmount());
-        assertEquals("CVE", result.getCurrency());
+        assertEquals(BigDecimal.valueOf(100.50), result.getValor());
+        assertEquals("CVE", result.getMoeda());
         assertEquals("cliente@example.com", result.getContaPagamentoEmail());
         assertEquals("Praia", result.getContaPagamentoBillAddrCity());
         assertEquals("CV", result.getContaPagamentoBillAddrCountry());
@@ -94,11 +95,11 @@ class IntencaoPagamentoWebMapperTest {
         LocalDateTime now = LocalDateTime.now();
         IntencaoPagamento entity = IntencaoPagamento.builder()
                 .id(1L)
-                .amount(BigDecimal.valueOf(100.50))
-                .status(StatusPagamentoEnum.PENDENTE)
-                .reference("REF123")
-                .createdAt(now)
-                .currency("CVE")
+                .valor(BigDecimal.valueOf(100.50))
+                .status(StatusIntencaoPagamentoEnum.PENDENTE)
+                .referencia("REF123")
+                .dataCriacao(now)
+                .moeda("CVE")
                 .contaPagamento(ContaPagamento.builder().id(2L).build())
                 .contaPagamentoEmail("cliente@example.com")
                 .contaPagamentoBillAddrCity("Praia")
