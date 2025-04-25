@@ -98,7 +98,7 @@
                             <div class="col-8">
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Produtos Ativos</p>
-                                    <h5 class="font-weight-bolder" th:text="${#lists.size(#lists.filterSingle(produtos, produto -> produto.ativo))}">0</h5>
+                                    <h5 class="font-weight-bolder" th:text="${#lists.size(#lists.filterSingle(produtos, 'ativo', true))}">0</h5>
                                     <p class="mb-0 text-sm">
                                         <span class="text-success text-sm font-weight-bolder">Disponíveis para venda</span>
                                     </p>
@@ -121,7 +121,7 @@
                             <div class="col-8">
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Produtos Inativos</p>
-                                    <h5 class="font-weight-bolder" th:text="${#lists.size(#lists.filterSingle(produtos, produto -> !produto.ativo))}">0</h5>
+                                    <h5 class="font-weight-bolder" th:text="${#lists.size(#lists.filterSingle(produtos, 'ativo', false))}">0</h5>
                                     <p class="mb-0 text-sm">
                                         <span class="text-danger text-sm font-weight-bolder">Indisponíveis para venda</span>
                                     </p>
@@ -162,9 +162,9 @@
                     <div class="col-md-3 mb-2">
                         <select id="categoryFilter" class="form-select">
                             <option value="">Todas as Categorias</option>
-                            <option th:each="categoria : ${#lists.sort(#lists.toList(#sets.toSet(#lists.collect(produtos, produto -> produto.categoria))))}" 
+                            <option th:each="categoria : ${#lists.sort(#lists.toList(#sets.toSet(#arrays.toArray(produtos.![categoria]))))}" 
                                     th:value="${categoria}" 
-                                    th:text="${categoria}">Categoria</option>
+                                    th:text="${categoria != null ? categoria : 'Sem categoria'}">Categoria</option>
                         </select>
                     </div>
                     
