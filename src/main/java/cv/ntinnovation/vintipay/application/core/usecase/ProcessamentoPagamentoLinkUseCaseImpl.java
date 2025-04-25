@@ -3,12 +3,15 @@ package cv.ntinnovation.vintipay.application.core.usecase;
 import cv.ntinnovation.vintipay.application.core.domain.entity.IntencaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.LinkPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
-import cv.ntinnovation.vintipay.application.core.domain.enums.StatusLinkPagamentoEnum;
-import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
-import cv.ntinnovation.vintipay.application.port.in.CriaIntencaoPagamentoUseCase;
+import cv.ntinnovation.vintipay.application.core.domain.entity.SessaoPagamento;
+import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaLinkPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.ProcessamentoPagamentoLinkUseCase;
+import cv.ntinnovation.vintipay.application.port.out.BuscaIntencaoPagamento;
 import cv.ntinnovation.vintipay.application.port.out.BuscaLinkPagamento;
+import cv.ntinnovation.vintipay.application.port.out.ProcessadorPagamento;
+import cv.ntinnovation.vintipay.application.port.out.SalvaIntencaoPagamento;
+import cv.ntinnovation.vintipay.application.port.out.SalvaSessaoPagamento;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +28,10 @@ public class ProcessamentoPagamentoLinkUseCaseImpl implements ProcessamentoPagam
 
     private final BuscaLinkPagamento buscaLinkPagamento;
     private final GerenciaLinkPagamentoUseCase gerenciaLinkPagamentoUseCase;
-    private final CriaIntencaoPagamentoUseCase criaIntencaoPagamentoUseCase;
+    private final BuscaIntencaoPagamento buscaIntencaoPagamento;
+    private final SalvaIntencaoPagamento salvaIntencaoPagamento;
+    private final SalvaSessaoPagamento salvaSessaoPagamento;
+    private final ProcessadorPagamento processadorPagamento;
 
     @Override
     @Transactional
@@ -51,33 +57,39 @@ public class ProcessamentoPagamentoLinkUseCaseImpl implements ProcessamentoPagam
         }
         
         // Criar uma intenção de pagamento
+        String referencia = gerarReferenciaUnica();
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
-                .amount(produto.getPreco())
-                .currency(produto.getMoeda())
-                .reference(UUID.randomUUID().toString())
-                .status(StatusPagamentoEnum.PENDENTE)
-                .createdAt(LocalDateTime.now())
-                .contaPagamento(link.getProprietario().getContaPagamento())
+                .referencia(referencia)
+                .valor(produto.getPreco())
+                .moeda(produto.getMoeda() != null ? produto.getMoeda() : "CVE")
+                .descricao(produto.getDescricao())
+                .status(StatusIntencaoPagamentoEnum.PENDENTE)
+                .dataCriacao(LocalDateTime.now())
                 .build();
         
         // Salvar a intenção de pagamento
-        IntencaoPagamento intencaoPagamentoCriada = criaIntencaoPagamentoUseCase.criar(intencaoPagamento);
+        intencaoPagamento = salvaIntencaoPagamento.salvar(intencaoPagamento);
         
         // Incrementar o contador de usos do link
         gerenciaLinkPagamentoUseCase.incrementarUsos(link.getId());
         
+        // Criar a sessão de pagamento com o processador
+        SessaoPagamento sessaoPagamento = processadorPagamento.criarSessaoPagamento(
+                intencaoPagamento.getReferencia(),
+                produto.getNome(),
+                produto.getDescricao(),
+                produto.getPreco(),
+                intencaoPagamento.getMoeda(),
+                successUrl,
+                cancelUrl
+        );
+        
+        // Associar a sessão à intenção de pagamento
+        sessaoPagamento.setIntencaoPagamentoId(intencaoPagamento.getId().toString());
+        salvaSessaoPagamento.salvar(sessaoPagamento);
+        
         // Retornar a URL de checkout
-        // Aqui você deve integrar com o serviço SISP para criar a sessão de pagamento
-        // e retornar a URL de checkout
-        
-        // Exemplo simplificado (você deve substituir por uma integração real):
-        String checkoutUrl = "https://checkout.sisp.cv/?reference=" + intencaoPagamentoCriada.getReference() +
-                "&amount=" + intencaoPagamentoCriada.getAmount() +
-                "&currency=" + intencaoPagamentoCriada.getCurrency() +
-                "&success_url=" + successUrl +
-                "&cancel_url=" + cancelUrl;
-        
-        return checkoutUrl;
+        return sessaoPagamento.getCheckoutUrl();
     }
 
     @Override
@@ -90,15 +102,27 @@ public class ProcessamentoPagamentoLinkUseCaseImpl implements ProcessamentoPagam
             return false;
         }
         
-        LinkPagamento link = linkOpt.get();
+        // Buscar a sessão de pagamento e a intenção associada
+        Optional<SessaoPagamento> sessaoOpt = processadorPagamento.buscarSessaoPorId(sessionId);
+        if (sessaoOpt.isEmpty()) {
+            log.error("Sessão de pagamento não encontrada: {}", sessionId);
+            return false;
+        }
         
-        // Aqui você deve implementar a lógica para verificar o status do pagamento
-        // junto ao serviço SISP usando o sessionId
+        SessaoPagamento sessao = sessaoOpt.get();
+        IntencaoPagamento intencaoPagamento = buscaIntencaoPagamento.buscarPorId(sessao.getIntencaoPagamentoId());
         
-        // Se o pagamento foi bem-sucedido, você pode atualizar o status da intenção de pagamento
-        // e realizar outras ações necessárias
+        if (intencaoPagamento == null) {
+            log.error("Intenção de pagamento não encontrada para a sessão: {}", sessionId);
+            return false;
+        }
         
-        log.info("Pagamento processado com sucesso para o link: {}", codigoLink);
+        // Atualizar o status da intenção de pagamento
+        intencaoPagamento.setStatus(StatusIntencaoPagamentoEnum.PAGO);
+        intencaoPagamento.setDataAtualizacao(LocalDateTime.now());
+        salvaIntencaoPagamento.salvar(intencaoPagamento);
+        
+        log.info("Pagamento processado com sucesso para a sessão: {} e link: {}", sessionId, codigoLink);
         return true;
     }
 
@@ -109,14 +133,23 @@ public class ProcessamentoPagamentoLinkUseCaseImpl implements ProcessamentoPagam
         // aos links. Você pode precisar adicionar um campo na entidade LinkPagamento para
         // armazenar a referência da intenção de pagamento, ou criar uma entidade de associação.
         
-        // Exemplo simplificado (você deve adaptar à sua estrutura de dados):
+        // Buscar o link de pagamento pelo código
         Optional<LinkPagamento> linkOpt = buscaLinkPagamento.buscarPorCodigo(codigoLink);
         if (linkOpt.isEmpty()) {
             return Optional.empty();
         }
         
         // Aqui você deve buscar a intenção de pagamento associada ao link
-        // Esta é uma implementação fictícia, você deve adaptá-la à sua estrutura
+        // Como não temos essa associação direta no modelo atual, retornamos vazio
         return Optional.empty();
+    }
+    
+    /**
+     * Gera uma referência única para a intenção de pagamento
+     * 
+     * @return Referência única
+     */
+    private String gerarReferenciaUnica() {
+        return "LINK-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
     }
 }

@@ -1,6 +1,6 @@
 package cv.ntinnovation.vintipay.application.core.domain.entity;
 
-import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,20 +15,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class IntencaoPagamento {
     private Long id;
-    private BigDecimal amount;
-    private StatusPagamentoEnum status;
-    private String reference;
-    private LocalDateTime createdAt;
-    private String currency;
+    private String referencia;
+    private BigDecimal valor;
+    private String moeda;
+    private String descricao;
+    private StatusIntencaoPagamentoEnum status;
+    private LocalDateTime dataCriacao;
+    private LocalDateTime dataAtualizacao;
     private ContaPagamento contaPagamento;
     
-    // Campos para criação de conta de pagamento
-    private String contaPagamentoEmail;
-    private String contaPagamentoBillAddrCity;
-    private String contaPagamentoBillAddrCountry;
-    private String contaPagamentoBillAddrLine1;
-    private String contaPagamentoBillAddrPostCode;
-    
+    // Campos para integração com o provedor de pagamento
     private String merchantRef;
     private String merchantSession;
     private String posId;
@@ -36,4 +32,11 @@ public class IntencaoPagamento {
     private String transactionCode;
     private Long referenceNumber;
     private String timestamp;
+    
+    // Campos para criação de conta de pagamento
+    private String contaPagamentoEmail;
+    private String contaPagamentoBillAddrCity;
+    private String contaPagamentoBillAddrCountry;
+    private String contaPagamentoBillAddrLine1;
+    private String contaPagamentoBillAddrPostCode;
 }

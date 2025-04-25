@@ -114,4 +114,18 @@ public class GerenciaProdutoService implements GerenciaProdutoUseCase {
         log.info("Listando todos os produtos ativos");
         return buscaProduto.buscarTodosAtivos();
     }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public boolean verificarPropriedadeProduto(Long produtoId, Long proprietarioId) {
+        log.info("Verificando propriedade do produto: {}, proprietário: {}", produtoId, proprietarioId);
+        
+        Optional<Produto> produtoOpt = buscaProduto.buscarPorId(produtoId);
+        if (produtoOpt.isEmpty()) {
+            return false;
+        }
+        
+        Produto produto = produtoOpt.get();
+        return produto.getProprietario().getId().equals(proprietarioId);
+    }
 }

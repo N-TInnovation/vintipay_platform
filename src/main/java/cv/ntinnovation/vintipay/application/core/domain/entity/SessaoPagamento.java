@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -12,13 +13,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SessaoPagamento {
-    private Long id;
-    private String sessionId;
-    private String reference;
+    private String id;
+    private String referencia;
+    private BigDecimal valor;
+    private String moeda;
+    private String descricao;
+    private LocalDateTime dataCriacao;
+    private LocalDateTime dataExpiracao;
+    private String checkoutUrl;
+    private String urlRetornoSucesso;
+    private String urlRetornoCancelamento;
+    private String intencaoPagamentoId;
+    private String status;
     private String clientId;
     private String ipAddress;
     private String userAgent;
-    private LocalDateTime createdAt;
-    private LocalDateTime expiresAt;
-    private boolean valid;
 }

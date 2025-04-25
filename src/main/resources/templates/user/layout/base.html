@@ -221,6 +221,16 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" th:classappend="${activeMenu == 'produtos' ? 'active' : ''}" href="/produtos">
+                    <i class="fas fa-box"></i> Meus Produtos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${activeMenu == 'links-pagamento' ? 'active' : ''}" href="/links-pagamento">
+                    <i class="fas fa-link"></i> Links de Pagamento
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" th:classappend="${activeMenu == 'assinatura' ? 'active' : ''}" href="/user/assinatura">
                     <i class="fas fa-star"></i> Minha Assinatura
                 </a>

@@ -206,4 +206,42 @@ public class GerenciaLinkPagamentoService implements GerenciaLinkPagamentoUseCas
     private String gerarCodigoUnico() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 10);
     }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public boolean verificarPropriedadeLink(Long linkId, Long proprietarioId) {
+        log.info("Verificando propriedade do link: {}, proprietário: {}", linkId, proprietarioId);
+        
+        Optional<LinkPagamento> linkOpt = buscaLinkPagamento.buscarPorId(linkId);
+        if (linkOpt.isEmpty()) {
+            return false;
+        }
+        
+        LinkPagamento link = linkOpt.get();
+        return link.getProprietario().getId().equals(proprietarioId);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<LinkPagamento> buscarLinkPorId(Long id) {
+        log.info("Buscando link de pagamento por ID: {}", id);
+        return buscaLinkPagamento.buscarPorId(id);
+    }
+    
+    @Override
+    @Transactional
+    public boolean excluirLinkPagamento(Long id) {
+        log.info("Excluindo link de pagamento: {}", id);
+        
+        Optional<LinkPagamento> linkOpt = buscaLinkPagamento.buscarPorId(id);
+        if (linkOpt.isEmpty()) {
+            return false;
+        }
+        
+        LinkPagamento link = linkOpt.get();
+        link.setStatus(StatusLinkPagamentoEnum.INATIVO);
+        salvaLinkPagamento.salvar(link);
+        
+        return true;
+    }
 }

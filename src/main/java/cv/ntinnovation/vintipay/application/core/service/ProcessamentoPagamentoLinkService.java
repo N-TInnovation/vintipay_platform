@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -71,6 +72,75 @@ public class ProcessamentoPagamentoLinkService implements ProcessamentoPagamento
         sessaoPagamento = salvaSessaoPagamento.salvar(sessaoPagamento);
         
         return sessaoPagamento;
+    }
+    
+    @Override
+    @Transactional
+    public SessaoPagamento criarSessaoPagamento(String codigoLink, String urlRetornoSucesso, String urlRetornoCancelamento) {
+        log.info("Criando sessão de pagamento para o link: {} com URLs de retorno personalizadas", codigoLink);
+        
+        // Busca o link de pagamento e registra o uso
+        LinkPagamento linkPagamento = gerenciaLinkPagamentoUseCase.registrarUsoLinkPagamento(codigoLink);
+        Produto produto = linkPagamento.getProduto();
+        
+        // Cria a intenção de pagamento
+        String referencia = gerarReferenciaUnica();
+        IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
+                .referencia(referencia)
+                .valor(produto.getPreco())
+                .moeda(produto.getMoeda() != null ? produto.getMoeda() : "CVE")
+                .descricao(produto.getDescricao())
+                .status(StatusIntencaoPagamentoEnum.PENDENTE)
+                .dataCriacao(LocalDateTime.now())
+                .build();
+        
+        intencaoPagamento = salvaIntencaoPagamento.salvar(intencaoPagamento);
+        
+        // Cria a sessão de pagamento com as URLs de retorno fornecidas
+        SessaoPagamento sessaoPagamento = processadorPagamento.criarSessaoPagamento(
+                intencaoPagamento.getReferencia(),
+                produto.getNome(),
+                produto.getDescricao(),
+                produto.getPreco(),
+                intencaoPagamento.getMoeda(),
+                urlRetornoSucesso,
+                urlRetornoCancelamento
+        );
+        
+        // Associa a sessão à intenção de pagamento
+        sessaoPagamento.setIntencaoPagamento(intencaoPagamento);
+        sessaoPagamento = salvaSessaoPagamento.salvar(sessaoPagamento);
+        
+        return sessaoPagamento;
+    }
+
+    @Override
+    @Transactional
+    public boolean processarPagamentoSucesso(String sessionId, String codigoLink) {
+        log.info("Processando pagamento com sucesso para a sessão: {} e link: {}", sessionId, codigoLink);
+        
+        // Buscar a sessão de pagamento e a intenção associada
+        Optional<SessaoPagamento> sessaoOpt = processadorPagamento.buscarSessaoPorId(sessionId);
+        if (sessaoOpt.isEmpty()) {
+            log.error("Sessão de pagamento não encontrada: {}", sessionId);
+            return false;
+        }
+        
+        SessaoPagamento sessao = sessaoOpt.get();
+        IntencaoPagamento intencaoPagamento = sessao.getIntencaoPagamento();
+        
+        if (intencaoPagamento == null) {
+            log.error("Intenção de pagamento não encontrada para a sessão: {}", sessionId);
+            return false;
+        }
+        
+        // Atualiza o status da intenção de pagamento
+        intencaoPagamento.setStatus(StatusIntencaoPagamentoEnum.PAGO);
+        intencaoPagamento.setDataAtualizacao(LocalDateTime.now());
+        salvaIntencaoPagamento.salvar(intencaoPagamento);
+        
+        log.info("Pagamento processado com sucesso para a sessão: {} e link: {}", sessionId, codigoLink);
+        return true;
     }
 
     @Override
