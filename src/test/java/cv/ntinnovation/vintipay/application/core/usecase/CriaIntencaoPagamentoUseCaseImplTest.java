@@ -2,6 +2,7 @@ package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.ContaPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.IntencaoPagamento;
+import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.out.SalvaIntencaoPagamento;
 import org.junit.jupiter.api.Test;
@@ -29,18 +30,18 @@ class CriaIntencaoPagamentoUseCaseImplTest {
     void criar_QuandoIntencaoPagamentoValida_DeveRetornarIntencaoPagamentoSalva() {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
-                .amount(BigDecimal.valueOf(100.50))
+                .valor(BigDecimal.valueOf(100.50))
                 .contaPagamento(ContaPagamento.builder().id(1L).build())
-                .currency("CVE")
+                .moeda("CVE")
                 .build();
 
         IntencaoPagamento intencaoPagamentoSalva = IntencaoPagamento.builder()
                 .id(1L)
-                .amount(BigDecimal.valueOf(100.50))
+                .valor(BigDecimal.valueOf(100.50))
                 .contaPagamento(ContaPagamento.builder().id(1L).build())
-                .status(StatusPagamentoEnum.PENDENTE)
-                .reference("REF123")
-                .currency("CVE")
+                .status(StatusIntencaoPagamentoEnum.PENDENTE)
+                .referencia("REF123")
+                .moeda("CVE")
                 .build();
 
         when(salvaIntencaoPagamento.salvar(any(IntencaoPagamento.class))).thenReturn(intencaoPagamentoSalva);
@@ -51,9 +52,9 @@ class CriaIntencaoPagamentoUseCaseImplTest {
         // Assert
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
-        assertEquals(BigDecimal.valueOf(100.50), resultado.getAmount());
+        assertEquals(BigDecimal.valueOf(100.50), resultado.getValor());
         assertEquals(StatusPagamentoEnum.PENDENTE, resultado.getStatus());
-        assertNotNull(resultado.getReference());
+        assertNotNull(resultado.getReferencia());
         
         verify(salvaIntencaoPagamento, times(1)).salvar(any(IntencaoPagamento.class));
     }
@@ -62,26 +63,26 @@ class CriaIntencaoPagamentoUseCaseImplTest {
     void criar_QuandoIntencaoPagamentoValidaComEmail_DeveRetornarIntencaoPagamentoSalva() {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
-                .amount(BigDecimal.valueOf(100.50))
+                .valor(BigDecimal.valueOf(100.50))
                 .contaPagamentoEmail("cliente@example.com")
                 .contaPagamentoBillAddrCity("Praia")
                 .contaPagamentoBillAddrCountry("CV")
                 .contaPagamentoBillAddrLine1("Rua Principal, 123")
                 .contaPagamentoBillAddrPostCode("12345")
-                .currency("CVE")
+                .moeda("CVE")
                 .build();
 
         IntencaoPagamento intencaoPagamentoSalva = IntencaoPagamento.builder()
                 .id(1L)
-                .amount(BigDecimal.valueOf(100.50))
+                .valor(BigDecimal.valueOf(100.50))
                 .contaPagamentoEmail("cliente@example.com")
                 .contaPagamentoBillAddrCity("Praia")
                 .contaPagamentoBillAddrCountry("CV")
                 .contaPagamentoBillAddrLine1("Rua Principal, 123")
                 .contaPagamentoBillAddrPostCode("12345")
-                .status(StatusPagamentoEnum.PENDENTE)
-                .reference("REF123")
-                .currency("CVE")
+                .status(StatusIntencaoPagamentoEnum.PENDENTE.PENDENTE)
+                .referencia("REF123")
+                .moeda("CVE")
                 .build();
 
         when(salvaIntencaoPagamento.salvar(any(IntencaoPagamento.class))).thenReturn(intencaoPagamentoSalva);
@@ -92,9 +93,9 @@ class CriaIntencaoPagamentoUseCaseImplTest {
         // Assert
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
-        assertEquals(BigDecimal.valueOf(100.50), resultado.getAmount());
+        assertEquals(BigDecimal.valueOf(100.50), resultado.getValor());
         assertEquals(StatusPagamentoEnum.PENDENTE, resultado.getStatus());
-        assertNotNull(resultado.getReference());
+        assertNotNull(resultado.getReferencia());
         assertEquals("cliente@example.com", resultado.getContaPagamentoEmail());
         
         verify(salvaIntencaoPagamento, times(1)).salvar(any(IntencaoPagamento.class));
@@ -119,7 +120,7 @@ class CriaIntencaoPagamentoUseCaseImplTest {
     void criar_QuandoAmountNegativo_DeveLancarExcecao() {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
-                .amount(BigDecimal.valueOf(-10.0))
+                .valor(BigDecimal.valueOf(-10.0))
                 .contaPagamento(ContaPagamento.builder().id(1L).build())
                 .build();
 
@@ -135,7 +136,7 @@ class CriaIntencaoPagamentoUseCaseImplTest {
     void criar_QuandoMetodoPagamentoNulo_DeveLancarExcecao() {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
-                .amount(BigDecimal.valueOf(100.50))
+                .valor(BigDecimal.valueOf(100.50))
                 .contaPagamento(ContaPagamento.builder().id(1L).build())
                 .build();
 
@@ -151,7 +152,7 @@ class CriaIntencaoPagamentoUseCaseImplTest {
     void criar_QuandoContaPagamentoEEmailNulos_DeveLancarExcecao() {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
-                .amount(BigDecimal.valueOf(100.50))
+                .valor(BigDecimal.valueOf(100.50))
                 .build();
 
         // Act & Assert
@@ -166,7 +167,7 @@ class CriaIntencaoPagamentoUseCaseImplTest {
     void criar_QuandoContaPagamentoNulaEEmailVazio_DeveLancarExcecao() {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
-                .amount(BigDecimal.valueOf(100.50))
+                .valor(BigDecimal.valueOf(100.50))
                 .contaPagamentoEmail("")
                 .build();
 

@@ -4,7 +4,6 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 public interface GerenciaProdutoUseCase {
     /**
@@ -71,9 +70,10 @@ public interface GerenciaProdutoUseCase {
      * Busca um produto pelo ID
      * 
      * @param produtoId ID do produto
-     * @return Optional contendo o produto, se encontrado
+     * @return Produto encontrado ou lança exceção se não encontrado
+     * @throws RuntimeException se o produto não for encontrado
      */
-    Optional<Produto> buscarProdutoPorId(Long produtoId);
+    Produto buscarProdutoPorId(Long produtoId);
     
     /**
      * Verifica se um produto pertence a um usuário

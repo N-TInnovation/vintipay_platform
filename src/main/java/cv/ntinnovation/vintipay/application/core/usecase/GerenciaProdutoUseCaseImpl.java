@@ -177,16 +177,22 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Produto> buscarProdutoPorId(Long produtoId) {
+    public Produto buscarProdutoPorId(Long produtoId) {
         log.info("Buscando produto por ID: {}", produtoId);
-        return buscaProduto.buscarPorId(produtoId);
+        return buscaProduto.buscarPorId(produtoId)
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + produtoId));
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean verificarPropriedadeProduto(Long produtoId, Long proprietarioId) {
         log.info("Verificando propriedade do produto: {}, proprietário: {}", produtoId, proprietarioId);
-        return buscaProduto.existePorIdEProprietarioId(produtoId, proprietarioId);
+        try {
+            Produto produto = buscarProdutoPorId(produtoId);
+            return produto.getProprietarioId().equals(proprietarioId);
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
     
     /**

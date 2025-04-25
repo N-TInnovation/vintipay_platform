@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{user/layout/base :: html(
+        title='Meus Produtos',
+        activeMenu='produtos',
+        pageTitle='Meus Produtos',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <title>Meus Produtos</title>
+    <additionalCss>
+        <!-- CSS adicional específico desta página -->
+        <style>
+            .produto-card {
+                transition: transform 0.3s, box-shadow 0.3s;
+                height: 100%;
+                border-radius: 10px;
+                overflow: hidden;
+            }
+            
+            .produto-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+            }
+            
+            .produto-imagem {
+                height: 180px;
+                object-fit: cover;
+                width: 100%;
+            }
+            
+            .produto-categoria {
+                position: absolute;
+                left: 10px;
+                top: 10px;
+                background-color: rgba(0, 0, 0, 0.6);
+                color: white;
+                padding: 4px 10px;
+                border-radius: 20px;
+                font-size: 0.75rem;
+            }
+            
+            .produto-status {
+                position: absolute;
+                right: 10px;
+                top: 10px;
+            }
+            
+            .empty-state {
+                text-align: center;
+                padding: 3rem 1rem;
+                background-color: white;
+                border-radius: 10px;
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            }
+            
+            .empty-state-icon {
+                font-size: 4rem;
+                color: #e9ecef;
+                margin-bottom: 1.5rem;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <!-- Cards de Estatísticas -->
+        <div class="row mb-4">
+            <div class="col-xl-4 col-md-4 mb-xl-0 mb-4">
+                <div class="card">
+                    <div class="card-body p-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Total de Produtos</p>
+                                    <h5 class="font-weight-bolder" th:text="${produtos.size()}">0</h5>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="icon icon-shape bg-primary shadow-primary text-center rounded-circle p-3">
+                                    <i class="fas fa-box text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-4 mb-xl-0 mb-4">
+                <div class="card">
+                    <div class="card-body p-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Produtos Ativos</p>
+                                    <h5 class="font-weight-bolder text-success" th:with="ativos=${#lists.size(produtos.?[ativo == true])}" th:text="${ativos}">0</h5>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="icon icon-shape bg-success shadow-success text-center rounded-circle p-3">
+                                    <i class="fas fa-check text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-4">
+                <div class="card">
+                    <div class="card-body p-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Produtos Inativos</p>
+                                    <h5 class="font-weight-bolder text-danger" th:with="inativos=${#lists.size(produtos.?[ativo == false])}" th:text="${inativos}">0</h5>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="icon icon-shape bg-danger shadow-danger text-center rounded-circle p-3">
+                                    <i class="fas fa-times text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filtros e Lista de Produtos -->
+        <div class="card">
+            <div class="card-header pb-0 p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Meus Produtos</h6>
+                    <div>
+                        <a th:href="@{/user/produtos/novo}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus-circle me-2"></i> Novo Produto
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="row g-2 mt-2">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" id="searchInput" class="form-control" placeholder="Buscar produtos...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="categoryFilter" class="form-select">
+                            <option value="">Todas as categorias</option>
+                            <option th:each="categoria : ${#sets.toSet(#arrays.toArray(produtos.![categoria]))}" 
+                                    th:value="${categoria}" 
+                                    th:text="${categoria ?: 'Sem categoria'}">Categoria</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="statusFilter" class="form-select">
+                            <option value="">Todos os status</option>
+                            <option value="true">Ativos</option>
+                            <option value="false">Inativos</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select id="sortOrder" class="form-select">
+                            <option value="name_asc">Nome (A-Z)</option>
+                            <option value="name_desc">Nome (Z-A)</option>
+                            <option value="price_asc">Preço (menor)</option>
+                            <option value="price_desc">Preço (maior)</option>
+                            <option value="date_desc">Mais recentes</option>
+                            <option value="date_asc">Mais antigos</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body p-3">
+                <!-- Mensagens de feedback -->
+                <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span th:text="${erro}">Mensagem de erro</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                </div>
+                
+                <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${sucesso}">Mensagem de sucesso</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                </div>
+                
+                <!-- Estado vazio -->
+                <div th:if="${produtos.empty}" class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <h3>Nenhum produto cadastrado</h3>
+                    <p class="text-muted mb-4">Você ainda não tem produtos cadastrados no sistema.</p>
+                    <a th:href="@{/user/produtos/novo}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i> Criar meu primeiro produto
+                    </a>
+                </div>
+                
+                <!-- Mensagem de nenhum resultado encontrado após filtro -->
+                <div id="noResults" class="alert alert-info mt-4 d-none">
+                    <i class="fas fa-info-circle me-2"></i> Nenhum produto encontrado com os filtros selecionados.
+                </div>
+                
+                <!-- Lista de produtos -->
+                <div class="row g-4" th:unless="${produtos.empty}" id="productList">
+                    <div class="col-md-4 col-lg-3 product-item" th:each="produto : ${produtos}" 
+                         th:data-name="${produto.nome}"
+                         th:data-price="${produto.preco}"
+                         th:data-category="${produto.categoria}"
+                         th:data-status="${produto.ativo}"
+                         th:data-date="${produto.dataCriacao}">
+                        <div class="card produto-card">
+                            <div class="position-relative">
+                                <img th:if="${produto.imagem}" th:src="${produto.imagem}" class="card-img-top produto-imagem" th:alt="${produto.nome}">
+                                <img th:unless="${produto.imagem}" src="https://via.placeholder.com/300x180?text=Sem+Imagem" class="card-img-top produto-imagem" th:alt="${produto.nome}">
+                                
+                                <span th:if="${produto.categoria}" class="produto-categoria" th:text="${produto.categoria}">Categoria</span>
+                                <span th:if="${!produto.ativo}" class="badge bg-secondary produto-status">Inativo</span>
+                                <span th:if="${produto.ativo}" class="badge bg-success produto-status">Ativo</span>
+                            </div>
+                            
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${produto.nome}">Nome do Produto</h5>
+                                <p class="card-text text-muted small" th:text="${#strings.abbreviate(produto.descricao, 100)}">Descrição do produto...</p>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="fw-bold text-primary" th:text="${#numbers.formatCurrency(produto.preco)}">R$ 99,90</span>
+                                    <span th:if="${produto.estoque != null}" class="badge bg-light text-dark">
+                                        <i class="fas fa-box me-1"></i> <span th:text="${produto.estoque}">10</span> em estoque
+                                    </span>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between">
+                                    <a th:href="@{/user/produtos/{id}/editar(id=${produto.id})}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </a>
+                                    
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                                            <li>
+                                                <a class="dropdown-item" th:href="@{/user/links-pagamento/novo(produtoId=${produto.id})}">
+                                                    <i class="fas fa-link me-2"></i> Criar Link de Pagamento
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" th:href="@{/user/links-pagamento?produtoId={id}(id=${produto.id})}">
+                                                    <i class="fas fa-list me-2"></i> Ver Links de Pagamento
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <form th:action="@{/user/produtos/{id}/excluir(id=${produto.id})}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir este produto?');">
+                                                    <button type="submit" class="dropdown-item text-danger">
+                                                        <i class="fas fa-trash-alt me-2"></i> Excluir
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card-footer text-muted small">
+                                <i class="fas fa-calendar-alt me-1"></i> Criado em <span th:text="${#temporals.format(produto.dataCriacao, 'dd/MM/yyyy')}">01/01/2025</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- JavaScript específico para esta página -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Elementos DOM
+                const searchInput = document.getElementById('searchInput');
+                const categoryFilter = document.getElementById('categoryFilter');
+                const statusFilter = document.getElementById('statusFilter');
+                const sortOrder = document.getElementById('sortOrder');
+                const productList = document.getElementById('productList');
+                const productItems = document.querySelectorAll('.product-item');
+                const noResults = document.getElementById('noResults');
+                
+                // Função para filtrar e ordenar produtos
+                function filterAndSortProducts() {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    const category = categoryFilter.value;
+                    const status = statusFilter.value;
+                    const sort = sortOrder.value;
+                    
+                    let visibleCount = 0;
+                    
+                    // Filtrar produtos
+                    productItems.forEach(item => {
+                        const name = item.getAttribute('data-name').toLowerCase();
+                        const itemCategory = item.getAttribute('data-category');
+                        const itemStatus = item.getAttribute('data-status');
+                        
+                        const matchesSearch = name.includes(searchTerm);
+                        const matchesCategory = category === '' || itemCategory === category;
+                        const matchesStatus = status === '' || itemStatus === status;
+                        
+                        const isVisible = matchesSearch && matchesCategory && matchesStatus;
+                        
+                        item.style.display = isVisible ? 'block' : 'none';
+                        
+                        if (isVisible) {
+                            visibleCount++;
+                        }
+                    });
+                    
+                    // Mostrar mensagem se nenhum resultado
+                    if (visibleCount === 0 && productItems.length > 0) {
+                        noResults.classList.remove('d-none');
+                    } else {
+                        noResults.classList.add('d-none');
+                    }
+                    
+                    // Ordenar produtos
+                    const items = Array.from(productItems);
+                    items.sort((a, b) => {
+                        switch(sort) {
+                            case 'name_asc':
+                                return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
+                            case 'name_desc':
+                                return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name'));
+                            case 'price_asc':
+                                return parseFloat(a.getAttribute('data-price')) - parseFloat(b.getAttribute('data-price'));
+                            case 'price_desc':
+                                return parseFloat(b.getAttribute('data-price')) - parseFloat(a.getAttribute('data-price'));
+                            case 'date_desc':
+                                return new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date'));
+                            case 'date_asc':
+                                return new Date(a.getAttribute('data-date')) - new Date(b.getAttribute('data-date'));
+                            default:
+                                return 0;
+                        }
+                    });
+                    
+                    // Reordenar no DOM
+                    items.forEach(item => {
+                        productList.appendChild(item);
+                    });
+                }
+                
+                // Adicionar event listeners
+                if (searchInput) {
+                    searchInput.addEventListener('input', filterAndSortProducts);
+                }
+                if (categoryFilter) {
+                    categoryFilter.addEventListener('change', filterAndSortProducts);
+                }
+                if (statusFilter) {
+                    statusFilter.addEventListener('change', filterAndSortProducts);
+                }
+                if (sortOrder) {
+                    sortOrder.addEventListener('change', filterAndSortProducts);
+                }
+            });
+        </script>
+    </additionalJs>
+</body>
+</html>
