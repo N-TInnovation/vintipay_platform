@@ -163,21 +163,18 @@ public class ProdutoController {
         Long usuarioId = usuario.getId();
         
         try {
-            Produto produto = gerenciaProdutoUseCase.buscarProdutoPorId(id);
-            
-            // Verificar se o produto pertence ao usuário logado
-            if (!produto.getProprietarioId().equals(usuarioId)) {
+            if (!gerenciaProdutoUseCase.verificarPropriedadeProduto(id, usuarioId)) {
                 redirectAttributes.addFlashAttribute("erro", "Você não tem permissão para excluir este produto");
                 return "redirect:/user/produtos";
             }
             
             gerenciaProdutoUseCase.excluirProduto(id);
             redirectAttributes.addFlashAttribute("sucesso", "Produto excluído com sucesso");
-            return "redirect:/user/produtos";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erro", "Erro ao excluir produto: " + e.getMessage());
-            return "redirect:/user/produtos";
         }
+        
+        return "redirect:/user/produtos";
     }
 
     // ===== API REST =====

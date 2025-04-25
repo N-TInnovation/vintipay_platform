@@ -1,13 +1,16 @@
 package cv.ntinnovation.vintipay.adapter.in.web.dto;
 
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusLinkPagamentoEnum;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -19,7 +22,8 @@ public class LinkPagamentoRequest {
     @NotNull(message = "ID do produto é obrigatório")
     private Long produtoId;
     
-    private String titulo;
+    @NotBlank(message = "Nome do link é obrigatório")
+    private String nome;
     
     private String descricao;
     
@@ -33,4 +37,11 @@ public class LinkPagamentoRequest {
     private String urlRetornoSucesso;
     
     private String urlRetornoCancelamento;
+    
+    @Positive(message = "Valor deve ser maior que zero")
+    private BigDecimal valor;
+    
+    private Integer quantidade;
+    
+    private boolean ativo = true;
 }

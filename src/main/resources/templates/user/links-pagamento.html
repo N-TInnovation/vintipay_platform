@@ -51,9 +51,32 @@
             .copy-link-btn {
                 cursor: pointer;
             }
-            .qr-preview {
-                max-width: 150px;
-                margin: 0 auto;
+            .qr-code-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 1rem;
+                background-color: white;
+                border-radius: 8px;
+                margin-bottom: 1rem;
+            }
+            .product-image {
+                height: 120px;
+                object-fit: cover;
+                width: 100%;
+                border-radius: 8px 8px 0 0;
+            }
+            .dropdown-menu {
+                min-width: 8rem;
+            }
+            .dropdown-item {
+                display: flex;
+                align-items: center;
+            }
+            .dropdown-item i {
+                margin-right: 0.5rem;
+                width: 1rem;
+                text-align: center;
             }
         </style>
     </additionalCss>
@@ -70,17 +93,21 @@
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Total de Links</p>
                                     <h5 class="font-weight-bolder" th:text="${links.size()}">0</h5>
+                                    <p class="mb-0 text-sm">
+                                        <span class="text-success text-sm font-weight-bolder">Links de pagamento</span>
+                                    </p>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-primary shadow-primary text-center rounded-circle p-3">
-                                    <i class="fas fa-link text-white"></i>
+                                <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
+                                    <i class="fas fa-link text-lg opacity-10"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            
             <div class="col-xl-4 col-md-4 mb-xl-0 mb-4">
                 <div class="card">
                     <div class="card-body p-3">
@@ -88,31 +115,38 @@
                             <div class="col-8">
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Links Ativos</p>
-                                    <h5 class="font-weight-bolder text-success" th:with="ativos=${#lists.size(links.?[status.name() == 'ATIVO'])}" th:text="${ativos}">0</h5>
+                                    <h5 class="font-weight-bolder" th:text="${#lists.size(#lists.filterSingle(links, link -> link.status.name() == 'ATIVO'))}">0</h5>
+                                    <p class="mb-0 text-sm">
+                                        <span class="text-success text-sm font-weight-bolder">Disponíveis para pagamento</span>
+                                    </p>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-success shadow-success text-center rounded-circle p-3">
-                                    <i class="fas fa-check text-white"></i>
+                                <div class="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
+                                    <i class="fas fa-check text-lg opacity-10"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-4 col-md-4">
+            
+            <div class="col-xl-4 col-md-4 mb-xl-0 mb-4">
                 <div class="card">
                     <div class="card-body p-3">
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Links Inativos</p>
-                                    <h5 class="font-weight-bolder text-danger" th:with="inativos=${#lists.size(links.?[status.name() == 'INATIVO'])}" th:text="${inativos}">0</h5>
+                                    <h5 class="font-weight-bolder" th:text="${#lists.size(#lists.filterSingle(links, link -> link.status.name() != 'ATIVO'))}">0</h5>
+                                    <p class="mb-0 text-sm">
+                                        <span class="text-danger text-sm font-weight-bolder">Indisponíveis para pagamento</span>
+                                    </p>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-danger shadow-danger text-center rounded-circle p-3">
-                                    <i class="fas fa-times text-white"></i>
+                                <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
+                                    <i class="fas fa-ban text-lg opacity-10"></i>
                                 </div>
                             </div>
                         </div>
@@ -121,49 +155,41 @@
             </div>
         </div>
         
-        <!-- Filtros e Lista de Links -->
         <div class="card">
             <div class="card-header pb-0 p-3">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h6 class="mb-0">Meus Links de Pagamento</h6>
                     <div>
-                        <a th:href="@{/user/links-pagamento/novo}" class="btn btn-sm btn-primary">
-                            <i class="fas fa-plus-circle me-2"></i> Novo Link
+                        <a th:href="@{/user/links-pagamento/novo}" class="btn btn-primary btn-sm mb-0">
+                            <i class="fas fa-plus me-2"></i> Novo Link
                         </a>
                     </div>
                 </div>
                 
                 <!-- Filtros -->
-                <div class="row g-2 mt-2">
-                    <div class="col-md-4">
+                <div class="row mt-3">
+                    <div class="col-md-4 mb-2">
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
                             <input type="text" id="searchInput" class="form-control" placeholder="Buscar links...">
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    
+                    <div class="col-md-4 mb-2">
                         <select id="productFilter" class="form-select">
-                            <option value="">Todos os produtos</option>
-                            <option th:each="produto : ${#sets.toSet(#arrays.toArray(links.![produto.nome]))}" 
+                            <option value="">Todos os Produtos</option>
+                            <option th:each="produto : ${#lists.sort(#lists.toList(#sets.toSet(#lists.collect(links, link -> link.produto.nome))))}" 
                                     th:value="${produto}" 
                                     th:text="${produto}">Nome do Produto</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    
+                    <div class="col-md-4 mb-2">
                         <select id="statusFilter" class="form-select">
-                            <option value="">Todos os status</option>
+                            <option value="">Todos os Status</option>
                             <option value="ATIVO">Ativos</option>
                             <option value="INATIVO">Inativos</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select id="sortOrder" class="form-select">
-                            <option value="date_desc">Mais recentes</option>
-                            <option value="date_asc">Mais antigos</option>
-                            <option value="name_asc">Nome (A-Z)</option>
-                            <option value="name_desc">Nome (Z-A)</option>
-                            <option value="price_asc">Preço (menor)</option>
-                            <option value="price_desc">Preço (maior)</option>
+                            <option value="EXPIRADO">Expirados</option>
                         </select>
                     </div>
                 </div>
@@ -188,60 +214,74 @@
                     <div class="empty-state-icon">
                         <i class="fas fa-link"></i>
                     </div>
-                    <h3>Nenhum link de pagamento cadastrado</h3>
-                    <p class="text-muted mb-4">Você ainda não tem links de pagamento cadastrados no sistema.</p>
-                    <a th:href="@{/user/links-pagamento/novo}" class="btn btn-primary btn-lg">
-                        <i class="fas fa-plus-circle me-2"></i> Criar meu primeiro link
+                    <h5>Nenhum link de pagamento encontrado</h5>
+                    <p class="text-muted mb-4">Você ainda não criou nenhum link de pagamento. Crie seu primeiro link agora!</p>
+                    <a th:href="@{/user/links-pagamento/novo}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i> Criar Link de Pagamento
                     </a>
                 </div>
                 
-                <!-- Mensagem de nenhum resultado encontrado após filtro -->
-                <div id="noResults" class="alert alert-info mt-4 d-none">
-                    <i class="fas fa-info-circle me-2"></i> Nenhum link encontrado com os filtros selecionados.
-                </div>
-                
-                <!-- Lista de links -->
+                <!-- Lista de Links -->
                 <div class="row g-4" th:unless="${links.empty}" id="linksList">
                     <div class="col-md-6 col-lg-4 link-item" th:each="link : ${links}" 
                          th:data-name="${link.nome}"
                          th:data-product="${link.produto.nome}"
-                         th:data-price="${link.valor}"
-                         th:data-status="${link.status}"
-                         th:data-date="${link.dataCriacao}">
+                         th:data-status="${link.status.name()}">
                         <div class="card link-card">
+                            <div th:if="${link.produto.imagem}" class="position-relative">
+                                <img th:src="${link.produto.imagem}" class="product-image" th:alt="${link.produto.nome}">
+                                <span class="badge bg-info position-absolute" style="top: 10px; left: 10px;" th:text="${link.produto.categoria}">Categoria</span>
+                            </div>
                             <div class="card-header p-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h5 class="card-title mb-0" th:text="${link.nome}">Nome do Link</h5>
                                     <span th:if="${link.status.name() == 'ATIVO'}" class="status-badge status-ativo">Ativo</span>
-                                    <span th:if="${link.status.name() == 'INATIVO'}" class="status-badge status-inativo">Inativo</span>
+                                    <span th:unless="${link.status.name() == 'ATIVO'}" class="status-badge status-inativo" th:text="${link.status.name() == 'INATIVO' ? 'Inativo' : 'Expirado'}">Inativo</span>
                                 </div>
                             </div>
-                            
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col-8">
-                                        <p class="mb-1"><strong>Produto:</strong> <span th:text="${link.produto.nome}">Nome do Produto</span></p>
-                                        <p class="mb-1"><strong>Valor:</strong> <span th:text="${#numbers.formatCurrency(link.valor)}">R$ 99,90</span></p>
-                                        <p class="mb-0"><strong>Criado em:</strong> <span th:text="${#temporals.format(link.dataCriacao, 'dd/MM/yyyy')}">01/01/2023</span></p>
-                                    </div>
-                                    <div class="col-4 text-center">
-                                        <div class="qr-preview">
-                                            <img th:src="@{'/qrcode/' + ${link.codigo}}" class="img-fluid" alt="QR Code">
-                                        </div>
+                            <div class="card-body p-3">
+                                <div class="mb-3">
+                                    <small class="text-muted d-block">Produto:</small>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-box-open me-2 text-primary"></i>
+                                        <span th:text="${link.produto.nome}">Nome do Produto</span>
                                     </div>
                                 </div>
                                 
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control link-url" readonly th:value="${'https://localhost:8443/p/' + link.codigo}">
-                                    <button class="btn btn-outline-secondary copy-link-btn" type="button" data-bs-toggle="tooltip" title="Copiar link">
-                                        <i class="fas fa-copy"></i>
-                                    </button>
+                                <div class="mb-3">
+                                    <small class="text-muted d-block">Preço:</small>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-tag me-2 text-success"></i>
+                                        <span th:text="${#numbers.formatCurrency(link.produto.preco)}">CVE 99,90</span>
+                                    </div>
                                 </div>
                                 
-                                <div class="d-flex justify-content-between">
-                                    <a th:href="@{/user/links-pagamento/{id}/editar(id=${link.id})}" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i> Editar
-                                    </a>
+                                <div class="mb-3" th:if="${link.descricao}">
+                                    <small class="text-muted d-block">Descrição:</small>
+                                    <p class="mb-0" th:text="${link.descricao}">Descrição do link</p>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted d-block">Link para pagamento:</small>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control form-control-sm" th:value="${'https://vintipay.cv/p/' + link.codigo}" readonly>
+                                        <button class="btn btn-outline-primary btn-sm copy-link-btn" type="button" th:data-link="${'https://vintipay.cv/p/' + link.codigo}">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="qr-code-container">
+                                    <img th:src="${'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://vintipay.cv/p/' + link.codigo}" 
+                                         alt="QR Code" class="img-fluid">
+                                </div>
+                            </div>
+                            <div class="card-footer p-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="far fa-calendar-alt me-1"></i>
+                                        <span th:text="${#temporals.format(link.dataCriacao, 'dd/MM/yyyy')}">01/01/2023</span>
+                                    </small>
                                     
                                     <div class="dropdown">
                                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -249,24 +289,49 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
                                             <li>
-                                                <a class="dropdown-item" th:href="@{'/p/' + ${link.codigo}}" target="_blank">
-                                                    <i class="fas fa-external-link-alt me-2"></i> Abrir link
+                                                <a class="dropdown-item" th:href="@{/user/links-pagamento/{id}/editar(id=${link.id})}">
+                                                    <i class="fas fa-edit"></i> Editar
                                                 </a>
                                             </li>
                                             <li>
-                                                <a class="dropdown-item" th:href="@{'/qrcode/' + ${link.codigo}}" target="_blank">
-                                                    <i class="fas fa-qrcode me-2"></i> Ver QR Code
+                                                <a class="dropdown-item copy-link-btn" href="#" th:data-link="${'https://vintipay.cv/p/' + link.codigo}">
+                                                    <i class="fas fa-copy"></i> Copiar Link
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" th:href="${'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://vintipay.cv/p/' + link.codigo}" target="_blank">
+                                                    <i class="fas fa-qrcode"></i> Ver QR Code
                                                 </a>
                                             </li>
                                             <li><hr class="dropdown-divider"></li>
                                             <li>
-                                                <form th:action="@{/user/links-pagamento/{id}/excluir(id=${link.id})}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir este link?');">
-                                                    <button type="submit" class="dropdown-item text-danger">
-                                                        <i class="fas fa-trash-alt me-2"></i> Excluir
-                                                    </button>
-                                                </form>
+                                                <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" th:data-bs-target="${'#deleteModal' + link.id}">
+                                                    <i class="fas fa-trash-alt"></i> Excluir
+                                                </a>
                                             </li>
                                         </ul>
+                                    </div>
+                                    
+                                    <!-- Modal de confirmação de exclusão -->
+                                    <div class="modal fade" th:id="${'deleteModal' + link.id}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteModalLabel">Confirmar Exclusão</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Tem certeza que deseja excluir o link <strong th:text="${link.nome}">Nome do Link</strong>?
+                                                    <p class="text-danger mt-2">Esta ação não pode ser desfeita.</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <form th:action="@{/user/links-pagamento/{id}/excluir(id=${link.id})}" method="post">
+                                                        <button type="submit" class="btn btn-danger">Excluir</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -281,116 +346,112 @@
         <!-- JavaScript específico para esta página -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // Elementos DOM
+                // Elementos do DOM
                 const searchInput = document.getElementById('searchInput');
                 const productFilter = document.getElementById('productFilter');
                 const statusFilter = document.getElementById('statusFilter');
-                const sortOrder = document.getElementById('sortOrder');
                 const linksList = document.getElementById('linksList');
-                const linkItems = document.querySelectorAll('.link-item');
-                const noResults = document.getElementById('noResults');
                 const copyButtons = document.querySelectorAll('.copy-link-btn');
                 
-                // Inicializar tooltips
-                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
-                });
-                
-                // Função para copiar link
+                // Copiar link para a área de transferência
                 copyButtons.forEach(button => {
-                    button.addEventListener('click', function() {
-                        const linkInput = this.previousElementSibling;
-                        linkInput.select();
-                        document.execCommand('copy');
-                        
-                        // Atualizar tooltip
-                        const tooltip = bootstrap.Tooltip.getInstance(this);
-                        this.setAttribute('data-bs-original-title', 'Copiado!');
-                        tooltip.show();
-                        
-                        // Restaurar tooltip original após 2 segundos
-                        setTimeout(() => {
-                            this.setAttribute('data-bs-original-title', 'Copiar link');
-                        }, 2000);
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const link = this.getAttribute('data-link');
+                        navigator.clipboard.writeText(link).then(() => {
+                            // Feedback visual
+                            const originalText = this.innerHTML;
+                            this.innerHTML = '<i class="fas fa-check"></i>';
+                            setTimeout(() => {
+                                this.innerHTML = originalText;
+                            }, 2000);
+                            
+                            // Mostrar toast
+                            const toast = new bootstrap.Toast(document.createElement('div'));
+                            toast._element.className = 'toast align-items-center text-white bg-success border-0 position-fixed bottom-0 end-0 m-3';
+                            toast._element.innerHTML = `
+                                <div class="d-flex">
+                                    <div class="toast-body">
+                                        <i class="fas fa-check-circle me-2"></i> Link copiado com sucesso!
+                                    </div>
+                                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                                </div>
+                            `;
+                            document.body.appendChild(toast._element);
+                            toast.show();
+                            
+                            // Remover o toast após fechar
+                            toast._element.addEventListener('hidden.bs.toast', function() {
+                                document.body.removeChild(toast._element);
+                            });
+                        }).catch(err => {
+                            console.error('Erro ao copiar link: ', err);
+                        });
                     });
                 });
                 
                 // Função para filtrar e ordenar links
                 function filterAndSortLinks() {
                     const searchTerm = searchInput.value.toLowerCase();
-                    const product = productFilter.value;
-                    const status = statusFilter.value;
-                    const sort = sortOrder.value;
+                    const productValue = productFilter.value.toLowerCase();
+                    const statusValue = statusFilter.value;
                     
+                    const linkItems = document.querySelectorAll('.link-item');
                     let visibleCount = 0;
                     
-                    // Filtrar links
                     linkItems.forEach(item => {
-                        const name = item.getAttribute('data-name').toLowerCase();
-                        const itemProduct = item.getAttribute('data-product');
-                        const itemStatus = item.getAttribute('data-status');
+                        const linkName = item.getAttribute('data-name').toLowerCase();
+                        const productName = item.getAttribute('data-product').toLowerCase();
+                        const linkStatus = item.getAttribute('data-status');
                         
-                        const matchesSearch = name.includes(searchTerm);
-                        const matchesProduct = product === '' || itemProduct === product;
-                        const matchesStatus = status === '' || itemStatus === status;
+                        // Aplicar filtros
+                        const matchesSearch = linkName.includes(searchTerm);
+                        const matchesProduct = productValue === '' || productName === productValue;
+                        const matchesStatus = statusValue === '' || linkStatus === statusValue;
                         
-                        const isVisible = matchesSearch && matchesProduct && matchesStatus;
-                        
-                        item.style.display = isVisible ? 'block' : 'none';
-                        
-                        if (isVisible) {
+                        // Mostrar ou esconder com base nos filtros
+                        if (matchesSearch && matchesProduct && matchesStatus) {
+                            item.style.display = 'block';
                             visibleCount++;
+                        } else {
+                            item.style.display = 'none';
                         }
                     });
                     
-                    // Mostrar mensagem se nenhum resultado
-                    if (visibleCount === 0 && linkItems.length > 0) {
-                        noResults.classList.remove('d-none');
-                    } else {
-                        noResults.classList.add('d-none');
+                    // Mostrar mensagem se nenhum link encontrado
+                    const noResultsElement = document.getElementById('noResults');
+                    if (visibleCount === 0) {
+                        if (!noResultsElement) {
+                            const noResults = document.createElement('div');
+                            noResults.id = 'noResults';
+                            noResults.className = 'col-12 text-center py-5';
+                            noResults.innerHTML = `
+                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                <h5>Nenhum link encontrado</h5>
+                                <p class="text-muted">Tente ajustar os filtros para encontrar o que procura.</p>
+                            `;
+                            linksList.appendChild(noResults);
+                        }
+                    } else if (noResultsElement) {
+                        noResultsElement.remove();
                     }
-                    
-                    // Ordenar links
-                    const items = Array.from(linkItems);
-                    items.sort((a, b) => {
-                        switch(sort) {
-                            case 'name_asc':
-                                return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
-                            case 'name_desc':
-                                return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name'));
-                            case 'price_asc':
-                                return parseFloat(a.getAttribute('data-price')) - parseFloat(b.getAttribute('data-price'));
-                            case 'price_desc':
-                                return parseFloat(b.getAttribute('data-price')) - parseFloat(a.getAttribute('data-price'));
-                            case 'date_desc':
-                                return new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date'));
-                            case 'date_asc':
-                                return new Date(a.getAttribute('data-date')) - new Date(b.getAttribute('data-date'));
-                            default:
-                                return 0;
-                        }
-                    });
-                    
-                    // Reordenar no DOM
-                    items.forEach(item => {
-                        linksList.appendChild(item);
-                    });
                 }
                 
                 // Adicionar event listeners
                 if (searchInput) {
                     searchInput.addEventListener('input', filterAndSortLinks);
                 }
+                
                 if (productFilter) {
                     productFilter.addEventListener('change', filterAndSortLinks);
                 }
+                
                 if (statusFilter) {
                     statusFilter.addEventListener('change', filterAndSortLinks);
                 }
-                if (sortOrder) {
-                    sortOrder.addEventListener('change', filterAndSortLinks);
-                }
+                
+                // Inicializar filtros
+                filterAndSortLinks();
             });
         </script>
     </additionalJs>

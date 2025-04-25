@@ -3,6 +3,7 @@ package cv.ntinnovation.vintipay.adapter.in.web.mapper;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.LinkPagamentoRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.LinkPagamentoResponse;
 import cv.ntinnovation.vintipay.application.core.domain.entity.LinkPagamento;
+import cv.ntinnovation.vintipay.application.core.domain.enums.StatusLinkPagamentoEnum;
 import org.springframework.stereotype.Component;
 
 import java.text.NumberFormat;
@@ -65,7 +66,7 @@ public class LinkPagamentoWebMapper {
         }
         
         return LinkPagamento.builder()
-                .titulo(request.getTitulo())
+                .titulo(request.getNome())
                 .descricao(request.getDescricao())
                 .dataExpiracao(request.getDataExpiracao())
                 .quantidadeUsos(request.getQuantidadeUsos())
@@ -89,13 +90,14 @@ public class LinkPagamentoWebMapper {
         
         return LinkPagamentoRequest.builder()
                 .produtoId(link.getProdutoId())
-                .titulo(link.getTitulo())
+                .nome(link.getTitulo())
                 .descricao(link.getDescricao())
                 .dataExpiracao(link.getDataExpiracao())
                 .quantidadeUsos(link.getQuantidadeUsos())
                 .status(link.getStatus())
                 .urlRetornoSucesso(link.getUrlRetornoSucesso())
                 .urlRetornoCancelamento(link.getUrlRetornoCancelamento())
+                .ativo(link.getStatus() == StatusLinkPagamentoEnum.ATIVO)
                 .build();
     }
 }

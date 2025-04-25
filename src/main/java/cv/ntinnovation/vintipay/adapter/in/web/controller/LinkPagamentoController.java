@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -49,103 +50,182 @@ public class LinkPagamentoController {
     }
 
     @GetMapping("/novo")
-    public String formularioNovoLink(Model model, Authentication authentication) {
+    public String formularioNovoLink(@RequestParam(required = false) Long produtoId, Model model, Authentication authentication) {
         // Obter o objeto Usuario a partir do Authentication
         Usuario usuario = (Usuario) authentication.getPrincipal();
         Long usuarioId = usuario.getId();
         
         // Buscar produtos do usuário para o dropdown
         List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
-        
-        model.addAttribute("link", new LinkPagamentoRequest());
         model.addAttribute("produtos", produtos);
         
-        return "links/form";
+        // Inicializar o formulário
+        LinkPagamentoRequest request = new LinkPagamentoRequest();
+        
+        // Se um produtoId foi fornecido, pré-selecionar o produto
+        if (produtoId != null) {
+            // Verificar se o produto existe e pertence ao usuário
+            if (gerenciaProdutoUseCase.verificarPropriedadeProduto(produtoId, usuarioId)) {
+                request.setProdutoId(produtoId);
+                
+                // Buscar o produto para preencher o valor padrão
+                try {
+                    Produto produto = gerenciaProdutoUseCase.buscarProdutoPorId(produtoId);
+                    request.setValor(produto.getPreco());
+                    request.setNome("Link para " + produto.getNome());
+                } catch (Exception e) {
+                    // Ignorar erro e continuar sem pré-preencher
+                }
+            }
+        }
+        
+        model.addAttribute("link", request);
+        
+        return "user/link-pagamento-form";
     }
 
     @PostMapping("/novo")
     public String criarLink(@Valid @ModelAttribute("link") LinkPagamentoRequest request, 
-                           Authentication authentication) {
+                           BindingResult result,
+                           Model model,
+                           Authentication authentication,
+                           RedirectAttributes redirectAttributes) {
         // Obter o objeto Usuario a partir do Authentication
         Usuario usuario = (Usuario) authentication.getPrincipal();
         Long usuarioId = usuario.getId();
+        
+        if (result.hasErrors()) {
+            // Buscar produtos do usuário para o dropdown
+            List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
+            model.addAttribute("produtos", produtos);
+            return "user/link-pagamento-form";
+        }
         
         // Verificar se o produto pertence ao usuário
         if (!gerenciaProdutoUseCase.verificarPropriedadeProduto(request.getProdutoId(), usuarioId)) {
+            redirectAttributes.addFlashAttribute("erro", "Você não tem permissão para criar um link para este produto");
             return "redirect:/user/links-pagamento";
         }
         
-        gerenciaLinkPagamentoUseCase.criarLinkPagamento(
-            request.getProdutoId(),
-            usuarioId,
-            request.getTitulo(),
-            request.getDescricao(),
-            request.getDataExpiracao(),
-            request.getQuantidadeUsos(),
-            request.getUrlRetornoSucesso(),
-            request.getUrlRetornoCancelamento()
-        );
-        
-        return "redirect:/user/links-pagamento";
+        try {
+            gerenciaLinkPagamentoUseCase.criarLinkPagamento(
+                request.getProdutoId(),
+                usuarioId,
+                request.getNome(),
+                request.getDescricao(),
+                request.getDataExpiracao(),
+                request.getQuantidadeUsos(),
+                request.getUrlRetornoSucesso(),
+                request.getUrlRetornoCancelamento()
+            );
+            
+            redirectAttributes.addFlashAttribute("sucesso", "Link de pagamento criado com sucesso");
+            return "redirect:/user/links-pagamento";
+        } catch (Exception e) {
+            // Buscar produtos do usuário para o dropdown
+            List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
+            model.addAttribute("produtos", produtos);
+            model.addAttribute("erro", "Erro ao criar link de pagamento: " + e.getMessage());
+            return "user/link-pagamento-form";
+        }
     }
 
     @GetMapping("/{id}/editar")
-    public String formularioEditarLink(@PathVariable Long id, Model model, Authentication authentication) {
+    public String formularioEditarLink(@PathVariable Long id, Model model, Authentication authentication, RedirectAttributes redirectAttributes) {
         // Obter o objeto Usuario a partir do Authentication
         Usuario usuario = (Usuario) authentication.getPrincipal();
         Long usuarioId = usuario.getId();
         
-        Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorId(id);
-        if (linkOpt.isEmpty() || !gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
+        try {
+            Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorId(id);
+            if (linkOpt.isEmpty() || !gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
+                redirectAttributes.addFlashAttribute("erro", "Link de pagamento não encontrado ou você não tem permissão para editá-lo");
+                return "redirect:/user/links-pagamento";
+            }
+            
+            LinkPagamento link = linkOpt.get();
+            
+            // Converter para o request
+            LinkPagamentoRequest request = linkPagamentoWebMapper.toLinkPagamentoRequest(link);
+            
+            // Buscar produtos do usuário para o dropdown
+            List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
+            
+            model.addAttribute("link", request);
+            model.addAttribute("produtos", produtos);
+            model.addAttribute("linkId", id);
+            
+            return "user/link-pagamento-form";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erro", "Erro ao carregar link de pagamento: " + e.getMessage());
             return "redirect:/user/links-pagamento";
         }
-        
-        LinkPagamento link = linkOpt.get();
-        
-        // Buscar produtos do usuário para o dropdown
-        List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
-        
-        model.addAttribute("link", linkPagamentoWebMapper.toLinkPagamentoRequest(link));
-        model.addAttribute("produtos", produtos);
-        model.addAttribute("linkId", id);
-        
-        return "links/form";
     }
 
     @PostMapping("/{id}/editar")
     public String atualizarLink(@PathVariable Long id, 
                                @Valid @ModelAttribute("link") LinkPagamentoRequest request,
-                               Authentication authentication) {
+                               BindingResult result,
+                               Model model,
+                               Authentication authentication,
+                               RedirectAttributes redirectAttributes) {
         // Obter o objeto Usuario a partir do Authentication
         Usuario usuario = (Usuario) authentication.getPrincipal();
         Long usuarioId = usuario.getId();
         
+        if (result.hasErrors()) {
+            // Buscar produtos do usuário para o dropdown
+            List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
+            model.addAttribute("produtos", produtos);
+            model.addAttribute("linkId", id);
+            return "user/link-pagamento-form";
+        }
+        
         if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
+            redirectAttributes.addFlashAttribute("erro", "Você não tem permissão para editar este link");
             return "redirect:/user/links-pagamento";
         }
         
-        gerenciaLinkPagamentoUseCase.atualizarLinkPagamento(
-            id,
-            request.getTitulo(),
-            request.getDescricao(),
-            request.getDataExpiracao(),
-            request.getQuantidadeUsos(),
-            request.getStatus(),
-            request.getUrlRetornoSucesso(),
-            request.getUrlRetornoCancelamento()
-        );
-        
-        return "redirect:/user/links-pagamento";
+        try {
+            gerenciaLinkPagamentoUseCase.atualizarLinkPagamento(
+                id,
+                request.getNome(),
+                request.getDescricao(),
+                request.getDataExpiracao(),
+                request.getQuantidadeUsos(),
+                request.getStatus(),
+                request.getUrlRetornoSucesso(),
+                request.getUrlRetornoCancelamento()
+            );
+            
+            redirectAttributes.addFlashAttribute("sucesso", "Link de pagamento atualizado com sucesso");
+            return "redirect:/user/links-pagamento";
+        } catch (Exception e) {
+            // Buscar produtos do usuário para o dropdown
+            List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
+            model.addAttribute("produtos", produtos);
+            model.addAttribute("linkId", id);
+            model.addAttribute("erro", "Erro ao atualizar link de pagamento: " + e.getMessage());
+            return "user/link-pagamento-form";
+        }
     }
 
     @PostMapping("/{id}/excluir")
-    public String excluirLink(@PathVariable Long id, Authentication authentication) {
+    public String excluirLink(@PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
         // Obter o objeto Usuario a partir do Authentication
         Usuario usuario = (Usuario) authentication.getPrincipal();
         Long usuarioId = usuario.getId();
         
-        if (gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
+        try {
+            if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
+                redirectAttributes.addFlashAttribute("erro", "Você não tem permissão para excluir este link");
+                return "redirect:/user/links-pagamento";
+            }
+            
             gerenciaLinkPagamentoUseCase.excluirLinkPagamento(id);
+            redirectAttributes.addFlashAttribute("sucesso", "Link de pagamento excluído com sucesso");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erro", "Erro ao excluir link de pagamento: " + e.getMessage());
         }
         
         return "redirect:/user/links-pagamento";
@@ -300,7 +380,7 @@ public class LinkPagamentoController {
         LinkPagamento link = gerenciaLinkPagamentoUseCase.criarLinkPagamento(
             request.getProdutoId(),
             usuarioId,
-            request.getTitulo(),
+            request.getNome(),
             request.getDescricao(),
             request.getDataExpiracao(),
             request.getQuantidadeUsos(),
@@ -327,7 +407,7 @@ public class LinkPagamentoController {
         
         LinkPagamento link = gerenciaLinkPagamentoUseCase.atualizarLinkPagamento(
             id,
-            request.getTitulo(),
+            request.getNome(),
             request.getDescricao(),
             request.getDataExpiracao(),
             request.getQuantidadeUsos(),
