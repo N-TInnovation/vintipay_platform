@@ -4,6 +4,7 @@ import cv.ntinnovation.vintipay.adapter.in.web.dto.ProdutoRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.ProdutoResponse;
 import cv.ntinnovation.vintipay.adapter.in.web.mapper.ProdutoWebMapper;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
+import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaProdutoUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,10 @@ public class ProdutoController {
 
     @GetMapping
     public String listarProdutos(Model model, Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
+        
         List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
         model.addAttribute("produtos", produtos);
         return "produtos/lista";
@@ -45,7 +49,9 @@ public class ProdutoController {
     @PostMapping("/novo")
     public String criarProduto(@Valid @ModelAttribute("produto") ProdutoRequest request, 
                               Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         gerenciaProdutoUseCase.criarProduto(
             request.getNome(),
@@ -63,7 +69,9 @@ public class ProdutoController {
 
     @GetMapping("/{id}/editar")
     public String formularioEditarProduto(@PathVariable Long id, Model model, Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         Optional<Produto> produtoOpt = gerenciaProdutoUseCase.buscarProdutoPorId(id);
         if (produtoOpt.isEmpty() || !gerenciaProdutoUseCase.verificarPropriedadeProduto(id, usuarioId)) {
@@ -81,7 +89,9 @@ public class ProdutoController {
     public String atualizarProduto(@PathVariable Long id, 
                                   @Valid @ModelAttribute("produto") ProdutoRequest request,
                                   Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         if (!gerenciaProdutoUseCase.verificarPropriedadeProduto(id, usuarioId)) {
             return "redirect:/produtos";
@@ -104,7 +114,9 @@ public class ProdutoController {
 
     @PostMapping("/{id}/excluir")
     public String excluirProduto(@PathVariable Long id, Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         if (gerenciaProdutoUseCase.verificarPropriedadeProduto(id, usuarioId)) {
             gerenciaProdutoUseCase.excluirProduto(id);
@@ -118,7 +130,10 @@ public class ProdutoController {
     @GetMapping("/api")
     @ResponseBody
     public ResponseEntity<List<ProdutoResponse>> listarProdutosApi(Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
+        
         List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
         
         List<ProdutoResponse> response = produtos.stream()
@@ -131,7 +146,9 @@ public class ProdutoController {
     @GetMapping("/api/{id}")
     @ResponseBody
     public ResponseEntity<ProdutoResponse> buscarProdutoApi(@PathVariable Long id, Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         Optional<Produto> produtoOpt = gerenciaProdutoUseCase.buscarProdutoPorId(id);
         if (produtoOpt.isEmpty() || !gerenciaProdutoUseCase.verificarPropriedadeProduto(id, usuarioId)) {
@@ -146,7 +163,9 @@ public class ProdutoController {
     @ResponseBody
     public ResponseEntity<ProdutoResponse> criarProdutoApi(@Valid @RequestBody ProdutoRequest request, 
                                                          Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         Produto produto = gerenciaProdutoUseCase.criarProduto(
             request.getNome(),
@@ -168,7 +187,9 @@ public class ProdutoController {
     public ResponseEntity<ProdutoResponse> atualizarProdutoApi(@PathVariable Long id, 
                                                              @Valid @RequestBody ProdutoRequest request,
                                                              Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         if (!gerenciaProdutoUseCase.verificarPropriedadeProduto(id, usuarioId)) {
             return ResponseEntity.notFound().build();
@@ -193,7 +214,9 @@ public class ProdutoController {
     @DeleteMapping("/api/{id}")
     @ResponseBody
     public ResponseEntity<Void> excluirProdutoApi(@PathVariable Long id, Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        // Obter o objeto Usuario a partir do Authentication
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuario.getId();
         
         if (!gerenciaProdutoUseCase.verificarPropriedadeProduto(id, usuarioId)) {
             return ResponseEntity.notFound().build();
