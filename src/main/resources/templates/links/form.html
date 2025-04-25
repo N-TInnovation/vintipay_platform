@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}">
+<head>
+    <title th:text="${linkId != null ? 'Editar Link de Pagamento' : 'Novo Link de Pagamento'} + ' - VintiPay'">Link de Pagamento - VintiPay</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container py-4">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0" th:text="${linkId != null ? 'Editar Link de Pagamento' : 'Novo Link de Pagamento'}">Link de Pagamento</h5>
+                        </div>
+                        
+                        <div class="card-body">
+                            <form th:action="${linkId != null ? '/links-pagamento/' + linkId + '/editar' : '/links-pagamento/novo'}" 
+                                  th:object="${link}" method="post" class="needs-validation" novalidate>
+                                
+                                <div class="mb-3" th:if="${linkId == null}">
+                                    <label for="produtoId" class="form-label">Produto *</label>
+                                    <select class="form-select" id="produtoId" th:field="*{produtoId}" required>
+                                        <option value="">Selecione um produto</option>
+                                        <option th:each="produto : ${produtos}" 
+                                                th:value="${produto.id}" 
+                                                th:text="${produto.nome + ' - ' + #numbers.formatCurrency(produto.preco)}"
+                                                th:selected="${param.produtoId != null && param.produtoId[0] == produto.id.toString()}">
+                                            Produto - R$ 99,90
+                                        </option>
+                                    </select>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('produtoId')}" th:errors="*{produtoId}">
+                                        Selecione um produto
+                                    </div>
+                                    <small class="text-muted">
+                                        <a th:href="@{/produtos/novo}" target="_blank">Criar novo produto</a>
+                                    </small>
+                                </div>
+                                
+                                <div class="mb-3" th:if="${linkId != null}">
+                                    <label class="form-label">Produto</label>
+                                    <div class="d-flex align-items-center p-2 border rounded">
+                                        <img th:if="${link.produto != null && link.produto.imagem != null}" th:src="${link.produto.imagem}" class="me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;" th:alt="${link.produto.nome}">
+                                        <img th:unless="${link.produto != null && link.produto.imagem != null}" src="https://via.placeholder.com/60?text=Produto" class="me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;" alt="Produto">
+                                        
+                                        <div>
+                                            <p class="mb-0 fw-bold" th:text="${link.produto != null ? link.produto.nome : 'Produto não disponível'}">Nome do Produto</p>
+                                            <p class="mb-0 text-primary" th:text="${link.produto != null ? #numbers.formatCurrency(link.produto.preco) : ''}">R$ 99,90</p>
+                                        </div>
+                                        
+                                        <input type="hidden" th:field="*{produtoId}">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="titulo" class="form-label">Título personalizado</label>
+                                    <input type="text" class="form-control" id="titulo" th:field="*{titulo}">
+                                    <small class="text-muted">Deixe em branco para usar o nome do produto</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="descricao" class="form-label">Descrição personalizada</label>
+                                    <textarea class="form-control" id="descricao" th:field="*{descricao}" rows="3"></textarea>
+                                    <small class="text-muted">Deixe em branco para usar a descrição do produto</small>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="dataExpiracao" class="form-label">Data de expiração</label>
+                                        <input type="datetime-local" class="form-control" id="dataExpiracao" th:field="*{dataExpiracao}">
+                                        <small class="text-muted">Deixe em branco para não expirar</small>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="quantidadeUsos" class="form-label">Limite de usos</label>
+                                        <input type="number" class="form-control" id="quantidadeUsos" th:field="*{quantidadeUsos}" min="1">
+                                        <small class="text-muted">Deixe em branco para usos ilimitados</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="urlRetornoSucesso" class="form-label">URL de retorno após pagamento bem-sucedido</label>
+                                    <input type="url" class="form-control" id="urlRetornoSucesso" th:field="*{urlRetornoSucesso}" placeholder="https://...">
+                                    <small class="text-muted">URL para redirecionar o cliente após o pagamento bem-sucedido (opcional)</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="urlRetornoCancelamento" class="form-label">URL de retorno após cancelamento</label>
+                                    <input type="url" class="form-control" id="urlRetornoCancelamento" th:field="*{urlRetornoCancelamento}" placeholder="https://...">
+                                    <small class="text-muted">URL para redirecionar o cliente após o cancelamento do pagamento (opcional)</small>
+                                </div>
+                                
+                                <div class="mb-4" th:if="${linkId != null}">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select class="form-select" id="status" th:field="*{status}">
+                                        <option value="ATIVO">Ativo</option>
+                                        <option value="INATIVO">Inativo</option>
+                                        <option value="EXPIRADO">Expirado</option>
+                                        <option value="LIMITE_ATINGIDO">Limite atingido</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between">
+                                    <a th:href="@{/links-pagamento}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i> Voltar
+                                    </a>
+                                    
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i> Salvar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}">
+<head>
+    <title>Meus Produtos - VintiPay</title>
+    <style>
+        .produto-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%;
+        }
+        
+        .produto-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        .produto-imagem {
+            height: 180px;
+            object-fit: cover;
+            width: 100%;
+        }
+        
+        .produto-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .badge-inactive {
+            background-color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container py-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Meus Produtos</h1>
+                <a th:href="@{/produtos/novo}" class="btn btn-primary">
+                    <i class="fas fa-plus-circle me-2"></i> Novo Produto
+                </a>
+            </div>
+            
+            <div class="alert alert-info" th:if="${produtos.empty}">
+                <i class="fas fa-info-circle me-2"></i> Você ainda não tem produtos cadastrados.
+                <a th:href="@{/produtos/novo}" class="alert-link">Clique aqui</a> para criar seu primeiro produto.
+            </div>
+            
+            <div class="row g-4" th:unless="${produtos.empty}">
+                <div class="col-md-4 col-lg-3" th:each="produto : ${produtos}">
+                    <div class="card produto-card">
+                        <div class="position-relative">
+                            <img th:if="${produto.imagem}" th:src="${produto.imagem}" class="card-img-top produto-imagem" th:alt="${produto.nome}">
+                            <img th:unless="${produto.imagem}" src="https://via.placeholder.com/300x180?text=Sem+Imagem" class="card-img-top produto-imagem" th:alt="${produto.nome}">
+                            
+                            <span th:if="${!produto.ativo}" class="badge bg-secondary position-absolute top-0 end-0 m-2">Inativo</span>
+                        </div>
+                        
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${produto.nome}">Nome do Produto</h5>
+                            <p class="card-text text-muted small" th:text="${#strings.abbreviate(produto.descricao, 100)}">Descrição do produto...</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold text-primary" th:text="${#numbers.formatCurrency(produto.preco)}">R$ 99,90</span>
+                                <span th:if="${produto.estoque != null}" class="badge bg-light text-dark">
+                                    <i class="fas fa-box me-1"></i> <span th:text="${produto.estoque}">10</span> em estoque
+                                </span>
+                            </div>
+                            
+                            <div class="produto-actions">
+                                <a th:href="@{/produtos/{id}/editar(id=${produto.id})}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+                                
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                                        <li>
+                                            <a class="dropdown-item" th:href="@{/links-pagamento/novo(produtoId=${produto.id})}">
+                                                <i class="fas fa-link me-2"></i> Criar Link de Pagamento
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" th:href="@{/links-pagamento?produtoId={id}(id=${produto.id})}">
+                                                <i class="fas fa-list me-2"></i> Ver Links de Pagamento
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form th:action="@{/produtos/{id}/excluir(id=${produto.id})}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir este produto?');">
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="fas fa-trash-alt me-2"></i> Excluir
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer text-muted small">
+                            <i class="fas fa-calendar-alt me-1"></i> Criado em <span th:text="${#temporals.format(produto.dataCriacao, 'dd/MM/yyyy')}">01/01/2025</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

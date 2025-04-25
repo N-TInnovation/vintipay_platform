@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}">
+<head>
+    <title>Meus Links de Pagamento - VintiPay</title>
+    <style>
+        .link-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        .link-url {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 8px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        
+        .copy-btn {
+            cursor: pointer;
+        }
+        
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container py-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Meus Links de Pagamento</h1>
+                <a th:href="@{/links-pagamento/novo}" class="btn btn-primary">
+                    <i class="fas fa-plus-circle me-2"></i> Novo Link
+                </a>
+            </div>
+            
+            <div class="alert alert-info" th:if="${links.empty}">
+                <i class="fas fa-info-circle me-2"></i> Você ainda não tem links de pagamento cadastrados.
+                <a th:href="@{/links-pagamento/novo}" class="alert-link">Clique aqui</a> para criar seu primeiro link.
+            </div>
+            
+            <div class="row g-4" th:unless="${links.empty}">
+                <div class="col-md-6" th:each="link : ${links}">
+                    <div class="card link-card">
+                        <div class="card-body position-relative">
+                            <span th:if="${link.status.name() == 'ATIVO' && link.disponivel}" class="badge bg-success status-badge">Ativo</span>
+                            <span th:if="${link.status.name() == 'ATIVO' && !link.disponivel && link.dataExpiracao != null && link.dataExpiracao.isBefore(T(java.time.LocalDateTime).now())}" class="badge bg-warning status-badge">Expirado</span>
+                            <span th:if="${link.status.name() == 'ATIVO' && !link.disponivel && link.quantidadeUsos != null && link.usos >= link.quantidadeUsos}" class="badge bg-warning status-badge">Limite atingido</span>
+                            <span th:if="${link.status.name() == 'INATIVO'}" class="badge bg-secondary status-badge">Inativo</span>
+                            <span th:if="${link.status.name() == 'EXPIRADO'}" class="badge bg-warning status-badge">Expirado</span>
+                            <span th:if="${link.status.name() == 'LIMITE_ATINGIDO'}" class="badge bg-warning status-badge">Limite atingido</span>
+                            
+                            <h5 class="card-title" th:text="${link.titulo != null && !link.titulo.isEmpty() ? link.titulo : (link.produto != null ? link.produto.nome : 'Link de Pagamento')}">Título do Link</h5>
+                            
+                            <div class="d-flex align-items-center mb-3">
+                                <img th:if="${link.produto != null && link.produto.imagem != null}" th:src="${link.produto.imagem}" class="me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;" th:alt="${link.produto.nome}">
+                                <img th:unless="${link.produto != null && link.produto.imagem != null}" src="https://via.placeholder.com/60?text=Produto" class="me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;" alt="Produto">
+                                
+                                <div>
+                                    <p class="mb-0 fw-bold" th:text="${link.produto != null ? link.produto.nome : 'Produto não disponível'}">Nome do Produto</p>
+                                    <p class="mb-0 text-primary" th:text="${link.produto != null ? #numbers.formatCurrency(link.produto.preco) : ''}">R$ 99,90</p>
+                                </div>
+                            </div>
+                            
+                            <p class="card-text text-muted small" th:text="${link.descricao != null && !link.descricao.isEmpty() ? link.descricao : (link.produto != null && link.produto.descricao != null ? #strings.abbreviate(link.produto.descricao, 100) : '')}">Descrição do link...</p>
+                            
+                            <div class="mb-3">
+                                <label class="form-label small text-muted">Link de pagamento:</label>
+                                <div class="d-flex align-items-center link-url">
+                                    <span th:text="${#httpServletRequest.scheme + '://' + #httpServletRequest.serverName + (#httpServletRequest.serverPort != 80 && #httpServletRequest.serverPort != 443 ? ':' + #httpServletRequest.serverPort : '') + '/links-pagamento/p/' + link.codigo}">https://exemplo.com/p/abc123</span>
+                                    <i class="fas fa-copy ms-2 copy-btn" onclick="copyToClipboard(this)" data-bs-toggle="tooltip" data-bs-placement="top" title="Copiar link"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span th:if="${link.dataExpiracao != null}" class="badge bg-light text-dark">
+                                    <i class="fas fa-calendar-alt me-1"></i> Expira em: <span th:text="${#temporals.format(link.dataExpiracao, 'dd/MM/yyyy HH:mm')}">01/01/2025</span>
+                                </span>
+                                
+                                <span th:if="${link.quantidadeUsos != null}" class="badge bg-light text-dark">
+                                    <i class="fas fa-chart-bar me-1"></i> Usos: <span th:text="${link.usos + '/' + link.quantidadeUsos}">0/10</span>
+                                </span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <a th:href="@{/links-pagamento/p/{codigo}(codigo=${link.codigo})}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+                                        <i class="fas fa-external-link-alt me-1"></i> Visualizar
+                                    </a>
+                                    
+                                    <a th:href="@{/links-pagamento/{id}/editar(id=${link.id})}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit me-1"></i> Editar
+                                    </a>
+                                </div>
+                                
+                                <form th:action="@{/links-pagamento/{id}/excluir(id=${link.id})}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir este link de pagamento?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash-alt me-1"></i> Excluir
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer text-muted small">
+                            <i class="fas fa-calendar-alt me-1"></i> Criado em <span th:text="${#temporals.format(link.dataCriacao, 'dd/MM/yyyy')}">01/01/2025</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            function copyToClipboard(element) {
+                const linkText = element.previousElementSibling.textContent;
+                navigator.clipboard.writeText(linkText).then(() => {
+                    const tooltip = bootstrap.Tooltip.getInstance(element);
+                    element.setAttribute('data-bs-original-title', 'Copiado!');
+                    tooltip.show();
+                    
+                    setTimeout(() => {
+                        element.setAttribute('data-bs-original-title', 'Copiar link');
+                    }, 2000);
+                });
+            }
+            
+            document.addEventListener('DOMContentLoaded', function() {
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function(tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>
