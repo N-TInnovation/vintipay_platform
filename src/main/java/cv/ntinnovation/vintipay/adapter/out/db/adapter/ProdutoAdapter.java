@@ -59,4 +59,12 @@ public class ProdutoAdapter implements SalvaProduto, BuscaProduto {
     public boolean existePorIdEProprietarioId(Long id, Long proprietarioId) {
         return produtoRepository.existsByIdAndProprietarioId(id, proprietarioId);
     }
+    
+    @Override
+    public List<Produto> buscarTodosAtivos() {
+        return produtoRepository.findByAtivoTrue()
+                .stream()
+                .map(produtoMapper::toDomain)
+                .collect(Collectors.toList());
+    }
 }

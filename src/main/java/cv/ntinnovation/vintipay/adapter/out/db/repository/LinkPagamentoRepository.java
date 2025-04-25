@@ -20,4 +20,6 @@ public interface LinkPagamentoRepository extends JpaRepository<LinkPagamentoEnti
     List<LinkPagamentoEntity> findByStatus(StatusLinkPagamentoEnum status);
     
     List<LinkPagamentoEntity> findByStatusAndProprietarioId(StatusLinkPagamentoEnum status, Long proprietarioId);
+    
+    boolean existsByIdAndProprietarioId(Long id, Long proprietarioId);
 }

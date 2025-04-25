@@ -10,4 +10,5 @@ public interface BuscaProduto {
     List<Produto> buscarPorProprietarioId(Long proprietarioId);
     boolean existePorId(Long id);
     boolean existePorIdEProprietarioId(Long id, Long proprietarioId);
+    List<Produto> buscarTodosAtivos();
 }

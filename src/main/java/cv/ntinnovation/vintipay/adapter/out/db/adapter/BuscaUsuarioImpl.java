@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -43,5 +44,12 @@ public class BuscaUsuarioImpl implements BuscaUsuario {
                 .credentialsExpired(false)
                 .accountLocked(false)
                 .build();
+    }
+    
+    @Override
+    public Optional<Usuario> buscarPorId(Long id) {
+        log.debug("Buscando usuário com ID: {}", id);
+        return usuarioRepository.findById(id)
+                .map(usuarioMapper::toDomain);
     }
 }
