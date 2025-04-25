@@ -4,6 +4,7 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.DataFingerPrint;
 import cv.ntinnovation.vintipay.application.core.domain.entity.FingerPrintResult;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.vintipay.application.core.domain.enums.MoedaEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.exception.IntencaoPagamentoNaoExisteExeption;
 import cv.ntinnovation.vintipay.application.core.domain.rules.FingerPrintService;
@@ -37,18 +38,18 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
             throw new IntencaoPagamentoNaoExisteExeption("Intenção de pagamento não encontrada: " + intencaoPagamentoRef);
         }
 
-        if(intencaoPagamento.getStatus() != StatusPagamentoEnum.PENDENTE) {
+        if(!intencaoPagamento.getStatus().equals(StatusIntencaoPagamentoEnum.PENDENTE)) {
             throw new RuntimeException("Interação de pagamento com status diferente de pendente: " + intencaoPagamentoRef);
         }
 
         // Criar o pagamento
         Pagamento pagamento = Pagamento.builder()
                 .intencaoPagamento(intencaoPagamento)
-                .reference(intencaoPagamento.getReference())
+                .reference(intencaoPagamento.getReferencia())
                 .mensagem("Aguardando pagamento")
                 .build();
 
-        pagamento.setStatus(intencaoPagamento.getStatus());
+        pagamento.setStatus(intencaoPagamento.getStatus().toStatusPagamento());
 
         // Gerar timestamp
         pagamento.gerarTimestamp();
@@ -60,11 +61,11 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
         DataFingerPrint dataFingerPrint = DataFingerPrint.builder()
                 .posAutCode(configuracaoPagamento.getPosAutCode())
                 .timestamp(pagamento.getTimestamp())
-                .amount(intencaoPagamento.getAmount())
+                .amount(intencaoPagamento.getValor())
                 .merchantRef(intencaoPagamento.getMerchantRef())
                 .merchantSession(intencaoPagamento.getMerchantSession())
                 .posID(intencaoPagamento.getPosId())
-                .currency(MoedaEnum.getByName(intencaoPagamento.getCurrency()).getCodigoISO())
+                .currency(MoedaEnum.getByName(intencaoPagamento.getMoeda()).getCodigoISO())
                 .transactionCode(intencaoPagamento.getTransactionCode())
                 .entityCode(intencaoPagamento.getEntityCode() == null ? "" : intencaoPagamento.getEntityCode())
                 .referenceNumber(intencaoPagamento.getReferenceNumber() == null ? "" : intencaoPagamento.getReferenceNumber().toString())
@@ -73,7 +74,7 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
         FingerPrintResult fingerPrintResult = fingerPrintService.generateFingerPrint(dataFingerPrint);
         pagamento.setFingerprint(fingerPrintResult.getHashFingerPrint());
 
-        intencaoPagamento.setStatus(StatusPagamentoEnum.PROCESSANDO);
+        intencaoPagamento.setStatus(StatusIntencaoPagamentoEnum.fromStatusPagamento(StatusPagamentoEnum.PROCESSANDO));
 
         salvaIntencaoPagamento.salvar(intencaoPagamento);
 

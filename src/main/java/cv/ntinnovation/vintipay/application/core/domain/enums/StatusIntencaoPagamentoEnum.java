@@ -37,5 +37,58 @@ public enum StatusIntencaoPagamentoEnum {
     /**
      * Pagamento foi reembolsado
      */
-    REEMBOLSADO
+    REEMBOLSADO;
+    
+    /**
+     * Converte um StatusPagamentoEnum para StatusIntencaoPagamentoEnum
+     * 
+     * @param statusPagamento o status de pagamento a ser convertido
+     * @return o status de intenção de pagamento equivalente
+     */
+    public static StatusIntencaoPagamentoEnum fromStatusPagamento(StatusPagamentoEnum statusPagamento) {
+        if (statusPagamento == null) {
+            return null;
+        }
+        
+        switch (statusPagamento) {
+            case PENDENTE:
+                return PENDENTE;
+            case PAGO:
+                return PAGO;
+            case CANCELADO:
+                return CANCELADO;
+            case PROCESSANDO:
+                return PROCESSANDO;
+            case ERRO:
+                return FALHA;
+            default:
+                throw new IllegalArgumentException("Status de pagamento não suportado: " + statusPagamento);
+        }
+    }
+    
+    /**
+     * Converte este StatusIntencaoPagamentoEnum para um StatusPagamentoEnum
+     * 
+     * @return o status de pagamento equivalente
+     */
+    public StatusPagamentoEnum toStatusPagamento() {
+        switch (this) {
+            case PENDENTE:
+                return StatusPagamentoEnum.PENDENTE;
+            case PAGO:
+                return StatusPagamentoEnum.PAGO;
+            case CANCELADO:
+                return StatusPagamentoEnum.CANCELADO;
+            case PROCESSANDO:
+                return StatusPagamentoEnum.PROCESSANDO;
+            case FALHA:
+                return StatusPagamentoEnum.ERRO;
+            case EXPIRADO:
+                return StatusPagamentoEnum.CANCELADO; // Mapeando expirado para cancelado
+            case REEMBOLSADO:
+                return StatusPagamentoEnum.CANCELADO; // Mapeando reembolsado para cancelado
+            default:
+                throw new IllegalArgumentException("Status de intenção de pagamento não suportado: " + this);
+        }
+    }
 }

@@ -18,7 +18,7 @@ public class PagamentoAdapter implements SalvaPagamento {
 
     @Override
     public Pagamento salvar(Pagamento pagamento) {
-        var fingerprint = pagamento.getIntencaoPagamento().getPosId()+"|"+pagamento.getIntencaoPagamento().getAmount().longValue()+"|"+pagamento.getIntencaoPagamento().getTransactionCode()+"|"+pagamento.getIntencaoPagamento().getReference()+"|"+pagamento.getIntencaoPagamento().getContaPagamento().getEmail()+"|"+pagamento.getIntencaoPagamento().getContaPagamento().getMobilePhone();
+        var fingerprint = pagamento.getIntencaoPagamento().getPosId()+"|"+pagamento.getIntencaoPagamento().getValor().longValue()+"|"+pagamento.getIntencaoPagamento().getTransactionCode()+"|"+pagamento.getIntencaoPagamento().getReferencia()+"|"+pagamento.getIntencaoPagamento().getContaPagamento().getEmail()+"|"+pagamento.getIntencaoPagamento().getContaPagamento().getMobilePhone();
         var authorizationCode = fingerPrintService.encryptAES256(fingerprint);
         pagamento.setAuthorizationCode(authorizationCode);
         var entity = pagamentoMapper.toEntity(pagamento);

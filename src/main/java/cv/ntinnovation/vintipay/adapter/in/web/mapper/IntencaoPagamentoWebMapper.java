@@ -16,13 +16,13 @@ public class IntencaoPagamentoWebMapper {
         }
 
         return IntencaoPagamento.builder()
-                .amount(request.getAmount())
+                .valor(request.getAmount())
                 .contaPagamentoEmail(request.getEmail())
                 .contaPagamentoBillAddrCity(request.getBillAddrCity())
                 .contaPagamentoBillAddrCountry(request.getBillAddrCountry())
                 .contaPagamentoBillAddrLine1(request.getBillAddrLine1())
                 .contaPagamentoBillAddrPostCode(request.getBillAddrPostCode())
-                .currency(request.getCurrency())
+                .moeda(request.getCurrency())
                 .merchantRef(request.getMerchantRef())
                 .merchantSession(request.getMerchantSession())
                 .entityCode(request.getEntityCode())
@@ -37,11 +37,11 @@ public class IntencaoPagamentoWebMapper {
         }
 
         return IntencaoPagamentoResponse.builder()
-                .amount(intencaoPagamento.getAmount())
-                .status(intencaoPagamento.getStatus())
-                .reference(intencaoPagamento.getReference())
-                .createdAt(intencaoPagamento.getCreatedAt())
-                .currency(intencaoPagamento.getCurrency())
+                .amount(intencaoPagamento.getValor())
+                .status(intencaoPagamento.getStatus().toStatusPagamento())
+                .reference(intencaoPagamento.getReferencia())
+                .createdAt(intencaoPagamento.getDataCriacao())
+                .currency(intencaoPagamento.getMoeda())
                 .build();
     }
 }

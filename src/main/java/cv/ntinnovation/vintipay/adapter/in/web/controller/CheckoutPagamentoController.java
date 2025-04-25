@@ -57,10 +57,10 @@ public class CheckoutPagamentoController {
         }
         
         log.info("Sessão válida para checkout da referência: {}, sessionId: {}", 
-                reference, sessaoOpt.get().getSessionId());
+                reference, sessaoOpt.get().getId());
 
         // Adicionar cookie de sessão na resposta
-        Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessaoOpt.get().getSessionId());
+        Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessaoOpt.get().getId());
         sessionCookie.setMaxAge(SESSION_COOKIE_MAX_AGE);
         sessionCookie.setPath("/");
         sessionCookie.setHttpOnly(true);
@@ -92,14 +92,14 @@ public class CheckoutPagamentoController {
             .purchaseRequest(purchaseRequest)
             .fingerprint(pagamento.getFingerprint())
             .fingerprintversion("1") // Versão fixa por enquanto
-            .amount(pagamento.getIntencaoPagamento().getAmount().toString())
+            .amount(pagamento.getIntencaoPagamento().getValor().toString())
             .transactionCode(pagamento.getIntencaoPagamento().getTransactionCode())
             .posID(pagamento.getIntencaoPagamento().getPosId())
             .merchantRef(pagamento.getIntencaoPagamento().getMerchantRef())
             .merchantSession(pagamento.getIntencaoPagamento().getMerchantSession())
-            .currency(MoedaEnum.getByName(pagamento.getIntencaoPagamento().getCurrency()).getCodigoISO())
+            .currency(MoedaEnum.getByName(pagamento.getIntencaoPagamento().getMoeda()).getCodigoISO())
             .is3DSec("1") // Habilitado por padrão
-            .urlMerchantResponse(String.format("%s/%s?fingerPrintCode=%s", returnUrl, pagamento.getIntencaoPagamento().getReference(), URLEncoder.encode(pagamento.getAuthorizationCode())))
+            .urlMerchantResponse(String.format("%s/%s?fingerPrintCode=%s", returnUrl, pagamento.getIntencaoPagamento().getReferencia(), URLEncoder.encode(pagamento.getAuthorizationCode())))
             .languageMessages("pt") // Português por padrão
             .entityCode(entityCode)
             .referenceNumber(referenceNumber)

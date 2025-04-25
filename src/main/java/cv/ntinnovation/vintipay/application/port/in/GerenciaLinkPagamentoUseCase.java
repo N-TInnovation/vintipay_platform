@@ -54,6 +54,15 @@ public interface GerenciaLinkPagamentoUseCase {
     boolean alterarStatusLink(Long linkId, StatusLinkPagamentoEnum status);
     
     /**
+     * Desativa um link de pagamento pelo código
+     * 
+     * @param codigo Código do link de pagamento
+     * @param proprietarioId ID do proprietário
+     * @throws IllegalArgumentException se o link não for encontrado ou o usuário não tiver permissão
+     */
+    void desativarLinkPagamento(String codigo, Long proprietarioId);
+    
+    /**
      * Incrementa o contador de usos de um link de pagamento
      * 
      * @param linkId ID do link de pagamento

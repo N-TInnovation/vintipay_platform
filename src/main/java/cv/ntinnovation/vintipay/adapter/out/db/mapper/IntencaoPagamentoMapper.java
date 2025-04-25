@@ -6,6 +6,7 @@ import cv.ntinnovation.vintipay.adapter.out.db.entity.InfoContaPagamentoEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.entity.IntencaoPagamentoEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.repository.ContaPagamentoRepository;
 import cv.ntinnovation.vintipay.application.core.domain.entity.*;
+import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -23,11 +24,11 @@ public class IntencaoPagamentoMapper {
 
         IntencaoPagamentoEntity entity = new IntencaoPagamentoEntity();
         entity.setId(intencaoPagamento.getId());
-        entity.setReference(intencaoPagamento.getReference());
-        entity.setAmount(intencaoPagamento.getAmount());
-        entity.setCurrency(intencaoPagamento.getCurrency());
-        entity.setStatus(intencaoPagamento.getStatus());
-        entity.setCreatedAt(intencaoPagamento.getCreatedAt());
+        entity.setReference(intencaoPagamento.getReferencia());
+        entity.setAmount(intencaoPagamento.getValor());
+        entity.setCurrency(intencaoPagamento.getMoeda());
+        entity.setStatus(intencaoPagamento.getStatus().toStatusPagamento());
+        entity.setCreatedAt(intencaoPagamento.getDataCriacao());
         entity.setMerchantRef(intencaoPagamento.getMerchantRef());
         entity.setMerchantSession(intencaoPagamento.getMerchantSession());
         entity.setPosId(intencaoPagamento.getPosId());
@@ -54,11 +55,11 @@ public class IntencaoPagamentoMapper {
 
         return IntencaoPagamento.builder()
                 .id(entity.getId())
-                .reference(entity.getReference())
-                .amount(entity.getAmount())
-                .currency(entity.getCurrency())
-                .status(entity.getStatus())
-                .createdAt(entity.getCreatedAt())
+                .referencia(entity.getReference())
+                .valor(entity.getAmount())
+                .moeda(entity.getCurrency())
+                .status(StatusIntencaoPagamentoEnum.fromStatusPagamento(entity.getStatus()))
+                .dataCriacao(entity.getCreatedAt())
                 .merchantRef(entity.getMerchantRef())
                 .merchantSession(entity.getMerchantSession())
                 .posId(entity.getPosId())

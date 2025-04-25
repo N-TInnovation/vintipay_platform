@@ -27,13 +27,13 @@ public class SalvaIntencaoPagamentoImpl implements SalvaIntencaoPagamento {
     @Transactional
     public IntencaoPagamento salvar(IntencaoPagamento intencaoPagamento) {
         // Garantir que a data de criação seja definida
-        if (intencaoPagamento.getCreatedAt() == null) {
-            intencaoPagamento.setCreatedAt(LocalDateTime.now());
+        if (intencaoPagamento.getDataCriacao() == null) {
+            intencaoPagamento.setDataCriacao(LocalDateTime.now());
         }
         
         // Gerar referência única se não existir
-        if (intencaoPagamento.getReference() == null || intencaoPagamento.getReference().isEmpty()) {
-            intencaoPagamento.setReference(UUID.randomUUID().toString());
+        if (intencaoPagamento.getReferencia() == null || intencaoPagamento.getReferencia().isEmpty()) {
+            intencaoPagamento.setReferencia(UUID.randomUUID().toString());
         }
         
         // Validar se a conta de pagamento existe

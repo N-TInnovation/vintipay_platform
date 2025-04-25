@@ -304,9 +304,9 @@ public class FingerPrintService {
 		try {
 			var pagamento = retornoFingerprint.getPagamento();
 			var data = pagamento.getIntencaoPagamento().getPosId()+"|"
-					+pagamento.getIntencaoPagamento().getAmount().longValue()+"|"
+					+pagamento.getIntencaoPagamento().getValor().longValue()+"|"
 					+pagamento.getIntencaoPagamento().getTransactionCode()+"|"
-					+pagamento.getIntencaoPagamento().getReference()+"|"
+					+pagamento.getIntencaoPagamento().getReferencia()+"|"
 					+pagamento.getIntencaoPagamento().getContaPagamento().getEmail()
 					+"|"+pagamento.getIntencaoPagamento().getContaPagamento().getMobilePhone();
 			var fingerprint = SHA.GenerateSHA512StringToBase64(data);

@@ -34,13 +34,13 @@ public class CriaSessaoPagamentoUseCaseImpl implements CriaSessaoPagamentoUseCas
         LocalDateTime expiresAt = now.plusMinutes(sessionTimeoutMinutes);
         
         SessaoPagamento sessaoPagamento = SessaoPagamento.builder()
-                .sessionId(sessionId)
-                .reference(reference)
+                .id(sessionId)
+                .referencia(reference)
                 .clientId(clientId)
                 .ipAddress(ipAddress)
                 .userAgent(userAgent)
-                .createdAt(now)
-                .expiresAt(expiresAt)
+                .dataCriacao(now)
+                .dataExpiracao(expiresAt)
                 .valid(true)
                 .build();
         

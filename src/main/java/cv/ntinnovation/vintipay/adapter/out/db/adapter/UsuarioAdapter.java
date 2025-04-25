@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Primary
 @Component
 @RequiredArgsConstructor
@@ -38,5 +40,10 @@ public class UsuarioAdapter implements SalvaUsuario, BuscaUsuario {
         // Retornar o próprio objeto Usuario, que já implementa UserDetails
         // e agora tem um método getAuthorities() atualizado para usar papéis e permissões
         return usuario;
+    }
+
+    @Override
+    public Optional<Usuario> buscarPorId(Long id) {
+        return repository.findById(id).map(ususarioMapper::toDomain);
     }
 }

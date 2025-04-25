@@ -1,7 +1,7 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.IntencaoPagamento;
-import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.in.CriaIntencaoPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.out.SalvaIntencaoPagamento;
 import org.springframework.stereotype.Service;
@@ -21,17 +21,17 @@ public class CriaIntencaoPagamentoUseCaseImpl implements CriaIntencaoPagamentoUs
     @Override
     public IntencaoPagamento criar(IntencaoPagamento intencaoPagamento) {
         // Definir valores padrão
-        if (intencaoPagamento.getCreatedAt() == null) {
-            intencaoPagamento.setCreatedAt(LocalDateTime.now());
+        if (intencaoPagamento.getDataCriacao() == null) {
+            intencaoPagamento.setDataCriacao(LocalDateTime.now());
         }
         
-        if (intencaoPagamento.getReference() == null || intencaoPagamento.getReference().isEmpty()) {
-            intencaoPagamento.setReference(UUID.randomUUID().toString());
+        if (intencaoPagamento.getReferencia() == null || intencaoPagamento.getReferencia().isEmpty()) {
+            intencaoPagamento.setReferencia(UUID.randomUUID().toString());
         }
         
         // Definir status inicial
         if (intencaoPagamento.getStatus() == null) {
-            intencaoPagamento.setStatus(StatusPagamentoEnum.PENDENTE);
+            intencaoPagamento.setStatus(StatusIntencaoPagamentoEnum.PENDENTE);
         }
         
         // Validar dados obrigatórios
@@ -42,14 +42,22 @@ public class CriaIntencaoPagamentoUseCaseImpl implements CriaIntencaoPagamentoUs
     }
     
     private void validarIntencaoPagamento(IntencaoPagamento intencaoPagamento) {
-        if (intencaoPagamento.getAmount() == null) {
+        if (intencaoPagamento.getValor() == null) {
             throw new IllegalArgumentException("O valor do pagamento é obrigatório");
         }
         
-        if (intencaoPagamento.getAmount().signum() <= 0) {
+        if (intencaoPagamento.getValor().signum() <= 0) {
             throw new IllegalArgumentException("O valor do pagamento deve ser maior que zero");
         }
-
+        
+        if (intencaoPagamento.getMoeda() == null || intencaoPagamento.getMoeda().isEmpty()) {
+            throw new IllegalArgumentException("A moeda do pagamento é obrigatória");
+        }
+        
+        if (intencaoPagamento.getDescricao() == null || intencaoPagamento.getDescricao().isEmpty()) {
+            throw new IllegalArgumentException("A descrição do pagamento é obrigatória");
+        }
+        
         if (intencaoPagamento.getMerchantRef() == null || intencaoPagamento.getMerchantRef().isEmpty()) {
             throw new IllegalArgumentException("A referência do merchant é obrigatória");
         }

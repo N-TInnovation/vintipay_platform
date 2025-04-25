@@ -155,6 +155,29 @@ public class GerenciaLinkPagamentoUseCaseImpl implements GerenciaLinkPagamentoUs
 
     @Override
     @Transactional
+    public void desativarLinkPagamento(String codigo, Long proprietarioId) {
+        // Buscar o link de pagamento pelo código
+        Optional<LinkPagamento> linkOpt = buscaLinkPagamento.buscarPorCodigo(codigo);
+        if (linkOpt.isEmpty()) {
+            throw new IllegalArgumentException("Link de pagamento não encontrado");
+        }
+        
+        LinkPagamento link = linkOpt.get();
+        
+        // Verificar se o usuário é o proprietário do link
+        if (!link.getProprietarioId().equals(proprietarioId)) {
+            throw new IllegalArgumentException("Usuário não tem permissão para desativar este link");
+        }
+        
+        // Desativar o link
+        link.setStatus(StatusLinkPagamentoEnum.INATIVO);
+        
+        // Salvar o link atualizado
+        salvaLinkPagamento.salvar(link);
+    }
+
+    @Override
+    @Transactional
     public boolean incrementarUsos(Long linkId) {
         // Buscar o link de pagamento
         Optional<LinkPagamento> linkOpt = buscaLinkPagamento.buscarPorId(linkId);

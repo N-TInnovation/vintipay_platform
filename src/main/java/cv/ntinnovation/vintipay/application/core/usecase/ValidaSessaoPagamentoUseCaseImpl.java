@@ -40,9 +40,9 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
         // Busca o cookie de sessão
         String sessionId = getSessionIdFromCookie(request);
         if(sessionIdparam != null) {
-            if (!sessaoByReference.get().getSessionId().equals(sessionIdparam)) {
+            if (!sessaoByReference.get().getId().equals(sessionIdparam)) {
                 log.warn("Session ID do cookie ({}) não corresponde ao Session ID da sessão ({}) para referência: {}",
-                        sessionIdparam, sessaoByReference.get().getSessionId(), reference);
+                        sessionIdparam, sessaoByReference.get().getId(), reference);
                 return Optional.empty();
             }
             sessionId = sessionIdparam;
@@ -58,14 +58,14 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
         
         // Verifica se o sessionId do cookie corresponde ao sessionId da sessão encontrada
         SessaoPagamento sessao = sessaoByReference.get();
-        if (!sessao.getSessionId().equals(sessionId)) {
+        if (!sessao.getId().equals(sessionId)) {
             log.warn("Session ID do cookie ({}) não corresponde ao Session ID da sessão ({}) para referência: {}", 
-                    sessionId, sessao.getSessionId(), reference);
+                    sessionId, sessao.getId(), reference);
             return Optional.empty();
         }
         
         // Verifica se a sessão não expirou
-        if (sessao.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (sessao.getDataExpiracao().isBefore(LocalDateTime.now())) {
             log.warn("Sessão expirada para referência: {}", reference);
             invalidarSessao(sessionId);
             return Optional.empty();
@@ -95,7 +95,7 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
         buscaSessaoPagamentoPort.buscarSessoesExpiradas().forEach(sessao -> {
             sessao.setValid(false);
             salvaSessaoPagamentoPort.salvar(sessao);
-            log.info("Sessão expirada {} invalidada automaticamente", sessao.getSessionId());
+            log.info("Sessão expirada {} invalidada automaticamente", sessao.getId());
         });
     }
     

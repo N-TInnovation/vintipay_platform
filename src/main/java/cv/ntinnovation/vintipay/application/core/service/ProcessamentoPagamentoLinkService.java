@@ -36,11 +36,16 @@ public class ProcessamentoPagamentoLinkService implements ProcessamentoPagamento
 
     @Override
     @Transactional
-    public SessaoPagamento criarSessaoPagamento(String codigoLink) {
-        log.info("Criando sessão de pagamento para o link: {}", codigoLink);
+    public String criarSessaoPagamento(String codigoLink, String successUrl, String cancelUrl) {
+        log.info("Criando sessão de pagamento para o link: {} com URLs de retorno personalizadas", codigoLink);
         
-        // Busca o link de pagamento e registra o uso
-        LinkPagamento linkPagamento = gerenciaLinkPagamentoUseCase.registrarUsoLinkPagamento(codigoLink);
+        // Busca o link de pagamento pelo código
+        LinkPagamento linkPagamento = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigoLink)
+                .orElseThrow(() -> new IllegalArgumentException("Link de pagamento não encontrado: " + codigoLink));
+        
+        // Incrementa o contador de usos do link
+        gerenciaLinkPagamentoUseCase.incrementarUsos(linkPagamento.getId());
+        
         Produto produto = linkPagamento.getProduto();
         
         // Cria a intenção de pagamento
@@ -63,55 +68,15 @@ public class ProcessamentoPagamentoLinkService implements ProcessamentoPagamento
                 produto.getDescricao(),
                 produto.getPreco(),
                 intencaoPagamento.getMoeda(),
-                linkPagamento.getUrlRetornoSucesso(),
-                linkPagamento.getUrlRetornoCancelamento()
+                successUrl,
+                cancelUrl
         );
         
         // Associa a sessão à intenção de pagamento
-        sessaoPagamento.setIntencaoPagamento(intencaoPagamento);
+        sessaoPagamento.setIntencaoPagamentoId(intencaoPagamento.getId().toString());
         sessaoPagamento = salvaSessaoPagamento.salvar(sessaoPagamento);
         
-        return sessaoPagamento;
-    }
-    
-    @Override
-    @Transactional
-    public SessaoPagamento criarSessaoPagamento(String codigoLink, String urlRetornoSucesso, String urlRetornoCancelamento) {
-        log.info("Criando sessão de pagamento para o link: {} com URLs de retorno personalizadas", codigoLink);
-        
-        // Busca o link de pagamento e registra o uso
-        LinkPagamento linkPagamento = gerenciaLinkPagamentoUseCase.registrarUsoLinkPagamento(codigoLink);
-        Produto produto = linkPagamento.getProduto();
-        
-        // Cria a intenção de pagamento
-        String referencia = gerarReferenciaUnica();
-        IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
-                .referencia(referencia)
-                .valor(produto.getPreco())
-                .moeda(produto.getMoeda() != null ? produto.getMoeda() : "CVE")
-                .descricao(produto.getDescricao())
-                .status(StatusIntencaoPagamentoEnum.PENDENTE)
-                .dataCriacao(LocalDateTime.now())
-                .build();
-        
-        intencaoPagamento = salvaIntencaoPagamento.salvar(intencaoPagamento);
-        
-        // Cria a sessão de pagamento com as URLs de retorno fornecidas
-        SessaoPagamento sessaoPagamento = processadorPagamento.criarSessaoPagamento(
-                intencaoPagamento.getReferencia(),
-                produto.getNome(),
-                produto.getDescricao(),
-                produto.getPreco(),
-                intencaoPagamento.getMoeda(),
-                urlRetornoSucesso,
-                urlRetornoCancelamento
-        );
-        
-        // Associa a sessão à intenção de pagamento
-        sessaoPagamento.setIntencaoPagamento(intencaoPagamento);
-        sessaoPagamento = salvaSessaoPagamento.salvar(sessaoPagamento);
-        
-        return sessaoPagamento;
+        return sessaoPagamento.getCheckoutUrl();
     }
 
     @Override
@@ -127,7 +92,7 @@ public class ProcessamentoPagamentoLinkService implements ProcessamentoPagamento
         }
         
         SessaoPagamento sessao = sessaoOpt.get();
-        IntencaoPagamento intencaoPagamento = sessao.getIntencaoPagamento();
+        IntencaoPagamento intencaoPagamento = buscaIntencaoPagamento.buscarPorId(sessao.getIntencaoPagamentoId());
         
         if (intencaoPagamento == null) {
             log.error("Intenção de pagamento não encontrada para a sessão: {}", sessionId);
@@ -143,7 +108,11 @@ public class ProcessamentoPagamentoLinkService implements ProcessamentoPagamento
         return true;
     }
 
-    @Override
+    /**
+     * Processa o pagamento bem-sucedido a partir da referência
+     * 
+     * @param referencia Referência da intenção de pagamento
+     */
     @Transactional
     public void processarPagamentoSucesso(String referencia) {
         log.info("Processando pagamento com sucesso para a referência: {}", referencia);
@@ -163,7 +132,11 @@ public class ProcessamentoPagamentoLinkService implements ProcessamentoPagamento
         // - Gerar nota fiscal, etc.
     }
 
-    @Override
+    /**
+     * Processa o cancelamento de pagamento a partir da referência
+     * 
+     * @param referencia Referência da intenção de pagamento
+     */
     @Transactional
     public void processarPagamentoCancelado(String referencia) {
         log.info("Processando cancelamento de pagamento para a referência: {}", referencia);
@@ -175,6 +148,28 @@ public class ProcessamentoPagamentoLinkService implements ProcessamentoPagamento
         intencaoPagamento.setStatus(StatusIntencaoPagamentoEnum.CANCELADO);
         intencaoPagamento.setDataAtualizacao(LocalDateTime.now());
         salvaIntencaoPagamento.salvar(intencaoPagamento);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<IntencaoPagamento> buscarIntencaoPorCodigoLink(String codigoLink) {
+        log.info("Buscando intenção de pagamento para o link: {}", codigoLink);
+        
+        // Buscar o link de pagamento pelo código
+        Optional<LinkPagamento> linkOpt = buscaLinkPagamento.buscarPorCodigo(codigoLink);
+        if (linkOpt.isEmpty()) {
+            log.warn("Link de pagamento não encontrado: {}", codigoLink);
+            return Optional.empty();
+        }
+        
+        // Como não temos uma associação direta entre link e intenção de pagamento no modelo atual,
+        // precisamos implementar uma lógica para buscar a intenção mais recente associada ao link.
+        // Esta é uma implementação simplificada que pode ser melhorada com uma associação direta
+        // ou uma tabela de relacionamento entre links e intenções.
+        
+        // Por enquanto, retornamos vazio, mas em uma implementação real,
+        // buscaríamos a intenção de pagamento mais recente associada ao link
+        return Optional.empty();
     }
     
     private String gerarReferenciaUnica() {

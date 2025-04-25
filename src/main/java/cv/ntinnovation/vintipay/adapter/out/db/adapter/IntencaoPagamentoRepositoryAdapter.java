@@ -7,6 +7,7 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.IntencaoPagamento
 import cv.ntinnovation.vintipay.application.port.out.BuscaIntencaoPagamento;
 import cv.ntinnovation.vintipay.application.port.out.SalvaIntencaoPagamento;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -14,6 +15,7 @@ import java.util.Optional;
 /**
  * Adaptador para o repositório de intenções de pagamento
  */
+@Primary
 @Component
 @RequiredArgsConstructor
 public class IntencaoPagamentoRepositoryAdapter implements BuscaIntencaoPagamento, SalvaIntencaoPagamento {
@@ -26,7 +28,7 @@ public class IntencaoPagamentoRepositoryAdapter implements BuscaIntencaoPagament
         try {
             Long idLong = Long.parseLong(id);
             return intencaoPagamentoRepository.findById(idLong)
-                    .map(intencaoPagamentoMapper::toDomain)
+                    .map(intencaoPagamentoMapper::toIntencaoPagamento)
                     .orElse(null);
         } catch (NumberFormatException e) {
             return null;
@@ -35,14 +37,14 @@ public class IntencaoPagamentoRepositoryAdapter implements BuscaIntencaoPagament
 
     @Override
     public Optional<IntencaoPagamento> buscarPorReferencia(String referencia) {
-        return intencaoPagamentoRepository.findByReferencia(referencia)
-                .map(intencaoPagamentoMapper::toDomain);
+        return intencaoPagamentoRepository.findByReference(referencia)
+                .map(intencaoPagamentoMapper::toIntencaoPagamento);
     }
 
     @Override
     public IntencaoPagamento salvar(IntencaoPagamento intencaoPagamento) {
-        IntencaoPagamentoEntity entity = intencaoPagamentoMapper.toEntity(intencaoPagamento);
+        IntencaoPagamentoEntity entity = intencaoPagamentoMapper.toIntencaoPagamentoEntity(intencaoPagamento);
         entity = intencaoPagamentoRepository.save(entity);
-        return intencaoPagamentoMapper.toDomain(entity);
+        return intencaoPagamentoMapper.toIntencaoPagamento(entity);
     }
 }

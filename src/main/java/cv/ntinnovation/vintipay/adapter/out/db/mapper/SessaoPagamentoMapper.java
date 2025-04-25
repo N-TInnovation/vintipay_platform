@@ -15,15 +15,15 @@ public class SessaoPagamentoMapper {
         }
 
         return SessaoPagamentoEntity.builder()
-                .id(domain.getId())
-                .sessionId(domain.getSessionId())
-                .reference(domain.getReference())
+                .id(Long.parseLong(domain.getId()))
+                .sessionId(domain.getId())
+                .reference(domain.getReferencia())
                 .clientId(domain.getClientId())
                 .ipAddress(domain.getIpAddress())
                 .userAgent(domain.getUserAgent())
-                .createdAt(domain.getCreatedAt() != null ? domain.getCreatedAt() : LocalDateTime.now())
-                .expiresAt(domain.getExpiresAt())
-                .valid(domain.isValid())
+                .createdAt(domain.getDataCriacao() != null ? domain.getDataCriacao() : LocalDateTime.now())
+                .expiresAt(domain.getDataExpiracao())
+                .valid(domain.getValid())
                 .build();
     }
 
@@ -33,14 +33,14 @@ public class SessaoPagamentoMapper {
         }
 
         return SessaoPagamento.builder()
-                .id(entity.getId())
-                .sessionId(entity.getSessionId())
-                .reference(entity.getReference())
+                .id(String.valueOf(entity.getId()))
+                .id(entity.getSessionId())
+                .referencia(entity.getReference())
                 .clientId(entity.getClientId())
                 .ipAddress(entity.getIpAddress())
                 .userAgent(entity.getUserAgent())
-                .createdAt(entity.getCreatedAt())
-                .expiresAt(entity.getExpiresAt())
+                .dataCriacao(entity.getCreatedAt())
+                .dataExpiracao(entity.getExpiresAt())
                 .valid(entity.isValid())
                 .build();
     }

@@ -28,4 +28,5 @@ public class SessaoPagamento {
     private String clientId;
     private String ipAddress;
     private String userAgent;
+    private Boolean valid;
 }

@@ -88,13 +88,13 @@ public class IntencaoPagamentoController {
             
             // Criar uma sessão de pagamento para esta intenção
             SessaoPagamento sessao = criaSessaoPagamentoUseCase.criar(
-                    intencaoPagamentoCriada.getReference(),
+                    intencaoPagamentoCriada.getReferencia(),
                     clientId,
                     servletRequest
             );
             
             // Adicionar cookie de sessão na resposta
-            Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessao.getSessionId());
+            Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessao.getId());
             sessionCookie.setMaxAge(SESSION_COOKIE_MAX_AGE);
             sessionCookie.setPath("/");
             sessionCookie.setHttpOnly(true);
@@ -104,7 +104,7 @@ public class IntencaoPagamentoController {
             // Converter para response e retornar
             IntencaoPagamentoResponse response = intencaoPagamentoWebMapper.toIntencaoPagamentoResponse(intencaoPagamentoCriada);
             // Adicionar o ID da sessão à resposta
-            response.setSessionId(sessao.getSessionId());
+            response.setSessionId(sessao.getId());
             
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalStateException e) {

@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
+import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.exception.PagamentoNaoEncontradoException;
 import cv.ntinnovation.vintipay.application.port.in.AtualizaStatusPagamentoUseCase;
@@ -27,7 +28,7 @@ public class AtualizaStatusPagamentoUseCaseImpl implements AtualizaStatusPagamen
     public void cancelarPagamentosPendentes() {
         buscaPagamentoPort.buscarTodos(null, null, StatusPagamentoEnum.PENDENTE)
                 .getContent().forEach(pagamento ->{
-                    var tempoInicial = pagamento.getIntencaoPagamento().getCreatedAt();
+                    var tempoInicial = pagamento.getIntencaoPagamento().getDataCriacao();
                     if (Duration.between(tempoInicial, LocalDateTime.now()).toMinutes() >= 10) {
                         atualizar(pagamento.getReference(),
                                 StatusPagamentoEnum.CANCELADO, "Transação cancelada pelo Sistema", null, null);
@@ -41,7 +42,7 @@ public class AtualizaStatusPagamentoUseCaseImpl implements AtualizaStatusPagamen
         var pagamento = buscaPagamentoPort.buscarPorReferencia(reference)
                 .orElseThrow(() -> new PagamentoNaoEncontradoException("Pagamento não encontrado: " + reference));
 
-        pagamento.getIntencaoPagamento().setStatus(status);
+        pagamento.getIntencaoPagamento().setStatus(StatusIntencaoPagamentoEnum.fromStatusPagamento(status));
         pagamento.setStatus(status);
         pagamento.setMensagem(message);
         pagamento.setReference(reference);
