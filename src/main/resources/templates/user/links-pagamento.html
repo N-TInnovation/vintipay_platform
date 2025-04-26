@@ -115,7 +115,7 @@
                             <div class="col-8">
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Links Ativos</p>
-                                    <h5 class="font-weight-bolder" th:text="${#lists.size(#lists.filterSingle(links, 'status.name()', 'ATIVO'))}">0</h5>
+                                    <h5 class="font-weight-bolder" th:with="ativos=${#lists.size(links.?[status.name() == 'ATIVO'])}" th:text="${ativos}">0</h5>
                                     <p class="mb-0 text-sm">
                                         <span class="text-success text-sm font-weight-bolder">Disponíveis para pagamento</span>
                                     </p>
@@ -138,7 +138,7 @@
                             <div class="col-8">
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Links Inativos</p>
-                                    <h5 class="font-weight-bolder" th:text="${#lists.size(#lists.filterSingle(links, 'status.name()', 'INATIVO'))}">0</h5>
+                                    <h5 class="font-weight-bolder" th:with="inativos=${#lists.size(links.?[status.name() != 'ATIVO'])}" th:text="${inativos}">0</h5>
                                     <p class="mb-0 text-sm">
                                         <span class="text-danger text-sm font-weight-bolder">Indisponíveis para pagamento</span>
                                     </p>
@@ -224,7 +224,7 @@
                 <!-- Lista de Links -->
                 <div class="row g-4" th:unless="${links.empty}" id="linksList">
                     <div class="col-md-6 col-lg-4 link-item" th:each="link : ${links}" 
-                         th:data-name="${link.nome}"
+                         th:data-name="${link.titulo}"
                          th:data-product="${link.produto.nome}"
                          th:data-status="${link.status.name()}">
                         <div class="card link-card">
@@ -234,7 +234,7 @@
                             </div>
                             <div class="card-header p-3">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0" th:text="${link.nome}">Nome do Link</h5>
+                                    <h5 class="card-title mb-0" th:text="${link.titulo}">Nome do Link</h5>
                                     <span th:if="${link.status.name() == 'ATIVO'}" class="status-badge status-ativo">Ativo</span>
                                     <span th:unless="${link.status.name() == 'ATIVO'}" class="status-badge status-inativo" th:text="${link.status.name() == 'INATIVO' ? 'Inativo' : 'Expirado'}">Inativo</span>
                                 </div>
@@ -321,7 +321,7 @@
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    Tem certeza que deseja excluir o link <strong th:text="${link.nome}">Nome do Link</strong>?
+                                                    Tem certeza que deseja excluir o link <strong th:text="${link.titulo}">Nome do Link</strong>?
                                                     <p class="text-danger mt-2">Esta ação não pode ser desfeita.</p>
                                                 </div>
                                                 <div class="modal-footer">

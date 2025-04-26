@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.application.core.domain.entity;
 
+import cv.ntinnovation.vintipay.application.core.domain.enums.CategoriaProdutoEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +30,6 @@ public class Produto {
     
     // Campos adicionais
     private Integer estoque; // Opcional, pode ser null para produtos digitais ou serviços
-    private String categoria;
+    private CategoriaProdutoEnum categoria;
     private String moeda; // Por padrão, CVE
 }

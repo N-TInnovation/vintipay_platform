@@ -22,6 +22,9 @@ public class LinkPagamentoRequest {
     @NotNull(message = "ID do produto é obrigatório")
     private Long produtoId;
     
+    @NotNull(message = "Configuração de pagamento é obrigatória")
+    private Long configuracaoPagamentoId;
+    
     @NotBlank(message = "Nome do link é obrigatório")
     private String nome;
     

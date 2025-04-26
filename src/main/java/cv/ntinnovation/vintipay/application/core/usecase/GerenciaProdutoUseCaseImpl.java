@@ -2,8 +2,10 @@ package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
+import cv.ntinnovation.vintipay.application.core.domain.enums.CategoriaProdutoEnum;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaProdutoUseCase;
 import cv.ntinnovation.vintipay.application.port.out.BuscaProduto;
+import cv.ntinnovation.vintipay.application.port.out.BuscaUsuario;
 import cv.ntinnovation.vintipay.application.port.out.BuscaUsuarioPort;
 import cv.ntinnovation.vintipay.application.port.out.SalvaProduto;
 import lombok.RequiredArgsConstructor;
@@ -27,15 +29,16 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
     private final SalvaProduto salvaProduto;
     private final BuscaProduto buscaProduto;
     private final BuscaUsuarioPort buscaUsuarioPort;
+    private final BuscaUsuario buscaUsuario;
 
     @Override
     @Transactional
     public Produto criarProduto(String nome, String descricao, BigDecimal preco, 
                               String imagem, String codigoSku, Integer estoque,
-                              String categoria, Long proprietarioId) {
-        log.info("Criando produto: {}, proprietário: {}", nome, proprietarioId);
+                              CategoriaProdutoEnum categoria, Long proprietarioId) {
+        log.info("Criando produto para o usuário: {}", proprietarioId);
         
-        // Validações
+        // Validar campos obrigatórios
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("Nome do produto é obrigatório");
         }
@@ -44,10 +47,18 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
             throw new IllegalArgumentException("Preço do produto deve ser maior que zero");
         }
         
+        if (imagem == null || imagem.trim().isEmpty()) {
+            throw new IllegalArgumentException("Imagem do produto é obrigatória");
+        }
+        
+        if (categoria == null) {
+            throw new IllegalArgumentException("Categoria do produto é obrigatória");
+        }
+        
         // Buscar o usuário proprietário
-        Optional<Usuario> proprietarioOpt = buscaUsuarioPort.buscarPorUsername(proprietarioId.toString());
-        if (proprietarioOpt.isEmpty()) {
-            throw new IllegalArgumentException("Usuário proprietário não encontrado");
+        Optional<Usuario> usuarioOpt = buscaUsuario.buscarPorId(proprietarioId);
+        if (usuarioOpt.isEmpty()) {
+            throw new IllegalArgumentException("Usuário não encontrado");
         }
         
         // Criar o produto
@@ -56,14 +67,13 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
                 .descricao(descricao)
                 .preco(preco)
                 .imagem(imagem)
-                .codigoSku(codigoSku != null ? codigoSku : UUID.randomUUID().toString())
+                .codigoSku(codigoSku)
                 .estoque(estoque)
                 .categoria(categoria)
                 .ativo(true)
-                .proprietario(proprietarioOpt.get())
-                .proprietarioId(proprietarioId)
                 .dataCriacao(LocalDateTime.now())
                 .dataAtualizacao(LocalDateTime.now())
+                .proprietarioId(proprietarioId)
                 .moeda("CVE") // Moeda padrão para Cabo Verde
                 .build();
         
@@ -75,7 +85,7 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
     @Transactional
     public Produto atualizarProduto(Long produtoId, String nome, String descricao, 
                                    BigDecimal preco, String imagem, String codigoSku,
-                                   Integer estoque, String categoria, boolean ativo) {
+                                   Integer estoque, CategoriaProdutoEnum categoria, boolean ativo) {
         log.info("Atualizando produto: {}", produtoId);
         
         // Buscar o produto
@@ -99,9 +109,11 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
             produto.setPreco(preco);
         }
         
-        if (imagem != null) {
-            produto.setImagem(imagem);
+        // Validar que a imagem é obrigatória
+        if (imagem == null || imagem.trim().isEmpty()) {
+            throw new IllegalArgumentException("Imagem do produto é obrigatória");
         }
+        produto.setImagem(imagem);
         
         if (codigoSku != null) {
             produto.setCodigoSku(codigoSku);
@@ -111,9 +123,11 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
             produto.setEstoque(estoque);
         }
         
-        if (categoria != null) {
-            produto.setCategoria(categoria);
+        // Validar que a categoria é obrigatória
+        if (categoria == null) {
+            throw new IllegalArgumentException("Categoria do produto é obrigatória");
         }
+        produto.setCategoria(categoria);
         
         produto.setAtivo(ativo);
         produto.setDataAtualizacao(LocalDateTime.now());

@@ -1,5 +1,7 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
+import cv.ntinnovation.vintipay.application.core.domain.entity.ContaPagamento;
+import cv.ntinnovation.vintipay.application.core.domain.entity.ContatoContaPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.IntencaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.LinkPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
@@ -89,6 +91,95 @@ public class ProcessamentoPagamentoLinkUseCaseImpl implements ProcessamentoPagam
         // Associar a sessão à intenção de pagamento
         sessaoPagamento.setIntencaoPagamentoId(intencaoPagamento.getId().toString());
         salvaSessaoPagamento.salvar(sessaoPagamento);
+        
+        // Retornar a URL de checkout
+        return sessaoPagamento.getCheckoutUrl();
+    }
+    
+    @Override
+    @Transactional
+    public String criarSessaoPagamento(String codigoLink, String successUrl, String cancelUrl,
+                                      String email, String cidade, String pais, String endereco,
+                                      String codigoPostal, String merchantSession, String codigoTelefone,
+                                      String numeroTelefone) {
+        // Buscar o link de pagamento pelo código
+        Optional<LinkPagamento> linkOpt = buscaLinkPagamento.buscarPorCodigo(codigoLink);
+        if (linkOpt.isEmpty()) {
+            throw new IllegalArgumentException("Link de pagamento não encontrado");
+        }
+        
+        LinkPagamento link = linkOpt.get();
+        
+        // Verificar se o link está disponível
+        if (!link.isDisponivel()) {
+            throw new IllegalStateException("Link de pagamento não está disponível");
+        }
+        
+        Produto produto = link.getProduto();
+        
+        // Verificar se o produto está ativo
+        if (!produto.isAtivo()) {
+            throw new IllegalStateException("Produto não está disponível para compra");
+        }
+        
+        // Criar uma intenção de pagamento com os dados do comprador
+        String referencia = gerarReferenciaUnica();
+        IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
+                .referencia(referencia)
+                .valor(produto.getPreco())
+                .moeda(produto.getMoeda() != null ? produto.getMoeda() : "CVE")
+                .descricao(produto.getDescricao())
+                .status(StatusIntencaoPagamentoEnum.PENDENTE)
+                .dataCriacao(LocalDateTime.now())
+                // Dados do comprador
+                .contaPagamentoEmail(email)
+                .contaPagamentoBillAddrCity(cidade)
+                .contaPagamentoBillAddrCountry(pais)
+                .contaPagamentoBillAddrLine1(endereco)
+                .contaPagamentoBillAddrPostCode(codigoPostal)
+                .merchantSession(merchantSession)
+                .build();
+        
+        // Criar a conta de pagamento com os dados do comprador
+        var mobilePhone = ContatoContaPagamento.builder()
+                .cc(codigoTelefone)
+                .subscriber(numeroTelefone)
+                .build();
+        
+        var contaPagamento = ContaPagamento.builder()
+                .email(email)
+                .billAddrCity(cidade)
+                .billAddrCountry(pais)
+                .billAddrLine1(endereco)
+                .billAddrPostCode(codigoPostal)
+                .mobilePhone(mobilePhone)
+                .build();
+        
+        intencaoPagamento.setContaPagamento(contaPagamento);
+        
+        // Salvar a intenção de pagamento
+        intencaoPagamento = salvaIntencaoPagamento.salvar(intencaoPagamento);
+        
+        // Incrementar o contador de usos do link
+        gerenciaLinkPagamentoUseCase.incrementarUsos(link.getId());
+        
+        // Criar a sessão de pagamento com o processador
+        SessaoPagamento sessaoPagamento = processadorPagamento.criarSessaoPagamento(
+                intencaoPagamento.getReferencia(),
+                produto.getNome(),
+                produto.getDescricao(),
+                produto.getPreco(),
+                intencaoPagamento.getMoeda(),
+                successUrl,
+                cancelUrl
+        );
+        
+        // Associar a sessão à intenção de pagamento
+        sessaoPagamento.setIntencaoPagamentoId(intencaoPagamento.getId().toString());
+        salvaSessaoPagamento.salvar(sessaoPagamento);
+        
+        log.info("Sessão de pagamento criada com sucesso para o link {} com dados do comprador: email={}, cidade={}", 
+                codigoLink, email, cidade);
         
         // Retornar a URL de checkout
         return sessaoPagamento.getCheckoutUrl();

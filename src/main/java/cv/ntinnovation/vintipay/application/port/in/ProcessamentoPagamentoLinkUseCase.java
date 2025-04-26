@@ -16,6 +16,27 @@ public interface ProcessamentoPagamentoLinkUseCase {
     String criarSessaoPagamento(String codigoLink, String successUrl, String cancelUrl);
     
     /**
+     * Cria uma sessão de pagamento para um link com dados do comprador
+     * 
+     * @param codigoLink Código do link de pagamento
+     * @param successUrl URL para redirecionamento em caso de sucesso
+     * @param cancelUrl URL para redirecionamento em caso de cancelamento
+     * @param email Email do comprador
+     * @param cidade Cidade do comprador
+     * @param pais País do comprador
+     * @param endereco Endereço do comprador
+     * @param codigoPostal Código postal do comprador
+     * @param merchantSession ID da sessão do comerciante
+     * @param codigoTelefone Código do telefone do comprador
+     * @param numeroTelefone Número de telefone do comprador
+     * @return URL da sessão de checkout
+     */
+    String criarSessaoPagamento(String codigoLink, String successUrl, String cancelUrl,
+                               String email, String cidade, String pais, String endereco,
+                               String codigoPostal, String merchantSession, String codigoTelefone,
+                               String numeroTelefone);
+    
+    /**
      * Processa o pagamento bem-sucedido
      * 
      * @param sessionId ID da sessão de pagamento

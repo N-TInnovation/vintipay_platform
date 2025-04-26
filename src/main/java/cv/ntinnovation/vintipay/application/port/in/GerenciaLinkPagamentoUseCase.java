@@ -111,11 +111,20 @@ public interface GerenciaLinkPagamentoUseCase {
     Optional<LinkPagamento> buscarLinkPorCodigo(String codigo);
     
     /**
-     * Verifica se um link de pagamento pertence a um usuário
+     * Verifica se um link de pagamento pertence a um usuário específico
      * 
      * @param linkId ID do link de pagamento
-     * @param proprietarioId ID do usuário
-     * @return true se o link pertence ao usuário
+     * @param usuarioId ID do usuário
+     * @return true se o link pertence ao usuário, false caso contrário
      */
-    boolean verificarPropriedadeLink(Long linkId, Long proprietarioId);
+    boolean verificarPropriedadeLinkPagamento(Long linkId, Long usuarioId);
+    
+    /**
+     * Associa uma configuração de pagamento a um link de pagamento
+     * 
+     * @param linkId ID do link de pagamento
+     * @param configuracaoPagamentoId ID da configuração de pagamento
+     * @return Link de pagamento atualizado
+     */
+    LinkPagamento associarConfiguracaoPagamento(Long linkId, Long configuracaoPagamentoId);
 }

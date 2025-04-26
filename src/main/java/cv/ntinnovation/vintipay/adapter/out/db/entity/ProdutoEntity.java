@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.adapter.out.db.entity;
 
+import cv.ntinnovation.vintipay.application.core.domain.enums.CategoriaProdutoEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,7 +38,8 @@ public class ProdutoEntity {
     
     private Integer estoque;
     
-    private String categoria;
+    @Enumerated(EnumType.STRING)
+    private CategoriaProdutoEnum categoria;
     
     private boolean ativo;
     

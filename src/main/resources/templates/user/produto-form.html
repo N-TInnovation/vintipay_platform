@@ -49,7 +49,11 @@
             
             <div class="card-body p-3">
                 <form th:action="${produtoId != null ? '/user/produtos/' + produtoId + '/editar' : '/user/produtos/novo'}" 
-                      th:object="${produto}" method="post" class="needs-validation" novalidate>
+                      th:object="${produto}" 
+                      method="post"
+                      enctype="multipart/form-data"
+                      class="needs-validation" 
+                      novalidate>
                     
                     <!-- Informações básicas -->
                     <div class="form-section">
@@ -73,17 +77,18 @@
                         
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="categoria" class="form-label">Categoria</label>
-                                <input type="text" class="form-control" id="categoria" th:field="*{categoria}" list="categorias-sugeridas">
-                                <datalist id="categorias-sugeridas">
-                                    <option value="Cursos">
-                                    <option value="E-books">
-                                    <option value="Serviços">
-                                    <option value="Produtos Digitais">
-                                    <option value="Produtos Físicos">
-                                    <option value="Assinaturas">
-                                    <option value="Eventos">
-                                </datalist>
+                                <label for="categoria" class="form-label">Categoria *</label>
+                                <select class="form-select" id="categoria" th:field="*{categoria}" required>
+                                    <option value="">Selecione uma categoria</option>
+                                    <option th:each="cat : ${categorias}" 
+                                            th:value="${cat.name()}" 
+                                            th:text="${cat.descricao}">
+                                        Categoria
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('categoria')}" th:errors="*{categoria}">
+                                    Categoria é obrigatória
+                                </div>
                             </div>
                             
                             <div class="col-md-6">
@@ -128,9 +133,15 @@
                         
                         <div class="row mb-3">
                             <div class="col-md-8">
-                                <label for="imagem" class="form-label">URL da Imagem</label>
-                                <input type="url" class="form-control" id="imagem" th:field="*{imagem}" placeholder="https://..." onchange="previewImage()">
-                                <small class="text-muted">URL de uma imagem para exibir no produto</small>
+                                <label for="imagemFile" class="form-label">Imagem do Produto *</label>
+                                <input type="file" class="form-control" id="imagemFile" name="imagemFile" th:field="*{imagemFile}" accept="image/*" onchange="previewImageFile(this)" required>
+                                <small class="text-muted">Faça upload de uma imagem para o produto (JPG, PNG, etc.)</small>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('imagemFile')}" th:errors="*{imagemFile}">
+                                    Imagem do produto é obrigatória
+                                </div>
+                                
+                                <!-- Campo oculto para manter o valor da imagem durante a edição -->
+                                <input type="hidden" th:field="*{imagem}" />
                             </div>
                             
                             <div class="col-md-4">
@@ -205,6 +216,26 @@
                         preview.style.display = 'none';
                         noPreview.style.display = 'block';
                     };
+                } else {
+                    preview.style.display = 'none';
+                    noPreview.style.display = 'block';
+                }
+            }
+            
+            function previewImageFile(input) {
+                const preview = document.getElementById('preview');
+                const noPreview = document.getElementById('no-preview');
+                
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        preview.src = event.target.result;
+                        preview.style.display = 'block';
+                        noPreview.style.display = 'none';
+                    };
+                    
+                    reader.readAsDataURL(input.files[0]);
                 } else {
                     preview.style.display = 'none';
                     noPreview.style.display = 'block';

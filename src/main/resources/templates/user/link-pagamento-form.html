@@ -184,6 +184,22 @@
                             </div>
                         </div>
                         
+                        <div class="mb-3">
+                            <label for="configuracaoPagamentoId" class="form-label">Configuração de Pagamento *</label>
+                            <select class="form-select" id="configuracaoPagamentoId" th:field="*{configuracaoPagamentoId}" required>
+                                <option value="">Selecione uma configuração de pagamento</option>
+                                <option th:each="config : ${configuracoes}" 
+                                        th:value="${config.id}" 
+                                        th:text="${config.nomeLoja + ' (' + config.ambiente + ')'}">
+                                    Nome da Loja (Ambiente)
+                                </option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('configuracaoPagamentoId')}" th:errors="*{configuracaoPagamentoId}">
+                                Configuração de pagamento é obrigatória
+                            </div>
+                            <small class="text-muted">Selecione a configuração de pagamento que será usada para processar os pagamentos deste link</small>
+                        </div>
+                        
                         <div class="mb-3" th:if="${linkId != null}">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="ativo" th:field="*{ativo}">

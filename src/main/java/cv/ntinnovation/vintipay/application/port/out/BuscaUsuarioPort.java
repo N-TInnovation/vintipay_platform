@@ -13,4 +13,11 @@ public interface BuscaUsuarioPort {
      * @return Optional contendo o usuário se encontrado, ou vazio se não existir
      */
     Optional<Usuario> buscarPorUsername(String username);
+    
+    /**
+     * Busca um usuário pelo seu ID
+     * @param id ID do usuário a ser buscado
+     * @return Optional contendo o usuário se encontrado, ou vazio se não existir
+     */
+    Optional<Usuario> buscarPorId(Long id);
 }

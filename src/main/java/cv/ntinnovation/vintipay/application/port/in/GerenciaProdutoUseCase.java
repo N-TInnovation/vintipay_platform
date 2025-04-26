@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.application.port.in;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
+import cv.ntinnovation.vintipay.application.core.domain.enums.CategoriaProdutoEnum;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,7 +22,7 @@ public interface GerenciaProdutoUseCase {
      */
     Produto criarProduto(String nome, String descricao, BigDecimal preco, 
                         String imagem, String codigoSku, Integer estoque,
-                        String categoria, Long proprietarioId);
+                        CategoriaProdutoEnum categoria, Long proprietarioId);
     
     /**
      * Atualiza um produto existente
@@ -39,7 +40,7 @@ public interface GerenciaProdutoUseCase {
      */
     Produto atualizarProduto(Long produtoId, String nome, String descricao, 
                            BigDecimal preco, String imagem, String codigoSku,
-                           Integer estoque, String categoria, boolean ativo);
+                           Integer estoque, CategoriaProdutoEnum categoria, boolean ativo);
     
     /**
      * Ativa ou desativa um produto

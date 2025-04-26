@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.adapter.in.web.dto;
 
+import cv.ntinnovation.vintipay.application.core.domain.enums.CategoriaProdutoEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +21,7 @@ public class ProdutoResponse {
     private String imagem;
     private String codigoSku;
     private Integer estoque;
-    private String categoria;
+    private CategoriaProdutoEnum categoria;
     private boolean ativo;
     private LocalDateTime dataCriacao;
     private LocalDateTime dataAtualizacao;

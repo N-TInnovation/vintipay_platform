@@ -98,7 +98,7 @@
                             <div class="col-8">
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Produtos Ativos</p>
-                                    <h5 class="font-weight-bolder" th:text="${#lists.size(#lists.filterSingle(produtos, 'ativo', true))}">0</h5>
+                                    <h5 class="font-weight-bolder" th:with="ativos=${#lists.size(produtos.?[ativo == true])}" th:text="${ativos}">0</h5>
                                     <p class="mb-0 text-sm">
                                         <span class="text-success text-sm font-weight-bolder">Disponíveis para venda</span>
                                     </p>
@@ -121,7 +121,7 @@
                             <div class="col-8">
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Produtos Inativos</p>
-                                    <h5 class="font-weight-bolder" th:text="${#lists.size(#lists.filterSingle(produtos, 'ativo', false))}">0</h5>
+                                    <h5 class="font-weight-bolder" th:with="inativos=${#lists.size(produtos.?[ativo == false])}" th:text="${inativos}">0</h5>
                                     <p class="mb-0 text-sm">
                                         <span class="text-danger text-sm font-weight-bolder">Indisponíveis para venda</span>
                                     </p>
@@ -162,9 +162,9 @@
                     <div class="col-md-3 mb-2">
                         <select id="categoryFilter" class="form-select">
                             <option value="">Todas as Categorias</option>
-                            <option th:each="categoria : ${#lists.sort(#lists.toList(#sets.toSet(#arrays.toArray(produtos.![categoria]))))}" 
+                            <option th:each="categoria : ${categorias}" 
                                     th:value="${categoria}" 
-                                    th:text="${categoria != null ? categoria : 'Sem categoria'}">Categoria</option>
+                                    th:text="${categoria.descricao}">Categoria</option>
                         </select>
                     </div>
                     
@@ -233,7 +233,7 @@
                                 <img th:if="${produto.imagem}" th:src="${produto.imagem}" class="card-img-top produto-imagem" th:alt="${produto.nome}">
                                 <img th:unless="${produto.imagem}" src="https://via.placeholder.com/300x180?text=Sem+Imagem" class="card-img-top produto-imagem" th:alt="${produto.nome}">
                                 
-                                <span th:if="${produto.categoria}" class="produto-categoria" th:text="${produto.categoria}">Categoria</span>
+                                <span th:if="${produto.categoria}" class="produto-categoria" th:text="${produto.categoria.descricao}">Categoria</span>
                                 <span th:if="${!produto.ativo}" class="badge bg-secondary produto-status">Inativo</span>
                                 <span th:if="${produto.ativo}" class="badge bg-success produto-status">Ativo</span>
                             </div>
@@ -342,7 +342,7 @@
                         
                         // Aplicar filtros
                         const matchesSearch = productName.includes(searchTerm);
-                        const matchesCategory = categoryValue === '' || productCategory === categoryValue;
+                        const matchesCategory = categoryValue === '' || productCategory.includes(categoryValue);
                         const matchesStatus = statusValue === '' || productStatus === statusValue;
                         
                         // Mostrar ou esconder com base nos filtros

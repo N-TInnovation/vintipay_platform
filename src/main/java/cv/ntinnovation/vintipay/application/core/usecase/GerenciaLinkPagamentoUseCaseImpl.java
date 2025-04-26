@@ -1,10 +1,12 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
+import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.LinkPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusLinkPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaLinkPagamentoUseCase;
+import cv.ntinnovation.vintipay.application.port.out.BuscaConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.port.out.BuscaLinkPagamento;
 import cv.ntinnovation.vintipay.application.port.out.BuscaProduto;
 import cv.ntinnovation.vintipay.application.port.out.BuscaUsuarioPort;
@@ -26,6 +28,7 @@ public class GerenciaLinkPagamentoUseCaseImpl implements GerenciaLinkPagamentoUs
     private final BuscaLinkPagamento buscaLinkPagamento;
     private final BuscaProduto buscaProduto;
     private final BuscaUsuarioPort buscaUsuarioPort;
+    private final BuscaConfiguracaoPagamento buscaConfiguracaoPagamento;
 
     @Override
     @Transactional
@@ -56,7 +59,7 @@ public class GerenciaLinkPagamentoUseCaseImpl implements GerenciaLinkPagamentoUs
         }
         
         // Buscar o usuário proprietário
-        Optional<Usuario> proprietarioOpt = buscaUsuarioPort.buscarPorUsername(proprietarioId.toString());
+        Optional<Usuario> proprietarioOpt = buscaUsuarioPort.buscarPorId(proprietarioId);
         if (proprietarioOpt.isEmpty()) {
             throw new IllegalArgumentException("Usuário proprietário não encontrado");
         }
@@ -247,8 +250,47 @@ public class GerenciaLinkPagamentoUseCaseImpl implements GerenciaLinkPagamentoUs
 
     @Override
     @Transactional(readOnly = true)
-    public boolean verificarPropriedadeLink(Long linkId, Long proprietarioId) {
+    public boolean verificarPropriedadeLinkPagamento(Long linkId, Long proprietarioId) {
         return buscaLinkPagamento.existePorIdEProprietarioId(linkId, proprietarioId);
+    }
+    
+    @Override
+    @Transactional
+    public LinkPagamento associarConfiguracaoPagamento(Long linkId, Long configuracaoPagamentoId) {
+        // Validações
+        if (linkId == null) {
+            throw new IllegalArgumentException("ID do link de pagamento é obrigatório");
+        }
+        
+        if (configuracaoPagamentoId == null) {
+            throw new IllegalArgumentException("ID da configuração de pagamento é obrigatório");
+        }
+        
+        // Buscar o link de pagamento
+        Optional<LinkPagamento> linkOpt = buscaLinkPagamento.buscarPorId(linkId);
+        if (linkOpt.isEmpty()) {
+            throw new IllegalArgumentException("Link de pagamento não encontrado");
+        }
+        
+        // Buscar a configuração de pagamento
+        Optional<ConfiguracaoPagamento> configOpt = buscaConfiguracaoPagamento.buscarPorId(configuracaoPagamentoId);
+        if (configOpt.isEmpty()) {
+            throw new IllegalArgumentException("Configuração de pagamento não encontrada");
+        }
+        
+        // Verificar se a configuração de pagamento está ativa
+        ConfiguracaoPagamento config = configOpt.get();
+        if (config.getAtivo() == null || !config.getAtivo()) {
+            throw new IllegalArgumentException("Configuração de pagamento inativa");
+        }
+        
+        // Atualizar o link de pagamento
+        LinkPagamento link = linkOpt.get();
+        link.setConfiguracaoPagamento(config);
+        link.setConfiguracaoPagamentoId(configuracaoPagamentoId);
+        
+        // Salvar o link atualizado
+        return salvaLinkPagamento.salvar(link);
     }
     
     /**

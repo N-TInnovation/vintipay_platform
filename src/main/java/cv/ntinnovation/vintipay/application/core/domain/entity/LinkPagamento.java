@@ -28,6 +28,8 @@ public class LinkPagamento {
     private Long produtoId; // Para facilitar a criação
     private Usuario proprietario;
     private Long proprietarioId; // Para facilitar a criação
+    private ConfiguracaoPagamento configuracaoPagamento;
+    private Long configuracaoPagamentoId; // Para facilitar a criação
     
     // Campos adicionais
     private String urlRetornoSucesso; // URL para redirecionar após pagamento bem-sucedido

@@ -28,4 +28,10 @@ public class BuscaUsuarioAdapter implements BuscaUsuarioPort {
         return usuarioRepository.findByUsername(username)
                 .map(ususarioMapper::toDomain);
     }
+    
+    @Override
+    public Optional<Usuario> buscarPorId(Long id) {
+        return usuarioRepository.findById(id)
+                .map(ususarioMapper::toDomain);
+    }
 }

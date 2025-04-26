@@ -3,10 +3,12 @@ package cv.ntinnovation.vintipay.adapter.in.web.controller;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.LinkPagamentoRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.LinkPagamentoResponse;
 import cv.ntinnovation.vintipay.adapter.in.web.mapper.LinkPagamentoWebMapper;
+import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.LinkPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusLinkPagamentoEnum;
+import cv.ntinnovation.vintipay.application.port.in.GerenciaConfiguracaoPagamentoUsuarioUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaLinkPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaProdutoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.ProcessamentoPagamentoLinkUseCase;
@@ -35,6 +37,7 @@ public class LinkPagamentoController {
     private final GerenciaProdutoUseCase gerenciaProdutoUseCase;
     private final ProcessamentoPagamentoLinkUseCase processamentoPagamentoLinkUseCase;
     private final LinkPagamentoWebMapper linkPagamentoWebMapper;
+    private final GerenciaConfiguracaoPagamentoUsuarioUseCase gerenciaConfiguracaoPagamentoUsuarioUseCase;
 
     // ===== Endpoints para interface web =====
 
@@ -59,6 +62,10 @@ public class LinkPagamentoController {
         List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
         model.addAttribute("produtos", produtos);
         
+        // Buscar configurações de pagamento ativas do usuário
+        List<ConfiguracaoPagamento> configuracoes = gerenciaConfiguracaoPagamentoUsuarioUseCase.buscarConfiguracoesAtivasDoUsuario(usuarioId);
+        model.addAttribute("configuracoes", configuracoes);
+        
         // Inicializar o formulário
         LinkPagamentoRequest request = new LinkPagamentoRequest();
         
@@ -77,6 +84,11 @@ public class LinkPagamentoController {
                     // Ignorar erro e continuar sem pré-preencher
                 }
             }
+        }
+        
+        // Se houver apenas uma configuração de pagamento, pré-selecioná-la
+        if (configuracoes.size() == 1) {
+            request.setConfiguracaoPagamentoId(configuracoes.get(0).getId());
         }
         
         model.addAttribute("link", request);
@@ -98,17 +110,33 @@ public class LinkPagamentoController {
             // Buscar produtos do usuário para o dropdown
             List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
             model.addAttribute("produtos", produtos);
+            
+            // Buscar configurações de pagamento ativas do usuário
+            List<ConfiguracaoPagamento> configuracoes = gerenciaConfiguracaoPagamentoUsuarioUseCase.buscarConfiguracoesAtivasDoUsuario(usuarioId);
+            model.addAttribute("configuracoes", configuracoes);
+            
             return "user/link-pagamento-form";
         }
         
-        // Verificar se o produto pertence ao usuário
-        if (!gerenciaProdutoUseCase.verificarPropriedadeProduto(request.getProdutoId(), usuarioId)) {
-            redirectAttributes.addFlashAttribute("erro", "Você não tem permissão para criar um link para este produto");
-            return "redirect:/user/links-pagamento";
-        }
-        
         try {
-            gerenciaLinkPagamentoUseCase.criarLinkPagamento(
+            // Verificar se o produto pertence ao usuário
+            if (!gerenciaProdutoUseCase.verificarPropriedadeProduto(request.getProdutoId(), usuarioId)) {
+                redirectAttributes.addFlashAttribute("erro", "Produto não encontrado ou não pertence ao usuário");
+                return "redirect:/user/links-pagamento";
+            }
+            
+            // Verificar se a configuração de pagamento pertence ao usuário
+            boolean configuracaoValida = gerenciaConfiguracaoPagamentoUsuarioUseCase.buscarConfiguracoesDoUsuario(usuarioId)
+                .stream()
+                .anyMatch(config -> config.getId().equals(request.getConfiguracaoPagamentoId()));
+            
+            if (!configuracaoValida) {
+                redirectAttributes.addFlashAttribute("erro", "Configuração de pagamento não encontrada ou não pertence ao usuário");
+                return "redirect:/user/links-pagamento";
+            }
+            
+            // Criar o link de pagamento
+            LinkPagamento linkPagamento = gerenciaLinkPagamentoUseCase.criarLinkPagamento(
                 request.getProdutoId(),
                 usuarioId,
                 request.getNome(),
@@ -119,14 +147,18 @@ public class LinkPagamentoController {
                 request.getUrlRetornoCancelamento()
             );
             
-            redirectAttributes.addFlashAttribute("sucesso", "Link de pagamento criado com sucesso");
+            // Associar a configuração de pagamento
+            linkPagamento = gerenciaLinkPagamentoUseCase.associarConfiguracaoPagamento(
+                linkPagamento.getId(),
+                request.getConfiguracaoPagamentoId()
+            );
+            
+            redirectAttributes.addFlashAttribute("sucesso", "Link de pagamento criado com sucesso!");
             return "redirect:/user/links-pagamento";
+            
         } catch (Exception e) {
-            // Buscar produtos do usuário para o dropdown
-            List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
-            model.addAttribute("produtos", produtos);
-            model.addAttribute("erro", "Erro ao criar link de pagamento: " + e.getMessage());
-            return "user/link-pagamento-form";
+            redirectAttributes.addFlashAttribute("erro", "Erro ao criar link de pagamento: " + e.getMessage());
+            return "redirect:/user/links-pagamento";
         }
     }
 
@@ -138,7 +170,7 @@ public class LinkPagamentoController {
         
         try {
             Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorId(id);
-            if (linkOpt.isEmpty() || !gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
+            if (linkOpt.isEmpty() || !gerenciaLinkPagamentoUseCase.verificarPropriedadeLinkPagamento(id, usuarioId)) {
                 redirectAttributes.addFlashAttribute("erro", "Link de pagamento não encontrado ou você não tem permissão para editá-lo");
                 return "redirect:/user/links-pagamento";
             }
@@ -181,7 +213,7 @@ public class LinkPagamentoController {
             return "user/link-pagamento-form";
         }
         
-        if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
+        if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLinkPagamento(id, usuarioId)) {
             redirectAttributes.addFlashAttribute("erro", "Você não tem permissão para editar este link");
             return "redirect:/user/links-pagamento";
         }
@@ -217,7 +249,7 @@ public class LinkPagamentoController {
         Long usuarioId = usuario.getId();
         
         try {
-            if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
+            if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLinkPagamento(id, usuarioId)) {
                 redirectAttributes.addFlashAttribute("erro", "Você não tem permissão para excluir este link");
                 return "redirect:/user/links-pagamento";
             }
@@ -232,103 +264,8 @@ public class LinkPagamentoController {
     }
 
     // ===== Endpoints públicos para checkout =====
-
-    @GetMapping("/p/{codigo}")
-    public String paginaCheckout(@PathVariable String codigo, Model model) {
-        Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigo);
-        
-        if (linkOpt.isEmpty() || !linkOpt.get().isDisponivel()) {
-            model.addAttribute("erro", "Link de pagamento inválido ou expirado");
-            return "links/erro";
-        }
-        
-        LinkPagamento link = linkOpt.get();
-        Produto produto = link.getProduto();
-        
-        model.addAttribute("link", link);
-        model.addAttribute("produto", produto);
-        model.addAttribute("codigo", codigo);
-        
-        return "links/checkout";
-    }
-
-    @PostMapping("/p/{codigo}/pagar")
-    public String processarPagamento(@PathVariable String codigo, HttpServletRequest request) {
-        Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigo);
-        
-        if (linkOpt.isEmpty() || !linkOpt.get().isDisponivel()) {
-            return "redirect:/user/links-pagamento/p/" + codigo + "?erro=link_invalido";
-        }
-        
-        LinkPagamento link = linkOpt.get();
-        
-        // Construir URLs de sucesso e cancelamento
-        String baseUrl = request.getScheme() + "://" + request.getServerName();
-        if (request.getServerPort() != 80 && request.getServerPort() != 443) {
-            baseUrl += ":" + request.getServerPort();
-        }
-        
-        String successUrl = link.getUrlRetornoSucesso();
-        if (successUrl == null || successUrl.isEmpty()) {
-            successUrl = baseUrl + "/user/links-pagamento/p/" + codigo + "/sucesso";
-        }
-        
-        String cancelUrl = link.getUrlRetornoCancelamento();
-        if (cancelUrl == null || cancelUrl.isEmpty()) {
-            cancelUrl = baseUrl + "/user/links-pagamento/p/" + codigo + "/cancelado";
-        }
-        
-        // Criar sessão de pagamento
-        String checkoutUrl = processamentoPagamentoLinkUseCase.criarSessaoPagamento(codigo, successUrl, cancelUrl);
-        
-        return "redirect:" + checkoutUrl;
-    }
-
-    @GetMapping("/p/{codigo}/sucesso")
-    public String paginaSucesso(@PathVariable String codigo, 
-                               @RequestParam String sessionId,
-                               Model model) {
-        Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigo);
-        
-        if (linkOpt.isEmpty()) {
-            model.addAttribute("erro", "Link de pagamento não encontrado");
-            return "links/erro";
-        }
-        
-        LinkPagamento link = linkOpt.get();
-        Produto produto = link.getProduto();
-        
-        // Processar o pagamento bem-sucedido
-        boolean sucesso = processamentoPagamentoLinkUseCase.processarPagamentoSucesso(sessionId, codigo);
-        
-        if (!sucesso) {
-            model.addAttribute("erro", "Não foi possível confirmar o pagamento");
-            return "links/erro";
-        }
-        
-        model.addAttribute("link", link);
-        model.addAttribute("produto", produto);
-        
-        return "links/sucesso";
-    }
-
-    @GetMapping("/p/{codigo}/cancelado")
-    public String paginaCancelamento(@PathVariable String codigo, Model model) {
-        Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigo);
-        
-        if (linkOpt.isEmpty()) {
-            model.addAttribute("erro", "Link de pagamento não encontrado");
-            return "links/erro";
-        }
-        
-        LinkPagamento link = linkOpt.get();
-        Produto produto = link.getProduto();
-        
-        model.addAttribute("link", link);
-        model.addAttribute("produto", produto);
-        
-        return "links/cancelado";
-    }
+    // Os endpoints públicos foram movidos para PagamentoPublicoController
+    // para permitir URLs mais amigáveis como /p/{codigo}
 
     // ===== API REST =====
 
@@ -356,7 +293,7 @@ public class LinkPagamentoController {
         Long usuarioId = usuario.getId();
         
         Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorId(id);
-        if (linkOpt.isEmpty() || !gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
+        if (linkOpt.isEmpty() || !gerenciaLinkPagamentoUseCase.verificarPropriedadeLinkPagamento(id, usuarioId)) {
             return ResponseEntity.notFound().build();
         }
         
@@ -401,7 +338,7 @@ public class LinkPagamentoController {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         Long usuarioId = usuario.getId();
         
-        if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
+        if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLinkPagamento(id, usuarioId)) {
             return ResponseEntity.notFound().build();
         }
         
@@ -427,7 +364,7 @@ public class LinkPagamentoController {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         Long usuarioId = usuario.getId();
         
-        if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLink(id, usuarioId)) {
+        if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLinkPagamento(id, usuarioId)) {
             return ResponseEntity.notFound().build();
         }
         

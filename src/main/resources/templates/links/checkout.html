@@ -48,6 +48,7 @@
             border-radius: 10px;
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            margin-bottom: 2rem;
         }
         
         .product-image {
@@ -114,6 +115,7 @@
             color: var(--text-light);
             font-size: 0.9rem;
             margin-top: auto;
+            border-top: 1px solid #eee;
         }
         
         .secure-badge {
@@ -128,6 +130,58 @@
         .secure-badge i {
             color: var(--secondary-color);
             margin-right: 0.5rem;
+        }
+        
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .product-meta-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .product-meta-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-bottom: 0.3rem;
+        }
+        
+        .product-meta-value {
+            font-weight: 600;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .payment-methods {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .payment-method {
+            width: 50px;
+            height: 30px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
         }
     </style>
 </head>
@@ -150,18 +204,88 @@
             <div class="product-details">
                 <div class="seller-info">
                     <div class="seller-avatar" th:text="${link.proprietario != null ? link.proprietario.nome.substring(0, 1).toUpperCase() : 'V'}">V</div>
-                    <div th:text="${link.proprietario != null ? link.proprietario.nome : 'Vendedor'}">Vendedor</div>
+                    <div>
+                        <div th:text="${link.proprietario != null ? link.proprietario.nome : 'Vendedor'}">Vendedor</div>
+                        <small class="text-muted" th:if="${link.proprietario != null && link.proprietario.email != null}" th:text="${link.proprietario.email}">email@exemplo.com</small>
+                    </div>
                 </div>
+                
+                <span class="category-badge" th:if="${produto.categoria != null}" th:text="${produto.categoria}">Categoria</span>
                 
                 <h1 th:text="${link.titulo != null && !link.titulo.isEmpty() ? link.titulo : produto.nome}">Nome do Produto</h1>
                 
                 <div class="product-price mb-3" th:text="${#numbers.formatCurrency(produto.preco)}">R$ 99,90</div>
                 
+                <div class="product-meta" th:if="${produto != null}">
+                    <div class="product-meta-item" th:if="${produto.codigoSku != null && !produto.codigoSku.isEmpty()}">
+                        <div class="product-meta-label">SKU</div>
+                        <div class="product-meta-value" th:text="${produto.codigoSku}">ABC123</div>
+                    </div>
+                    <div class="product-meta-item" th:if="${produto.estoque != null}">
+                        <div class="product-meta-label">Estoque</div>
+                        <div class="product-meta-value" th:text="${produto.estoque}">10</div>
+                    </div>
+                    <div class="product-meta-item">
+                        <div class="product-meta-label">Data</div>
+                        <div class="product-meta-value" th:text="${#temporals.format(link.dataCriacao, 'dd/MM/yyyy')}">01/01/2023</div>
+                    </div>
+                </div>
+                
                 <div class="product-description" th:text="${link.descricao != null && !link.descricao.isEmpty() ? link.descricao : produto.descricao}">
                     Descrição do produto...
                 </div>
                 
-                <form th:action="@{/links-pagamento/p/{codigo}/pagar(codigo=${codigo})}" method="post">
+                <form th:action="@{/p/{codigo}(codigo=${codigo})}" method="post" th:object="${compradorInfo}">
+                    <div class="mb-4">
+                        <h4 class="mb-3">Informações do Comprador</h4>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="billAddrCity" class="form-label">Cidade *</label>
+                                <input type="text" class="form-control" id="billAddrCity" th:field="*{billAddrCity}" required>
+                                <div class="text-danger" th:if="${#fields.hasErrors('billAddrCity')}" th:errors="*{billAddrCity}"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="billAddrCountry" class="form-label">País *</label>
+                                <input type="text" class="form-control" id="billAddrCountry" th:field="*{billAddrCountry}" required>
+                                <div class="text-danger" th:if="${#fields.hasErrors('billAddrCountry')}" th:errors="*{billAddrCountry}"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="billAddrLine1" class="form-label">Endereço *</label>
+                            <input type="text" class="form-control" id="billAddrLine1" th:field="*{billAddrLine1}" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('billAddrLine1')}" th:errors="*{billAddrLine1}"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="billAddrPostCode" class="form-label">Código Postal *</label>
+                            <input type="text" class="form-control" id="billAddrPostCode" th:field="*{billAddrPostCode}" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('billAddrPostCode')}" th:errors="*{billAddrPostCode}"></div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="phoneCode" class="form-label">Código Telefone *</label>
+                                <input type="text" class="form-control" id="phoneCode" th:field="*{phoneCode}" required>
+                                <div class="text-danger" th:if="${#fields.hasErrors('phoneCode')}" th:errors="*{phoneCode}"></div>
+                            </div>
+                            <div class="col-md-8">
+                                <label for="phoneNumber" class="form-label">Número Telefone *</label>
+                                <input type="text" class="form-control" id="phoneNumber" th:field="*{phoneNumber}" required>
+                                <div class="text-danger" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" th:field="*{merchantSession}">
+                    </div>
+                    
                     <button type="submit" class="checkout-btn">
                         <i class="fas fa-lock me-2"></i> Pagar Agora
                     </button>
@@ -170,13 +294,38 @@
                 <div class="secure-badge">
                     <i class="fas fa-shield-alt"></i> Pagamento seguro processado pelo SISP
                 </div>
+                
+                <div class="payment-methods">
+                    <div class="payment-method" title="Visa">
+                        <i class="fab fa-cc-visa"></i>
+                    </div>
+                    <div class="payment-method" title="Mastercard">
+                        <i class="fab fa-cc-mastercard"></i>
+                    </div>
+                    <div class="payment-method" title="Vinti4">
+                        <span>V4</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="checkout-card" th:if="${produto == null || link == null}">
+            <div class="product-details text-center">
+                <i class="fas fa-exclamation-circle fa-3x text-warning mb-3"></i>
+                <h2>Link de pagamento não encontrado</h2>
+                <p>Este link de pagamento pode ter expirado, atingido o limite de usos ou sido removido pelo vendedor.</p>
             </div>
         </div>
     </div>
     
     <footer class="footer">
         <div class="container">
-            <p>© 2025 VintiPay - Plataforma de Pagamentos de Cabo Verde</p>
+            <p> 2025 VintiPay - Plataforma de Pagamentos de Cabo Verde</p>
+            <div class="d-flex justify-content-center gap-3 mt-2">
+                <a href="#" class="text-muted"><i class="fas fa-shield-alt"></i> Segurança</a>
+                <a href="#" class="text-muted"><i class="fas fa-question-circle"></i> Ajuda</a>
+                <a href="#" class="text-muted"><i class="fas fa-file-alt"></i> Termos</a>
+            </div>
         </div>
     </footer>
     
