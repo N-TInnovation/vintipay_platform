@@ -163,7 +163,7 @@ public class ProcessamentoPagamentoLinkUseCaseImpl implements ProcessamentoPagam
         // Incrementar o contador de usos do link
         gerenciaLinkPagamentoUseCase.incrementarUsos(link.getId());
         
-        // Criar a sessão de pagamento com o processador
+        // Criar a sessão de pagamento com o processador, incluindo os dados do comprador
         SessaoPagamento sessaoPagamento = processadorPagamento.criarSessaoPagamento(
                 intencaoPagamento.getReferencia(),
                 produto.getNome(),
@@ -171,7 +171,9 @@ public class ProcessamentoPagamentoLinkUseCaseImpl implements ProcessamentoPagam
                 produto.getPreco(),
                 intencaoPagamento.getMoeda(),
                 successUrl,
-                cancelUrl
+                cancelUrl,
+                contaPagamento,
+                merchantSession
         );
         
         // Associar a sessão à intenção de pagamento

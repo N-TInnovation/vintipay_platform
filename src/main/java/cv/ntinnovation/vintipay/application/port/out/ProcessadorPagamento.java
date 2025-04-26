@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.application.port.out;
 
+import cv.ntinnovation.vintipay.application.core.domain.entity.ContaPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.SessaoPagamento;
 
 import java.math.BigDecimal;
@@ -25,6 +26,29 @@ public interface ProcessadorPagamento {
     SessaoPagamento criarSessaoPagamento(String referencia, String nome, String descricao, 
                                         BigDecimal valor, String moeda,
                                         String urlRetornoSucesso, String urlRetornoCancelamento);
+    
+    /**
+     * Cria uma sessão de pagamento no provedor com dados do comprador
+     * 
+     * @param referencia Referência única da transação
+     * @param nome Nome do produto/serviço
+     * @param descricao Descrição do produto/serviço
+     * @param valor Valor a ser cobrado
+     * @param moeda Moeda do pagamento (ex: CVE)
+     * @param urlRetornoSucesso URL para redirecionamento em caso de sucesso
+     * @param urlRetornoCancelamento URL para redirecionamento em caso de cancelamento
+     * @param contaPagamento Dados da conta de pagamento do comprador
+     * @param merchantSession ID da sessão do comerciante
+     * @return Sessão de pagamento criada
+     */
+    default SessaoPagamento criarSessaoPagamento(String referencia, String nome, String descricao, 
+                                        BigDecimal valor, String moeda,
+                                        String urlRetornoSucesso, String urlRetornoCancelamento,
+                                        ContaPagamento contaPagamento, String merchantSession) {
+        // Implementação padrão que ignora os dados do comprador
+        return criarSessaoPagamento(referencia, nome, descricao, valor, moeda, 
+                                   urlRetornoSucesso, urlRetornoCancelamento);
+    }
     
     /**
      * Busca uma sessão de pagamento pelo ID

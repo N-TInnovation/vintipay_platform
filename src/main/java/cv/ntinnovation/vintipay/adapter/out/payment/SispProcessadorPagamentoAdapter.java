@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.adapter.out.payment;
 
+import cv.ntinnovation.vintipay.application.core.domain.entity.ContaPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.SessaoPagamento;
 import cv.ntinnovation.vintipay.application.port.out.ProcessadorPagamento;
 import lombok.RequiredArgsConstructor;
@@ -96,6 +97,89 @@ public class SispProcessadorPagamentoAdapter implements ProcessadorPagamento {
             return sessao;
         } catch (Exception e) {
             log.error("Erro ao criar sessão de pagamento SISP", e);
+            throw new RuntimeException("Erro ao criar sessão de pagamento", e);
+        }
+    }
+    
+    @Override
+    public SessaoPagamento criarSessaoPagamento(String referencia, String nome, String descricao, 
+                                              BigDecimal valor, String moeda,
+                                              String urlRetornoSucesso, String urlRetornoCancelamento,
+                                              ContaPagamento contaPagamento, String merchantSession) {
+        log.info("Criando sessão de pagamento SISP com dados do comprador: {}, {}, {}, email: {}", 
+                referencia, nome, valor, contaPagamento.getEmail());
+        
+        try {
+            // Em um ambiente real, aqui você faria uma chamada para a API da SISP incluindo os dados do comprador
+            // Exemplo:
+            /*
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("reference", referencia);
+            requestBody.put("amount", valor);
+            requestBody.put("currency", moeda);
+            requestBody.put("description", descricao);
+            requestBody.put("success_url", urlRetornoSucesso);
+            requestBody.put("cancel_url", urlRetornoCancelamento);
+            requestBody.put("merchant_id", sispMerchantId);
+            requestBody.put("merchant_session", merchantSession);
+            
+            // Adicionar dados do comprador
+            Map<String, Object> customerData = new HashMap<>();
+            customerData.put("email", contaPagamento.getEmail());
+            customerData.put("billAddrCity", contaPagamento.getBillAddrCity());
+            customerData.put("billAddrCountry", contaPagamento.getBillAddrCountry());
+            customerData.put("billAddrLine1", contaPagamento.getBillAddrLine1());
+            customerData.put("billAddrPostCode", contaPagamento.getBillAddrPostCode());
+            
+            if (contaPagamento.getMobilePhone() != null) {
+                Map<String, Object> phoneData = new HashMap<>();
+                phoneData.put("cc", contaPagamento.getMobilePhone().getCc());
+                phoneData.put("subscriber", contaPagamento.getMobilePhone().getSubscriber());
+                customerData.put("mobilePhone", phoneData);
+            }
+            
+            requestBody.put("customer", customerData);
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + sispApiKey);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+            
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                sispApiUrl + "/checkout/sessions",
+                request,
+                Map.class
+            );
+            
+            Map<String, Object> responseBody = response.getBody();
+            String sessionId = (String) responseBody.get("session_id");
+            String checkoutUrl = (String) responseBody.get("checkout_url");
+            */
+            
+            // Como não temos acesso real à API da SISP, vamos simular a resposta
+            String sessionId = "sisp_session_" + referencia;
+            String checkoutUrl = "/pagamento/checkout/" + referencia + "?sessionId=" + sessionId;
+            
+            // Criar a sessão de pagamento
+            SessaoPagamento sessao = SessaoPagamento.builder()
+                    .id(sessionId)
+                    .referencia(referencia)
+                    .valor(valor)
+                    .moeda(moeda)
+                    .descricao(descricao)
+                    .dataCriacao(LocalDateTime.now())
+                    .checkoutUrl(checkoutUrl)
+                    .urlRetornoSucesso(urlRetornoSucesso)
+                    .urlRetornoCancelamento(urlRetornoCancelamento)
+                    .build();
+            
+            // Armazenar a sessão no cache local
+            sessoesPagamento.put(sessionId, sessao);
+            
+            return sessao;
+        } catch (Exception e) {
+            log.error("Erro ao criar sessão de pagamento SISP com dados do comprador", e);
             throw new RuntimeException("Erro ao criar sessão de pagamento", e);
         }
     }
