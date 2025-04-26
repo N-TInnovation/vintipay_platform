@@ -247,14 +247,35 @@
                         
                         <div class="row mb-3">
                             <div class="col-md-6">
+                                <label for="billAddrCountry" class="form-label">País *</label>
+                                <select class="form-select" id="billAddrCountry" th:field="*{billAddrCountry}" required>
+                                    <option value="">Selecione o país</option>
+                                    <!-- Será preenchido via JavaScript -->
+                                </select>
+                                <div class="text-danger" th:if="${#fields.hasErrors('billAddrCountry')}" th:errors="*{billAddrCountry}"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="billAddrState" class="form-label">Estado/Província</label>
+                                <select class="form-select" id="billAddrState" name="billAddrState">
+                                    <option value="">Selecione o estado</option>
+                                    <!-- Será preenchido via JavaScript -->
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
                                 <label for="billAddrCity" class="form-label">Cidade *</label>
-                                <input type="text" class="form-control" id="billAddrCity" th:field="*{billAddrCity}" required>
+                                <select class="form-select" id="billAddrCity" th:field="*{billAddrCity}" required>
+                                    <option value="">Selecione a cidade</option>
+                                    <!-- Será preenchido via JavaScript -->
+                                </select>
                                 <div class="text-danger" th:if="${#fields.hasErrors('billAddrCity')}" th:errors="*{billAddrCity}"></div>
                             </div>
                             <div class="col-md-6">
-                                <label for="billAddrCountry" class="form-label">País *</label>
-                                <input type="text" class="form-control" id="billAddrCountry" th:field="*{billAddrCountry}" required>
-                                <div class="text-danger" th:if="${#fields.hasErrors('billAddrCountry')}" th:errors="*{billAddrCountry}"></div>
+                                <label for="billAddrPostCode" class="form-label">Código Postal *</label>
+                                <input type="text" class="form-control" id="billAddrPostCode" th:field="*{billAddrPostCode}" required>
+                                <div class="text-danger" th:if="${#fields.hasErrors('billAddrPostCode')}" th:errors="*{billAddrPostCode}"></div>
                             </div>
                         </div>
                         
@@ -264,16 +285,13 @@
                             <div class="text-danger" th:if="${#fields.hasErrors('billAddrLine1')}" th:errors="*{billAddrLine1}"></div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="billAddrPostCode" class="form-label">Código Postal *</label>
-                            <input type="text" class="form-control" id="billAddrPostCode" th:field="*{billAddrPostCode}" required>
-                            <div class="text-danger" th:if="${#fields.hasErrors('billAddrPostCode')}" th:errors="*{billAddrPostCode}"></div>
-                        </div>
-                        
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <label for="phoneCode" class="form-label">Código Telefone *</label>
-                                <input type="text" class="form-control" id="phoneCode" th:field="*{phoneCode}" required>
+                                <select class="form-select" id="phoneCode" th:field="*{phoneCode}" required>
+                                    <option value="">Selecione</option>
+                                    <!-- Será preenchido via JavaScript com os códigos de telefone dos países -->
+                                </select>
                                 <div class="text-danger" th:if="${#fields.hasErrors('phoneCode')}" th:errors="*{phoneCode}"></div>
                             </div>
                             <div class="col-md-8">
@@ -330,5 +348,140 @@
     </footer>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos do formulário
+            const countrySelect = document.getElementById('billAddrCountry');
+            const stateSelect = document.getElementById('billAddrState');
+            const citySelect = document.getElementById('billAddrCity');
+            const phoneCodeSelect = document.getElementById('phoneCode');
+            
+            // Carregar países
+            fetch('/api/location/countries')
+                .then(response => response.json())
+                .then(countries => {
+                    // Ordenar países por nome
+                    countries.sort((a, b) => a.name.localeCompare(b.name));
+                    
+                    // Adicionar países ao select
+                    countries.forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country.name;
+                        option.textContent = country.name;
+                        option.dataset.iso2 = country.iso2;
+                        option.dataset.phonecode = country.phonecode;
+                        countrySelect.appendChild(option);
+                    });
+                    
+                    // Adicionar códigos de telefone ao select
+                    countries.forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country.phonecode;
+                        option.textContent = `+${country.phonecode} (${country.name})`;
+                        phoneCodeSelect.appendChild(option);
+                    });
+                    
+                    // Pré-selecionar Cabo Verde se disponível
+                    const capeVerdeOption = Array.from(countrySelect.options).find(option => 
+                        option.textContent === 'Cabo Verde' || 
+                        option.textContent === 'Cape Verde');
+                    
+                    if (capeVerdeOption) {
+                        capeVerdeOption.selected = true;
+                        // Disparar o evento change para carregar os estados
+                        countrySelect.dispatchEvent(new Event('change'));
+                    }
+                    
+                    // Pré-selecionar código de telefone de Cabo Verde (+238)
+                    const capeVerdePhoneOption = Array.from(phoneCodeSelect.options).find(option => 
+                        option.value === '238');
+                    
+                    if (capeVerdePhoneOption) {
+                        capeVerdePhoneOption.selected = true;
+                    }
+                })
+                .catch(error => console.error('Erro ao carregar países:', error));
+            
+            // Carregar estados quando o país for selecionado
+            countrySelect.addEventListener('change', function() {
+                // Limpar selects de estado e cidade
+                stateSelect.innerHTML = '<option value="">Selecione o estado</option>';
+                citySelect.innerHTML = '<option value="">Selecione a cidade</option>';
+                
+                // Obter o país selecionado
+                const selectedOption = countrySelect.options[countrySelect.selectedIndex];
+                if (!selectedOption || !selectedOption.dataset.iso2) return;
+                
+                const countryCode = selectedOption.dataset.iso2;
+                
+                // Carregar estados do país selecionado
+                fetch(`/api/location/countries/${countryCode}/states`)
+                    .then(response => response.json())
+                    .then(states => {
+                        if (states.length === 0) {
+                            stateSelect.disabled = true;
+                            stateSelect.innerHTML = '<option value="">Não disponível</option>';
+                            return;
+                        }
+                        
+                        stateSelect.disabled = false;
+                        
+                        // Ordenar estados por nome
+                        states.sort((a, b) => a.name.localeCompare(b.name));
+                        
+                        // Adicionar estados ao select
+                        states.forEach(state => {
+                            const option = document.createElement('option');
+                            option.value = state.name;
+                            option.textContent = state.name;
+                            option.dataset.stateCode = state.stateCode;
+                            stateSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Erro ao carregar estados:', error));
+            });
+            
+            // Carregar cidades quando o estado for selecionado
+            stateSelect.addEventListener('change', function() {
+                // Limpar select de cidade
+                citySelect.innerHTML = '<option value="">Selecione a cidade</option>';
+                
+                // Obter o país e estado selecionados
+                const selectedCountryOption = countrySelect.options[countrySelect.selectedIndex];
+                const selectedStateOption = stateSelect.options[stateSelect.selectedIndex];
+                
+                if (!selectedCountryOption || !selectedStateOption || 
+                    !selectedCountryOption.dataset.iso2 || !selectedStateOption.dataset.stateCode) return;
+                
+                const countryCode = selectedCountryOption.dataset.iso2;
+                const stateCode = selectedStateOption.dataset.stateCode;
+                
+                // Carregar cidades do estado selecionado
+                fetch(`/api/location/countries/${countryCode}/states/${stateCode}/cities`)
+                    .then(response => response.json())
+                    .then(cities => {
+                        if (cities.length === 0) {
+                            citySelect.disabled = true;
+                            citySelect.innerHTML = '<option value="">Não disponível</option>';
+                            return;
+                        }
+                        
+                        citySelect.disabled = false;
+                        
+                        // Ordenar cidades por nome
+                        cities.sort((a, b) => a.name.localeCompare(b.name));
+                        
+                        // Adicionar cidades ao select
+                        cities.forEach(city => {
+                            const option = document.createElement('option');
+                            option.value = city.name;
+                            option.textContent = city.name;
+                            citySelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Erro ao carregar cidades:', error));
+            });
+        });
+    </script>
 </body>
 </html>

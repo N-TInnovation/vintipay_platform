@@ -29,13 +29,7 @@ spring:
       hibernate:
         format_sql: true
         use_sql_comments: true
-    defer-datasource-initialization: true
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:schema.sql
-      data-locations: classpath:data.sql
-      continue-on-error: true
+    defer-datasource-initialization: false
   h2:
     console:
       enabled: true
@@ -44,6 +38,18 @@ spring:
         web-allow-others: false
         trace: false
         web-admin-password: admin
+  sql:
+    init:
+      mode: never
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+      continue-on-error: true
+  flyway:
+    enabled: false
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    out-of-order: true
 
 logging:
   level:
