@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SessaoPagamento {
-    private String id;
+    private Long id;
+    private String sessionId;
     private String referencia;
     private BigDecimal valor;
     private String moeda;

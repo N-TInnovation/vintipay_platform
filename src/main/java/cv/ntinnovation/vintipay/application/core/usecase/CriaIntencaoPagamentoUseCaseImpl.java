@@ -54,10 +54,6 @@ public class CriaIntencaoPagamentoUseCaseImpl implements CriaIntencaoPagamentoUs
             throw new IllegalArgumentException("A moeda do pagamento é obrigatória");
         }
         
-        if (intencaoPagamento.getDescricao() == null || intencaoPagamento.getDescricao().isEmpty()) {
-            throw new IllegalArgumentException("A descrição do pagamento é obrigatória");
-        }
-        
         if (intencaoPagamento.getMerchantRef() == null || intencaoPagamento.getMerchantRef().isEmpty()) {
             throw new IllegalArgumentException("A referência do merchant é obrigatória");
         }

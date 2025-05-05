@@ -80,7 +80,7 @@ public class SispProcessadorPagamentoAdapter implements ProcessadorPagamento {
             
             // Criar a sessão de pagamento
             SessaoPagamento sessao = SessaoPagamento.builder()
-                    .id(sessionId)
+                    .sessionId(sessionId)
                     .referencia(referencia)
                     .valor(valor)
                     .moeda(moeda)
@@ -163,7 +163,7 @@ public class SispProcessadorPagamentoAdapter implements ProcessadorPagamento {
             
             // Criar a sessão de pagamento
             SessaoPagamento sessao = SessaoPagamento.builder()
-                    .id(sessionId)
+                    .sessionId(sessionId)
                     .referencia(referencia)
                     .valor(valor)
                     .moeda(moeda)

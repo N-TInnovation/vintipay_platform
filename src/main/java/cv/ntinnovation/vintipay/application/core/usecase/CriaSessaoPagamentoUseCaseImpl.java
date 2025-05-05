@@ -34,7 +34,7 @@ public class CriaSessaoPagamentoUseCaseImpl implements CriaSessaoPagamentoUseCas
         LocalDateTime expiresAt = now.plusMinutes(sessionTimeoutMinutes);
         
         SessaoPagamento sessaoPagamento = SessaoPagamento.builder()
-                .id(sessionId)
+                .sessionId(sessionId)
                 .referencia(reference)
                 .clientId(clientId)
                 .ipAddress(ipAddress)

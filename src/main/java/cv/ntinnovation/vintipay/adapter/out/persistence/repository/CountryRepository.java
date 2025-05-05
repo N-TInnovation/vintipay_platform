@@ -12,5 +12,7 @@ public interface CountryRepository extends JpaRepository<CountryEntity, Long> {
     
     Optional<CountryEntity> findByIso2(String iso2);
     
+    Optional<CountryEntity> findByNumericCode(String numericCode);
+    
     List<CountryEntity> findAllByOrderByNameAsc();
 }

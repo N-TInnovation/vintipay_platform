@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -43,9 +42,11 @@ public class CityEntity {
     @Column(name = "country_code", length = 2)
     private String countryCode;
 
-    private BigDecimal latitude;
+    @Column(length = 50)
+    private String latitude;
 
-    private BigDecimal longitude;
+    @Column(length = 50)
+    private String longitude;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

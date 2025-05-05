@@ -22,8 +22,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -32,7 +30,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -62,7 +59,9 @@ public class SecurityConfig {
             http.securityMatcher("/api/**")
                     .authorizeHttpRequests((authorize) ->
                             authorize.requestMatchers(HttpMethod.POST,"/api/v1/authorize").permitAll()
-                                    //.requestMatchers(HttpMethod.POST,"/api/v1/configuracoes-pagamento").permitAll()
+                                    .requestMatchers("/api/location/**").permitAll()
+                                    .requestMatchers("/api/location-data/**").permitAll()
+                                    .requestMatchers("/api/pagamento-publico/**").permitAll()
                                     .anyRequest().authenticated())
                     .oauth2ResourceServer((oauth2) -> {
                         oauth2.jwt(withDefaults()).bearerTokenResolver(bearerTokenResolver());

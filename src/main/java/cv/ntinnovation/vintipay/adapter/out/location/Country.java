@@ -17,6 +17,7 @@ public class Country {
     private String name;
     private String iso2;
     private String iso3;
+    private String numericCode;
     private String phonecode;
     private String capital;
     private String currency;
@@ -33,6 +34,7 @@ public class Country {
             dto.getName(),
             dto.getIso2(),
             dto.getIso3(),
+            dto.getNumericCode(),
             dto.getPhonecode(),
             dto.getCapital(),
             dto.getCurrency(),

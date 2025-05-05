@@ -20,9 +20,15 @@ public class CompradorInfoRequest {
     @NotBlank(message = "O email é obrigatório")
     @Email(message = "Por favor, forneça um email válido")
     private String email;
+
+    @NotBlank(message = "O email é obrigatório")
+    private String name;
     
     @NotBlank(message = "A cidade é obrigatória")
     private String billAddrCity;
+
+    @NotBlank(message = "A cidade é obrigatória")
+    private String billAddrState;
     
     @NotBlank(message = "O país é obrigatório")
     private String billAddrCountry;

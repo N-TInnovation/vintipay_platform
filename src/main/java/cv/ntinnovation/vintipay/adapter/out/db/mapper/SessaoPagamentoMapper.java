@@ -15,8 +15,8 @@ public class SessaoPagamentoMapper {
         }
 
         return SessaoPagamentoEntity.builder()
-                .id(Long.parseLong(domain.getId()))
-                .sessionId(domain.getId())
+                .id(domain.getId())
+                .sessionId(domain.getSessionId())
                 .reference(domain.getReferencia())
                 .clientId(domain.getClientId())
                 .ipAddress(domain.getIpAddress())
@@ -33,8 +33,8 @@ public class SessaoPagamentoMapper {
         }
 
         return SessaoPagamento.builder()
-                .id(String.valueOf(entity.getId()))
-                .id(entity.getSessionId())
+                .id(entity.getId())
+                .sessionId(entity.getSessionId())
                 .referencia(entity.getReference())
                 .clientId(entity.getClientId())
                 .ipAddress(entity.getIpAddress())

@@ -59,9 +59,11 @@ public class CountryEntity {
 
     private String subregion;
 
-    private BigDecimal latitude;
+    @Column(length = 50)
+    private String latitude;
 
-    private BigDecimal longitude;
+    @Column(length = 50)
+    private String longitude;
 
     private String emoji;
 

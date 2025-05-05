@@ -51,12 +51,13 @@ public class PagamentoPublicoController {
         // Adicionar o objeto CompradorInfoRequest vazio ao modelo
         CompradorInfoRequest compradorInfo = new CompradorInfoRequest();
         compradorInfo.setPhoneCode("238"); // Código padrão para Cabo Verde
-        compradorInfo.setBillAddrCountry("Cabo Verde"); // País padrão
+        compradorInfo.setBillAddrCountry("132"); // País padrão
         
         // Gerar um merchantSession único
         compradorInfo.setMerchantSession(UUID.randomUUID().toString());
         
-        model.addAttribute("compradorInfo", compradorInfo);
+        model.addAttribute("compradorInfoRequest", compradorInfo);
+
         
         return "links/checkout";
     }
@@ -67,7 +68,7 @@ public class PagamentoPublicoController {
     @PostMapping("/p/{codigo}")
     public String processarPagamento(
             @PathVariable String codigo, 
-            @Valid @ModelAttribute("compradorInfo") CompradorInfoRequest compradorInfo,
+            @Valid @ModelAttribute("compradorInfoRequest") CompradorInfoRequest compradorInfo,
             BindingResult bindingResult,
             Model model,
             HttpServletRequest request) {

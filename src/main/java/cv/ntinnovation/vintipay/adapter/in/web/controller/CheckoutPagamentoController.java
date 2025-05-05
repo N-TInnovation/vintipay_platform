@@ -60,7 +60,7 @@ public class CheckoutPagamentoController {
                 reference, sessaoOpt.get().getId());
 
         // Adicionar cookie de sessão na resposta
-        Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessaoOpt.get().getId());
+        Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessaoOpt.get().getSessionId());
         sessionCookie.setMaxAge(SESSION_COOKIE_MAX_AGE);
         sessionCookie.setPath("/");
         sessionCookie.setHttpOnly(true);

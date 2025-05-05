@@ -15,6 +15,7 @@ public class CountryDTO {
     private String name;
     private String iso2;
     private String iso3;
+    private String numericCode;
     private String phonecode;
     private String capital;
     private String currency;

@@ -13,7 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -43,9 +42,11 @@ public class StateEntity {
 
     private String type;
 
-    private BigDecimal latitude;
+    @Column(length = 50)
+    private String latitude;
 
-    private BigDecimal longitude;
+    @Column(length = 50)
+    private String longitude;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

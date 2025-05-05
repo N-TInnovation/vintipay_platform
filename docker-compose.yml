@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: vintipay-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: vintipay
+      MYSQL_USER: vintipay
+      MYSQL_PASSWORD: vintipay
+    ports:
+      - "13306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - vintipay-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  vintipay:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vintipay-app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8443:8443"
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/vintipay?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - STRIPE_API_KEY=sk_test_51JZHlXFLqETPcYGM3OkBuL08Yv8BFyYLkMIuIRBORak5t2aIOQ5IoRtZOoa0kNMcFbGhjSbHgRG8Hf5WIrPqAh1300GGaBDBpk
+      - STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+      - APP_BASE_URL=https://localhost:8443
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - vintipay-network
+
+volumes:
+  mysql-data:
+
+networks:
+  vintipay-network:
+    driver: bridge
