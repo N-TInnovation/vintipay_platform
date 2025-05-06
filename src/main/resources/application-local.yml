@@ -25,7 +25,7 @@ sisp:
     normal: https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment
   checkout:
     return:
-      url: https://localhost:8443/webhook/sisp/pagamentos/retorno
+      url: ${APP_BASE_URL:https://localhost:8443}/webhook/sisp/pagamentos/retorno
 
 stripe:
   api:

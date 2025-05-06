@@ -1,8 +1,10 @@
 package cv.ntinnovation.vintipay.adapter.out.db.mapper;
 
+import cv.ntinnovation.vintipay.adapter.out.db.entity.ConfiguracaoPagamentoEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.entity.LinkPagamentoEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.entity.ProdutoEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.entity.UsuarioEntity;
+import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.LinkPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
@@ -15,6 +17,7 @@ public class LinkPagamentoMapper {
     
     private final UsusarioMapper usuarioMapper;
     private final ProdutoMapper produtoMapper;
+    private final ConfiguracaoPagamentoMapper configuracaoPagamentoMapper;
     
     /**
      * Converte uma entidade de domínio para uma entidade JPA
@@ -36,6 +39,11 @@ public class LinkPagamentoMapper {
         if (link.getProduto() != null) {
             produto = produtoMapper.toEntity(link.getProduto());
         }
+
+        ConfiguracaoPagamentoEntity configuracaoPagamento = null;
+        if (link.getConfiguracaoPagamento() != null) {
+            configuracaoPagamento = configuracaoPagamentoMapper.toEntity(link.getConfiguracaoPagamento());
+        }
         
         return LinkPagamentoEntity.builder()
                 .id(link.getId())
@@ -51,6 +59,7 @@ public class LinkPagamentoMapper {
                 .proprietario(proprietario)
                 .urlRetornoSucesso(link.getUrlRetornoSucesso())
                 .urlRetornoCancelamento(link.getUrlRetornoCancelamento())
+                .configuracaoPagamento(configuracaoPagamento)
                 .build();
     }
     
@@ -74,6 +83,11 @@ public class LinkPagamentoMapper {
         if (entity.getProduto() != null) {
             produto = produtoMapper.toDomain(entity.getProduto());
         }
+
+        ConfiguracaoPagamento configuracaoPagamento = null;
+        if (entity.getProduto() != null) {
+            configuracaoPagamento = configuracaoPagamentoMapper.toDomain(entity.getConfiguracaoPagamento());
+        }
         
         return LinkPagamento.builder()
                 .id(entity.getId())
@@ -91,6 +105,7 @@ public class LinkPagamentoMapper {
                 .proprietarioId(entity.getProprietario() != null ? entity.getProprietario().getId() : null)
                 .urlRetornoSucesso(entity.getUrlRetornoSucesso())
                 .urlRetornoCancelamento(entity.getUrlRetornoCancelamento())
+                .configuracaoPagamento(configuracaoPagamento)
                 .build();
     }
 }

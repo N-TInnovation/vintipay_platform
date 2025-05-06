@@ -38,41 +38,17 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
         }
 
         // Busca o cookie de sessão
-        String sessionId = getSessionIdFromCookie(request);
-        if(sessionIdparam != null) {
-            if (!sessaoByReference.get().getId().equals(sessionIdparam)) {
-                log.warn("Session ID do cookie ({}) não corresponde ao Session ID da sessão ({}) para referência: {}",
-                        sessionIdparam, sessaoByReference.get().getId(), reference);
-                return Optional.empty();
-            }
-            sessionId = sessionIdparam;
+        String sessionId = sessionIdparam != null ? sessionIdparam : getSessionIdFromCookie(request);
+        var sessao = sessaoByReference.get();
+
+        if(!sessao.getSessionId().equals(sessionId)) {
+            log.warn("Session ID do cookie ({}) não corresponde ao Session ID da sessão ({}) para referência: {}",
+                    sessionIdparam, sessao.getId(), reference);
+            return Optional.empty();
         }
 
-
-        
         // Se não houver cookie de sessão, a validação falha
-        if (sessionId == null) {
-            log.warn("Cookie de sessão não encontrado para a referência: {}", reference);
-            return Optional.empty();
-        }
-        
-        // Verifica se o sessionId do cookie corresponde ao sessionId da sessão encontrada
-        SessaoPagamento sessao = sessaoByReference.get();
-        if (!sessao.getId().equals(sessionId)) {
-            log.warn("Session ID do cookie ({}) não corresponde ao Session ID da sessão ({}) para referência: {}", 
-                    sessionId, sessao.getId(), reference);
-            return Optional.empty();
-        }
-        
-        // Verifica se a sessão não expirou
-        if (sessao.getDataExpiracao().isBefore(LocalDateTime.now())) {
-            log.warn("Sessão expirada para referência: {}", reference);
-            invalidarSessao(sessionId);
-            return Optional.empty();
-        }
-        
-        log.info("Sessão válida para referência: {}", reference);
-        return Optional.of(sessao);
+        return sessaoByReference;
     }
 
     @Override

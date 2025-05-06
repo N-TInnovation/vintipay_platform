@@ -44,6 +44,7 @@ public class CriaContaPagamentoUseCaseImpl implements CriaContaPagamentoUseCase 
                 contaExistente.setBillAddrCountry(billAddrCountry);
                 contaExistente.setBillAddrLine1(billAddrLine1);
                 contaExistente.setBillAddrPostCode(billAddrPostCode);
+                contaExistente.setMobilePhone(criarContato(phoneCode, phoneNumber));
                 return salvaContaPagamento.salvar(contaExistente);
             }
             
@@ -76,7 +77,7 @@ public class CriaContaPagamentoUseCaseImpl implements CriaContaPagamentoUseCase 
                 .chAccDate(dataFormatada)
                 .chAccPwChange(dataFormatada)
                 .chAccPwChangeInd(ShAccAgeIndEnum.SEM_CONTA.getAgeInd()) // Menos de 30 dias
-                .suspiciousAccActivity(AtividadesSuspeitasEnum.NAO_SUSPEITO.getActivityInd()) // Sem atividade suspeita
+                .suspiciousAccActivity(AtividadesSuspeitasEnum.NAO_SUSPEITO.getActivityInd())// Sem atividade suspeita
                 .build();
     }
 

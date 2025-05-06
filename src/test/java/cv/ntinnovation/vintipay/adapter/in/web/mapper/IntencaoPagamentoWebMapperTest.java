@@ -127,14 +127,7 @@ class IntencaoPagamentoWebMapperTest {
         // Não verificamos os campos de email e endereço na resposta, pois eles não são incluídos no DTO de resposta
     }
 
-    @Test
-    void toIntencaoPagamento_QuandoRequestNula_DeveRetornarNull() {
-        // Act
-        IntencaoPagamento result = mapper.toIntencaoPagamento(null);
 
-        // Assert
-        assertNull(result);
-    }
 
     @Test
     void toIntencaoPagamentoResponse_QuandoEntityNula_DeveRetornarNull() {

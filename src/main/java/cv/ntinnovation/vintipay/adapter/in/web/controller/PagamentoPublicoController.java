@@ -1,10 +1,13 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.in.web.dto.CompradorInfoRequest;
-import cv.ntinnovation.vintipay.application.core.domain.entity.LinkPagamento;
-import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
-import cv.ntinnovation.vintipay.application.port.in.GerenciaLinkPagamentoUseCase;
-import cv.ntinnovation.vintipay.application.port.in.ProcessamentoPagamentoLinkUseCase;
+import cv.ntinnovation.vintipay.adapter.in.web.mapper.IntencaoPagamentoWebMapper;
+import cv.ntinnovation.vintipay.application.core.domain.entity.*;
+import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.MoedaEnum;
+import cv.ntinnovation.vintipay.application.port.in.*;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +30,13 @@ import java.util.UUID;
 public class PagamentoPublicoController {
 
     private final GerenciaLinkPagamentoUseCase gerenciaLinkPagamentoUseCase;
-    private final ProcessamentoPagamentoLinkUseCase processamentoPagamentoLinkUseCase;
+    private final CriaIntencaoPagamentoUseCase criaIntencaoPagamentoUseCase;
+    private final CriaContaPagamentoUseCase criaContaPagamentoUseCase;
+    private final IntencaoPagamentoWebMapper intencaoPagamentoWebMapper;
+    private final CriaSessaoPagamentoUseCase criaSessaoPagamentoUseCase;
+
+    private static final String SESSION_COOKIE_NAME = "PAYMENT_SESSION_ID";
+    private static final int SESSION_COOKIE_MAX_AGE = 1800; // 30 minutos em segundos
 
     /**
      * Exibe a página de checkout para um link de pagamento
@@ -67,11 +76,12 @@ public class PagamentoPublicoController {
      */
     @PostMapping("/p/{codigo}")
     public String processarPagamento(
-            @PathVariable String codigo, 
+            @PathVariable String codigo,
             @Valid @ModelAttribute("compradorInfoRequest") CompradorInfoRequest compradorInfo,
             BindingResult bindingResult,
             Model model,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
         
         Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigo);
         
@@ -79,11 +89,15 @@ public class PagamentoPublicoController {
             model.addAttribute("erro", "Link de pagamento inválido ou expirado");
             return "links/erro";
         }
-        
+
+        LinkPagamento link = linkOpt.get();
+        Produto produto = link.getProduto();
+
         // Se houver erros de validação, retornar para a página de checkout
         if (bindingResult.hasErrors()) {
-            LinkPagamento link = linkOpt.get();
-            Produto produto = link.getProduto();
+            System.out.println("erros ");
+            System.out.println(bindingResult.getModel());
+
             
             model.addAttribute("link", link);
             model.addAttribute("produto", produto);
@@ -103,68 +117,58 @@ public class PagamentoPublicoController {
         
         log.info("Processando pagamento para código: {}, email: {}, cidade: {}", 
                 codigo, compradorInfo.getEmail(), compradorInfo.getBillAddrCity());
-        
-        // Iniciar sessão de pagamento com os dados do comprador
-        String redirectUrl = processamentoPagamentoLinkUseCase.criarSessaoPagamento(
-            codigo, 
-            successUrl, 
-            cancelUrl,
-            compradorInfo.getEmail(),
-            compradorInfo.getBillAddrCity(),
-            compradorInfo.getBillAddrCountry(),
-            compradorInfo.getBillAddrLine1(),
-            compradorInfo.getBillAddrPostCode(),
-            compradorInfo.getMerchantSession(),
-            compradorInfo.getPhoneCode(),
-            compradorInfo.getPhoneNumber()
+
+        IntencaoPagamento intencaoPagamento = intencaoPagamentoWebMapper.toIntencaoPagamento(compradorInfo);
+
+        intencaoPagamento.setValor(produto.getPreco());
+
+        intencaoPagamento.setMoeda(MoedaEnum.getByName(produto.getMoeda()).getCodigoISO());
+
+        // Definir o posId da configuração
+        intencaoPagamento.setPosId(link.getConfiguracaoPagamento().getPosId());
+        intencaoPagamento.setMerchantRef(produto.getId().toString());
+        intencaoPagamento.setMerchantSession(link.getCodigo());
+
+        intencaoPagamento.setTransactionCode(IntencaoPagamentoEnum.COMPRAS.getTransactionCode());
+
+        // Criar ou buscar a conta de pagamento pelo email
+        ContaPagamento contaPagamento = criaContaPagamentoUseCase.criarOuBuscarPorEmail(
+                compradorInfo.getEmail(),
+                compradorInfo.getBillAddrCity(),
+                compradorInfo.getBillAddrCountry(),
+                compradorInfo.getBillAddrLine1(),
+                compradorInfo.getBillAddrPostCode(),
+                compradorInfo.getPhoneCode(),
+                compradorInfo.getPhoneNumber()
         );
-        
-        return "redirect:" + redirectUrl;
+
+        // Associar a conta de pagamento à intenção
+        intencaoPagamento.setContaPagamento(contaPagamento);
+
+        // Criar a intenção de pagamento
+        IntencaoPagamento intencaoPagamentoCriada = criaIntencaoPagamentoUseCase.criar(intencaoPagamento);
+
+        // Criar uma sessão de pagamento para esta intenção
+        SessaoPagamento sessao = criaSessaoPagamentoUseCase.criar(
+                intencaoPagamentoCriada.getReferencia(),
+                link.getConfiguracaoPagamento().getApiKey(),
+                request
+        );
+
+        // Adicionar cookie de sessão na resposta
+        Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessao.getSessionId());
+        sessionCookie.setMaxAge(SESSION_COOKIE_MAX_AGE);
+        sessionCookie.setPath("/");
+        sessionCookie.setHttpOnly(true);
+        sessionCookie.setSecure(true); // Somente HTTPS
+        response.addCookie(sessionCookie);
+
+        gerenciaLinkPagamentoUseCase.incrementarUsos(link.getId());
+
+        model.addAttribute("referencia", intencaoPagamentoCriada.getReferencia());
+
+        return "links/redirect";
+
     }
 
-    /**
-     * Exibe a página de sucesso após o pagamento
-     */
-    @GetMapping("/p/{codigo}/sucesso")
-    public String paginaSucesso(@PathVariable String codigo, 
-                               @RequestParam String sessionId,
-                               Model model) {
-        Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigo);
-        
-        if (linkOpt.isEmpty()) {
-            return "redirect:/p/" + codigo + "?erro=link_invalido";
-        }
-        
-        LinkPagamento link = linkOpt.get();
-        Produto produto = link.getProduto();
-        
-        // Verificar status do pagamento
-        boolean pagamentoConfirmado = processamentoPagamentoLinkUseCase.processarPagamentoSucesso(sessionId, codigo);
-        
-        model.addAttribute("link", link);
-        model.addAttribute("produto", produto);
-        model.addAttribute("pagamentoConfirmado", pagamentoConfirmado);
-        
-        return "links/sucesso";
-    }
-    
-    /**
-     * Exibe a página de cancelamento após o pagamento ser cancelado
-     */
-    @GetMapping("/p/{codigo}/cancelado")
-    public String paginaCancelamento(@PathVariable String codigo, Model model) {
-        Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigo);
-        
-        if (linkOpt.isEmpty()) {
-            return "redirect:/p/" + codigo + "?erro=link_invalido";
-        }
-        
-        LinkPagamento link = linkOpt.get();
-        Produto produto = link.getProduto();
-        
-        model.addAttribute("link", link);
-        model.addAttribute("produto", produto);
-        
-        return "links/cancelado";
-    }
 }

@@ -7,11 +7,9 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagam
 import cv.ntinnovation.vintipay.application.core.domain.entity.LinkPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
-import cv.ntinnovation.vintipay.application.core.domain.enums.StatusLinkPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaConfiguracaoPagamentoUsuarioUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaLinkPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaProdutoUseCase;
-import cv.ntinnovation.vintipay.application.port.in.ProcessamentoPagamentoLinkUseCase;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +33,6 @@ public class LinkPagamentoController {
 
     private final GerenciaLinkPagamentoUseCase gerenciaLinkPagamentoUseCase;
     private final GerenciaProdutoUseCase gerenciaProdutoUseCase;
-    private final ProcessamentoPagamentoLinkUseCase processamentoPagamentoLinkUseCase;
     private final LinkPagamentoWebMapper linkPagamentoWebMapper;
     private final GerenciaConfiguracaoPagamentoUsuarioUseCase gerenciaConfiguracaoPagamentoUsuarioUseCase;
 

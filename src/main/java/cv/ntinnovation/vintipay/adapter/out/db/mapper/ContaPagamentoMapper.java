@@ -4,6 +4,8 @@ import cv.ntinnovation.vintipay.adapter.out.db.entity.ContaPagamentoEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.entity.ContatoContaPagamentoEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.entity.InfoContaPagamentoEntity;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ContaPagamento;
+import cv.ntinnovation.vintipay.application.core.domain.entity.ContatoContaPagamento;
+import cv.ntinnovation.vintipay.application.core.domain.entity.InfoContaPagamento;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -30,6 +32,34 @@ public class ContaPagamentoMapper {
                 .shipAddrLine1(entity.getShipAddrLine1())
                 .shipAddrPostCode(entity.getShipAddrPostCode())
                 .shipAddrState(entity.getShipAddrState())
+                .acctInfo(toInfoContaPagamento(entity.getAcctInfo()))
+                .mobilePhone(toContatoContaPagamento(entity.getMobilePhone()))
+                .build();
+    }
+
+    public ContatoContaPagamento toContatoContaPagamento(ContatoContaPagamentoEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        return ContatoContaPagamento.builder()
+                .cc(entity.getCc())
+                .subscriber(entity.getSubscriber())
+                .build();
+    }
+
+    public InfoContaPagamento toInfoContaPagamento(InfoContaPagamentoEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        return InfoContaPagamento.builder()
+                .id(entity.getId())
+                .chAccAgeInd(entity.getChAccAgeInd())
+                .chAccChange(entity.getChAccChange())
+                .chAccDate(entity.getChAccDate())
+                .chAccPwChange(entity.getChAccPwChange())
+                .chAccPwChangeInd(entity.getChAccPwChangeInd())
+                .suspiciousAccActivity(entity.getSuspiciousAccActivity())
                 .build();
     }
     
@@ -44,6 +74,7 @@ public class ContaPagamentoMapper {
         }
         
         ContaPagamentoEntity entity = new ContaPagamentoEntity();
+        entity.setId(domain.getId());
         entity.setEmail(domain.getEmail());
         entity.setAddrMatch(domain.getAddrMatch());
         entity.setBillAddrCountry(domain.getBillAddrCountry());

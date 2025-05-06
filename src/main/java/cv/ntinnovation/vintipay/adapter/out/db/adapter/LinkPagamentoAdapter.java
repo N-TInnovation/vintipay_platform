@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.adapter.out.db.adapter;
 
+import cv.ntinnovation.vintipay.adapter.out.db.entity.LinkPagamentoEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.entity.ProdutoEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.entity.UsuarioEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.mapper.LinkPagamentoMapper;
@@ -28,19 +29,19 @@ public class LinkPagamentoAdapter implements SalvaLinkPagamento, BuscaLinkPagame
     @Override
     public LinkPagamento salvar(LinkPagamento linkPagamento) {
         var entity = linkPagamentoMapper.toEntity(linkPagamento);
-        
+
         // Se o proprietário não foi carregado, mas temos o ID, vamos carregar
         if (entity.getProprietario() == null && linkPagamento.getProprietarioId() != null) {
             Optional<UsuarioEntity> proprietarioOpt = usuarioRepository.findById(linkPagamento.getProprietarioId());
             proprietarioOpt.ifPresent(entity::setProprietario);
         }
-        
+
         // Se o produto não foi carregado, mas temos o ID, vamos carregar
         if (entity.getProduto() == null && linkPagamento.getProdutoId() != null) {
             Optional<ProdutoEntity> produtoOpt = produtoRepository.findById(linkPagamento.getProdutoId());
             produtoOpt.ifPresent(entity::setProduto);
         }
-        
+
         var savedEntity = linkPagamentoRepository.save(entity);
         return linkPagamentoMapper.toDomain(savedEntity);
     }
@@ -82,4 +83,8 @@ public class LinkPagamentoAdapter implements SalvaLinkPagamento, BuscaLinkPagame
     public boolean existePorIdEProprietarioId(Long id, Long proprietarioId) {
         return linkPagamentoRepository.existsByIdAndProprietarioId(id, proprietarioId);
     }
+
+    
 }
+
+

@@ -79,50 +79,6 @@
                 </div>
             </div>
             <div class="payment-form">
-                <div class="payment-header">
-                    <h2>Confirmação de Pagamento</h2>
-                </div>
-                
-                <div class="payment-amount">
-                    <span th:text="${#numbers.formatDecimal(pagamento.intencaoPagamento.amount, 1, 2)}">0.00</span>
-                    <span th:text="${pagamento.intencaoPagamento.currency}">CVE</span>
-                </div>
-
-                <div class="payment-info">
-                    <div class="payment-info-item">
-                        <span class="payment-info-label">Referência</span>
-                        <span class="payment-info-value" th:text="${pagamento.intencaoPagamento.merchantRef}"></span>
-                    </div>
-                    <div class="payment-info-item">
-                        <span class="payment-info-label">Sessão</span>
-                        <span class="payment-info-value" th:text="${pagamento.intencaoPagamento.merchantSession}"></span>
-                    </div>
-                    <div class="payment-info-item">
-                        <span class="payment-info-label">Terminal</span>
-                        <span class="payment-info-value" th:text="${pagamento.intencaoPagamento.posId}"></span>
-                    </div>
-                    <div class="payment-info-item">
-                        <span class="payment-info-label">Código da Transação</span>
-                        <span class="payment-info-value" th:text="${pagamento.intencaoPagamento.transactionCode}"></span>
-                    </div>
-                    <div class="payment-info-item">
-                        <span class="payment-info-label">Código da Entidade</span>
-                        <span class="payment-info-value" th:text="${pagamento.intencaoPagamento.entityCode}"></span>
-                    </div>
-                    <div class="payment-info-item">
-                        <span class="payment-info-label">Número de Referência</span>
-                        <span class="payment-info-value" th:text="${pagamento.intencaoPagamento.referenceNumber}"></span>
-                    </div>
-                    <div class="payment-info-item">
-                        <span class="payment-info-label">Timestamp</span>
-                        <span class="payment-info-value" th:text="${pagamento.timestamp}"></span>
-                    </div>
-                    <div class="payment-info-item">
-                        <span class="payment-info-label">Status</span>
-                        <span class="payment-info-value" th:text="${pagamento.status}"></span>
-                    </div>
-                </div>
-
                 <div class="mt-4">
                     <form id="paymentForm" th:action="@{${request.submitFormUrl}}" th:object="${request}" method="post">
                         <input type="hidden"

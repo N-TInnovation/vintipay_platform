@@ -387,7 +387,7 @@
                         <div class="row">
                             <div class="col-12 mb-3">
                                 <label for="address" class="form-label">Endereço</label>
-                                <input type="text" id="address" name="address" class="form-control" th:field="*{billAddrLine1}" required>
+                                <input type="text" id="address" name="address" class="form-control" th:field="*{billAddrLine1}">
                             </div>
                         </div>
                         <div class="row">
@@ -446,10 +446,8 @@
                         </div>
                         
                         <!-- Campos ocultos para mapear os valores de Cabo Verde para as propriedades do DTO -->
-                        <input type="hidden" id="cv-billAddrState" name="billAddrState" th:field="*{billAddrState}">
-                        <input type="hidden" id="cv-billAddrCity" name="billAddrCity" th:field="*{billAddrCity}">
-                        <input type="hidden" id="cv-billAddrLine1" name="billAddrLine1" th:field="*{billAddrLine1}">
-                        <input type="hidden" id="cv-billAddrPostCode" name="billAddrPostCode" th:field="*{billAddrPostCode}" value="0000-000">
+                        <input type="hidden" id="billAddrState" name="billAddrState" th:field="*{billAddrState}">
+                        <input type="hidden" id="billAddrCity" name="billAddrCity" th:field="*{billAddrCity}">
                     </div>
                     
                     <button type="submit" class="checkout-btn">
@@ -907,7 +905,10 @@
                 if (complement) addressParts.push(`Complemento: ${complement}`);
                 
                 // Atualiza o campo oculto de endereço com os detalhes combinados
-                document.getElementById('cv-billAddrLine1').value = addressParts.join(', ');
+                document.getElementById('address').value = addressParts.join(', ');
+                document.getElementById('zipcode').value = '00000-000';
+                document.getElementById('complement').value = complement;
+
             }
             
             // Event listeners para mudanças nos selects
@@ -928,13 +929,15 @@
             islandSelect.addEventListener('change', function() {
                 loadCapeVerdeCounties(this.value);
                 // Atualiza o campo oculto de estado com a ilha selecionada
-                document.getElementById('cv-billAddrState').value = this.value;
+                document.getElementById('billAddrState').value = this.value;
+                console.log('teste');
             });
             
             countySelect.addEventListener('change', function() {
                 loadCapeVerdeParishes(this.value);
                 // Atualiza o campo oculto de cidade com o concelho selecionado
-                document.getElementById('cv-billAddrCity').value = this.value;
+                document.getElementById('city').value = this.value;
+                document.getElementById('billAddrCity').value = this.value;
             });
             
             parishSelect.addEventListener('change', function() {

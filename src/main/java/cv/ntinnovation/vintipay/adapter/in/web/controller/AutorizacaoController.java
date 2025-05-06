@@ -34,7 +34,7 @@ public class AutorizacaoController {
             ConfiguracaoPagamento configuracao = buscaConfiguracaoPagamentoAtivaUseCase
                     .buscarPorCredenciais(credencialsRequest.getClientId(), credencialsRequest.getClientSecret());
             
-            String token = criarAutorizacaoUseCase.getToken("gateway-payment", configuracao.getApiKey());
+            String token = criarAutorizacaoUseCase.getToken(configuracao.getMerchantId(), configuracao.getApiKey());
             return ResponseEntity.ok(AutenticacaoResponse.builder()
                     .accessToken(token)
                     .build());

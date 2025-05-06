@@ -47,6 +47,10 @@ public class LinkPagamentoEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "produto_id", nullable = false)
     private ProdutoEntity produto;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "configuracao_pagamento_id", nullable = true)
+    private ConfiguracaoPagamentoEntity configuracaoPagamento;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proprietario_id", nullable = false)
