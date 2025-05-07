@@ -7,6 +7,7 @@ import cv.ntinnovation.vintipay.application.core.domain.enums.MoedaEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.exception.PagamentoStatusNaoPendenteException;
 import cv.ntinnovation.vintipay.application.core.domain.exception.SessaoPagamentoInvalidaException;
+import cv.ntinnovation.vintipay.application.port.in.BuscaIntencaoPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.BuscaPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.CriaPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.ValidaSessaoPagamentoUseCase;
@@ -35,6 +36,7 @@ public class CheckoutPagamentoController {
     private final CriaPagamentoUseCase criaPagamentoUseCase;
     private final BuscaPagamentoUseCase buscaPagamentoUseCase;
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
+    private final BuscaIntencaoPagamentoUseCase buscaIntencaoPagamentoUseCase;
 
     private static final String SESSION_COOKIE_NAME = "PAYMENT_SESSION_ID";
     private static final int SESSION_COOKIE_MAX_AGE = 1800; // 30 minutos em segundos
@@ -59,17 +61,27 @@ public class CheckoutPagamentoController {
         log.info("Sessão válida para checkout da referência: {}, sessionId: {}", 
                 reference, sessaoOpt.get().getId());
 
+        sessionId = sessaoOpt.get().getSessionId();
+
         // Adicionar cookie de sessão na resposta
-        Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessaoOpt.get().getSessionId());
+        Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessionId);
         sessionCookie.setMaxAge(SESSION_COOKIE_MAX_AGE);
         sessionCookie.setPath("/");
         sessionCookie.setHttpOnly(true);
         sessionCookie.setSecure(true); // Somente HTTPS
         servletResponse.addCookie(sessionCookie);
+
+        var intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(reference);
+        Base64.Encoder encoder = Base64.getEncoder();
+        var merchantRef = encoder.encodeToString((intencaoPagamento.getMerchantRef()+"-"+intencaoPagamento.getId()).getBytes());
+        var merchantSession = encoder.encodeToString((intencaoPagamento.getMerchantSession()).getBytes());
+
+        intencaoPagamento.setMerchantRef(merchantRef.replace("=", ""));
+        intencaoPagamento.setMerchantSession(merchantSession.replace("=", ""));
         
         var pagamentoOptional = buscaPagamentoUseCase.buscarPorReferencia(reference);
 
-        var pagamento = pagamentoOptional.orElseGet(() -> criaPagamentoUseCase.criar(reference));
+        var pagamento = pagamentoOptional.orElseGet(() -> criaPagamentoUseCase.criar(intencaoPagamento));
 
         if (!pagamento.getStatus().equals(StatusPagamentoEnum.PENDENTE)){
             throw new PagamentoStatusNaoPendenteException("Pagamento está "+ pagamento.getStatus());

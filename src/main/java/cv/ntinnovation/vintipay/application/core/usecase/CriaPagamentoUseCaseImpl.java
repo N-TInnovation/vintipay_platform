@@ -2,6 +2,7 @@ package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.DataFingerPrint;
 import cv.ntinnovation.vintipay.application.core.domain.entity.FingerPrintResult;
+import cv.ntinnovation.vintipay.application.core.domain.entity.IntencaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.vintipay.application.core.domain.enums.MoedaEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
@@ -23,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
 
     @Qualifier("buscaIntencaoPagamentoService")
-    private final BuscaIntencaoPagamentoUseCase buscaIntencaoPagamentoUseCase;
     private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase;
     private final SalvaPagamento salvaPagamento;
     private final FingerPrintService fingerPrintService;
@@ -31,15 +31,15 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
 
     @Override
     @Transactional
-    public Pagamento criar(String intencaoPagamentoRef) {
+    public Pagamento criar(IntencaoPagamento intencaoPagamento) {
         // Buscar a intenção de pagamento pela referência
-        var intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(intencaoPagamentoRef);
+
         if (intencaoPagamento == null ) {
-            throw new IntencaoPagamentoNaoExisteExeption("Intenção de pagamento não encontrada: " + intencaoPagamentoRef);
+            throw new IntencaoPagamentoNaoExisteExeption("Intenção de pagamento não encontrada: " + intencaoPagamento.getReferencia());
         }
 
         if(!intencaoPagamento.getStatus().equals(StatusIntencaoPagamentoEnum.PENDENTE)) {
-            throw new RuntimeException("Interação de pagamento com status diferente de pendente: " + intencaoPagamentoRef);
+            throw new RuntimeException("Interação de pagamento com status diferente de pendente: " + intencaoPagamento);
         }
 
         // Criar o pagamento
