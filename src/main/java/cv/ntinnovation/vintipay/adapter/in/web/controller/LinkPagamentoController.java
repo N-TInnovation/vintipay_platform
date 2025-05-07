@@ -122,6 +122,21 @@ public class LinkPagamentoController {
                 return "redirect:/user/links-pagamento";
             }
             
+            // Verificar se a configuração de pagamento foi fornecida
+            if (request.getConfiguracaoPagamentoId() == null) {
+                redirectAttributes.addFlashAttribute("erro", "É necessário selecionar uma configuração de pagamento");
+                
+                // Buscar produtos do usuário para o dropdown
+                List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
+                model.addAttribute("produtos", produtos);
+                
+                // Buscar configurações de pagamento ativas do usuário
+                List<ConfiguracaoPagamento> configuracoes = gerenciaConfiguracaoPagamentoUsuarioUseCase.buscarConfiguracoesAtivasDoUsuario(usuarioId);
+                model.addAttribute("configuracoes", configuracoes);
+                
+                return "user/link-pagamento-form";
+            }
+            
             // Verificar se a configuração de pagamento pertence ao usuário
             boolean configuracaoValida = gerenciaConfiguracaoPagamentoUsuarioUseCase.buscarConfiguracoesDoUsuario(usuarioId)
                 .stream()
@@ -144,14 +159,20 @@ public class LinkPagamentoController {
                 request.getUrlRetornoCancelamento()
             );
             
-            // Associar a configuração de pagamento
-            linkPagamento = gerenciaLinkPagamentoUseCase.associarConfiguracaoPagamento(
-                linkPagamento.getId(),
-                request.getConfiguracaoPagamentoId()
-            );
-            
-            redirectAttributes.addFlashAttribute("sucesso", "Link de pagamento criado com sucesso!");
-            return "redirect:/user/links-pagamento";
+            try {
+                // Associar a configuração de pagamento
+                linkPagamento = gerenciaLinkPagamentoUseCase.associarConfiguracaoPagamento(
+                    linkPagamento.getId(),
+                    request.getConfiguracaoPagamentoId()
+                );
+                
+                redirectAttributes.addFlashAttribute("sucesso", "Link de pagamento criado com sucesso!");
+                return "redirect:/user/links-pagamento";
+            } catch (Exception e) {
+                // Se falhar ao associar a configuração, excluir o link criado para evitar links sem configuração
+                gerenciaLinkPagamentoUseCase.excluirLinkPagamento(linkPagamento.getId());
+                throw new RuntimeException("Erro ao associar configuração de pagamento: " + e.getMessage(), e);
+            }
             
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erro", "Erro ao criar link de pagamento: " + e.getMessage());
@@ -311,19 +332,44 @@ public class LinkPagamentoController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         
-        LinkPagamento link = gerenciaLinkPagamentoUseCase.criarLinkPagamento(
-            request.getProdutoId(),
-            usuarioId,
-            request.getNome(),
-            request.getDescricao(),
-            request.getDataExpiracao(),
-            request.getQuantidadeUsos(),
-            request.getUrlRetornoSucesso(),
-            request.getUrlRetornoCancelamento()
-        );
+        // Verificar se a configuração de pagamento foi fornecida
+        if (request.getConfiguracaoPagamentoId() == null) {
+            return ResponseEntity.badRequest().build();
+        }
         
-        LinkPagamentoResponse response = linkPagamentoWebMapper.toLinkPagamentoResponse(link);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        // Verificar se a configuração de pagamento pertence ao usuário
+        boolean configuracaoValida = gerenciaConfiguracaoPagamentoUsuarioUseCase.buscarConfiguracoesDoUsuario(usuarioId)
+            .stream()
+            .anyMatch(config -> config.getId().equals(request.getConfiguracaoPagamentoId()));
+        
+        if (!configuracaoValida) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        
+        try {
+            // Criar o link de pagamento
+            LinkPagamento link = gerenciaLinkPagamentoUseCase.criarLinkPagamento(
+                request.getProdutoId(),
+                usuarioId,
+                request.getNome(),
+                request.getDescricao(),
+                request.getDataExpiracao(),
+                request.getQuantidadeUsos(),
+                request.getUrlRetornoSucesso(),
+                request.getUrlRetornoCancelamento()
+            );
+            
+            // Associar a configuração de pagamento
+            link = gerenciaLinkPagamentoUseCase.associarConfiguracaoPagamento(
+                link.getId(),
+                request.getConfiguracaoPagamentoId()
+            );
+            
+            LinkPagamentoResponse response = linkPagamentoWebMapper.toLinkPagamentoResponse(link);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/api/{id}")
