@@ -165,10 +165,8 @@ public class PagamentoPublicoController {
 
         gerenciaLinkPagamentoUseCase.incrementarUsos(link.getId());
 
-        model.addAttribute("referencia", intencaoPagamentoCriada.getReferencia());
-
-        return "links/redirect";
-
+        //model.addAttribute("sessionId", sessao.getSessionId());
+        return "redirect:/pagamento/checkout/" + intencaoPagamentoCriada.getReferencia();
     }
 
 }

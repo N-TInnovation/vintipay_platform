@@ -1,18 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Processando Pagamento - VintiPay</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .payment-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .payment-header {
+            padding: 20px;
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+        }
+        .payment-content {
+            padding: 20px;
+        }
+        .payment-iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            margin-top: 20px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
 </head>
-<body onload="autoPost()">
-<form th:action="@{/pagamento/checkout/{referencia}(referencia=${referencia})}" method="get"></form>
-<script>
-    function autoPost(){document.forms[0].submit();}
-</script>
+<body>
+    <div class="payment-container">
+        <div class="payment-header">
+            <h2>Processando seu Pagamento</h2>
+            <p>Por favor, aguarde enquanto carregamos o gateway de pagamento</p>
+        </div>
+        
+        <div class="payment-content">
+            <div id="loading" class="loading">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <p class="mt-3">Conectando ao gateway de pagamento Vinti4...</p>
+            </div>
+            
+            <iframe id="payment-frame" class="payment-iframe" style="display: none;"
+                    th:src="@{/pagamento/checkout/{referencia}(referencia=${referencia})}"
+                    onload="hideLoading()"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('payment-frame').style.display = 'block';
+        }
+    </script>
 </body>
 </html>
