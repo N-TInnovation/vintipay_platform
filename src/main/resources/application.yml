@@ -15,29 +15,6 @@ spring:
         config:
           default:
             loggerLevel: full
-  datasource:
-    url: jdbc:mysql://localhost:3306/vintipay?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: root
-    password:
-    driverClassName: com.mysql.cj.jdbc.Driver
-  jpa:
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        use_sql_comments: true
-    defer-datasource-initialization: false
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-      settings:
-        web-allow-others: false
-        trace: false
-        web-admin-password: admin
   sql:
     init:
       mode: always
@@ -50,7 +27,6 @@ spring:
     locations: classpath:db/migration
     validate-on-migrate: true
     out-of-order: true
-
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -65,3 +41,9 @@ app:
   stripe:
     success-url: ${app.base-url}/assinaturas/sucesso
     cancel-url: ${app.base-url}/assinaturas/cancelado
+
+# Configurações da API Vendus
+vendus:
+  api:
+    key: ${VENDUS_API_KEY:1bcf15d3da754d5322ace80382703722}
+    base-url: ${VENDUS_API_URL:https://www.vendus.cv/ws/v1.2}

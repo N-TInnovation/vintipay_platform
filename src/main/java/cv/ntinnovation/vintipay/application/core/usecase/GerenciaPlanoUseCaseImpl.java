@@ -73,13 +73,13 @@ public class GerenciaPlanoUseCaseImpl implements GerenciaPlanoUseCase {
                 String intervalo = mapPeriodoCobrancaParaStripe(periodoCobranca);
                 int intervalCount = getIntervalCount(periodoCobranca);
                 
-                log.debug("Criando preço no Stripe: valor={}, moeda=brl, intervalo={}, contagem={}", 
+                log.debug("Criando preço no Stripe: valor={}, moeda=ecv, intervalo={}, contagem={}", 
                          valorCentavos, intervalo, intervalCount);
                 
                 stripePriceIdFinal = stripeIntegrationUseCase.criarPreco(
                     stripeProductId, 
                     valorCentavos, 
-                    "brl", 
+                    "cve",
                     intervalo,
                     intervalCount
                 );

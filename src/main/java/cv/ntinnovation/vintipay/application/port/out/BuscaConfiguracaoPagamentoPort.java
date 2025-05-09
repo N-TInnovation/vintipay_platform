@@ -16,4 +16,5 @@ public interface BuscaConfiguracaoPagamentoPort {
     List<ConfiguracaoPagamento> buscarPorUsuario(Long usuarioId);
     List<ConfiguracaoPagamento> buscarAtivasPorUsuario(Long usuarioId);
     Optional<ConfiguracaoPagamento> buscarPorUsuarioEPosId(Long usuarioId, String posId);
+    Optional<ConfiguracaoPagamento> buscarPorUsuarioId(Long usuarioId);
 }

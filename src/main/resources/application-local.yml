@@ -37,15 +37,15 @@ springdoc:
   api-docs:
     path: /api-docs
 
-sdatasource:
+datasource:
   url: jdbc:mysql://localhost:3306/vintipay?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
   username: root
-  password:
+  password: root
   driverClassName: com.mysql.cj.jdbc.Driver
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:

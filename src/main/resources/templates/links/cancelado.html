@@ -197,7 +197,7 @@
                         <div class="small text-muted" th:text="${#strings.abbreviate(produto.descricao, 100)}">Descrição do produto...</div>
                     </div>
                     
-                    <div class="product-item-price" th:text="${#numbers.formatCurrency(produto.preco)}">R$ 99,90</div>
+                    <div class="product-item-price" th:text="'ECV ' + ${#numbers.formatDecimal(produto.preco, 1, 'POINT', 2, 'COMMA')}">ECV 99,90</div>
                 </div>
             </div>
             
@@ -215,7 +215,7 @@
     
     <footer class="footer">
         <div class="container">
-            <p>© 2025 VintiPay - Plataforma de Pagamentos de Cabo Verde</p>
+            <p> 2025 VintiPay - Plataforma de Pagamentos de Cabo Verde</p>
         </div>
     </footer>
     

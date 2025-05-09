@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -43,7 +44,12 @@ public class BuscaConfiguracaoPagamentoUseCaseImpl implements BuscaConfiguracaoP
                 .map(this::descriptografarPosAutCode)
                 .collect(Collectors.toList());
     }
-    
+
+    @Override
+    public Optional<ConfiguracaoPagamento> buscarPorUsuarioId(Long usuarioId) {
+        return buscaConfiguracaoPagamentoPort.buscarPorUsuarioId(usuarioId);
+    }
+
     /**
      * Descriptografa o campo posAutCode da configuração
      * @param configuracao Configuração com posAutCode criptografado

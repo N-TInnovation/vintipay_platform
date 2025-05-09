@@ -28,6 +28,7 @@ public class ContaPagamentoController {
     public ResponseEntity<ContaPagamentoResponse> criarContaPagamento(@Valid @RequestBody ContaPagamentoRequest request) {
         // Criar ou buscar a conta de pagamento pelo email
         ContaPagamento contaPagamento = criaContaPagamentoUseCase.criarOuBuscarPorEmail(
+            request.getName(),
             request.getEmail(),
             request.getBillAddrCity(),
             request.getBillAddrCountry(),

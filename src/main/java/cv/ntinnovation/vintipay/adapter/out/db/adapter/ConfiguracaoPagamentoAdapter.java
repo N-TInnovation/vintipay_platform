@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ConfiguracaoPagamentoAdapter implements 
-        SalvaConfiguracaoPagamentoPort, 
+public class ConfiguracaoPagamentoAdapter implements
+        SalvaConfiguracaoPagamentoPort,
         BuscaConfiguracaoPagamentoPort,
         ConsultaConfiguracaoPagamentoPort {
 
@@ -78,6 +78,11 @@ public class ConfiguracaoPagamentoAdapter implements
     public Optional<ConfiguracaoPagamento> buscarPorUsuarioEPosId(Long usuarioId, String posId) {
         return repository.findByUsuarioIdAndPosId(usuarioId, posId)
                 .map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<ConfiguracaoPagamento> buscarPorUsuarioId(Long usuarioId) {
+        return Optional.empty();
     }
 
     @Override

@@ -36,6 +36,7 @@ public class IntencaoPagamentoController {
     private final CriaSessaoPagamentoUseCase criaSessaoPagamentoUseCase;
 
     private static final String SESSION_COOKIE_NAME = "PAYMENT_SESSION_ID";
+    private static final String CLIENT_ID = "CLIENT_ID";
     private static final int SESSION_COOKIE_MAX_AGE = 1800; // 30 minutos em segundos
 
     @PostMapping("/intencao/{intencao}")
@@ -71,6 +72,7 @@ public class IntencaoPagamentoController {
 
             // Criar ou buscar a conta de pagamento pelo email
             ContaPagamento contaPagamento = criaContaPagamentoUseCase.criarOuBuscarPorEmail(
+                request.getName(),
                 request.getEmail(),
                 request.getBillAddrCity(),
                 request.getBillAddrCountry(),
@@ -99,7 +101,14 @@ public class IntencaoPagamentoController {
             sessionCookie.setPath("/");
             sessionCookie.setHttpOnly(true);
             sessionCookie.setSecure(true); // Somente HTTPS
+
+            Cookie clientIdCookie = new Cookie(CLIENT_ID, "API_KEY_" + configuracao.getApiKey());
+            clientIdCookie.setMaxAge(3600);
+            clientIdCookie.setPath("/");
+            clientIdCookie.setHttpOnly(true);
+            clientIdCookie.setSecure(true); // Somente HTTPS
             servletResponse.addCookie(sessionCookie);
+            servletResponse.addCookie(clientIdCookie);
             
             // Converter para response e retornar
             IntencaoPagamentoResponse response = intencaoPagamentoWebMapper.toIntencaoPagamentoResponse(intencaoPagamentoCriada);

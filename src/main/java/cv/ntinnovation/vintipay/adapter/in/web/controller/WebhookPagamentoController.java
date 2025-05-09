@@ -7,6 +7,7 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagam
 import cv.ntinnovation.vintipay.application.core.domain.entity.IntencaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.SessaoPagamento;
+import cv.ntinnovation.vintipay.application.core.domain.enums.IntegracaoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.MensagemRetornoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.exception.PagamentoNaoEncontradoException;
 import cv.ntinnovation.vintipay.application.core.domain.exception.SessaoPagamentoInvalidaException;
@@ -35,6 +36,7 @@ public class WebhookPagamentoController {
     private final ValidaRetornoUseCase validaRetornoUseCase;
     private final WebhookPagamentoMapper webhookPagamentoMapper;
     private final FingerPrintService fingerPrintService;
+    private final ProcessaIntegracaoUseCase<IntegracaoEnum> processaIntegracaoUseCase;
 
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
 
@@ -44,10 +46,11 @@ public class WebhookPagamentoController {
                                        @RequestParam("fingerPrintCode") String authorization,
                                        @ModelAttribute SispWebhookRequest request,
                                        @CookieValue(value = "PAYMENT_SESSION_ID", required = false) String sessionId,
+                                       @CookieValue(value = "CLIENT_ID", required = false) String clientId,
                                        Model model, HttpServletRequest request2, HttpServletResponse response) {
         log.info("Recebido webhook do SISP - Reference: {}, Request: {}", reference, request);
 
-        Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(reference, request2, sessionId);
+        Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(reference, request2, sessionId, clientId);
 
         if (sessaoOpt.isEmpty()) {
             log.warn("Tentativa de acesso ao checkout com sessão inválida para referência: {}", reference);
@@ -118,6 +121,8 @@ public class WebhookPagamentoController {
                 responseDto.getPanMascarado(),
                 configuracaoPagamento.getReturnAutCode() // Usando returnAutCode como chave secreta
             );
+
+            processaIntegracaoUseCase.processar(configuracaoPagamento,pagamento);
             
             log.debug("HMAC Fingerprint gerado: {}", hmacFingerprint);
 
@@ -132,6 +137,7 @@ public class WebhookPagamentoController {
         }
 
     }
+
 
     private String getMensagemRetorno(MensagemRetornoEnum mensagemRetornoEnum, SispWebhookRequest request) {
         return mensagemRetornoEnum.getDescricao();

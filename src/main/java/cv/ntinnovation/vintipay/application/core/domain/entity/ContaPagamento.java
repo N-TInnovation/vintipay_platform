@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class ContaPagamento {
 	private Long id;
 	private InfoContaPagamento acctInfo;
+	private String name;
 	private String email;
 	private String addrMatch;
 	private String billAddrCountry;

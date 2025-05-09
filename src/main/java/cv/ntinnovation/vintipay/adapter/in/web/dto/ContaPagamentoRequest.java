@@ -12,6 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContaPagamentoRequest {
+
+    @NotBlank(message = "Name é obrigatório")
+    private String name;
     
     @NotBlank(message = "Email é obrigatório")
     @Email(message = "Email deve ser válido")

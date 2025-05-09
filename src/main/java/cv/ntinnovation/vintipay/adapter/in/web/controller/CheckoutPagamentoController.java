@@ -49,9 +49,9 @@ public class CheckoutPagamentoController {
     private String returnUrl;
 
     @GetMapping("/checkout/{reference}")
-    public String checkout(@PathVariable String reference, @RequestParam(value = "sessionId", required = false) String sessionId, Model model, HttpServletRequest request, HttpServletResponse servletResponse) {
+    public String checkout(@PathVariable String reference, @RequestParam(value = "sessionId" , required = false) String sessionId, @CookieValue(value = "CLIENT_ID") String clientId, Model model, HttpServletRequest request, HttpServletResponse servletResponse) {
         // Validar a sessão de pagamento
-        Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(reference, request, sessionId);
+        Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(reference, request, sessionId, clientId);
         
         if (sessaoOpt.isEmpty()) {
             log.warn("Tentativa de acesso ao checkout com sessão inválida para referência: {}", reference);

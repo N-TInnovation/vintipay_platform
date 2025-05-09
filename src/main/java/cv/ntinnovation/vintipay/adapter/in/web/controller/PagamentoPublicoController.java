@@ -34,9 +34,12 @@ public class PagamentoPublicoController {
     private final CriaContaPagamentoUseCase criaContaPagamentoUseCase;
     private final IntencaoPagamentoWebMapper intencaoPagamentoWebMapper;
     private final CriaSessaoPagamentoUseCase criaSessaoPagamentoUseCase;
+    private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
 
     private static final String SESSION_COOKIE_NAME = "PAYMENT_SESSION_ID";
+    private static final String CLIENT_ID = "CLIENT_ID";
     private static final int SESSION_COOKIE_MAX_AGE = 1800; // 30 minutos em segundos
+    private static final int CLIENT_ID_MAX_AGE = 86400; // 40 dias em segundos
 
     /**
      * Exibe a página de checkout para um link de pagamento
@@ -78,10 +81,22 @@ public class PagamentoPublicoController {
     public String processarPagamento(
             @PathVariable String codigo,
             @Valid @ModelAttribute("compradorInfoRequest") CompradorInfoRequest compradorInfo,
+            @CookieValue(value = SESSION_COOKIE_NAME, required = false) String sessionId,
+            @CookieValue(value = CLIENT_ID, required = false) String clientId,
             BindingResult bindingResult,
             Model model,
             HttpServletRequest request,
             HttpServletResponse response) {
+
+        Optional<SessaoPagamento> sessaoOpt = Optional.empty();
+
+        if (sessionId != null) {
+            sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(sessionId);
+
+            if (sessaoOpt.isPresent()) {
+                validaSessaoPagamentoUseCase.invalidarSessao(sessionId);
+            }
+        }
         
         Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigo);
         
@@ -95,25 +110,11 @@ public class PagamentoPublicoController {
 
         // Se houver erros de validação, retornar para a página de checkout
         if (bindingResult.hasErrors()) {
-            System.out.println("erros ");
-            System.out.println(bindingResult.getModel());
-
-            
             model.addAttribute("link", link);
             model.addAttribute("produto", produto);
             model.addAttribute("codigo", codigo);
-            
             return "links/checkout";
         }
-        
-        // Construir URLs de sucesso e cancelamento
-        String baseUrl = request.getScheme() + "://" + request.getServerName();
-        if (request.getServerPort() != 80 && request.getServerPort() != 443) {
-            baseUrl += ":" + request.getServerPort();
-        }
-        
-        String successUrl = baseUrl + "/p/" + codigo + "/sucesso";
-        String cancelUrl = baseUrl + "/p/" + codigo + "/cancelado";
         
         log.info("Processando pagamento para código: {}, email: {}, cidade: {}", 
                 codigo, compradorInfo.getEmail(), compradorInfo.getBillAddrCity());
@@ -133,6 +134,7 @@ public class PagamentoPublicoController {
 
         // Criar ou buscar a conta de pagamento pelo email
         ContaPagamento contaPagamento = criaContaPagamentoUseCase.criarOuBuscarPorEmail(
+                compradorInfo.getName(),
                 compradorInfo.getEmail(),
                 compradorInfo.getBillAddrCity(),
                 compradorInfo.getBillAddrCountry(),
@@ -144,14 +146,17 @@ public class PagamentoPublicoController {
 
         // Associar a conta de pagamento à intenção
         intencaoPagamento.setContaPagamento(contaPagamento);
-
         // Criar a intenção de pagamento
         IntencaoPagamento intencaoPagamentoCriada = criaIntencaoPagamentoUseCase.criar(intencaoPagamento);
+
+        if (clientId == null) {
+            clientId = UUID.randomUUID().toString();
+        }
 
         // Criar uma sessão de pagamento para esta intenção
         SessaoPagamento sessao = criaSessaoPagamentoUseCase.criar(
                 intencaoPagamentoCriada.getReferencia(),
-                link.getConfiguracaoPagamento().getApiKey(),
+                clientId,
                 request
         );
 
@@ -162,6 +167,13 @@ public class PagamentoPublicoController {
         sessionCookie.setHttpOnly(true);
         sessionCookie.setSecure(true); // Somente HTTPS
         response.addCookie(sessionCookie);
+
+        Cookie clientIdCookie = new Cookie(CLIENT_ID, clientId);
+        clientIdCookie.setMaxAge(SESSION_COOKIE_MAX_AGE);
+        clientIdCookie.setPath("/");
+        clientIdCookie.setHttpOnly(true);
+        clientIdCookie.setSecure(true); // Somente HTTPS
+        response.addCookie(clientIdCookie);
 
         gerenciaLinkPagamentoUseCase.incrementarUsos(link.getId());
 

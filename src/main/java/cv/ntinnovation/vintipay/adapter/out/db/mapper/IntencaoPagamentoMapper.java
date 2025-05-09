@@ -40,6 +40,7 @@ public class IntencaoPagamentoMapper {
         // Buscar a ContaPagamentoEntity existente pelo ID
         if (intencaoPagamento.getContaPagamento() != null && intencaoPagamento.getContaPagamento().getId() != null) {
             ContaPagamentoEntity contaPagamentoEntity = contaPagamentoRepository.getReferenceById(intencaoPagamento.getContaPagamento().getId());
+            contaPagamentoEntity.setName(intencaoPagamento.getContaPagamento().getName());
             entity.setContaPagamento(contaPagamentoEntity);
         }
 
@@ -80,6 +81,7 @@ public class IntencaoPagamentoMapper {
 
         return ContaPagamento.builder()
                 .id(entity.getId())
+                .name(entity.getName())
                 .email(entity.getEmail())
                 .addrMatch(entity.getAddrMatch())
                 .billAddrCountry(entity.getBillAddrCountry())

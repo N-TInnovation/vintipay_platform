@@ -23,7 +23,7 @@ public class CriaContaPagamentoUseCaseImpl implements CriaContaPagamentoUseCase 
     private final SalvaContaPagamento salvaContaPagamento;
 
     @Override
-    public ContaPagamento criarOuBuscarPorEmail(String email, String billAddrCity, String billAddrCountry, String billAddrLine1, String billAddrPostCode, String phoneCode, String phoneNumber) {
+    public ContaPagamento criarOuBuscarPorEmail(String name, String email, String billAddrCity, String billAddrCountry, String billAddrLine1, String billAddrPostCode, String phoneCode, String phoneNumber) {
         // Validar email
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("Email não pode ser nulo");
@@ -33,11 +33,9 @@ public class CriaContaPagamentoUseCaseImpl implements CriaContaPagamentoUseCase 
         ContaPagamento contaExistente = buscaContaPagamentoPorEmail.buscarPorEmail(email);
         
         if (contaExistente != null) {
+            name = contaExistente.getName();
             // Verifica se houve mudança no endereço
-            boolean enderecoMudou = !contaExistente.getBillAddrCity().equals(billAddrCity) ||
-                                  !contaExistente.getBillAddrCountry().equals(billAddrCountry) ||
-                                  !contaExistente.getBillAddrLine1().equals(billAddrLine1) ||
-                                  !contaExistente.getBillAddrPostCode().equals(billAddrPostCode);
+            boolean enderecoMudou = !contaExistente.getBillAddrCity().equals(billAddrCity) || !contaExistente.getBillAddrCountry().equals(billAddrCountry) || !contaExistente.getBillAddrLine1().equals(billAddrLine1) || !contaExistente.getBillAddrPostCode().equals(billAddrPostCode) || !contaExistente.getMobilePhone().getSubscriber().equals(phoneNumber);
             
             if (enderecoMudou) {
                 contaExistente.setBillAddrCity(billAddrCity);
@@ -45,6 +43,7 @@ public class CriaContaPagamentoUseCaseImpl implements CriaContaPagamentoUseCase 
                 contaExistente.setBillAddrLine1(billAddrLine1);
                 contaExistente.setBillAddrPostCode(billAddrPostCode);
                 contaExistente.setMobilePhone(criarContato(phoneCode, phoneNumber));
+                contaExistente.setName(name);
                 return salvaContaPagamento.salvar(contaExistente);
             }
             

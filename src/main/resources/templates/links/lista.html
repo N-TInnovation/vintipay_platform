@@ -66,7 +66,7 @@
                                 
                                 <div>
                                     <p class="mb-0 fw-bold" th:text="${link.produto != null ? link.produto.nome : 'Produto não disponível'}">Nome do Produto</p>
-                                    <p class="mb-0 text-primary" th:text="${link.produto != null ? #numbers.formatCurrency(link.produto.preco) : ''}">R$ 99,90</p>
+                                    <p class="mb-0 text-primary" th:text="${link.produto != null ? 'ECV ' + #numbers.formatDecimal(link.produto.preco, 1, 'POINT', 2, 'COMMA') : ''}">ECV 99,90</p>
                                 </div>
                             </div>
                             

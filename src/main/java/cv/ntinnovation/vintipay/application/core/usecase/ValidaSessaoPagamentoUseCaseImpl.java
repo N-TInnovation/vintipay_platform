@@ -27,7 +27,7 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
     private static final String SESSION_COOKIE_NAME = "PAYMENT_SESSION_ID";
 
     @Override
-    public Optional<SessaoPagamento> validarSessao(String reference, HttpServletRequest request, String sessionIdparam) {
+    public Optional<SessaoPagamento> validarSessao(String reference, HttpServletRequest request, String sessionIdparam, String clientId) {
         // Primeiro verifica se existe uma sessão válida para a referência
         Optional<SessaoPagamento> sessaoByReference = buscaSessaoPagamentoPort.buscarSessaoValidaPorReferencia(reference);
         
@@ -40,6 +40,10 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
         // Busca o cookie de sessão
         String sessionId = sessionIdparam != null ? sessionIdparam : getSessionIdFromCookie(request);
         var sessao = sessaoByReference.get();
+
+        if(clientId != null && !clientId.equals(sessao.getClientId())) {
+            return Optional.empty();
+        }
 
         if(!sessao.getSessionId().equals(sessionId)) {
             log.warn("Session ID do cookie ({}) não corresponde ao Session ID da sessão ({}) para referência: {}",
@@ -60,7 +64,19 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
             log.info("Sessão {} invalidada", sessionId);
         });
     }
-    
+
+    @Override
+    public Optional<SessaoPagamento> validarSessao(String sessionId) {
+        var sessaoOpt = buscaSessaoPagamentoPort.buscarPorSessionId(sessionId);
+        // Se não existir sessão válida para a referência, retorna vazio
+        if (sessaoOpt.isEmpty()) {
+            log.warn("Nenhuma sessão válida encontrada para a referência: {}", sessionId);
+            return Optional.empty();
+        }
+
+        return sessaoOpt;
+    }
+
     /**
      * Tarefa agendada para invalidar sessões expiradas
      */

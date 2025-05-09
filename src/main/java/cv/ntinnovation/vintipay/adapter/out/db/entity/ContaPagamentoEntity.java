@@ -17,6 +17,9 @@ public class ContaPagamentoEntity {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "acct_info_id")
     private InfoContaPagamentoEntity acctInfo;
+
+    @Column(name = "name")
+    private String name;
     
     @Column(name = "email", unique = true)
     private String email;

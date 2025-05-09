@@ -22,6 +22,10 @@ public class IntencaoPagamentoRequest {
 
     @NotBlank
     private String email;
+
+    @NotBlank
+    private String name;
+
     @NotBlank
     private String billAddrCity;
     @NotBlank

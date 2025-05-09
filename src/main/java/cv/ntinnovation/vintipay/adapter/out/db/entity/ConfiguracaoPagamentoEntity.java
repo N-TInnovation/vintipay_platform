@@ -7,9 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "configuracao_pagamento", 
+@Table(name = "configuracao_pagamento",
        uniqueConstraints = {
            @UniqueConstraint(name = "UK_POS_ID", columnNames = "pos_id")
        })
@@ -89,6 +91,9 @@ public class ConfiguracaoPagamentoEntity {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "configuracaoPagamento", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ConfiguracaoAplicacaoEntity> configuracaoAplicacoes = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {

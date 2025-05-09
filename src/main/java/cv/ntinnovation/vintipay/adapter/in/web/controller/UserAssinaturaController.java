@@ -102,7 +102,7 @@ public class UserAssinaturaController {
                     model.addAttribute("dataInicio", dataInicio);
                     model.addAttribute("dataRenovacao", dataRenovacao);
                     model.addAttribute("statusAssinatura", assinatura.getStatus().toString());
-                    model.addAttribute("valorMensal", "R$ " + plano.getPreco());
+                    model.addAttribute("valorMensal", "ECV " + plano.getPreco());
                     model.addAttribute("assinaturaId", assinatura.getId());
                     model.addAttribute("planoId", plano.getId());
                     
@@ -137,7 +137,7 @@ public class UserAssinaturaController {
                     model.addAttribute("dataInicio", dataInicio);
                     model.addAttribute("dataRenovacao", dataRenovacao);
                     model.addAttribute("statusAssinatura", assinatura.getStatus().toString());
-                    model.addAttribute("valorMensal", "R$ " + plano.getPreco());
+                    model.addAttribute("valorMensal", "ECV " + plano.getPreco());
                     model.addAttribute("assinaturaId", assinatura.getId());
                     model.addAttribute("planoId", plano.getId());
                     
@@ -350,7 +350,7 @@ public class UserAssinaturaController {
         model.addAttribute("dataInicio", "N/A");
         model.addAttribute("dataRenovacao", "N/A");
         model.addAttribute("statusAssinatura", "INATIVA");
-        model.addAttribute("valorMensal", "R$ 0,00");
+        model.addAttribute("valorMensal", "ECV 0,00");
         model.addAttribute("assinaturaId", null);
         model.addAttribute("planoId", null);
         model.addAttribute("recursos", new String[]{"Nenhum recurso disponível"});

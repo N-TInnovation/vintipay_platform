@@ -252,7 +252,7 @@
                                     <small class="text-muted d-block">Preço:</small>
                                     <div class="d-flex align-items-center">
                                         <i class="fas fa-tag me-2 text-success"></i>
-                                        <span th:text="${#numbers.formatCurrency(link.produto.preco)}">CVE 99,90</span>
+                                        <span th:text="'ECV ' + ${#numbers.formatDecimal(link.produto.preco, 1, 'POINT', 2, 'COMMA')}">ECV 99,90</span>
                                     </div>
                                 </div>
                                 

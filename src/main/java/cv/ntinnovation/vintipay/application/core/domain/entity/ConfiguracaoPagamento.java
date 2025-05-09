@@ -1,11 +1,13 @@
 package cv.ntinnovation.vintipay.application.core.domain.entity;
 
+import cv.ntinnovation.vintipay.application.core.domain.rules.integracao.Integracao;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -36,4 +38,5 @@ public class ConfiguracaoPagamento {
     private Boolean webhookAtivo;
     private Boolean returnAtivo;
     private String observacoes;
+    private List<ConfiguracaoAplicacao> configuracaoAplicacaos;
 }

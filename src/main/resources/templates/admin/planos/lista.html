@@ -48,7 +48,7 @@
                             <tr th:each="plano : ${planos}">
                                 <td th:text="${plano.id}">1</td>
                                 <td th:text="${plano.nome}">Plano Básico</td>
-                                <td>R$ <span th:text="${#numbers.formatDecimal(plano.preco, 1, 2, 'POINT')}">99.90</span></td>
+                                <td>ECV <span th:text="${#numbers.formatDecimal(plano.preco, 1, 2, 'POINT')}">99.90</span></td>
                                 <td th:text="${plano.periodoCobranca}">MENSAL</td>
                                 <td th:text="${plano.diasTrial}">15</td>
                                 <td>

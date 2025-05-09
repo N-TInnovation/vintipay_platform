@@ -146,7 +146,7 @@
                                         </div>
                                         <div class="card-body">
                                             <h6 class="card-title" th:text="${produto.nome}">Nome do Produto</h6>
-                                            <p class="card-text product-price" th:text="${#numbers.formatCurrency(produto.preco)}">R$ 99,90</p>
+                                            <p class="card-text product-price" th:text="'ECV ' + ${#numbers.formatDecimal(produto.preco, 1, 'POINT', 2, 'COMMA')}">ECV 99,90</p>
                                         </div>
                                     </div>
                                 </div>
@@ -168,7 +168,7 @@
                             <div class="col-md-6">
                                 <label for="valor" class="form-label">Valor *</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">CVE</span>
+                                    <span class="input-group-text">ECV</span>
                                     <input type="number" class="form-control" id="valor" th:field="*{valor}" step="0.01" min="0.01" required>
                                 </div>
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('valor')}" th:errors="*{valor}">
