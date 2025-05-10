@@ -1,6 +1,6 @@
 package cv.ntinnovation.vintipay.application.core.domain.entity;
 
-import cv.ntinnovation.vintipay.application.core.domain.rules.integracao.Integracao;
+import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,12 +31,12 @@ public class ConfiguracaoPagamento {
     private String email;
     private Usuario usuario;
     private Long usuarioId;
-    private String ambiente;
+    private AmbienteEnum ambiente;
     private String webhookUrl;
     private String webhookSecret;
     private Boolean ativo;
     private Boolean webhookAtivo;
     private Boolean returnAtivo;
     private String observacoes;
-    private List<ConfiguracaoAplicacao> configuracaoAplicacaos;
+    private List<ConfiguracaoIntegracoes> configuracaoAplicacoes;
 }

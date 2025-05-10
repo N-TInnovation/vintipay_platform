@@ -298,9 +298,11 @@
             <p class="text-muted">Escolha um plano e comece a usar nossa plataforma de pagamentos moderna e segura hoje mesmo</p>
         </div>
         
-        <div th:if="${erro}" class="alert alert-danger" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <span th:text="${erro}"></span>
+        <!-- Mensagem de erro global -->
+        <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${erro}">Mensagem de erro</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
         </div>
         
         <div class="step-container">
@@ -327,15 +329,17 @@
                         <p class="text-muted mb-4">Preencha seus dados para criar sua conta</p>
                         
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="username" th:field="*{username}" placeholder="Nome de usuário" required>
+                            <input type="text" class="form-control" th:classappend="${erroUsername != null ? 'is-invalid' : ''}" id="username" th:field="*{username}" placeholder="Nome de usuário" required>
                             <label for="username"><i class="fas fa-user me-2"></i>Nome de usuário</label>
                             <div class="error-feedback" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                            <div class="invalid-feedback" th:if="${erroUsername != null}" th:text="${erroUsername}">Nome de usuário já existe</div>
                         </div>
                         
                         <div class="form-floating mb-3">
-                            <input type="email" class="form-control" id="email" th:field="*{email}" placeholder="E-mail" required>
+                            <input type="email" class="form-control" th:classappend="${erroEmail != null ? 'is-invalid' : ''}" id="email" th:field="*{email}" placeholder="E-mail" required>
                             <label for="email"><i class="fas fa-envelope me-2"></i>E-mail</label>
                             <div class="error-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                            <div class="invalid-feedback" th:if="${erroEmail != null}" th:text="${erroEmail}">Email já está cadastrado</div>
                         </div>
                         
                         <div class="form-floating mb-3">
@@ -634,6 +638,34 @@
                 
                 form.classList.add('was-validated');
             });
+            
+            // Verificar se há erros específicos e mostrar o step apropriado
+            const hasUsernameError = document.querySelector('[th\\:if="${erroUsername != null}"]') !== null;
+            const hasEmailError = document.querySelector('[th\\:if="${erroEmail != null}"]') !== null;
+            const hasGlobalError = document.querySelector('.alert-danger') !== null;
+            
+            if (hasUsernameError || hasEmailError || hasGlobalError) {
+                // Se houver erro de username ou email, mostrar o step 1
+                step1Content.classList.add('active');
+                step2Content.classList.remove('active');
+                step3Content.classList.remove('active');
+                
+                // Atualizar a navegação de steps
+                document.querySelectorAll('.step-item').forEach((item, index) => {
+                    if (index === 0) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                        item.classList.remove('completed');
+                    }
+                });
+                
+                // Scroll para o erro
+                const errorElement = document.querySelector('.is-invalid') || document.querySelector('.alert-danger');
+                if (errorElement) {
+                    errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
             
             // Funções de validação
             function validateStep1() {

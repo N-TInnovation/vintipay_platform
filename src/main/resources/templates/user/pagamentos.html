@@ -140,6 +140,7 @@
                             <tr>
                                 <th>Referência</th>
                                 <th>Data</th>
+                                <th>Valor</th>
                                 <th>Status</th>
                                 <th>Cartão</th>
                                 <th>Ações</th>
@@ -149,6 +150,7 @@
                             <tr th:each="pagamento : ${pagamentos}">
                                 <td th:text="${pagamento.reference}">REF123456</td>
                                 <td th:text="${#temporals.format(pagamento.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2023 12:00</td>
+                                <td th:text="${#numbers.formatDecimal(pagamento.intencaoPagamento.valor, 1, 2) + ' ' + (pagamento.intencaoPagamento.moeda == '132' ? 'CVE' : pagamento.intencaoPagamento.moeda)}">100.00 CVE</td>
                                 <td>
                                     <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PAGO}" 
                                           class="status-badge status-pago">Pago</span>
@@ -159,11 +161,17 @@
                                 </td>
                                 <td th:text="${pagamento.panMascarado != null ? pagamento.panMascarado : '-'}">**** **** **** 1234</td>
                                 <td>
-                                    <a th:href="@{'/recibo/' + ${pagamento.reference}}" 
-                                       th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PAGO}"
-                                       class="btn btn-sm btn-primary">
-                                        <i class="fas fa-receipt"></i> Recibo
-                                    </a>
+                                    <div class="btn-group">
+                                        <a th:href="@{'/user/pagamentos/' + ${pagamento.reference}}" 
+                                           class="btn btn-sm btn-info me-1">
+                                            <i class="fas fa-eye"></i> Detalhes
+                                        </a>
+                                        <a th:href="@{'/recibo/' + ${pagamento.reference}}" 
+                                           th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PAGO}"
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fas fa-receipt"></i> Recibo
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>

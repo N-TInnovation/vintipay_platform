@@ -49,7 +49,7 @@ class CriaContaPagamentoUseCaseImplTest {
         when(buscaContaPagamentoPorEmail.buscarPorEmail(email)).thenReturn(contaExistente);
         
         // Act
-        ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail(email, cidade, pais, endereco, cep, phoneCode, phoneNumber);
+        ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail("", email, cidade, pais, endereco, cep, phoneCode, phoneNumber);
         
         // Assert
         assertNotNull(resultado);
@@ -93,7 +93,7 @@ class CriaContaPagamentoUseCaseImplTest {
         when(salvaContaPagamento.salvar(any(ContaPagamento.class))).thenReturn(contaSalva);
         
         // Act
-        ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail(email, cidade, pais, endereco, cep, phoneCode, phoneNumber);
+        ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail( "", email, cidade, pais, endereco, cep, phoneCode, phoneNumber);
         
         // Assert
         assertNotNull(resultado);
@@ -118,7 +118,7 @@ class CriaContaPagamentoUseCaseImplTest {
         
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> criaContaPagamentoUseCase.criarOuBuscarPorEmail(email, cidade, pais, endereco, cep, phoneCode, phoneNumber));
+                () -> criaContaPagamentoUseCase.criarOuBuscarPorEmail("", email, cidade, pais, endereco, cep, phoneCode, phoneNumber));
         
         assertEquals("Email é obrigatório para criar ou buscar uma conta de pagamento", exception.getMessage());
         
@@ -139,7 +139,7 @@ class CriaContaPagamentoUseCaseImplTest {
         
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> criaContaPagamentoUseCase.criarOuBuscarPorEmail(email, cidade, pais, endereco, cep, phoneCode, phoneNumber));
+                () -> criaContaPagamentoUseCase.criarOuBuscarPorEmail("", email, cidade, pais, endereco, cep, phoneCode, phoneNumber));
         
         assertEquals("Email é obrigatório para criar ou buscar uma conta de pagamento", exception.getMessage());
         

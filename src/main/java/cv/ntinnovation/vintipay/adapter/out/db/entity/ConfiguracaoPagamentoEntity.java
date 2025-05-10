@@ -3,19 +3,22 @@ package cv.ntinnovation.vintipay.adapter.out.db.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Objects;
 
 @Entity
 @Table(name = "configuracao_pagamento",
        uniqueConstraints = {
            @UniqueConstraint(name = "UK_POS_ID", columnNames = "pos_id")
        })
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"usuario"})
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -92,9 +95,6 @@ public class ConfiguracaoPagamentoEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "configuracaoPagamento", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ConfiguracaoAplicacaoEntity> configuracaoAplicacoes = new HashSet<>();
-
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -103,5 +103,18 @@ public class ConfiguracaoPagamentoEntity {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ConfiguracaoPagamentoEntity that = (ConfiguracaoPagamentoEntity) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

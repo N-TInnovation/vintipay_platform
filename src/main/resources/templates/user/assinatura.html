@@ -213,7 +213,7 @@
                                            th:text="${pagamento.status.name()}">Status</small>
                                 </div>
                                 <p class="mb-1" th:if="${pagamento.intencaoPagamento != null}" 
-                                   th:text="${'R$ ' + pagamento.intencaoPagamento.amount}">Valor</p>
+                                   th:text="${pagamento.intencaoPagamento.moeda + ' ' + pagamento.intencaoPagamento.valor}">Valor</p>
                                 <p class="mb-1" th:unless="${pagamento.intencaoPagamento != null}">Valor não disponível</p>
                                 <small class="text-muted" th:text="${#temporals.format(pagamento.createdAt, 'dd/MM/yyyy')}">Data</small>
                             </a>
@@ -252,7 +252,7 @@
                 <div class="card plan-card">
                     <div class="plan-header">
                         <h5 class="text-white mb-3" th:text="${plano.nome}">Plano Profissional</h5>
-                        <p class="plan-price mb-0" th:text="${'R$ ' + plano.preco}">R$ 99,90</p>
+                        <p class="plan-price mb-0" th:text="${'ECV ' + plano.preco}">ECV 99,90</p>
                         <p class="plan-period">por mês</p>
                     </div>
                     <div class="plan-features">

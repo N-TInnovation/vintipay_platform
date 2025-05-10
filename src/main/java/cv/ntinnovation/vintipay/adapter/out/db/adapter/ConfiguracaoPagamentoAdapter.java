@@ -82,7 +82,8 @@ public class ConfiguracaoPagamentoAdapter implements
 
     @Override
     public Optional<ConfiguracaoPagamento> buscarPorUsuarioId(Long usuarioId) {
-        return Optional.empty();
+        List<ConfiguracaoPagamento> configuracoes = buscarAtivasPorUsuario(usuarioId);
+        return configuracoes.isEmpty() ? Optional.empty() : Optional.of(configuracoes.get(0));
     }
 
     @Override

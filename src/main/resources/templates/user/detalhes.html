@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{user/layout/base :: html(
+        title='Detalhes do Pagamento',
+        activeMenu='pagamentos',
+        pageTitle='Detalhes do Pagamento',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <style>
+            .status-badge {
+                font-size: 1rem;
+                padding: 0.5rem 1rem;
+            }
+            .status-PENDENTE {
+                background-color: #ffc107;
+            }
+            .status-PAGO {
+                background-color: #198754;
+                color: white;
+            }
+            .status-CANCELADO {
+                background-color: #dc3545;
+                color: white;
+            }
+            .status-ERRO {
+                background-color: #6c757d;
+                color: white;
+            }
+            .pan-mascarado {
+                font-family: monospace;
+            }
+            .timeline {
+                position: relative;
+                padding-left: 30px;
+            }
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: 10px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: #e9ecef;
+            }
+            .timeline-item {
+                position: relative;
+                margin-bottom: 1.5rem;
+            }
+            .timeline-item::before {
+                content: '';
+                position: absolute;
+                left: -30px;
+                top: 0;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background: #3b82f6;
+                border: 2px solid white;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <!-- Botões de ação -->
+        <div class="d-flex justify-content-end mb-4">
+            <a th:href="@{/user/pagamentos}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+            
+            <a th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PAGO}"
+                th:href="@{'/recibo/' + ${pagamento.reference}}" 
+                class="btn btn-primary">
+                <i class="fas fa-receipt me-2"></i> Ver Recibo
+            </a>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <!-- Informações do Pagamento -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Informações do Pagamento</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 class="mb-0" th:text="${#numbers.formatDecimal(pagamento.intencaoPagamento.valor, 1, 2) + ' ' + (pagamento.intencaoPagamento.moeda == '132' ? 'CVE' : pagamento.intencaoPagamento.moeda)}">99,90 CVE</h2>
+                            <span th:class="'badge status-badge status-' + ${pagamento.status}" th:text="${pagamento.status}">PENDENTE</span>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th style="width: 40%">Referência:</th>
+                                        <td th:text="${pagamento.reference}">REF123456</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Data:</th>
+                                        <td th:text="${#temporals.format(pagamento.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2025 12:30</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Status:</th>
+                                        <td>
+                                            <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PAGO}" 
+                                                  class="status-badge status-PAGO">Pago</span>
+                                            <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PENDENTE}" 
+                                                  class="status-badge status-PENDENTE">Pendente</span>
+                                            <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).CANCELADO}" 
+                                                  class="status-badge status-CANCELADO">Cancelado</span>
+                                            <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).ERRO}" 
+                                                  class="status-badge status-ERRO">Erro</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th style="width: 40%">Moeda:</th>
+                                        <td th:text="${pagamento.intencaoPagamento.moeda == '132' ? 'CVE' : pagamento.intencaoPagamento.moeda}">CVE</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Valor:</th>
+                                        <td th:text="${#numbers.formatDecimal(pagamento.intencaoPagamento.valor, 1, 2) + ' ' + (pagamento.intencaoPagamento.moeda == '132' ? 'CVE' : pagamento.intencaoPagamento.moeda)}">99,90 CVE</td>
+                                    </tr>
+                                    <tr th:if="${pagamento.panMascarado != null}">
+                                        <th>Cartão:</th>
+                                        <td class="pan-mascarado" th:text="${pagamento.panMascarado}">**** **** **** 1234</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${pagamento.mensagem}" class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> <span th:text="${pagamento.mensagem}">Mensagem do pagamento</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Detalhes da Intenção de Pagamento -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Detalhes do Item</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tr>
+                                <th style="width: 30%">Tipo:</th>
+                                <td>Pagamento</td>
+                            </tr>
+                            <tr>
+                                <th>Descrição:</th>
+                                <td th:text="${pagamento.intencaoPagamento.descricao}">Descrição do pagamento</td>
+                            </tr>
+                            <tr>
+                                <th>Referência do Comerciante:</th>
+                                <td th:text="${pagamento.intencaoPagamento.merchantRef != null ? pagamento.intencaoPagamento.merchantRef : '-'}">REF123456</td>
+                            </tr>
+                            <tr>
+                                <th>Data de Criação:</th>
+                                <td th:text="${pagamento.intencaoPagamento.dataCriacao != null ? #temporals.format(pagamento.intencaoPagamento.dataCriacao, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2025 12:00</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Informações do Comprador -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Informações do Comprador</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tr>
+                                <th style="width: 30%">Nome:</th>
+                                <td th:text="${pagamento.intencaoPagamento.contaPagamento != null && pagamento.intencaoPagamento.contaPagamento.name != null ? pagamento.intencaoPagamento.contaPagamento.name : '-'}">Nome do Cliente</td>
+                            </tr>
+                            <tr>
+                                <th style="width: 30%">Email:</th>
+                                <td th:text="${pagamento.intencaoPagamento.contaPagamento != null && pagamento.intencaoPagamento.contaPagamento.email != null ? pagamento.intencaoPagamento.contaPagamento.email : pagamento.intencaoPagamento.contaPagamentoEmail != null ? pagamento.intencaoPagamento.contaPagamentoEmail : '-'}">email@exemplo.com</td>
+                            </tr>
+                            <tr>
+                                <th>Telefone:</th>
+                                <td th:text="${pagamento.intencaoPagamento.contaPagamento != null && pagamento.intencaoPagamento.contaPagamento.mobilePhone != null ? pagamento.intencaoPagamento.contaPagamento.mobilePhone : '-'}">+238 999 9999</td>
+                            </tr>
+                            <tr>
+                                <th>Endereço:</th>
+                                <td>
+                                    <!-- Endereço de faturamento da IntencaoPagamento -->
+                                    <div th:if="${pagamento.intencaoPagamento.contaPagamentoBillAddrLine1 != null}">
+                                        <div th:text="${pagamento.intencaoPagamento.contaPagamentoBillAddrLine1}">Rua Principal, 123</div>
+                                        <div th:if="${pagamento.intencaoPagamento.contaPagamentoBillAddrCity != null}" th:text="${pagamento.intencaoPagamento.contaPagamentoBillAddrCity}">Cidade</div>
+                                        <div th:if="${pagamento.intencaoPagamento.contaPagamentoBillAddrPostCode != null}" th:text="${pagamento.intencaoPagamento.contaPagamentoBillAddrPostCode}">CEP</div>
+                                        <div th:if="${pagamento.intencaoPagamento.contaPagamentoBillAddrCountry != null}" th:text="${pagamento.intencaoPagamento.contaPagamentoBillAddrCountry}">País</div>
+                                    </div>
+                                    <!-- Endereço de faturamento da ContaPagamento -->
+                                    <div th:if="${pagamento.intencaoPagamento.contaPagamento != null && pagamento.intencaoPagamento.contaPagamento.billAddrLine1 != null && pagamento.intencaoPagamento.contaPagamentoBillAddrLine1 == null}">
+                                        <div th:text="${pagamento.intencaoPagamento.contaPagamento.billAddrLine1}">Rua Principal, 123</div>
+                                        <div th:if="${pagamento.intencaoPagamento.contaPagamento.billAddrLine2 != null}" th:text="${pagamento.intencaoPagamento.contaPagamento.billAddrLine2}">Complemento</div>
+                                        <div th:if="${pagamento.intencaoPagamento.contaPagamento.billAddrCity != null}" 
+                                             th:text="${pagamento.intencaoPagamento.contaPagamento.billAddrCity + 
+                                                     (pagamento.intencaoPagamento.contaPagamento.billAddrState != null ? ', ' + pagamento.intencaoPagamento.contaPagamento.billAddrState : '') + 
+                                                     (pagamento.intencaoPagamento.contaPagamento.billAddrPostCode != null ? ' - ' + pagamento.intencaoPagamento.contaPagamento.billAddrPostCode : '')}">
+                                            Praia, Santiago - 7600
+                                        </div>
+                                        <div th:if="${pagamento.intencaoPagamento.contaPagamento.billAddrCountry != null}" th:text="${pagamento.intencaoPagamento.contaPagamento.billAddrCountry}">Cabo Verde</div>
+                                    </div>
+                                    <span th:unless="${(pagamento.intencaoPagamento.contaPagamento != null && pagamento.intencaoPagamento.contaPagamento.billAddrLine1 != null) || pagamento.intencaoPagamento.contaPagamentoBillAddrLine1 != null}">-</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-md-4">
+                <!-- Status do Pagamento -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Status do Pagamento</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <h6 class="mb-1 fw-bold">Pagamento Iniciado</h6>
+                                <p class="text-muted mb-0 small" th:text="${#temporals.format(pagamento.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2025 12:30</p>
+                            </div>
+                            
+                            <!-- Status para Pagamentos Pagos -->
+                            <div class="timeline-item" th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PAGO}">
+                                <h6 class="mb-1 fw-bold text-success">Pagamento Aprovado</h6>
+                                <p class="text-muted mb-0 small" th:text="${#temporals.format(pagamento.createdAt.plusMinutes(1), 'dd/MM/yyyy HH:mm')}">01/01/2025 12:31</p>
+                                <p class="text-success small mb-0">Seu pagamento foi processado com sucesso!</p>
+                            </div>
+                            
+                            <!-- Status para Pagamentos Pendentes -->
+                            <div class="timeline-item" th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PENDENTE}">
+                                <h6 class="mb-1 fw-bold text-warning">Pagamento Pendente</h6>
+                                <p class="text-warning small mb-0">Seu pagamento está sendo processado.</p>
+                            </div>
+                            
+                            <!-- Status para Pagamentos Cancelados -->
+                            <div class="timeline-item" th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).CANCELADO}">
+                                <h6 class="mb-1 fw-bold text-danger">Pagamento Cancelado</h6>
+                                <p class="text-muted mb-0 small" th:text="${#temporals.format(pagamento.createdAt.plusMinutes(5), 'dd/MM/yyyy HH:mm')}">01/01/2025 12:35</p>
+                                <p class="text-danger small mb-0">Seu pagamento foi cancelado.</p>
+                            </div>
+                            
+                            <!-- Status para Pagamentos com Erro -->
+                            <div class="timeline-item" th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).ERRO}">
+                                <h6 class="mb-1 fw-bold text-danger">Erro no Pagamento</h6>
+                                <p class="text-muted mb-0 small" th:text="${#temporals.format(pagamento.createdAt.plusMinutes(1), 'dd/MM/yyyy HH:mm')}">01/01/2025 12:31</p>
+                                <p class="text-danger small mb-0" th:text="${pagamento.mensagem ?: 'Ocorreu um erro ao processar seu pagamento.'}">Erro no processamento.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Suporte -->
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">Precisa de Ajuda?</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Se você tiver dúvidas sobre este pagamento, entre em contato com nosso suporte.</p>
+                        <a href="/user/suporte" class="btn btn-outline-primary d-block">
+                            <i class="fas fa-headset me-2"></i> Contatar Suporte
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- JavaScript específico da página, se necessário -->
+    </additionalJs>
+</body>
+</html>

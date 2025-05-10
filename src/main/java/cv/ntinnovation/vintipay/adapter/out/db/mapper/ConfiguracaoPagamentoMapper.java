@@ -1,10 +1,17 @@
 package cv.ntinnovation.vintipay.adapter.out.db.mapper;
 
+import cv.ntinnovation.vintipay.adapter.out.db.entity.ConfiguracaoIntegracoesEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.entity.ConfiguracaoPagamentoEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.entity.UsuarioEntity;
+import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoIntegracoes;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.IntegracaoEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +40,7 @@ public class ConfiguracaoPagamentoMapper {
                 .urlLoja(domain.getUrlLoja() != null ? domain.getUrlLoja() : "")
                 .telefone(domain.getTelefone())
                 .email(domain.getEmail())
-                .ambiente(domain.getAmbiente() != null ? domain.getAmbiente() : "DESENVOLVIMENTO")
+                .ambiente(domain.getAmbiente().getAmbiente())
                 .webhookUrl(domain.getWebhookUrl())
                 .webhookSecret(domain.getWebhookSecret())
                 .ativo(domain.getAtivo() != null ? domain.getAtivo() : true)
@@ -54,7 +61,7 @@ public class ConfiguracaoPagamentoMapper {
             usuarioEntity.setId(domain.getUsuarioId());
             entity.setUsuario(usuarioEntity);
         }
-        
+
         return entity;
     }
 
@@ -77,7 +84,7 @@ public class ConfiguracaoPagamentoMapper {
                 .urlLoja(entity.getUrlLoja())
                 .telefone(entity.getTelefone())
                 .email(entity.getEmail())
-                .ambiente(entity.getAmbiente())
+                .ambiente(AmbienteEnum.getAmbiente(entity.getAmbiente()))
                 .webhookUrl(entity.getWebhookUrl())
                 .webhookSecret(entity.getWebhookSecret())
                 .ativo(entity.getAtivo())

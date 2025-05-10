@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.adapter.in.web.dto;
 
+import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +25,7 @@ public class ConfiguracaoPagamentoResponse {
     private String urlLoja;
     private String telefone;
     private String email;
-    private String ambiente;
+    private AmbienteEnum ambiente;
     private String webhookUrl;
     private String webhookSecret;
     private Boolean ativo;

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{user/layout/base :: html(
+        title='Integrações',
+        activeMenu='integracoes',
+        pageTitle='Integrações',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <title>Integrações</title>
+    <additionalCss>
+        <!-- CSS adicional específico desta página -->
+        <style>
+            /* Reset básico para garantir visibilidade */
+            * {
+                box-sizing: border-box !important;
+            }
+            
+            body, div, span, h1, h2, h3, h4, h5, h6, p, a, img, ul, ol, li, form, button, input {
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            /* Correções gerais de cores para evitar texto branco em fundo branco */
+            .card {
+                color: #333 !important;
+            }
+            
+            .card-body {
+                color: #333 !important;
+            }
+            
+            h1, h2, h3, h4, h5, h6 {
+                color: #333 !important;
+            }
+            
+            p {
+                color: #555 !important;
+            }
+            
+            /* Exceções específicas */
+            .card-header-white h5, 
+            .card-header-white p, 
+            .bg-primary h5, 
+            .bg-primary p,
+            .bg-primary .text-white,
+            [style*="background-color: #4285F4"] h5,
+            [style*="background-color: #4285F4"] p {
+                color: #ffffff !important;
+            }
+            
+            /* Estilos específicos para o layout de integrações */
+            .empty-state-container {
+                text-align: center;
+                padding: 3rem 2rem;
+                background-color: #f8f9fa;
+                border-radius: 1rem;
+                margin-bottom: 2rem;
+                border: 1px dashed #dee2e6;
+            }
+            
+            .empty-state-icon {
+                font-size: 3rem;
+                color: #4285F4;
+                margin-bottom: 1.5rem;
+                display: inline-block;
+            }
+            
+            .benefits-container {
+                margin-top: 2rem;
+            }
+            
+            .benefit-card {
+                background-color: #fff;
+                border-radius: 0.75rem;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                padding: 1.25rem;
+                margin-bottom: 1rem;
+                border-left: 4px solid #4285F4;
+                display: flex;
+                align-items: center;
+            }
+            
+            .benefit-icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                background-color: rgba(66, 133, 244, 0.1);
+                border-radius: 50%;
+                margin-right: 1rem;
+                color: #4285F4;
+            }
+            
+            .benefit-content {
+                flex: 1;
+            }
+            
+            .btn-add-integration {
+                position: fixed;
+                right: 2rem;
+                top: 7rem;
+                z-index: 100;
+            }
+            
+            /* Estilo para os cards de integração */
+            .integration-card {
+                transition: all 0.3s;
+                border-radius: 0.75rem;
+                overflow: hidden;
+                border: none;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                display: flex !important;
+                flex-direction: column !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                margin-bottom: 1.5rem;
+            }
+            
+            .card-header {
+                background-color: #f8f9fa;
+                border-bottom: 1px solid rgba(0,0,0,0.05);
+                padding: 1rem 1.25rem;
+            }
+            
+            /* Estilos para o grid de integrações disponíveis */
+            .integration-grid {
+                display: flex;
+                flex-wrap: wrap;
+                margin: 0 -0.75rem;
+            }
+            
+            .integration-grid-item {
+                flex: 0 0 33.333333%;
+                max-width: 33.333333%;
+                padding: 0 0.75rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            @media (max-width: 992px) {
+                .integration-grid-item {
+                    flex: 0 0 50%;
+                    max-width: 50%;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .integration-grid-item {
+                    flex: 0 0 100%;
+                    max-width: 100%;
+                }
+            }
+            
+            /* Classes de utilidade */
+            .text-primary { color: #4285F4 !important; }
+            .text-secondary { color: #6c757d !important; }
+            .text-success { color: #28a745 !important; }
+            .text-info { color: #17a2b8 !important; }
+            .text-warning { color: #ffc107 !important; }
+            .text-danger { color: #dc3545 !important; }
+            .text-light { color: #f8f9fa !important; }
+            .text-dark { color: #343a40 !important; }
+            
+            .bg-primary { background-color: #4285F4 !important; }
+            .bg-light { background-color: #f8f9fa !important; }
+            .bg-white { background-color: #fff !important; }
+            
+            .rounded { border-radius: 0.25rem !important; }
+            .rounded-lg { border-radius: 0.5rem !important; }
+            .rounded-circle { border-radius: 50% !important; }
+            
+            .shadow-sm { box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important; }
+            .shadow { box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important; }
+            
+            .py-2 { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+            .py-3 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+            .py-4 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+            .py-5 { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+            
+            .px-2 { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+            .px-3 { padding-left: 1rem !important; padding-right: 1rem !important; }
+            .px-4 { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
+            .px-5 { padding-left: 3rem !important; padding-right: 3rem !important; }
+            
+            .my-2 { margin-top: 0.5rem !important; margin-bottom: 0.5rem !important; }
+            .my-3 { margin-top: 1rem !important; margin-bottom: 1rem !important; }
+            .my-4 { margin-top: 1.5rem !important; margin-bottom: 1.5rem !important; }
+            .my-5 { margin-top: 3rem !important; margin-bottom: 3rem !important; }
+            
+            .mx-2 { margin-left: 0.5rem !important; margin-right: 0.5rem !important; }
+            .mx-3 { margin-left: 1rem !important; margin-right: 1rem !important; }
+            .mx-4 { margin-left: 1.5rem !important; margin-right: 1.5rem !important; }
+            .mx-auto { margin-left: auto !important; margin-right: auto !important; }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <!-- Cabeçalho com estatísticas -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card border-0 shadow-sm" style="background-color: #4285F4; display: block !important; visibility: visible !important;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box rounded-circle bg-white p-3 me-3 shadow-sm">
+                                <i class="fas fa-plug text-primary opacity-90"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1 fw-bold" style="color: #ffffff !important;">Integrações</h5>
+                                <p class="mb-0" style="color: #ffffff !important;">Conecte sua plataforma de pagamentos a aplicações externas para automatizar seus processos de negócio.</p>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <span class="badge bg-white text-primary me-2" style="font-weight: 600;">VENDUS</span>
+                            <span class="badge bg-white text-primary me-2" style="font-weight: 600;">FATURAÇÃO</span>
+                            <span class="badge bg-white text-primary" style="font-weight: 600;">AUTOMAÇÃO</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box rounded bg-primary bg-opacity-10 p-3 me-3">
+                                <i class="fas fa-cogs text-primary"></i>
+                            </div>
+                            <h6 class="mb-0">Status da Plataforma</h6>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <span class="badge bg-success rounded-pill">Ativo</span>
+                            </div>
+                            <span class="text-muted small">Todos os serviços operacionais</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Botão Adicionar Nova Integração (fixo) -->
+        <a th:href="@{/user/integracoes/novo}" class="btn btn-primary btn-add-integration shadow-sm">
+            <i class="fas fa-plus-circle me-2"></i> Nova Integração
+        </a>
+
+        <!-- Mensagens de feedback -->
+        <div th:if="${sucesso}" class="card border-0 shadow-sm mb-4 border-start border-success border-4 position-relative overflow-hidden" style="display: block !important; visibility: visible !important; opacity: 1 !important;">
+            <div class="bg-success position-absolute" style="width: 6px; top: 0; bottom: 0; left: 0;"></div>
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-success bg-opacity-10 p-2 me-3">
+                        <i class="fas fa-check text-success"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-semibold">Operação concluída com sucesso</h6>
+                        <p class="text-muted mb-0 small" th:text="${sucesso}">Operação realizada com sucesso</p>
+                    </div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estado vazio (quando não há integrações) -->
+        <div th:if="${#lists.isEmpty(integracoes)}" class="empty-state-container">
+            <div class="empty-state-icon">
+                <i class="fas fa-plug"></i>
+            </div>
+            <h3 class="mb-3">Nenhuma integração configurada</h3>
+            <p class="text-muted mb-4">Conecte sua plataforma com aplicações externas para expandir suas funcionalidades e automatizar processos.</p>
+            
+            <a th:href="@{/user/integracoes/novo}" class="btn btn-primary px-4 py-2">
+                <i class="fas fa-plus-circle me-2"></i> Adicionar Integração
+            </a>
+            
+            <div class="benefits-container">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="benefit-card">
+                            <div class="benefit-icon">
+                                <i class="fas fa-file-invoice"></i>
+                            </div>
+                            <div class="benefit-content">
+                                <h6 class="mb-1">Faturação Automática</h6>
+                                <p class="mb-0 small text-muted">Gere documentos fiscais sem trabalho manual</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="benefit-card">
+                            <div class="benefit-icon">
+                                <i class="fas fa-sync-alt"></i>
+                            </div>
+                            <div class="benefit-content">
+                                <h6 class="mb-1">Sincronização</h6>
+                                <p class="mb-0 small text-muted">Mantenha seus sistemas atualizados</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="benefit-card">
+                            <div class="benefit-icon">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div class="benefit-content">
+                                <h6 class="mb-1">Gestão Unificada</h6>
+                                <p class="mb-0 small text-muted">Controle tudo em um só local</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lista de integrações (quando existirem) -->
+        <div th:if="${not #lists.isEmpty(integracoes)}" class="row">
+            <div class="col-md-6 mb-4" th:each="integracao : ${integracoes}">
+                <div class="card h-100">
+                    <div class="card-header d-flex align-items-center" style="background-color: #4285F4;">
+                        <!-- Logo baseado no tipo de integração, não no campo logoUrl -->
+                        <th:block th:if="${integracao.integracaoEnum != null}">
+                            <th:block th:switch="${integracao.integracaoEnum.name}">
+                                <img th:case="'vendus'" 
+                                     src="https://code-hack.vendus.cv/m-img/logo_cegid_vendus.svg" 
+                                     alt="Logo Vendus" 
+                                     class="mr-2" 
+                                     style="height: 30px; margin-right: 10px; background-color: white; padding: 2px; border-radius: 4px;">
+                                <!-- Outros casos podem ser adicionados aqui para futuros tipos de integração -->
+                            </th:block>
+                        </th:block>
+                        <div>
+                            <h5 class="card-title mb-0 text-white" th:text="${integracao.description}">Nome da Integração</h5>
+                            <p class="card-subtitle mb-0 text-white" th:text="${integracao.integracaoEnum.name}">Tipo de Integração</p>
+                        </div>
+                        <div class="ms-auto">
+                            <span class="badge bg-light text-dark" th:text="${integracao.isActive ? 'Ativo' : 'Inativo'}">Status</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <p class="mb-1 text-muted">Última sincronização:</p>
+                                <p class="mb-0 fw-bold" th:text="${integracao.updatedAt != null ? #temporals.format(integracao.updatedAt, 'dd/MM/yyyy HH:mm') : 'Nunca'}">Data</p>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1 text-muted">Criado em:</p>
+                                <p class="mb-0 fw-bold" th:text="${#temporals.format(integracao.createdAt, 'dd/MM/yyyy')}">Data</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Badges informativos -->
+                        <div class="mb-3">
+                            <span class="badge bg-primary me-1">VENDUS</span>
+                            <span class="badge bg-secondary me-1">FATURAÇÃO</span>
+                            <span class="badge bg-info text-dark">AUTOMAÇÃO</span>
+                        </div>
+                        
+                        <!-- Botões de ação -->
+                        <div class="d-flex justify-content-end">
+                            <a th:href="@{'/user/integracoes/alternar-status/' + ${integracao.id}}" class="btn btn-sm btn-outline-secondary me-2">
+                                <i class="fas" th:classappend="${integracao.isActive ? 'fa-toggle-on' : 'fa-toggle-off'}"></i>
+                                <span th:text="${integracao.isActive ? 'Desativar' : 'Ativar'}">Alternar</span>
+                            </a>
+                            <a th:href="@{'/user/integracoes/editar/' + ${integracao.id}}" class="btn btn-sm btn-outline-primary me-2">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <a th:href="@{'/user/integracoes/excluir/' + ${integracao.id}}" 
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Tem certeza que deseja excluir esta integração? Esta ação não pode ser desfeita.');">
+                                <i class="fas fa-trash-alt"></i> Excluir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tipos de integrações disponíveis -->
+        <div class="row mt-4" style="display: flex !important; visibility: visible !important; opacity: 1 !important;">
+            <div class="col-12" style="display: block !important; visibility: visible !important; opacity: 1 !important;">
+                <div class="card" style="display: block !important; visibility: visible !important; opacity: 1 !important;">
+                    <div class="card-header">
+                        <h5 class="mb-0">Integrações Disponíveis</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" style="display: flex !important; visibility: visible !important; opacity: 1 !important;">
+                            <div class="col-md-4 mb-3" th:each="tipo : ${tiposIntegracao}" style="display: block !important; visibility: visible !important; opacity: 1 !important;">
+                                <div class="card h-100" style="display: block !important; visibility: visible !important; opacity: 1 !important;">
+                                    <div class="card-body">
+                                        <div class="text-center mb-3" th:if="${tipo.name == 'vendus'}">
+                                            <img src="https://www.vendus.cv/m-img/logo_cegid_vendus.svg" alt="Logo Vendus" style="max-height: 60px; max-width: 100%; display: inline-block !important;" />
+                                        </div>
+                                        <h5 class="card-title" th:text="${tipo.name}">Nome da Integração</h5>
+                                        <p class="card-text">
+                                            <span th:if="${tipo.name == 'vendus'}">
+                                                Integre com o ERP VENDUS para gerenciar faturamento e emissão de recibos automaticamente.
+                                            </span>
+                                        </p>
+                                        <a th:href="@{/user/integracoes/novo?tipoI={tipoI}(tipoI=${tipo.name})}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-plus-circle me-1"></i> Adicionar
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalScripts>
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                // Adiciona efeito de hover aos cards
+                const integrationCards = document.querySelectorAll('.integration-card');
+                integrationCards.forEach(card => {
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-5px)';
+                        this.style.boxShadow = '0 10px 20px rgba(0,0,0,0.1)';
+                    });
+                    
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0)';
+                        this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)';
+                    });
+                });
+                
+                // Auto-esconder alertas após 5 segundos
+                const alerts = document.querySelectorAll('.alert, .card.border-success, .card.border-danger');
+                alerts.forEach(alert => {
+                    setTimeout(() => {
+                        const closeButton = alert.querySelector('.btn-close');
+                        if (closeButton) {
+                            closeButton.click();
+                        }
+                    }, 5000);
+                });
+            });
+        </script>
+    </additionalScripts>
+</body>
+</html>

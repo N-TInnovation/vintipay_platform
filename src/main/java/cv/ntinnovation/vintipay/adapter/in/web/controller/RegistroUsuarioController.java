@@ -99,11 +99,30 @@ public class RegistroUsuarioController {
             
         } catch (Exception e) {
             log.error("Erro ao registrar usuário", e);
-            model.addAttribute("erro", "Erro ao registrar usuário: " + e.getMessage());
+            
+            // Verificar se o erro é relacionado a um usuário duplicado
+            String errorMessage = e.getMessage();
+            if (errorMessage != null && (
+                    errorMessage.contains("Duplicate entry") || 
+                    errorMessage.contains("duplicate key") || 
+                    errorMessage.contains("usuarios.username"))) {
+                
+                // Erro específico para username duplicado
+                model.addAttribute("erroUsername", "Este nome de usuário já está em uso. Por favor, escolha outro.");
+            } else if (errorMessage != null && errorMessage.contains("email")) {
+                // Erro específico para email duplicado
+                model.addAttribute("erroEmail", "Este email já está cadastrado no sistema.");
+            } else {
+                // Erro genérico
+                model.addAttribute("erro", "Erro ao registrar usuário: " + e.getMessage());
+            }
             
             // Recarregar os planos disponíveis em caso de erro
             List<Plano> planosDisponiveis = gerenciaPlanoUseCase.listarTodosPlanos();
             model.addAttribute("planosDisponiveis", planosDisponiveis);
+            
+            // Preservar os dados do formulário
+            model.addAttribute("registroRequest", request);
             
             // Usar o novo template com formato de wizard
             return "registro-wizard";

@@ -54,7 +54,7 @@ class ContaPagamentoControllerTest {
         ContaPagamento contaPagamento = createSampleContaPagamento();
         
         when(contaPagamentoWebMapper.toContaPagamento(any(ContaPagamentoRequest.class))).thenReturn(contaPagamento);
-        when(criaContaPagamentoUseCase.criarOuBuscarPorEmail(
+        when(criaContaPagamentoUseCase.criarOuBuscarPorEmail( anyString(),
                 anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString()
         )).thenReturn(contaPagamento);
         

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Data
-public class ConfiguracaoAplicacao {
+public class ConfiguracaoIntegracoes {
     private Long id;
     private boolean isActive;
     private IntegracaoEnum integracaoEnum;
@@ -22,6 +22,7 @@ public class ConfiguracaoAplicacao {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private ConfiguracaoPagamento configuracaoPagamento;
+    private Usuario usuario;
 
     public void setIntegracaoEnum(IntegracaoEnum integracaoEnum) {
         this.integracaoEnum = integracaoEnum;

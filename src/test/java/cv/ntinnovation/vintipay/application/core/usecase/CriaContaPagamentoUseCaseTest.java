@@ -61,7 +61,7 @@ class CriaContaPagamentoUseCaseTest {
         });
 
         // Act
-        ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail(
+        ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail("",
                 email, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
 
         // Assert
@@ -86,7 +86,7 @@ class CriaContaPagamentoUseCaseTest {
         when(buscaContaPagamentoPorEmail.buscarPorEmail(email)).thenReturn(contaExistente);
 
         // Act
-        ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail(
+        ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail("",
                 email, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
 
         // Assert
@@ -110,7 +110,7 @@ class CriaContaPagamentoUseCaseTest {
         when(salvaContaPagamento.salvar(any(ContaPagamento.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail(
+        ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail( "",
                 email, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
 
         // Assert
@@ -129,7 +129,7 @@ class CriaContaPagamentoUseCaseTest {
     void criarOuBuscarPorEmail_QuandoEmailNulo_DeveLancarExcecao() {
         // Act & Assert
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            criaContaPagamentoUseCase.criarOuBuscarPorEmail(
+            criaContaPagamentoUseCase.criarOuBuscarPorEmail( "",
                     null, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
         });
         

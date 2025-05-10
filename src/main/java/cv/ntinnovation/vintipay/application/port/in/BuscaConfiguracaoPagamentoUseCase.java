@@ -10,4 +10,5 @@ public interface BuscaConfiguracaoPagamentoUseCase {
     ConfiguracaoPagamento buscarPorPosId(String posId);
     List<ConfiguracaoPagamento> buscarTodas();
     Optional<ConfiguracaoPagamento> buscarPorUsuarioId(Long usuarioId);
+    List<ConfiguracaoPagamento> buscarPorUsuarioIdLista(Long usuarioId);
 }

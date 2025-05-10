@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.adapter.in.web.dto;
 
+import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -44,7 +45,7 @@ public class ConfiguracaoPagamentoRequest {
     
     private Long usuarioId;
     
-    private String ambiente;
+    private AmbienteEnum ambiente;
     
     private String webhookUrl;
     

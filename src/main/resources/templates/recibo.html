@@ -160,7 +160,7 @@
             <div class="info-row">
                 <div class="info-label">Valor:</div>
                 <div class="info-value">
-                    <strong th:text="${#numbers.formatDecimal(pagamento.intencaoPagamento.amount, 1, 2) + ' ' + pagamento.intencaoPagamento.currency}">100.00 CVE</strong>
+                    <strong th:text="${#numbers.formatDecimal(pagamento.intencaoPagamento.valor, 1, 2) + ' ' + (pagamento.intencaoPagamento.moeda == '132' ? 'CVE' : pagamento.intencaoPagamento.moeda)}">100.00 CVE</strong>
                 </div>
             </div>
             <div class="info-row">

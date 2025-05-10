@@ -221,6 +221,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" th:classappend="${activeMenu == 'integracoes' ? 'active' : ''}" href="/user/integracoes">
+                    <i class="fas fa-plug"></i> Integrações
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" th:classappend="${activeMenu == 'produtos' ? 'active' : ''}" href="/user/produtos">
                     <i class="fas fa-box-open"></i> Meus Produtos
                 </a>

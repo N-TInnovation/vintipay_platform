@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{user/layout/base :: html(
+        title=${integracao.id != null ? 'Editar Integração' : 'Nova Integração'},
+        activeMenu='integracoes',
+        pageTitle=${integracao.id != null ? 'Editar Integração' : 'Nova Integração'},
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <title>Formulário de Integração</title>
+    <additionalCss>
+        <!-- CSS adicional específico desta página -->
+        <style>
+            .form-card {
+                border-radius: 10px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            }
+            .form-label {
+                font-weight: 500;
+            }
+            .form-label.required-field:after {
+                content: " *";
+                color: #dc3545;
+            }
+            .page-header {
+                margin-bottom: 2rem;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card form-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-plug me-2"></i>
+                            <span th:text="${integracao.id != null ? 'Editar Integração' : 'Nova Integração'}">Formulário de Integração</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Formulário de integração -->
+                        <form th:action="@{/user/integracoes/salvar}" method="post" class="needs-validation" novalidate>
+                            <input type="hidden" name="id" th:value="${integracao.id}" />
+                            
+                            <div class="mb-4">
+                                <label for="integracaoEnum" class="form-label required-field">Tipo de Integração</label>
+                                <select class="form-select" id="integracaoEnum" name="integracaoEnum" required onchange="handleIntegracaoChange(this)">
+                                    <option value="">Selecione o tipo de integração</option>
+                                    <option th:each="tipo : ${tiposIntegracao}" 
+                                            th:value="${tipo}" 
+                                            th:text="${tipo}" 
+                                            th:selected="${integracao.integracaoEnum == tipo}"></option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Por favor, selecione um tipo de integração.
+                                </div>
+                                <small class="text-muted">Tipo de sistema externo para integração.</small>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="configuracaoPagamentoId" class="form-label required-field">Configuração de Pagamento</label>
+                                <select class="form-select" id="configuracaoPagamentoId" name="configuracaoPagamentoId" required>
+                                    <option value="">Selecione a configuração de pagamento</option>
+                                    <option th:each="config : ${configuracoesPagamento}" 
+                                            th:value="${config.id}" 
+                                            th:text="${config.nomeLoja + ' - ' + config.posId}"
+                                            th:selected="${integracao.configuracaoPagamento != null && integracao.configuracaoPagamento.id == config.id}"></option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Por favor, selecione uma configuração de pagamento.
+                                </div>
+                                <small class="text-muted">Configuração de pagamento à qual esta integração será associada.</small>
+                            </div>
+                            
+                            <!-- Alertas -->
+                            <div th:if="${sucesso}" class="alert alert-success" role="alert" th:text="${sucesso}"></div>
+                            <div th:if="${erro}" class="alert alert-danger" role="alert" th:text="${erro}"></div>
+                            <div th:if="${aviso}" class="alert alert-warning" role="alert" th:text="${aviso}"></div>
+                            
+                            <div class="mb-4">
+                                <label for="description" class="form-label required-field">Descrição</label>
+                                <input type="text" class="form-control" id="description" name="description" 
+                                       th:value="${integracao.description}" 
+                                       placeholder="Descreva esta integração" required>
+                                <div class="invalid-feedback">
+                                    Por favor, forneça uma descrição para a integração.
+                                </div>
+                                <small class="text-muted">Um nome ou descrição para identificar esta configuração.</small>
+                            </div>
+                            
+                            <!-- Campos ocultos para valores padrão -->
+                            <input type="hidden" id="version" name="version" th:value="${integracao.version}">
+                            <input type="hidden" id="baseUrl" name="baseUrl" th:value="${integracao.baseUrl}">
+                            
+                            <div class="mb-4">
+                                <label for="apiKey" class="form-label required-field">Chave da API (API Key)</label>
+                                <input type="text" class="form-control" id="apiKey" name="apiKey" 
+                                       th:value="${integracao.apiKey}" 
+                                       placeholder="Insira sua chave de API" required>
+                                <div class="invalid-feedback">
+                                    Por favor, informe a chave da API.
+                                </div>
+                                <small class="text-muted">Chave de autenticação fornecida pelo serviço externo.</small>
+                            </div>
+                            
+                            <!-- Campo API Secret - escondido para Vendus -->
+                            <div class="mb-4" id="apiSecretContainer">
+                                <label for="apiSecret" class="form-label required-field">Segredo da API (API Secret)</label>
+                                <input type="password" class="form-control" id="apiSecret" name="apiSecret" 
+                                       th:value="${integracao.apiSecret}" 
+                                       placeholder="Insira o segredo da API" required>
+                                <div class="invalid-feedback">
+                                    Por favor, informe o segredo da API.
+                                </div>
+                                <small class="text-muted">Segredo ou senha para autenticação na API externa.</small>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-flex justify-content-end">
+                                <a th:href="@{/user/integracoes}" class="btn btn-secondary">Cancelar</a>
+                                <button class="btn btn-primary" type="submit">Salvar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Instruções de Integração</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Para configurar sua integração, siga estas etapas:</p>
+                        <ol>
+                            <li>Selecione o tipo de aplicação que deseja integrar.</li>
+                            <li>Obtenha as credenciais de API necessárias do serviço que deseja conectar.</li>
+                            <li>Preencha todos os campos obrigatórios com as informações corretas.</li>
+                            <li>Clique em "Salvar" para ativar a integração.</li>
+                        </ol>
+                        <p class="mb-0">Se precisar de ajuda, consulte nossa <a href="#" target="_blank">documentação</a> ou entre em contato com o suporte.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- JavaScript adicional específico desta página -->
+        <script th:inline="javascript">
+            // Função para manipular a mudança do tipo de integração - executada diretamente no HTML
+            function handleIntegracaoChange(selectElement) {
+                console.log('Tipo de integração alterado para:', selectElement.value);
+                
+                var apiSecretContainer = document.getElementById('apiSecretContainer');
+                var apiSecret = document.getElementById('apiSecret');
+                
+                if (selectElement.value === 'vendus') {
+                    console.log('VENDUS selecionado - ocultando API Secret');
+                    apiSecretContainer.style.display = 'none';
+                    apiSecret.removeAttribute('required');
+                } else {
+                    console.log('Outro tipo selecionado - mostrando API Secret');
+                    apiSecretContainer.style.display = 'block';
+                    apiSecret.setAttribute('required', 'required');
+                }
+            }
+            
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('Carregando script de integrações...');
+                
+                // Validação de formulário Bootstrap
+                (function () {
+                    'use strict'
+                    console.log('Inicializando validação de formulário...');
+                    
+                    // Busca todos os formulários que queremos aplicar estilos de validação do Bootstrap
+                    var forms = document.querySelectorAll('.needs-validation')
+                    
+                    // Loop sobre eles e impede o envio apenas se inválido
+                    Array.prototype.slice.call(forms)
+                        .forEach(function (form) {
+                            form.addEventListener('submit', function (event) {
+                                console.log('Formulário submetido - verificando validade');
+                                if (!form.checkValidity()) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    console.log('Formulário inválido - impedindo envio');
+                                } else {
+                                    console.log('Formulário válido - permitindo envio');
+                                    // Não faz nada, permitindo que o formulário seja enviado
+                                }
+                                
+                                form.classList.add('was-validated');
+                            }, false);
+                        });
+                })();
+                
+                // Verificar tipo inicial para esconder API Secret se já estiver com VENDUS selecionado
+                var tipoIntegracao = document.getElementById('integracaoEnum');
+                console.log('Tipo inicial:', tipoIntegracao.value);
+                
+                // Executar verificação inicial após um pequeno delay
+                setTimeout(function() {
+                    handleIntegracaoChange(tipoIntegracao);
+                }, 100);
+                
+                console.log('Script de integrações carregado com sucesso!');
+            });
+        </script>
+    </additionalJs>
+</body>
+</html>

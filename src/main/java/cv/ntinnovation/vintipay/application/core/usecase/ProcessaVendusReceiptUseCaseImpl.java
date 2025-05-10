@@ -2,10 +2,9 @@ package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
-import cv.ntinnovation.vintipay.application.core.domain.entity.VendusReceipt;
 import cv.ntinnovation.vintipay.application.core.domain.enums.IntegracaoEnum;
 import cv.ntinnovation.vintipay.application.port.in.ProcessaIntegracaoUseCase;
-import cv.ntinnovation.vintipay.application.port.out.ConfiguracaoAplicacaoPort;
+import cv.ntinnovation.vintipay.application.port.out.ConfiguracaoIntegracoesPort;
 import cv.ntinnovation.vintipay.application.port.out.VendusServicePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,7 @@ import static cv.ntinnovation.vintipay.application.core.domain.enums.IntegracaoE
 public class ProcessaVendusReceiptUseCaseImpl implements ProcessaIntegracaoUseCase<IntegracaoEnum> {
 
     private final VendusServicePort vendusService;
-    private final ConfiguracaoAplicacaoPort configuracaoAplicacaoPort;
+    private final ConfiguracaoIntegracoesPort configuracaoIntegracoesPort;
 
     @Override
     public IntegracaoEnum processar(ConfiguracaoPagamento configuracao, Pagamento pagamento) {
@@ -36,8 +35,8 @@ public class ProcessaVendusReceiptUseCaseImpl implements ProcessaIntegracaoUseCa
 
         try {
             iniciarServicosAplicacao(configuracao);
-            var aplicacoes = configuracaoAplicacaoPort.buscarTodas(configuracao.getId(), configuracao.getUsuarioId());
-            configuracao.setConfiguracaoAplicacaos(aplicacoes);
+            var aplicacoes = configuracaoIntegracoesPort.buscarTodas(configuracao.getUsuarioId());
+            configuracao.setConfiguracaoAplicacoes(aplicacoes);
             VENDUS.processar(configuracao, pagamento);
 
             return VENDUS;

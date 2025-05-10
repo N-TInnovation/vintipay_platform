@@ -50,6 +50,11 @@ public class BuscaConfiguracaoPagamentoUseCaseImpl implements BuscaConfiguracaoP
         return buscaConfiguracaoPagamentoPort.buscarPorUsuarioId(usuarioId);
     }
 
+    @Override
+    public List<ConfiguracaoPagamento> buscarPorUsuarioIdLista(Long usuarioId) {
+        return buscaConfiguracaoPagamentoPort.buscarAtivasPorUsuario(usuarioId);
+    }
+
     /**
      * Descriptografa o campo posAutCode da configuração
      * @param configuracao Configuração com posAutCode criptografado
@@ -75,6 +80,8 @@ public class BuscaConfiguracaoPagamentoUseCaseImpl implements BuscaConfiguracaoP
                         .urlLoja(configuracao.getUrlLoja())
                         .telefone(configuracao.getTelefone())
                         .email(configuracao.getEmail())
+                        .usuarioId(configuracao.getUsuarioId())
+                        .usuario(configuracao.getUsuario())
                         .ambiente(configuracao.getAmbiente())
                         .webhookUrl(configuracao.getWebhookUrl())
                         .webhookSecret(configuracao.getWebhookSecret())
@@ -82,16 +89,16 @@ public class BuscaConfiguracaoPagamentoUseCaseImpl implements BuscaConfiguracaoP
                         .webhookAtivo(configuracao.getWebhookAtivo())
                         .returnAtivo(configuracao.getReturnAtivo())
                         .observacoes(configuracao.getObservacoes())
-                        .usuarioId(configuracao.getUsuarioId())
                         .createdAt(configuracao.getCreatedAt())
                         .updatedAt(configuracao.getUpdatedAt())
+                        .configuracaoAplicacoes(configuracao.getConfiguracaoAplicacoes()) // Preservar as configurações de aplicação
                         .build();
             }
+            
+            return configuracao;
         } catch (Exception e) {
-            log.error("Erro ao descriptografar posAutCode: {}", e.getMessage(), e);
-            // Em caso de erro, retornar a configuração original
+            log.error("Erro ao descriptografar posAutCode: {}", e.getMessage());
+            return configuracao;
         }
-        
-        return configuracao;
     }
 }

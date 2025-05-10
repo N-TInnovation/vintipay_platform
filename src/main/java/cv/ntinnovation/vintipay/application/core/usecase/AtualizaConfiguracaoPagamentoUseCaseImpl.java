@@ -57,6 +57,22 @@ public class AtualizaConfiguracaoPagamentoUseCaseImpl implements AtualizaConfigu
         configuracaoExistente.setReturnAtivo(configuracaoPagamento.getReturnAtivo());
         configuracaoExistente.setObservacoes(configuracaoPagamento.getObservacoes());
         
+        // Atualiza as configurações de aplicação (integrações)
+        if (configuracaoPagamento.getConfiguracaoAplicacoes() != null) {
+            log.info("Atualizando configurações de aplicação. Total: {}", 
+                    configuracaoPagamento.getConfiguracaoAplicacoes().size());
+            
+            // Importante: para cada aplicação, garantir que o relacionamento bidirecional esteja configurado
+            for (var app : configuracaoPagamento.getConfiguracaoAplicacoes()) {
+                if (app.getConfiguracaoPagamento() == null) {
+                    log.info("Configurando relação com ConfiguracaoPagamento para aplicação: {}", app.getDescription());
+                    app.setConfiguracaoPagamento(configuracaoExistente);
+                }
+            }
+            
+            configuracaoExistente.setConfiguracaoAplicacoes(configuracaoPagamento.getConfiguracaoAplicacoes());
+        }
+        
         // Não atualizar o API Secret se não for fornecido um novo
         if (configuracaoPagamento.getApiSecret() != null && !configuracaoPagamento.getApiSecret().isEmpty()) {
             log.info("Atualizando API Secret para a configuração ID: {}", configuracaoPagamento.getId());

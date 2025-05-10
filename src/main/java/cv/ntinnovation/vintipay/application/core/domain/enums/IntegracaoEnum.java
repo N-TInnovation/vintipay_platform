@@ -7,15 +7,19 @@ import cv.ntinnovation.vintipay.application.core.domain.rules.integracao.VendusE
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.List;
+
 @AllArgsConstructor
 public enum IntegracaoEnum {
 
-    VENDUS("vendus", new VendusErp());
+    VENDUS("vendus", new VendusErp(), "https://code-hack.vendus.cv/m-img/logo_cegid_vendus.svg");
 
     @Getter
     private String name;
     @Getter
     private Integracao integracao;
+    @Getter
+    private String logoUrl;
 
     public void processar(ConfiguracaoPagamento configuracao, Pagamento pagamento) {
         integracao.processar(configuracao, pagamento);
@@ -27,4 +31,5 @@ public enum IntegracaoEnum {
                 return integracaoEnum;
         return VENDUS;
     }
+
 }
