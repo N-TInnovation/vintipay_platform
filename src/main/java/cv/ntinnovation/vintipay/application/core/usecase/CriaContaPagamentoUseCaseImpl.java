@@ -23,7 +23,7 @@ public class CriaContaPagamentoUseCaseImpl implements CriaContaPagamentoUseCase 
     private final SalvaContaPagamento salvaContaPagamento;
 
     @Override
-    public ContaPagamento criarOuBuscarPorEmail(String name, String email, String billAddrCity, String billAddrState, String billAddrCountry, String billAddrLine1, String billAddrPostCode, String phoneCode, String phoneNumber) {
+    public ContaPagamento criarOuBuscarPorEmail(String name, String email, String billAddrCity, String billAddrState, String billAddrCountry, String billAddrLine1, String billAddrLine2, String billAddrPostCode, String phoneCode, String phoneNumber) {
         // Validar email
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("Email não pode ser nulo");

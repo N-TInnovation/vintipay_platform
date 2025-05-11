@@ -32,9 +32,14 @@ public class IntencaoPagamentoRequest {
     private String billAddrCountry;
     @NotBlank
     private String billAddrLine1;
+
+    private String billAddrLine2;
+
     @NotBlank
     private String billAddrPostCode;
+
     private String billAddrState;
+
     @NotBlank
     private String phoneCode;
     @NotBlank
