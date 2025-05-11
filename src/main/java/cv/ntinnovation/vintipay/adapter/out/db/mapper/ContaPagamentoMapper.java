@@ -18,6 +18,7 @@ public class ContaPagamentoMapper {
         
         return ContaPagamento.builder()
                 .id(entity.getId())
+                .name(entity.getName())
                 .email(entity.getEmail())
                 .addrMatch(entity.getAddrMatch())
                 .billAddrCountry(entity.getBillAddrCountry())
@@ -75,6 +76,7 @@ public class ContaPagamentoMapper {
         
         ContaPagamentoEntity entity = new ContaPagamentoEntity();
         entity.setId(domain.getId());
+        entity.setName(domain.getName());
         entity.setEmail(domain.getEmail());
         entity.setAddrMatch(domain.getAddrMatch());
         entity.setBillAddrCountry(domain.getBillAddrCountry());

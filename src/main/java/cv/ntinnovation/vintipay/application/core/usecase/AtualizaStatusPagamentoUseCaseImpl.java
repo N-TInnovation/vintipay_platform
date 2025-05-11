@@ -25,6 +25,7 @@ public class AtualizaStatusPagamentoUseCaseImpl implements AtualizaStatusPagamen
     private final SalvaIntencaoPagamento salvaIntencaoPagamento;
 
     @Scheduled(fixedRate = 60000*30)
+    @Transactional
     public void cancelarPagamentosPendentes() {
         buscaPagamentoPort.buscarTodos(null, null, StatusPagamentoEnum.PENDENTE)
                 .getContent().forEach(pagamento ->{

@@ -140,6 +140,7 @@ public class PagamentoPublicoController {
                 compradorInfo.getBillAddrState(),
                 compradorInfo.getBillAddrCountry(),
                 compradorInfo.getBillAddrLine1(),
+                compradorInfo.getBillAddrLine2(),
                 compradorInfo.getBillAddrPostCode(),
                 compradorInfo.getPhoneCode(),
                 compradorInfo.getPhoneNumber()

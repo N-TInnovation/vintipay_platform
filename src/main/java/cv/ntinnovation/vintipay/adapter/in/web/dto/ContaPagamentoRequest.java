@@ -27,6 +27,8 @@ public class ContaPagamentoRequest {
     private String billAddrCountry;
     
     private String billAddrLine1;
+
+    private String billAddrLine2;
     
     private String billAddrPostCode;
 

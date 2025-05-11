@@ -33,7 +33,6 @@ public class CriaContaPagamentoUseCaseImpl implements CriaContaPagamentoUseCase 
         ContaPagamento contaExistente = buscaContaPagamentoPorEmail.buscarPorEmail(email);
         
         if (contaExistente != null) {
-            name = contaExistente.getName();
             // Verifica se houve mudança no endereço
             boolean enderecoMudou = !contaExistente.getBillAddrCity().equals(billAddrCity) || !contaExistente.getBillAddrCountry().equals(billAddrCountry) || !contaExistente.getBillAddrLine1().equals(billAddrLine1) || !contaExistente.getBillAddrPostCode().equals(billAddrPostCode) || !contaExistente.getMobilePhone().getSubscriber().equals(phoneNumber);
             

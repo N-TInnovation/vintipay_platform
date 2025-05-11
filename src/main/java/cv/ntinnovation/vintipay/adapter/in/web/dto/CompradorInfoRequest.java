@@ -35,6 +35,8 @@ public class CompradorInfoRequest {
     
     @NotBlank(message = "O endereço é obrigatório")
     private String billAddrLine1;
+
+    private String billAddrLine2;
     
     @NotBlank(message = "O código postal é obrigatório")
     private String billAddrPostCode;
