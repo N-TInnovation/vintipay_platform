@@ -397,7 +397,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="complement" class="form-label">Complemento</label>
-                                <input type="text" id="complement" name="complement" class="form-control">
+                                <input type="text" id="complement" name="complement" class="form-control" th:field="*{billAddrLine2}">
                             </div>
                         </div>
                     </div>
@@ -929,7 +929,7 @@
                 if (parish) addressParts.push(`Freguesia: ${parish}`);
                 if (zone) addressParts.push(`Zona: ${zone}`);
                 if (subzone) addressParts.push(`Subzona: ${subzone}`);
-                if (complement) addressParts.push(`Complemento: ${complement}`);
+                //if (complement) addressParts.push(`Complemento: ${complement}`);
 
                 // Atualiza o campo oculto de endereço com os detalhes combinados
                 document.getElementById('address').value = addressParts.join(', ');
@@ -967,7 +967,6 @@
                 // Atualiza o campo oculto de cidade com o concelho selecionado
                 for(let i = 0; i < countiesArray.length; i++) {
                     if(countiesArray[i].value == this.value)
-                        document.getElementById('city').value = countiesArray[i].label
                         document.getElementById('billAddrCity').value = countiesArray[i].label
                 }
             });
