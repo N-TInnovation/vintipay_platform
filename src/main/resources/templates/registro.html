@@ -10,349 +10,209 @@
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <style>
         :root {
-            --primary-color: #3498db;
-            --primary-dark: #2980b9;
-            --primary-light: #e3f2fd;
-            --secondary-color: #2ecc71;
+            --primary-color: #4361ee;
+            --secondary-color: #7209b7;
+            --success-color: #2ec4b6;
+            --danger-color: #e63946;
+            --warning-color: #f9c74f;
+            --info-color: #4cc9f0;
             --text-dark: #2c3e50;
-            --text-light: #7f8c8d;
-            --background-light: #f8f9fa;
-            --background-dark: #325d8f;
-            --danger-color: #e74c3c;
+            --text-light: #718096;
+            --background-light: #f5f7fa;
+            --background-dark: #3a0ca3;
+            --danger-color: #e63946;
             --warning-color: #f39c12;
-            --card-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
-            --hover-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.15);
+            --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --transition-speed: 0.3s;
         }
-        
+
         body {
-            background: linear-gradient(135deg, var(--background-light) 0%, #e0e0e0 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-light);
             color: var(--text-dark);
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
         }
-        
+
         .registration-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 15px;
-        }
-        
-        .logo-area {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .logo-area img {
-            max-height: 60px;
-            transition: transform 0.3s;
-        }
-        
-        .logo-area img:hover {
-            transform: scale(1.05);
-        }
-        
-        .registration-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        .registration-header h1 {
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 0.5rem;
-            font-size: 2.5rem;
-        }
-        
-        .registration-header p {
-            color: var(--text-light);
-            font-size: 1.1rem;
-            max-width: 600px;
+            width: 100%;
+            max-width: 1000px;
             margin: 0 auto;
+            padding: 1.5rem;
         }
-        
-        .registration-form {
-            background-color: #fff;
-            border-radius: 15px;
+
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
             box-shadow: var(--card-shadow);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .registration-form:hover {
-            box-shadow: var(--hover-shadow);
-        }
-        
-        .form-floating {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-floating label {
-            color: var(--text-light);
-        }
-        
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
-        }
-        
-        .plan-selection {
-            margin-top: 2rem;
-        }
-        
-        .plan-card {
-            height: 100%;
-            border-radius: 15px;
             overflow: hidden;
-            box-shadow: var(--card-shadow);
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-            border: 2px solid transparent;
-            margin-bottom: 1.5rem;
+            background: white;
         }
-        
-        .plan-card:hover {
-            transform: translateY(-7px);
-            box-shadow: var(--hover-shadow);
-        }
-        
-        .plan-card.selected {
-            border-color: var(--primary-color);
-            transform: translateY(-7px);
-            box-shadow: 0 0.5rem 1.5rem rgba(52, 152, 219, 0.4);
-        }
-        
-        .plan-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+
+        .card-header {
+            background: linear-gradient(135deg, #3a0ca3 0%, #4361ee 100%);
             color: white;
             padding: 1.5rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .plan-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 80%);
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-        
-        .plan-card:hover .plan-header::before,
-        .plan-card.selected .plan-header::before {
-            opacity: 1;
-        }
-        
-        .plan-price {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-top: 0.5rem;
-        }
-        
-        .plan-period {
-            opacity: 0.8;
-            font-size: 0.9rem;
-        }
-        
-        .plan-features {
-            padding: 1.5rem;
-        }
-        
-        .plan-features ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .plan-features li {
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #f1f1f1;
-            display: flex;
-            align-items: center;
-        }
-        
-        .plan-features li:last-child {
             border-bottom: none;
-        }
-        
-        .plan-features i {
-            color: var(--secondary-color);
-            margin-right: 0.75rem;
-            font-size: 1.1rem;
-        }
-        
-        .plan-footer {
-            padding: 1rem 1.5rem 1.5rem;
-            text-align: center;
-        }
-        
-        .form-check-input:checked {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .btn-register {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            border: none;
-            padding: 0.85rem 2.5rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            transition: all 0.3s;
-            border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
-        }
-        
-        .btn-register:hover {
-            background: linear-gradient(135deg, var(--primary-dark), #1a5276);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.5);
-        }
-        
-        .login-link {
-            text-align: center;
-            margin-top: 1.25rem;
-            color: var(--text-light);
-            font-size: 1.05rem;
-        }
-        
-        .login-link a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-        
-        .login-link a:hover {
-            color: var(--primary-dark);
-            text-decoration: underline;
-        }
-        
-        .error-feedback {
-            color: var(--danger-color);
-            font-size: 0.85rem;
-            margin-top: 0.25rem;
-        }
-        
-        .section-title {
             position: relative;
-            display: inline-block;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-            color: var(--text-dark);
         }
-        
-        .section-title::after {
+
+        .card-header::after {
             content: '';
             position: absolute;
-            bottom: -8px;
+            bottom: -15px;
             left: 0;
-            width: 40px;
-            height: 3px;
-            background-color: var(--primary-color);
-            border-radius: 3px;
-        }
-        
-        .step-indicator {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 2rem;
-        }
-        
-        .step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 120px;
-        }
-        
-        .step-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #e9ecef;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text-light);
-            position: relative;
+            right: 0;
+            height: 30px;
+            background: white;
+            border-radius: 50% 50% 0 0;
             z-index: 2;
         }
-        
-        .step.active .step-circle {
-            background-color: var(--primary-color);
-            color: white;
-            box-shadow: 0 0 0 5px rgba(52, 152, 219, 0.2);
+
+        .card-header h3 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.6rem;
         }
-        
-        .step-title {
-            font-size: 0.9rem;
+
+        .card-body {
+            padding: 2rem 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: var(--text-dark);
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: none;
+            transition: all var(--transition-speed);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all var(--transition-speed);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+
+        .alert {
+            border-radius: var(--border-radius);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border: none;
+        }
+
+        .alert-danger {
+            background-color: rgba(230, 57, 70, 0.1);
+            color: var(--danger-color);
+        }
+
+        .alert-warning {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning-color);
+        }
+
+        .nav-tabs {
+            border-bottom: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-tabs .nav-item {
+            margin-right: 0.5rem;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            padding: 0.75rem 1.2rem;
+            font-weight: 500;
             color: var(--text-light);
-            text-align: center;
+            border-radius: 8px;
+            transition: all var(--transition-speed);
         }
-        
-        .step.active .step-title {
+
+        .nav-tabs .nav-link:hover {
             color: var(--primary-color);
-            font-weight: 600;
+            background-color: rgba(67, 97, 238, 0.05);
         }
-        
-        .step-connector {
-            flex: 1;
-            height: 3px;
-            background-color: #e9ecef;
-            margin-top: 20px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .popular-badge {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background-color: var(--warning-color);
+
+        .nav-tabs .nav-link.active {
             color: white;
-            font-size: 0.8rem;
-            padding: 0.25rem 1rem;
-            border-bottom-left-radius: 10px;
-            font-weight: 600;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
         }
-        
-        .form-section {
-            transition: all 0.3s ease;
+
+        .tab-content {
+            padding-top: 1rem;
         }
-        
-        @media (max-width: 991.98px) {
-            .registration-header h1 {
-                font-size: 2rem;
-            }
-            
-            .plan-card {
-                margin-bottom: 1.5rem;
-            }
+
+        .features-list {
+            padding: 0;
+            list-style: none;
         }
-        
-        @media (max-width: 767.98px) {
-            .registration-header h1 {
-                font-size: 1.75rem;
+
+        .features-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .features-list li i {
+            color: var(--success-color);
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .brand-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .brand-logo img {
+            max-height: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .registration-container {
+                padding: 1rem;
             }
-            
-            .registration-header p {
-                font-size: 1rem;
+            .card-header {
+                padding: 1.2rem;
             }
-            
-            .step {
-                width: 80px;
+            .card-body {
+                padding: 1.5rem 1rem;
             }
-            
-            .step-title {
-                font-size: 0.8rem;
+            .nav-tabs .nav-link {
+                padding: 0.6rem 1rem;
             }
         }
     </style>

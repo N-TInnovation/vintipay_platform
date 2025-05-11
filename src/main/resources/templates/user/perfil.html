@@ -13,44 +13,272 @@
     <additionalCss>
         <!-- CSS adicional específico desta página -->
         <style>
+            .card {
+                border: none;
+                border-radius: 12px;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+                overflow: hidden;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                margin-bottom: 1.5rem;
+            }
+            
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            }
+            
+            .card-header {
+                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+                color: white;
+                padding: 1.25rem 1.5rem;
+                border-bottom: none;
+            }
+            
+            .card-header h5 {
+                font-weight: 600;
+                color: white !important;
+                margin-bottom: 0;
+                letter-spacing: 0.3px;
+            }
+            
+            .card-body {
+                padding: 1.5rem;
+            }
+            
             .profile-header {
-                background-color: #f8f9fa;
-                border-radius: 10px;
-                padding: 20px;
-                margin-bottom: 30px;
+                background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(58, 12, 163, 0.1) 100%);
+                border-radius: 16px;
+                padding: 2rem;
+                margin-bottom: 2rem;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+                border: 1px solid rgba(67, 97, 238, 0.2);
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .profile-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 250px;
+                height: 250px;
+                background: radial-gradient(circle, rgba(67, 97, 238, 0.1) 0%, rgba(58, 12, 163, 0) 70%);
+                border-radius: 50%;
+                transform: translate(30%, -30%);
+                z-index: 0;
             }
             
             .profile-avatar {
                 width: 100px;
                 height: 100px;
                 border-radius: 50%;
-                background-color: #e9ecef;
+                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-size: 2.5rem;
-                color: #6c757d;
-                margin-right: 20px;
+                color: white;
+                margin-right: 2rem;
+                box-shadow: 0 10px 25px rgba(67, 97, 238, 0.3);
+                position: relative;
+                z-index: 1;
             }
             
-            .nav-pills .nav-link {
-                color: #495057;
-                border-radius: 0.5rem;
-                padding: 0.75rem 1.25rem;
+            .profile-info {
+                position: relative;
+                z-index: 1;
+            }
+            
+            .profile-info h4 {
+                color: #1e293b;
+                font-weight: 600;
                 margin-bottom: 0.5rem;
             }
             
+            .profile-info p {
+                color: #64748b;
+                margin-bottom: 0.25rem;
+            }
+            
+            /* Tabs de navegação */
+            .nav-pills .nav-link {
+                color: #64748b;
+                border-radius: 10px;
+                padding: 1rem 1.25rem;
+                margin-bottom: 0.75rem;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+            }
+            
+            .nav-pills .nav-link i {
+                color: #4361ee;
+                margin-right: 10px;
+                transition: all 0.3s ease;
+            }
+            
+            .nav-pills .nav-link:hover {
+                background-color: rgba(67, 97, 238, 0.1);
+                color: #4361ee;
+                transform: translateX(5px);
+            }
+            
             .nav-pills .nav-link.active {
-                background-color: #2563eb;
+                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+                color: white;
+                box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            }
+            
+            .nav-pills .nav-link.active i {
                 color: white;
             }
             
+            /* Formulários */
             .form-label {
                 font-weight: 500;
+                color: #4b5563;
+                margin-bottom: 0.5rem;
+            }
+            
+            .form-control, .form-select {
+                border-radius: 8px;
+                padding: 0.75rem 1rem;
+                border: 1px solid #e2e8f0;
+                transition: all 0.3s ease;
+            }
+            
+            .form-control:focus, .form-select:focus {
+                border-color: #4361ee;
+                box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
             }
             
             .form-text {
-                font-size: 0.875rem;
+                color: #64748b;
+                font-size: 0.85rem;
+                margin-top: 0.35rem;
+            }
+            
+            /* Elementos do tab content */
+            .tab-content {
+                padding: 0.5rem;
+            }
+            
+            .card-title {
+                color: #1e293b;
+                font-weight: 600;
+                margin-bottom: 1.5rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            }
+            
+            /* Alertas */
+            .alert {
+                border: none;
+                border-radius: 12px;
+                padding: 1rem 1.5rem;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+                margin-bottom: 1.5rem;
+            }
+            
+            .alert-success {
+                background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+                color: #047857;
+                border-left: 4px solid #10b981;
+            }
+            
+            .alert-danger {
+                background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+                color: #b91c1c;
+                border-left: 4px solid #ef4444;
+            }
+            
+            /* Botões */
+            .btn {
+                border-radius: 8px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                padding: 0.75rem 1.5rem;
+            }
+            
+            .btn-primary {
+                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+                border: none;
+                box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            }
+            
+            .btn-primary:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+            }
+            
+            .btn-outline-danger {
+                color: #ef4444;
+                border: 1px solid #ef4444;
+                background: transparent;
+            }
+            
+            .btn-outline-danger:hover {
+                background: rgba(239, 68, 68, 0.1);
+                color: #ef4444;
+                transform: translateY(-2px);
+            }
+            
+            /* Sessões ativas */
+            .session-card {
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+                transition: all 0.3s ease;
+                border-left: 3px solid #4361ee;
+                overflow: hidden;
+            }
+            
+            .session-card:hover {
+                transform: translateX(5px);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            }
+            
+            .badge {
+                padding: 0.5rem 1rem;
+                border-radius: 50px;
+                font-weight: 600;
+                font-size: 0.75rem;
+            }
+            
+            .bg-success {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            }
+            
+            /* Form switch */
+            .form-check-input {
+                width: 3em;
+                height: 1.5em;
+                margin-top: 0.25em;
+                vertical-align: top;
+                cursor: pointer;
+            }
+            
+            .form-check-input:checked {
+                background-color: #4361ee;
+                border-color: #4361ee;
+            }
+            
+            hr {
+                background-color: rgba(0, 0, 0, 0.05);
+                opacity: 1;
+                margin: 2rem 0;
+            }
+            
+            /* Animações e efeitos */
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease forwards;
             }
         </style>
     </additionalCss>
@@ -58,26 +286,26 @@
 <body>
     <content>
         <!-- Alertas de Sucesso/Erro -->
-        <div th:if="${mensagemSucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <div th:if="${mensagemSucesso}" class="alert alert-success alert-dismissible fade show animate-fade-in" role="alert">
             <i class="fas fa-check-circle me-2"></i> <span th:text="${mensagemSucesso}">Operação realizada com sucesso!</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
         </div>
         
-        <div th:if="${mensagemErro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div th:if="${mensagemErro}" class="alert alert-danger alert-dismissible fade show animate-fade-in" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${mensagemErro}">Ocorreu um erro!</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
         </div>
         
         <!-- Cabeçalho do Perfil -->
-        <div class="profile-header d-flex align-items-center mb-4">
+        <div class="profile-header d-flex align-items-center mb-4 animate-fade-in">
             <div class="profile-avatar">
                 <i class="fas fa-user"></i>
             </div>
-            <div>
+            <div class="profile-info">
                 <h4 class="mb-1" th:text="${usuario.nome}">Nome do Usuário</h4>
                 <p class="text-muted mb-0" th:text="${usuario.email}">email@exemplo.com</p>
                 <p class="text-muted mb-0">
-                    <small>Membro desde <span th:text="${#temporals.format(usuario.dataRegistro, 'dd/MM/yyyy')}">01/01/2025</span></small>
+                    <small><i class="fas fa-calendar-alt me-1"></i> Membro desde <span th:text="${#temporals.format(usuario.dataRegistro, 'dd/MM/yyyy')}">01/01/2025</span></small>
                 </p>
             </div>
         </div>

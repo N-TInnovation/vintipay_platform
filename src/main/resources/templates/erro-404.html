@@ -8,73 +8,100 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
-            background-color: #f8f9fa;
-            min-height: 100vh;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
         }
         .error-container {
+            max-width: 90%;
+            width: 550px;
             text-align: center;
             padding: 2rem;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 90%;
         }
-        .error-icon {
-            font-size: 5rem;
-            color: #dc3545;
-            margin-bottom: 1rem;
+        .error-card {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 3rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .error-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
         }
         .error-code {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #325d8f;
+            font-size: 6rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #4361ee, #3a0ca3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 0.5rem;
+            line-height: 1;
         }
         .error-title {
-            font-size: 1.5rem;
-            color: #495057;
-            margin-bottom: 1rem;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 1.5rem;
         }
         .error-message {
             font-size: 1.1rem;
-            color: #6c757d;
+            color: #718096;
             margin-bottom: 2rem;
+            line-height: 1.6;
         }
-        .error-details {
-            font-size: 1rem;
-            color: #6c757d;
-            margin-bottom: 1.5rem;
-            padding: 1rem;
-            background-color: #f8f9fa;
-            border-radius: 5px;
+        .btn-primary {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
         }
-        .btn-voltar {
-            padding: 0.5rem 1.5rem;
-            font-size: 1.1rem;
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
         }
-        .btn-voltar i {
-            margin-right: 0.5rem;
+        .error-illustration {
+            max-width: 250px;
+            margin-bottom: 2rem;
         }
     </style>
 </head>
 <body>
     <div class="error-container">
-        <i class="fas fa-exclamation-circle error-icon"></i>
-        <div class="error-code">404</div>
-        <div class="error-title" th:text="${title} ?: 'Página não encontrada'">Página não encontrada</div>
-        <div class="error-message" th:if="${message}" th:text="${message}">
-            O recurso que você está procurando não existe ou foi removido.
+        <div class="error-card">
+            <i class="fas fa-exclamation-circle error-icon"></i>
+            <div class="error-code">404</div>
+            <div class="error-title" th:text="${title} ?: 'Página não encontrada'">Página não encontrada</div>
+            <div class="error-message" th:if="${message}" th:text="${message}">
+                O recurso que você está procurando não existe ou foi removido.
+            </div>
+            <div class="error-details" th:if="${details}" th:text="${details}">
+                Detalhes adicionais do erro, se disponíveis.
+            </div>
+            <a href="javascript:history.back()" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
         </div>
-        <div class="error-details" th:if="${details}" th:text="${details}">
-            Detalhes adicionais do erro, se disponíveis.
-        </div>
-        <a href="javascript:history.back()" class="btn btn-primary btn-voltar">
-            <i class="fas fa-arrow-left"></i> Voltar
-        </a>
     </div>
 </body>
 </html>
