@@ -31,6 +31,7 @@ public class ContaPagamentoController {
             request.getName(),
             request.getEmail(),
             request.getBillAddrCity(),
+            request.getBillAddrState(),
             request.getBillAddrCountry(),
             request.getBillAddrLine1(),
             request.getBillAddrPostCode(),

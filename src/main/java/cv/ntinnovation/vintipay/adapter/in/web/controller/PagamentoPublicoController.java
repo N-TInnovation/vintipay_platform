@@ -137,6 +137,7 @@ public class PagamentoPublicoController {
                 compradorInfo.getName(),
                 compradorInfo.getEmail(),
                 compradorInfo.getBillAddrCity(),
+                compradorInfo.getBillAddrState(),
                 compradorInfo.getBillAddrCountry(),
                 compradorInfo.getBillAddrLine1(),
                 compradorInfo.getBillAddrPostCode(),

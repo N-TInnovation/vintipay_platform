@@ -512,6 +512,13 @@
             const stateSelect = document.getElementById('state');
             const citySelect = document.getElementById('city');
 
+            let countriesArray = [];
+            let islandsArray = [];
+            let countiesArray = [];
+            let parishesArray = [];
+            let zonesArray = [];
+            let subzonesArray = [];
+
             // Adicionar alguns códigos comuns como fallback inicial
             const fallbackCodes = [
                 { code: "238", emoji: "🇨🇻" },
@@ -567,7 +574,7 @@
                     return response.json();
                 })
                 .then(countries => {
-                    console.log('Países carregados:', countries);
+                    countriesArray = countries;
                     
                     // Ordenar países por nome
                     countries.sort((a, b) => a.name.localeCompare(b.name));
@@ -726,6 +733,7 @@
                     })
                     .then(islands => {
                         console.log('Ilhas carregadas:', islands);
+                        islandsArray = islands;
                         
                         // Ordenar ilhas por valor
                         islands.sort((a, b) => a.value.localeCompare(b.value));
@@ -762,6 +770,7 @@
                     })
                     .then(counties => {
                         console.log(`Concelhos carregados para ${island}:`, counties);
+                        countiesArray = counties;
                         
                         // Ordenar concelhos por valor
                         counties.sort((a, b) => a.value.localeCompare(b.value));
@@ -798,7 +807,8 @@
                     })
                     .then(parishes => {
                         console.log(`Freguesias carregadas para ${county}:`, parishes);
-                        
+                        parishesArray = parishes;
+
                         // Ordenar freguesias por valor
                         parishes.sort((a, b) => a.value.localeCompare(b.value));
                         
@@ -834,6 +844,7 @@
                     })
                     .then(zones => {
                         console.log(`Zonas carregadas para ${parish}:`, zones);
+                        zonesArray = zones;
                         
                         // Ordenar zonas por valor
                         zones.sort((a, b) => a.value.localeCompare(b.value));
@@ -870,6 +881,7 @@
                     })
                     .then(subzones => {
                         console.log(`Subzonas carregadas para ${zone}:`, subzones);
+                        subzonesArray = subzones;
                         
                         // Ordenar subzonas por valor
                         subzones.sort((a, b) => a.value.localeCompare(b.value));
@@ -892,18 +904,33 @@
             
             // Função para atualizar o endereço completo de Cabo Verde
             function updateCVAddress() {
-                const parish = parishSelect.value;
-                const zone = zoneSelect.value;
-                const subzone = subzoneSelect.value;
+                let parish = parishSelect.value;
+                let zone = zoneSelect.value;
+                let subzone = subzoneSelect.value;
                 const complement = document.getElementById('cv-complement').value;
+
+                for(let i = 0; i < parishesArray.length; i++) {
+                    if(parishesArray[i].value == parish)
+                        parish = parishesArray[i].label
+                }
+
+                for(let i = 0; i < zonesArray.length; i++) {
+                    if(zonesArray[i].value == zone)
+                        zone = zonesArray[i].label
+                }
+
+                for(let i = 0; i < subzonesArray.length; i++) {
+                    if(subzonesArray[i].value == subzone)
+                        subzone = subzonesArray[i].label
+                }
                 
                 let addressParts = [];
-                
+
                 if (parish) addressParts.push(`Freguesia: ${parish}`);
                 if (zone) addressParts.push(`Zona: ${zone}`);
                 if (subzone) addressParts.push(`Subzona: ${subzone}`);
                 if (complement) addressParts.push(`Complemento: ${complement}`);
-                
+
                 // Atualiza o campo oculto de endereço com os detalhes combinados
                 document.getElementById('address').value = addressParts.join(', ');
                 document.getElementById('zipcode').value = '00000-000';
@@ -929,15 +956,20 @@
             islandSelect.addEventListener('change', function() {
                 loadCapeVerdeCounties(this.value);
                 // Atualiza o campo oculto de estado com a ilha selecionada
-                document.getElementById('billAddrState').value = this.value;
-                console.log('teste');
+                for(let i = 0; i < islandsArray.length; i++) {
+                    if(islandsArray[i].value == this.value)
+                        document.getElementById('billAddrState').value = islandsArray[i].label
+                } // Update state select with islandsArray
             });
             
             countySelect.addEventListener('change', function() {
                 loadCapeVerdeParishes(this.value);
                 // Atualiza o campo oculto de cidade com o concelho selecionado
-                document.getElementById('city').value = this.value;
-                document.getElementById('billAddrCity').value = this.value;
+                for(let i = 0; i < countiesArray.length; i++) {
+                    if(countiesArray[i].value == this.value)
+                        document.getElementById('city').value = countiesArray[i].label
+                        document.getElementById('billAddrCity').value = countiesArray[i].label
+                }
             });
             
             parishSelect.addEventListener('change', function() {
@@ -956,8 +988,6 @@
             
             document.getElementById('cv-complement').addEventListener('input', function() {
                 updateCVAddress();
-            
-
             });
         });
     </script>

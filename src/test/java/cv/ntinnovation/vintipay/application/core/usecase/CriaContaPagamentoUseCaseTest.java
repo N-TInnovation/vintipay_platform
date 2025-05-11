@@ -62,7 +62,7 @@ class CriaContaPagamentoUseCaseTest {
 
         // Act
         ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail("",
-                email, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
+                email, billAddrCity,"", billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
 
         // Assert
         assertNotNull(resultado);
@@ -87,7 +87,7 @@ class CriaContaPagamentoUseCaseTest {
 
         // Act
         ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail("",
-                email, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
+                email, billAddrCity, "",billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
 
         // Assert
         assertNotNull(resultado);
@@ -111,7 +111,7 @@ class CriaContaPagamentoUseCaseTest {
 
         // Act
         ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail( "",
-                email, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
+                email, billAddrCity,"", billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
 
         // Assert
         assertNotNull(resultado);
@@ -130,7 +130,7 @@ class CriaContaPagamentoUseCaseTest {
         // Act & Assert
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             criaContaPagamentoUseCase.criarOuBuscarPorEmail( "",
-                    null, billAddrCity, billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
+                    null, billAddrCity,"", billAddrCountry, billAddrLine1, billAddrPostCode, phoneCode, phoneNumber);
         });
         
         assertTrue(exception.getMessage().contains("Email não pode ser nulo"));

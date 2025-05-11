@@ -39,4 +39,5 @@ public class IntencaoPagamento {
     private String contaPagamentoBillAddrCountry;
     private String contaPagamentoBillAddrLine1;
     private String contaPagamentoBillAddrPostCode;
+    private String contaPagamentoBillAddrState;
 }

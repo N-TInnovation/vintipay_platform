@@ -34,6 +34,7 @@ public class IntencaoPagamentoRequest {
     private String billAddrLine1;
     @NotBlank
     private String billAddrPostCode;
+    private String billAddrState;
     @NotBlank
     private String phoneCode;
     @NotBlank

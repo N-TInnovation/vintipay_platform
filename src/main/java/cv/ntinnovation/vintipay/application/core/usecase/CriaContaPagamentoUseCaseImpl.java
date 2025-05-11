@@ -23,7 +23,7 @@ public class CriaContaPagamentoUseCaseImpl implements CriaContaPagamentoUseCase 
     private final SalvaContaPagamento salvaContaPagamento;
 
     @Override
-    public ContaPagamento criarOuBuscarPorEmail(String name, String email, String billAddrCity, String billAddrCountry, String billAddrLine1, String billAddrPostCode, String phoneCode, String phoneNumber) {
+    public ContaPagamento criarOuBuscarPorEmail(String name, String email, String billAddrCity, String billAddrState, String billAddrCountry, String billAddrLine1, String billAddrPostCode, String phoneCode, String phoneNumber) {
         // Validar email
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("Email não pode ser nulo");
@@ -41,6 +41,7 @@ public class CriaContaPagamentoUseCaseImpl implements CriaContaPagamentoUseCase 
                 contaExistente.setBillAddrCity(billAddrCity);
                 contaExistente.setBillAddrCountry(billAddrCountry);
                 contaExistente.setBillAddrLine1(billAddrLine1);
+                contaExistente.setBillAddrState(billAddrState);
                 contaExistente.setBillAddrPostCode(billAddrPostCode);
                 contaExistente.setMobilePhone(criarContato(phoneCode, phoneNumber));
                 contaExistente.setName(name);
@@ -52,12 +53,14 @@ public class CriaContaPagamentoUseCaseImpl implements CriaContaPagamentoUseCase 
         
         // Criar uma nova conta de pagamento
         ContaPagamento novaConta = ContaPagamento.builder()
+                .name(name)
                 .email(email)
                 .addrMatch("N")
                 .billAddrCity(billAddrCity)
                 .billAddrCountry(billAddrCountry)
                 .billAddrLine1(billAddrLine1)
                 .billAddrPostCode(billAddrPostCode)
+                .billAddrState(billAddrState)
                 .acctInfo(criarInfoContaPadrao())
                 .mobilePhone(criarContato(phoneCode, phoneNumber))
                 .build();
