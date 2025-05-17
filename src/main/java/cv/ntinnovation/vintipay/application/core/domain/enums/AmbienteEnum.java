@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.application.core.domain.enums;
 
+import cv.ntinnovation.vintipay.adapter.in.web.config.EnvironmentProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,7 +14,7 @@ public enum AmbienteEnum {
     @Getter
     private String ambiente;
 
-    public static AmbienteEnum getAmbiente(String ambiente) {
+    public static AmbienteEnum fromAmbiente(String ambiente) {
         for(AmbienteEnum a : values()) {
             if(a.getAmbiente().equals(ambiente)) {
                 return a;
@@ -21,4 +22,14 @@ public enum AmbienteEnum {
         }
         return DESENVOLVIMENTO;
     }
+
+    public String getSubmitUrl(EnvironmentProperties environmentProperties) {
+        if(this == PRODUCAO) {
+            return environmentProperties.getSubmitPaymentProdFormUrl();
+        } else if(this == HOMOLOGACAO) {
+            return environmentProperties.getSubmitPaymentQldFormUrl();
+        }
+        return environmentProperties.getSubmitPaymentDevFormUrl();
+    }
+
 }

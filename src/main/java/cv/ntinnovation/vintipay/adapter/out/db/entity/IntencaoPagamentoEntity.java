@@ -26,9 +26,12 @@ public class IntencaoPagamentoEntity extends BasePagamentoEntity {
     @Column(name = "timestamp", nullable = false)
     private String timestamp;
     
-    @Column(name = "entity_code", nullable = true)
+    @Column(name = "entity_code")
     private String entityCode;
     
-    @Column(name = "reference_number", nullable = true)
+    @Column(name = "reference_number")
     private Long referenceNumber;
+
+    @Column(name = "ambiente", nullable = false)
+    private String ambiente;
 }

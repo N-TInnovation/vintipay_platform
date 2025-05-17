@@ -2,6 +2,7 @@ package cv.ntinnovation.vintipay.adapter.out.db.mapper;
 
 import cv.ntinnovation.vintipay.adapter.out.db.entity.PagamentoEntity;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
+import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,7 @@ public class PagamentoMapper {
                 .reference(entity.getReference())
                 .panMascarado(entity.getPanMascarado())
                 .createdAt(entity.getCreatedAt())
+                .ambiente(AmbienteEnum.fromAmbiente(entity.getAmbiente()))
                 .build();
     }
 
@@ -40,6 +42,7 @@ public class PagamentoMapper {
                 .createdAt(LocalDateTime.now())
                 .status(pagamento.getStatus())
                 .authorizationCode(pagamento.getAuthorizationCode())
+                .ambiente(pagamento.getAmbiente().getAmbiente())
                 .build();
     }
 }

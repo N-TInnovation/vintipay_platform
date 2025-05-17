@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.application.core.domain.entity;
 
+import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +26,8 @@ public class Pagamento {
     private LocalDateTime createdAt;
     private String resultFingerPrint;
     private String authorizationCode;
+
+    private AmbienteEnum ambiente;
 
 
     public void gerarTimestamp() {

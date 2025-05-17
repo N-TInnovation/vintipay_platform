@@ -56,4 +56,7 @@ public class PagamentoEntity {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
+    @Column(name = "ambiente", nullable = false)
+    private String ambiente;
 }

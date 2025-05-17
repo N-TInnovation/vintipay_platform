@@ -64,6 +64,9 @@ public class IntencaoPagamentoController {
             
             // Converter o request para o domínio
             IntencaoPagamento intencaoPagamento = intencaoPagamentoWebMapper.toIntencaoPagamento(request);
+
+            // Definir o ambiente da configuração
+            intencaoPagamento.setAmbiente(configuracao.getAmbiente());
             
             // Definir o posId da configuração
             intencaoPagamento.setPosId(configuracao.getPosId());

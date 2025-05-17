@@ -6,6 +6,7 @@ import cv.ntinnovation.vintipay.adapter.out.db.entity.InfoContaPagamentoEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.entity.IntencaoPagamentoEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.repository.ContaPagamentoRepository;
 import cv.ntinnovation.vintipay.application.core.domain.entity.*;
+import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,7 @@ public class IntencaoPagamentoMapper {
         entity.setEntityCode(intencaoPagamento.getEntityCode());
         entity.setReferenceNumber(intencaoPagamento.getReferenceNumber());
         entity.setTransactionCode(intencaoPagamento.getTransactionCode());
+        entity.setAmbiente(intencaoPagamento.getAmbiente().getAmbiente());
 
         // Buscar a ContaPagamentoEntity existente pelo ID
         if (intencaoPagamento.getContaPagamento() != null && intencaoPagamento.getContaPagamento().getId() != null) {
@@ -69,6 +71,7 @@ public class IntencaoPagamentoMapper {
                 .referenceNumber(entity.getReferenceNumber())
                 .contaPagamento(contaPagamento)
                 .transactionCode(entity.getTransactionCode())
+                .ambiente(AmbienteEnum.fromAmbiente(entity.getAmbiente()))
                 .build();
     }
 

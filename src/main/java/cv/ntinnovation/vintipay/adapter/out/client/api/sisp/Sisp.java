@@ -3,7 +3,7 @@ package cv.ntinnovation.vintipay.adapter.out.client.api.sisp;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 
-@FeignClient(name="Sispapi", url = "${sisp.url.normal}")
+@FeignClient(name="Sispapi", url = "${sisp.url.prod.normal}")
 public interface Sisp {
 
     @PostMapping("/BizMPIOnUsSisp/CardPayment")

@@ -21,8 +21,15 @@ jwt:
 
 sisp:
   url:
-    3d: https://mc.vinti4net.cv/3ds_middleware_php/public/3ds_init.php
-    normal: https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment
+    prod:
+      3d: https://mc.vinti4net.cv/3ds_middleware_php/public/3ds_init.php
+      normal: https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment
+    dev:
+      3d: http://localhost:3001
+      normal: http://localhost:3001
+    qld:
+      3d: https://mc.vinti4net.cv/3ds_middleware_php/public/3ds_init.php
+      normal: https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment
   checkout:
     return:
       url: ${APP_BASE_URL:https://localhost:8443}/webhook/sisp/pagamentos/retorno

@@ -1,16 +1,15 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cv.ntinnovation.vintipay.adapter.in.web.config.EnvironmentProperties;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.SispCheckoutRequest;
 import cv.ntinnovation.vintipay.application.core.domain.entity.SessaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.enums.MoedaEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.exception.PagamentoNaoEncontradoException;
 import cv.ntinnovation.vintipay.application.core.domain.exception.PagamentoStatusNaoPendenteException;
 import cv.ntinnovation.vintipay.application.core.domain.exception.SessaoPagamentoInvalidaException;
-import cv.ntinnovation.vintipay.application.port.in.BuscaIntencaoPagamentoUseCase;
-import cv.ntinnovation.vintipay.application.port.in.BuscaPagamentoUseCase;
-import cv.ntinnovation.vintipay.application.port.in.CriaPagamentoUseCase;
-import cv.ntinnovation.vintipay.application.port.in.ValidaSessaoPagamentoUseCase;
+import cv.ntinnovation.vintipay.application.port.in.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -37,16 +36,12 @@ public class CheckoutPagamentoController {
     private final BuscaPagamentoUseCase buscaPagamentoUseCase;
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
     private final BuscaIntencaoPagamentoUseCase buscaIntencaoPagamentoUseCase;
+    private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase;
 
     private static final String SESSION_COOKIE_NAME = "PAYMENT_SESSION_ID";
     private static final int SESSION_COOKIE_MAX_AGE = 1800; // 30 minutos em segundos
 
-
-    @Value("${sisp.url.3d}")
-    private String submitFormUrl;
-
-    @Value("${sisp.checkout.return.url}")
-    private String returnUrl;
+    private final EnvironmentProperties environmentProperties;
 
     @GetMapping("/checkout/{reference}")
     public String checkout(@PathVariable String reference, @RequestParam(value = "sessionId" , required = false) String sessionId, @CookieValue(value = "CLIENT_ID") String clientId, Model model, HttpServletRequest request, HttpServletResponse servletResponse) {
@@ -72,6 +67,13 @@ public class CheckoutPagamentoController {
         servletResponse.addCookie(sessionCookie);
 
         var intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(reference);
+
+        var configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId(intencaoPagamento.getPosId());
+
+        if(configuracaoPagamento.getAtivo() == null || !configuracaoPagamento.getAtivo()) {
+            throw new PagamentoNaoEncontradoException("Configuração de pagamento inativa");
+        }
+
         Base64.Encoder encoder = Base64.getEncoder();
         var merchantRef = encoder.encodeToString((intencaoPagamento.getMerchantRef()+"-"+intencaoPagamento.getId()).getBytes());
         var merchantSession = encoder.encodeToString((intencaoPagamento.getMerchantSession()).getBytes());
@@ -99,6 +101,8 @@ public class CheckoutPagamentoController {
         var referenceNumber = pagamento.getIntencaoPagamento().getReferenceNumber() == null ? null : pagamento.getIntencaoPagamento().getReferenceNumber().toString();
         var entityCode = pagamento.getIntencaoPagamento().getEntityCode() == null ? null : pagamento.getIntencaoPagamento().getEntityCode();
 
+        var submitFormUrl = configuracaoPagamento.getAmbiente().getSubmitUrl(environmentProperties);
+
         var requestResponse = SispCheckoutRequest.builder()
             .timeStamp(pagamento.getTimestamp())
             .purchaseRequest(purchaseRequest)
@@ -111,7 +115,7 @@ public class CheckoutPagamentoController {
             .merchantSession(pagamento.getIntencaoPagamento().getMerchantSession())
             .currency(MoedaEnum.getByName(pagamento.getIntencaoPagamento().getMoeda()).getCodigoISO())
             .is3DSec("1") // Habilitado por padrão
-            .urlMerchantResponse(String.format("%s/%s?fingerPrintCode=%s", returnUrl, pagamento.getIntencaoPagamento().getReferencia(), URLEncoder.encode(pagamento.getAuthorizationCode())))
+            .urlMerchantResponse(String.format("%s/%s?fingerPrintCode=%s", environmentProperties.getReturnUrl(), pagamento.getIntencaoPagamento().getReferencia(), URLEncoder.encode(pagamento.getAuthorizationCode())))
             .languageMessages("pt") // Português por padrão
             .entityCode(entityCode)
             .referenceNumber(referenceNumber)

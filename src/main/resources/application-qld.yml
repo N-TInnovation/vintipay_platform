@@ -29,8 +29,15 @@ jwt:
 
 sisp:
   url:
-    3d: ${SISP_URL_3D}
-    normal: ${SISP_URL_NORMAL}
+    prod:
+      3d: ${SISP_URL_3D}
+      normal: ${SISP_URL_NORMAL}
+    dev:
+      3d: ${SISP_DEV_URL_3D}
+      normal: ${SISP_DEV_URL_NORMAL}
+    qld:
+      3d: ${SISP_QLD_URL_3D}
+      normal: ${SISP_QLD_URL_NORMAL}
   checkout:
     return:
       url: ${SISP_CHECKOUT_RETURN_URL}

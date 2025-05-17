@@ -132,6 +132,8 @@ public class PagamentoPublicoController {
 
         intencaoPagamento.setTransactionCode(IntencaoPagamentoEnum.COMPRAS.getTransactionCode());
 
+        intencaoPagamento.setAmbiente(link.getConfiguracaoPagamento().getAmbiente());
+
         // Criar ou buscar a conta de pagamento pelo email
         ContaPagamento contaPagamento = criaContaPagamentoUseCase.criarOuBuscarPorEmail(
                 compradorInfo.getName(),

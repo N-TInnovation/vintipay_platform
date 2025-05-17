@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.application.core.domain.entity;
 
+import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,4 +41,6 @@ public class IntencaoPagamento {
     private String contaPagamentoBillAddrLine1;
     private String contaPagamentoBillAddrPostCode;
     private String contaPagamentoBillAddrState;
+
+    private AmbienteEnum ambiente;
 }
