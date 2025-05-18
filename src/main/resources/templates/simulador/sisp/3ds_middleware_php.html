@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento - Vinti4</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="payment-container">
+    <div class="alert alert-info mb-4" role="alert">
+        Essa tela é um <b>Simulador de Pagamento - Vinti4</b> quando a Configuração de Pagamento está no ambiente de Desenvolvimento. <b>Não é um ambiente Real.</b>
+    </div>
+    <div class="payment-card">
+        <div class="card-header">
+            <div class="card-logos">
+                <img src="/img/logo_vinti4.jpg" alt="Vinti4" class="vinti4-logo">
+                <img src="/img/visa-secure-logo.png" alt="Visa" class="visa-logo">
+                <img src="/img/mc_idcheck_vrt_rgb_pos.png" alt="Mastercard" class="mastercard-logo">
+                <img src="/img/amex_logo_full.png" alt="American Express" class="amex-logo">
+            </div>
+        </div>
+
+        <div class="website-url">
+            <p>www.simulador-vinti4.cv</p>
+        </div>
+
+        <form id="payment-form" th:object="${request}">
+            <div class="form-group">
+                <label for="card-number">Número do Cartão</label>
+                <input type="text" id="card-number" maxlength="19">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="expiry-date">Data Expiração (MM/AA)</label>
+                    <input type="text" id="expiry-date" maxlength="5">
+                </div>
+
+                <div class="form-group cvv-group">
+                    <label for="cvv">CVV2 <span class="info-icon">ⓘ</span></label>
+                    <input type="text" id="cvv" maxlength="3">
+                </div>
+            </div>
+
+            <input type="hidden"
+                   th:value="*{timeStamp}"
+                   name="timeStamp">
+            <input type="hidden"
+                   th:value="*{fingerprint}"
+                   name="fingerprint">
+            <input type="hidden"
+                   th:value="*{fingerprintversion}"
+                   name="fingerprintversion">
+            <input type="hidden"
+                   th:value="*{amount}"
+                   name="amount">
+            <input type="hidden"
+                   th:value="*{transactionCode}"
+                   name="transactionCode">
+            <input type="hidden"
+                   th:value="*{posID}"
+                   name="posID">
+            <input type="hidden"
+                   th:value="*{merchantRef}"
+                   name="merchantRef">
+            <input type="hidden"
+                   th:value="*{merchantSession}"
+                   name="merchantSession">
+            <input type="hidden"
+                   th:value="*{currency}"
+                   name="currency">
+            <input type="hidden"
+                   th:value="*{is3DSec}"
+                   name="is3DSec">
+            <input type="hidden"
+                   th:value="*{urlMerchantResponse}"
+                   name="urlMerchantResponse">
+            <input type="hidden"
+                   th:value="*{languageMessages}"
+                   name="languageMessages">
+
+            <!-- opcionais -->
+            <input th:if="*{entityCode}" type="hidden"
+                   th:value="*{entityCode}"
+                   name="entityCode">
+
+            <input th:if="*{referenceNumber}" type="hidden"
+                   th:value="*{referenceNumber}"
+                   name="referenceNumber">
+
+            <input th:if="*{purchaseRequest}" type="hidden"
+                   th:value="*{purchaseRequest}"
+                   name="purchaseRequest">
+
+            <input th:if="*{email}" type="hidden"
+                   th:value="*{email}"
+                   name="email">
+
+            <input th:if="*{billAddrCity}" type="hidden"
+                   th:value="*{billAddrCity}"
+                   name="billAddrCity">
+
+            <input th:if="*{billAddrCountry}" type="hidden"
+                   th:value="*{billAddrCountry}"
+                   name="billAddrCountry">
+
+            <input th:if="*{billAddrLine1}" type="hidden"
+                   th:value="*{billAddrLine1}"
+                   name="billAddrLine1">
+
+            <input th:if="*{billAddrPostCode}" type="hidden"
+                   th:value="*{billAddrPostCode}"
+                   name="billAddrPostCode">
+
+            <button type="button" class="confirm-button" th:text="'Confirmar ' + *{amount} + ' CVE'">Confirmar 100 CVE</button>
+            <p class="cancel-button">Cancelar</p>
+        </form>
+    </div>
+</div>
+
+<script src="/js/script.js"></script>
+</body>
+</html>

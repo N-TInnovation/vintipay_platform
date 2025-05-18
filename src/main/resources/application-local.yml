@@ -25,8 +25,8 @@ sisp:
       3d: https://mc.vinti4net.cv/3ds_middleware_php/public/3ds_init.php
       normal: https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment
     dev:
-      3d: http://localhost:3001
-      normal: http://localhost:3001
+      3d: https://localhost:8443/simulador/sisp/3ds_middleware_php/public/3ds_init.php
+      normal: https://localhost:3001/simulador/sisp/3ds_middleware_php/public/3ds_init.php
     qld:
       3d: https://mc.vinti4net.cv/3ds_middleware_php/public/3ds_init.php
       normal: https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment

@@ -152,20 +152,31 @@ public class SecurityConfig {
             return http.build();
         }
 
-        // Removido o InMemoryUserDetailsManager para evitar conflito com o sistema de usuários do banco de dados
-        // @Bean
-        // public InMemoryUserDetailsManager userDetailsService() {
-        //     UserDetails admin = User.builder()
-        //             .username("admin")
-        //             .password(encoder().encode("admin123"))
-        //             .roles("ADMIN")
-        //             .build();
-        //     return new InMemoryUserDetailsManager(admin);
-        // }
-
         @Bean
         public static PasswordEncoder encoder() {
             return new BCryptPasswordEncoder();
+        }
+
+    }
+
+    @Configuration
+    @Order(3)
+    public static class SimulatorSecurityConfig {
+
+        @Bean
+        public SecurityFilterChain simulatorSecurityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+
+            http.securityMatcher("/simulador/**")
+                    .authorizeHttpRequests(auth -> auth
+                            .requestMatchers(HttpMethod.POST, "/simulador/**").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/simulador/**").permitAll()
+                            .requestMatchers("/images/**", "/css/**", "/js/**", "/img/**", "/uploads/**").permitAll()
+                            .anyRequest().authenticated()
+                    )
+                    .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                            .maximumSessions(1));
+
+            return http.build();
         }
 
     }
