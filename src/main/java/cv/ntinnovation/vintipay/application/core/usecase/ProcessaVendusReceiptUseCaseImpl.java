@@ -35,8 +35,7 @@ public class ProcessaVendusReceiptUseCaseImpl implements ProcessaIntegracaoUseCa
 
         try {
             iniciarServicosAplicacao(configuracao);
-            var aplicacoes = configuracaoIntegracoesPort.buscarTodas(configuracao.getUsuarioId());
-            configuracao.setConfiguracaoAplicacoes(aplicacoes);
+
             VENDUS.processar(configuracao, pagamento);
 
             return VENDUS;
@@ -48,6 +47,14 @@ public class ProcessaVendusReceiptUseCaseImpl implements ProcessaIntegracaoUseCa
 
     private void iniciarServicosAplicacao(ConfiguracaoPagamento configuracao) {
         //noinspection unchecked
-        VENDUS.getIntegracao().setService(vendusService);
+        var aplicacoes = configuracaoIntegracoesPort.buscarTodas(configuracao.getUsuarioId());
+        for (var aplicacao : aplicacoes) {
+            if (aplicacao.getIntegracaoEnum().equals(VENDUS)) {
+                VENDUS.getIntegracao().setAplicacao(aplicacao);
+                VENDUS.getIntegracao().setService(vendusService);
+            }
+        }
+        configuracao.setConfiguracaoAplicacoes(aplicacoes);
+
     }
 }

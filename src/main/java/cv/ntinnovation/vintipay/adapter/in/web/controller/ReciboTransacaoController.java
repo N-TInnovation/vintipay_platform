@@ -32,8 +32,6 @@ public class ReciboTransacaoController {
             Model model,
             HttpServletRequest request) {
 
-
-        
         // Buscar o pagamento pela referência
         var pagamentoOptional = buscaPagamentoUseCase.buscarPorReferencia(reference);
         

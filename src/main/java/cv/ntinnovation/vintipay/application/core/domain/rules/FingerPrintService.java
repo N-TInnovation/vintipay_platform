@@ -76,11 +76,15 @@ public class FingerPrintService {
 		return fingerPrintResult;
 	}
 
+	public FingerPrintResult validateFinferPrintAuthorizationCode(RetornoFingerprint retornoFingerprint){
+		FingerPrintResult fingerPrintResult = FingerPrintResult.builder().build();
+		fingerPrintResult.setResult(validateAuthorizationCode(retornoFingerprint));
+		return fingerPrintResult;
+	}
+
 	public FingerPrintResult validatorFingerPrintMessageType810MP(DataFingerPrint810MPResponse dataFingerPrint810MPResponse){
 
 		FingerPrintResult fingerPrintResult = FingerPrintResult.builder().build();
-		fingerPrintResult.setResult(validateAuthorizationCode(dataFingerPrint810MPResponse));
-		if (!fingerPrintResult.getResult()) return fingerPrintResult;
 
 		String resHash= HashGenerate.HashGenerate810MP(dataFingerPrint810MPResponse);
 
@@ -101,13 +105,10 @@ public class FingerPrintService {
 	}
 
 
-
-
 	public FingerPrintResult validatorFingerPrintMessageType6(DataFingerPrint6Response dataFingerPrint6Response){
 
 		FingerPrintResult fingerPrintResult = FingerPrintResult.builder().build();
-		fingerPrintResult.setResult(validateAuthorizationCode(dataFingerPrint6Response));
-		if (!fingerPrintResult.getResult()) return fingerPrintResult;
+
 		String resHash=HashGenerate.HashGenerate6(dataFingerPrint6Response);
 		logger.log(Level.INFO,
 				"Generate ToHash: " +resHash);
@@ -314,7 +315,7 @@ public class FingerPrintService {
 			var authorizationCodeHash = SHA.GenerateSHA512StringToBase64(plainText);
 			return authorizationCodeHash.equals(fingerprint);
 		} catch (RuntimeException e) {
-			throw new FingerprintInvalidoException("Fingerprint Invalido");
+			return false;
 		}
 	}
 }

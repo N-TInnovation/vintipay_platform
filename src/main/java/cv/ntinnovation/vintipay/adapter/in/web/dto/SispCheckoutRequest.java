@@ -34,4 +34,8 @@ public class SispCheckoutRequest {
     private String billAddrPostCode;
     
     private String submitFormUrl;
+
+    private String cardNumber;
+    private String cvv;
+    private String expiryDate;
 }

@@ -34,7 +34,12 @@ public class DataFingerPrint810MPResponse implements RetornoFingerprint {
 
 	@Override
 	public void validarFingerPrint(FingerPrintService fingerPrintService) {
-		var fingerPrintResult = fingerPrintService.validatorFingerPrintMessageType810MP(this);
+		var fingerPrintResult = fingerPrintService.validateFinferPrintAuthorizationCode(this);
+		if(!fingerPrintResult.getResult()){
+			throw new FingerprintInvalidoException(this.resultFingerPrint);
+		}
+
+		fingerPrintResult = fingerPrintService.validatorFingerPrintMessageType810MP(this);
 		if(!fingerPrintResult.getResult()){
 			throw new FingerprintInvalidoException(this.resultFingerPrint);
 		}

@@ -25,62 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
         e.target.value = e.target.value.replace(/\D/g, '');
     });
 
-    // Função para enviar dados para o webhook através de um redirecionamento direto
-    function sendPaymentData() {
-        // URL do webhook externo
-        const webhookUrl = 'https://localhost:8443/webhook/sisp/pagamentos/retorno/d8c6f473-2084-4694-8323-5fd0d0f23709?fingerPrintCode=ExmUpF7ItluVk8oIOMvZfq%2F4J5ns1dlmiQdsGb2nDQzQkRAv3N5u5yj8d8EdcYg4vAzASum2aUuImqUqYzKNYJqwQ%2FO7EGnJmZ3ct%2Fqua100pyDZ9COPN20AhpCX1YRVgpvI7IoYljgOkPsN3KcuXZEq89KfzZZdJ%2F6Xfj51utia4J7Xn41PUE7OT6ALWGY1yf6jpZfIxWy26xtdQsQ99A%3D%3D';
-        
-        // Parâmetros do webhook exatamente como no exemplo
-        const params = {
-            'messageType': '8',
-            'merchantRespMerchantRef': 'R00000001980021',
-            'merchantRespMerchantSession': 'S00000002990099',
-            'merchantRespCP': '987',
-            'merchantRespTid': '26',
-            'merchantRespPurchaseAmount': '150',
-            'languageMessages': 'pt',
-            'merchantRespMessageID': 'J38HvwHPPn22P1se0OxJ',
-            'merchantRespTimeStamp': '2025-04-15 19:04:28',
-            'resultFingerPrint': 'gZl9uPXwgH2Q9yiQYA3doyE1CksjbfNYYjrp6T73y6l7KKj01YKjHZBWiv9XtmPZGkRU57w/iF8uIZFaiZ47qA==',
-            'resultFingerPrintVersion': '1',
-            'merchantRespPan': '************3335',
-            'merchantResp': 'C',
-            'merchantRespErrorCode': '',
-            'merchantRespErrorDescription': '',
-            'merchantRespErrorDetail': '',
-            'merchantRespReferenceNumber': '',
-            'merchantRespEntityCode': '',
-            'merchantRespClientReceipt': '',
-            'merchantRespReloadCode': '',
-            'merchantRespAdditionalErrorMessage': ''
-        };
-        
-        console.log('Redirecionando POST diretamente para o webhook. Parâmetros:', params);
-        
-        // Alertar o usuário que o redirecionamento está ocorrendo
-        alert('Redirecionando para o webhook...');
-        
-        // Criar um formulário e redirecionar o POST diretamente para o webhook
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = webhookUrl;
-        
-        // Adicionar os parâmetros ao formulário
-        for (const key in params) {
-            if (params.hasOwnProperty(key)) {
-                const hiddenField = document.createElement('input');
-                hiddenField.type = 'hidden';
-                hiddenField.name = key;
-                hiddenField.value = params[key];
-                form.appendChild(hiddenField);
-            }
-        }
-        
-        // Anexar o formulário ao documento e enviá-lo
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
-    }
+    const form = document.getElementById('payment-form');
 
     // Simulação de envio do formulário
     const confirmButton = document.querySelector('.confirm-button');
@@ -102,22 +47,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Simulação de processamento
         confirmButton.textContent = 'Processando...';
         confirmButton.disabled = true;
-        
+
+
         setTimeout(function() {
-            // Verificar se os dados correspondem aos valores específicos
-            const cardNumber = cardNumberInput.value.replace(/\s+/g, '');
-            const expiryDate = expiryDateInput.value;
-            const cvv = cvvInput.value;
-            
-            if (cardNumber === '1231231231231231' && expiryDate === '12/34' && cvv === '123') {
-                // Enviar dados para o webhook e mostrar sucesso
-                sendPaymentData();
-            } else {
-                // Apenas mostrar sucesso sem enviar para o webhook
-                alert('Pagamento de 100 CVE processado com sucesso!');
-                window.location.href = '?status=success&ref=R00000001992061';
-            }
-        }, 1500);
+            // Simulação de sucesso
+            confirmButton.textContent = 'Confirmar pagamento';
+            confirmButton.disabled = false;
+            form.submit();
+        }, 2000);
+
     });
 
     // Cancelar pagamento

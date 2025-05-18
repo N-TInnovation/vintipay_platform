@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +40,9 @@ public class WebhookPagamentoController {
     private final ProcessaIntegracaoUseCase<IntegracaoEnum> processaIntegracaoUseCase;
 
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
+
+    @Value("${app.return-url-padrao}")
+    private String returnUrlPadrao;
 
     @PostMapping(value = "/sisp/pagamentos/retorno/{reference}",
             consumes={"application/x-www-form-urlencoded;charset=UTF-8"}, produces={ MediaType.ALL_VALUE })
@@ -126,12 +130,19 @@ public class WebhookPagamentoController {
             
             log.debug("HMAC Fingerprint gerado: {}", hmacFingerprint);
 
-            model.addAttribute("response", responseDto);
-            model.addAttribute("submitFormUrl", configuracaoPagamento.getReturnUrl());
-            model.addAttribute("hmacFingerprint", hmacFingerprint);
-            log.info("Redirecionando para: {}", configuracaoPagamento.getReturnUrl());
+            if(configuracaoPagamento.getReturnUrl() == null || configuracaoPagamento.getReturnUrl().isEmpty()) {
+                //configuracaoPagamento.setReturnUrl(String.format("%s/%s", returnUrlPadrao, pagamento.getReference()));
 
-            return "checkout-response";
+                return "success";
+            }else {
+                model.addAttribute("response", responseDto);
+                model.addAttribute("submitFormUrl", configuracaoPagamento.getReturnUrl());
+                model.addAttribute("hmacFingerprint", hmacFingerprint);
+                log.info("Redirecionando para: {}", configuracaoPagamento.getReturnUrl());
+
+                return "checkout-response";
+            }
+
         } else {
             throw new PagamentoNaoEncontradoException("Pagamento não encontrado");
         }

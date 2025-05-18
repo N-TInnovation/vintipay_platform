@@ -34,6 +34,16 @@ sisp:
     return:
       url: ${APP_BASE_URL:https://localhost:8443}/webhook/sisp/pagamentos/retorno
 
+app:
+  return-url-padrao: ${APP_BASE_URL:https://localhost:8443}/pagamento/recibo
+
+brevo:
+  api:
+    key: ${BREVO_API_KEY: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}
+    url: ${BREVO_API_URL:https://api.brevo.com/v3/emailCampaigns}
+  email:
+    from: ${BREVO_EMAIL_FROM:no-reply@vintipay.cv}
+
 stripe:
   api:
     key: ${STRIPE_API_KEY:sk_test_51JZHlXFLqETPcYGM3OkBuL08Yv8BFyYLkMIuIRBORak5t2aIOQ5IoRtZOoa0kNMcFbGhjSbHgRG8Hf5WIrPqAh1300GGaBDBpk}
