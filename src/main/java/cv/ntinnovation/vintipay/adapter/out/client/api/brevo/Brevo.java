@@ -2,6 +2,8 @@ package cv.ntinnovation.vintipay.adapter.out.client.api.brevo;
 
 import cv.ntinnovation.vintipay.adapter.out.client.api.brevo.dto.BrevoEmailRequest;
 import cv.ntinnovation.vintipay.adapter.out.client.api.brevo.dto.BrevoEmailResponse;
+import cv.ntinnovation.vintipay.adapter.out.client.api.brevo.dto.BrevoTransactionalEmailRequest;
+import cv.ntinnovation.vintipay.adapter.out.client.api.brevo.dto.BrevoTransactionalEmailResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,5 +24,18 @@ public interface Brevo {
     ResponseEntity<BrevoEmailResponse> sendEmailCampaign(
             @RequestHeader("api-key") String apiKey,
             @RequestBody BrevoEmailRequest request
+    );
+    
+    /**
+     * Sends a transactional email through Brevo API
+     * 
+     * @param apiKey The Brevo API key
+     * @param request The transactional email request data
+     * @return Response containing the message ID
+     */
+    @PostMapping(value = "/smtp/email", consumes = "application/json")
+    ResponseEntity<BrevoTransactionalEmailResponse> sendTransactionalEmail(
+            @RequestHeader("api-key") String apiKey,
+            @RequestBody BrevoTransactionalEmailRequest request
     );
 }
