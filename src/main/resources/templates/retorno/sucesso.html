@@ -2,9 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta th:name="_csrf" th:content="${_csrf.token}" />
     <!-- default header name is X-CSRF-TOKEN -->
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pagamento Confirmado - VintiPay</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
@@ -141,6 +141,8 @@
                 </div>
                 <div class="modal-body">
                     <form id="enviarEmailForm">
+                        <!-- Campo CSRF para formulários -->
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" class="form-control" id="email" required placeholder="Digite seu email para receber o recibo">
@@ -172,9 +174,28 @@
             const email = document.getElementById('email').value;
             if (!email) return;
             
-            // Obter o token CSRF e o nome do header dos meta tags
-            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-            const csrfHeaderName = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+            // Obter o token CSRF de várias fontes possíveis para garantir compatibilidade
+            let csrfToken = null;
+            let csrfHeaderName = 'X-CSRF-TOKEN'; // Padrão do Spring Security
+            
+            // Tenta obter do meta tag
+            const metaCsrf = document.querySelector('meta[name="_csrf"]');
+            if (metaCsrf) {
+                csrfToken = metaCsrf.getAttribute('content');
+            }
+            
+            const metaCsrfHeader = document.querySelector('meta[name="_csrf_header"]');
+            if (metaCsrfHeader) {
+                csrfHeaderName = metaCsrfHeader.getAttribute('content');
+            }
+            
+            // Se não encontrou no meta, tenta obter do campo oculto
+            if (!csrfToken) {
+                const csrfField = document.querySelector('input[name="_csrf"]');
+                if (csrfField) {
+                    csrfToken = csrfField.value;
+                }
+            }
             
             // Mostra indicador de carregamento
             const submitBtn = this.querySelector('button[type="submit"]');
@@ -182,28 +203,31 @@
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
             submitBtn.disabled = true;
             
-            // Log para debug
-            console.log('Enviando requisição para: https://localhost:8443/recibo/enviar-email');
-            console.log('CSRF Token:', csrfToken);
-            console.log('CSRF Header Name:', csrfHeaderName);
+            // URL baseada no local atual
+            const baseUrl = window.location.origin;
+            const apiUrl = baseUrl + '/recibo/enviar-email';
             
-            const headers = {
-                'Content-Type': 'application/json'
-            };
+            // Construir headers com formato correto para Spring Security
+            const headers = new Headers();
+            headers.append('Content-Type', 'application/json');
             
-            // Adicionar o token CSRF ao header com o nome correto
-            if (csrfToken && csrfHeaderName) {
-                headers[csrfHeaderName] = csrfToken;
+            // Adicionar o token CSRF ao header se disponível
+            if (csrfToken) {
+                headers.append(csrfHeaderName, csrfToken);
             }
             
-            fetch('https://localhost:8443/recibo/enviar-email', {
+            // Incluir cookie XSRF-TOKEN automaticamente
+            const fetchOptions = {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify({
                     email: email,
                     referencia: '[[${pagamento.reference}]]'
-                })
-            })
+                }),
+                credentials: 'same-origin' // Importante para incluir cookies
+            };
+            
+            fetch(apiUrl, fetchOptions)
             .then(response => {
                 console.log('Status da resposta:', response.status);
                 if (response.ok) {

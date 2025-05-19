@@ -114,6 +114,9 @@ public class SecurityConfig {
         public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 
             http.securityMatcher("/**")
+                    .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    )
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/admin/**").hasRole("ADMIN")
                             .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")

@@ -135,6 +135,7 @@ public class ReceiboController {
      */
     @PostMapping("/enviar-email")
     @ResponseBody
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<Map<String, Object>> enviarPorEmail(@RequestBody Map<String, String> request) {
         Map<String, Object> response = new HashMap<>();
         
