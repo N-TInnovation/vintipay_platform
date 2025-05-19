@@ -41,6 +41,24 @@ public class ReceiboController {
     private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase ;
 
     /**
+     * Gera um QR code como imagem base64 para uso em templates HTML
+     */
+    private String gerarQRCodeBase64(String url) {
+        try {
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            BitMatrix bitMatrix = qrCodeWriter.encode(url, BarcodeFormat.QR_CODE, 250, 250);
+            
+            ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
+            
+            return "data:image/png;base64," + Base64.getEncoder().encodeToString(pngOutputStream.toByteArray());
+        } catch (Exception e) {
+            log.error("Erro ao gerar QR code base64: {}", e.getMessage(), e);
+            return "";
+        }
+    }
+
+    /**
      * Gera e faz download do recibo em PDF
      */
     @GetMapping("/download/pdf/{referencia}")
@@ -131,6 +149,47 @@ public class ReceiboController {
     }
 
     /**
+     * Exibe uma versão web do recibo para visualização
+     */
+    @GetMapping("/view/{referencia}")
+    public String visualizarRecibo(@PathVariable String referencia, Map<String, Object> model) {
+        try {
+            // Busca o pagamento
+            Optional<Pagamento> pagamentoOptional = pagamentoUseCase.buscarPorReferencia(referencia);
+            if (pagamentoOptional.isEmpty()) {
+                model.put("error", "Pagamento não encontrado");
+                return "error/404";
+            }
+
+            Pagamento pagamento = pagamentoOptional.get();
+            
+            // Adiciona dados do pagamento ao modelo
+            model.put("pagamento", pagamento);
+            model.put("dataFormatada", 
+                pagamento.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+                
+            // Busca informações da loja/configuração de pagamento
+            ConfiguracaoPagamento config =
+                buscaConfiguracaoPagamentoUseCase.buscarPorPosId(pagamento.getIntencaoPagamento().getPosId());
+            if (config != null) {
+                model.put("loja", config);
+            }
+            
+            // Gera o QR code e converte para base64
+            String qrCodeBase64 = gerarQRCodeBase64("https://vintipay.cv/validar/payment/reference/" + pagamento.getReference());
+            model.put("qrCodeBase64", qrCodeBase64);
+            
+            // Retorna o template com o recibo
+            return "recibo/visualizar";
+            
+        } catch (Exception e) {
+            log.error("Erro ao exibir recibo: {}", e.getMessage(), e);
+            model.put("error", "Erro ao processar o recibo: " + e.getMessage());
+            return "error/500";
+        }
+    }
+
+    /**
      * Envia o recibo por email
      */
     @PostMapping("/enviar-email")
@@ -198,25 +257,6 @@ public class ReceiboController {
             response.put("success", false);
             response.put("message", "Erro ao processar a solicitação: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-    
-    /**
-     * Gera um QR code e retorna como string Base64
-     */
-    private String gerarQRCodeBase64(String conteudo) {
-        try {
-            QRCodeWriter qrCodeWriter = new QRCodeWriter();
-            BitMatrix bitMatrix = qrCodeWriter.encode(conteudo, BarcodeFormat.QR_CODE, 150, 150);
-            
-            ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
-            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
-            byte[] pngData = pngOutputStream.toByteArray();
-            
-            return "data:image/png;base64," + Base64.getEncoder().encodeToString(pngData);
-        } catch (Exception e) {
-            log.error("Erro ao gerar QR code base64: {}", e.getMessage(), e);
-            return "";
         }
     }
 }

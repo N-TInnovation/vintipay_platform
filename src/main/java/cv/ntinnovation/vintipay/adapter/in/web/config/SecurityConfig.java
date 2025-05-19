@@ -125,6 +125,7 @@ public class SecurityConfig {
                             .requestMatchers("/pagamento/checkout/{reference}").permitAll()
                             .requestMatchers("/recibo/download/pdf/**").permitAll()
                             .requestMatchers("/recibo/enviar-email").permitAll()
+                            .requestMatchers("/recibo/view/**").permitAll()
                             .requestMatchers("/recibo/api/qrcode/**").permitAll()
                             .requestMatchers("/error").permitAll()
                             .requestMatchers("/login").permitAll()
