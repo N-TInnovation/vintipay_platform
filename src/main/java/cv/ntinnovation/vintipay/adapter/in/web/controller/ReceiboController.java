@@ -4,7 +4,9 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
+import cv.ntinnovation.vintipay.application.port.in.BuscaConfiguracaoPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.BuscaPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.NotificacaoUseCase;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,6 +24,7 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.ByteArrayOutputStream;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +38,7 @@ public class ReceiboController {
     private final BuscaPagamentoUseCase pagamentoUseCase;
     private final NotificacaoUseCase notificacaoUseCase;
     private final TemplateEngine templateEngine;
+    private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase ;
 
     /**
      * Gera e faz download do recibo em PDF
@@ -55,6 +59,17 @@ public class ReceiboController {
             context.setVariable("pagamento", pagamento);
             context.setVariable("dataFormatada", 
                 pagamento.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+                
+            // Busca informações da loja/configuração de pagamento
+            ConfiguracaoPagamento config =
+                buscaConfiguracaoPagamentoUseCase.buscarPorPosId(pagamento.getIntencaoPagamento().getPosId());
+            if (config != null) {
+                context.setVariable("loja", config);
+            }
+                
+            // Gera o QR code e converte para base64
+            String qrCodeBase64 = gerarQRCodeBase64("https://vintipay.cv/validar/payment/reference/" + pagamento.getReference());
+            context.setVariable("qrCodeBase64", qrCodeBase64);
 
             // Processa o template HTML do recibo
             String htmlContent = templateEngine.process("recibo/recibo_pdf", context);
@@ -149,6 +164,13 @@ public class ReceiboController {
             context.setVariable("dataFormatada", 
                 pagamento.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
                 
+            // Busca informações da loja/configuração de pagamento
+            ConfiguracaoPagamento config =
+                buscaConfiguracaoPagamentoUseCase.buscarPorPosId(pagamento.getIntencaoPagamento().getPosId());
+            if (config != null) {
+                context.setVariable("loja", config);
+            }
+            
             // Processa o template HTML do recibo
             String htmlContent = templateEngine.process("recibo/recibo_email", context);
             
@@ -175,6 +197,25 @@ public class ReceiboController {
             response.put("success", false);
             response.put("message", "Erro ao processar a solicitação: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    
+    /**
+     * Gera um QR code e retorna como string Base64
+     */
+    private String gerarQRCodeBase64(String conteudo) {
+        try {
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            BitMatrix bitMatrix = qrCodeWriter.encode(conteudo, BarcodeFormat.QR_CODE, 150, 150);
+            
+            ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
+            byte[] pngData = pngOutputStream.toByteArray();
+            
+            return "data:image/png;base64," + Base64.getEncoder().encodeToString(pngData);
+        } catch (Exception e) {
+            log.error("Erro ao gerar QR code base64: {}", e.getMessage(), e);
+            return "";
         }
     }
 }

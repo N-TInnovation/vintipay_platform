@@ -103,8 +103,8 @@
             <div class="receipt-box">
                 <div class="receipt-header">
                     <div>
-                        <h2>Recibo de Pagamento</h2>
-                        <div>Referência: <span class="highlight" th:text="${pagamento.reference}"></span></div>
+                        <h1 style="color: #333; font-size: 24px; margin: 20px 0 10px;">Recibo de Pagamento</h1>
+                        <p th:if="${loja != null}" style="font-size: 16px; color: #555; margin: 5px 0 15px;" th:text="${'Loja: ' + loja.nomeLoja}"></p>
                     </div>
                     <div style="text-align: right;">
                         <span style="background-color: #4CAF50; color: white; padding: 3px 8px; border-radius: 3px;">PAGO</span>
@@ -112,41 +112,59 @@
                     </div>
                 </div>
                 
-                <h3>Detalhes do Pagamento</h3>
-                <table>
-                    <tr>
-                        <th style="width: 40%;">Item</th>
-                        <th style="width: 60%;">Informação</th>
-                    </tr>
-                    <tr>
-                        <td>Valor</td>
-                        <td class="highlight" th:text="${pagamento.intencaoPagamento.valor + ' ' + pagamento.intencaoPagamento.moeda + ' ECV'}"></td>
-                    </tr>
-                    <tr th:if="${pagamento.metodo != null}">
-                        <td>Método de Pagamento</td>
-                        <td th:text="${pagamento.metodo}"></td>
-                    </tr>
-                    <tr th:if="${pagamento.intencaoPagamento.descricao != null}">
-                        <td>Descrição</td>
-                        <td th:text="${pagamento.intencaoPagamento.descricao}"></td>
-                    </tr>
-                </table>
+                <div style="margin: 20px 0; background-color: #f8f8f8; border-radius: 5px; padding: 15px;">
+                    <h2 style="color: #444; font-size: 18px; margin: 0 0 10px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">Detalhes do Pagamento</h2>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee; width: 40%;"><strong>Valor</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;" th:text="${pagamento.intencaoPagamento.valor + ' CVE'}"></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Data/Hora</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;" th:text="${dataFormatada}"></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Referência</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;" th:text="${pagamento.reference}"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="margin: 20px 0; background-color: #f8f8f8; border-radius: 5px; padding: 15px;" th:if="${loja != null}">
+                    <h2 style="color: #444; font-size: 18px; margin: 0 0 10px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">Dados da Loja</h2>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee; width: 40%;"><strong>Nome</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;" th:text="${loja.nomeLoja}"></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>URL</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;" th:text="${loja.urlLoja}"></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Telefone</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;" th:text="${loja.telefone}"></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Email</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;" th:text="${loja.email}"></td>
+                        </tr>
+                    </table>
+                </div>
                 
-                <h3>Dados do Cliente</h3>
-                <table>
-                    <tr>
-                        <th style="width: 40%;">Item</th>
-                        <th style="width: 60%;">Informação</th>
-                    </tr>
-                    <tr>
-                        <td>Nome</td>
-                        <td th:text="${pagamento.intencaoPagamento.contaPagamento.name}"></td>
-                    </tr>
-                    <tr>
-                        <td>Email</td>
-                        <td th:text="${pagamento.intencaoPagamento.contaPagamento.email}"></td>
-                    </tr>
-                </table>
+                <div style="margin: 20px 0; background-color: #f8f8f8; border-radius: 5px; padding: 15px;">
+                    <h2 style="color: #444; font-size: 18px; margin: 0 0 10px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">Dados do Cliente</h2>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee; width: 40%;"><strong>Nome</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;" th:text="${pagamento.intencaoPagamento.contaPagamento.name}"></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Email</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;" th:text="${pagamento.intencaoPagamento.contaPagamento.email}"></td>
+                        </tr>
+                    </table>
+                </div>
             </div>
             
             <p>Você também pode visualizar o recibo completo e fazer download em PDF no link abaixo:</p>

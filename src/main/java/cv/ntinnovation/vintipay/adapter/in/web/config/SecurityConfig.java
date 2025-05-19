@@ -31,6 +31,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
@@ -118,10 +119,9 @@ public class SecurityConfig {
                             .requestMatchers("/permissoes/**").hasRole("ADMIN")
                             .requestMatchers("/papeis/**").hasRole("ADMIN")
                             .requestMatchers("/pagamento/checkout/{reference}").permitAll()
-                            .requestMatchers("/links-pagamento/p/{codigo}").permitAll()
-                            .requestMatchers("/links-pagamento/sucesso").permitAll()
-                            .requestMatchers("/links-pagamento/cancelado").permitAll()
-                            .requestMatchers("/links-pagamento/erro").permitAll()
+                            .requestMatchers("/recibo/download/pdf/**").permitAll()
+                            .requestMatchers("/recibo/enviar-email").permitAll()
+                            .requestMatchers("/recibo/api/qrcode/**").permitAll()
                             .requestMatchers("/error").permitAll()
                             .requestMatchers("/login").permitAll()
                             .requestMatchers("/registro").permitAll()
