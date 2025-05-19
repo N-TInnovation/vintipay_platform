@@ -5,10 +5,12 @@ import cv.ntinnovation.vintipay.application.core.domain.exception.FingerprintInv
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.ToString;
 
 @Builder
 @AllArgsConstructor
 @Data
+@ToString
 public class DataFingerPrint810MPResponse implements RetornoFingerprint {
 
 	private String posAutCode;

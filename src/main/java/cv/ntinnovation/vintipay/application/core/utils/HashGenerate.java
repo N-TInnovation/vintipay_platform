@@ -22,8 +22,8 @@ public class HashGenerate {
 		if(merchantRespClientReceipt!=null){
 				merchantRespClientReceipt=merchantRespClientReceipt.replaceAll(" ","");
 				merchantRespClientReceipt=merchantRespClientReceipt.trim();
-
 		}
+
 		try{
 			merchantRespEntityCode=Long.parseLong(dataFingerPrint810MPResponse.getMerchantRespEntityCode())+"";
 		}catch(Exception e){

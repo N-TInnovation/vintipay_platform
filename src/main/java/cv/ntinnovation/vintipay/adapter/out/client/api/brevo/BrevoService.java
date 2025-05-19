@@ -24,7 +24,7 @@ public class BrevoService implements BrevoServicePort {
     private  String brevoApiKey;
 
     @Override
-    public void sendEmail(String to, String subject, String htmlContent) {
+    public void sendEmail(String to, String toName, String subject, String htmlContent) {
         // Usando o endpoint de email transacional (/v3/smtp/email) 
         // ao invés do endpoint de campanhas
         BrevoTransactionalEmailRequest request = BrevoTransactionalEmailRequest.builder()
@@ -35,7 +35,7 @@ public class BrevoService implements BrevoServicePort {
                 .to(Collections.singletonList(
                         BrevoRecipient.builder()
                                 .email(to)
-                                .name("")  // Nome opcional
+                                .name(toName)  // Nome opcional
                                 .build()
                 ))
                 .subject(subject)

@@ -9,6 +9,7 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.SessaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.enums.IntegracaoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.MensagemRetornoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.exception.PagamentoNaoEncontradoException;
 import cv.ntinnovation.vintipay.application.core.domain.exception.SessaoPagamentoInvalidaException;
 import cv.ntinnovation.vintipay.application.core.domain.rules.FingerPrintService;
@@ -38,6 +39,7 @@ public class WebhookPagamentoController {
     private final WebhookPagamentoMapper webhookPagamentoMapper;
     private final FingerPrintService fingerPrintService;
     private final ProcessaIntegracaoUseCase<IntegracaoEnum> processaIntegracaoUseCase;
+    private final NotificacaoUseCase notificacaoUseCase;
 
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
 
@@ -132,8 +134,27 @@ public class WebhookPagamentoController {
 
             if(configuracaoPagamento.getReturnUrl() == null || configuracaoPagamento.getReturnUrl().isEmpty()) {
                 //configuracaoPagamento.setReturnUrl(String.format("%s/%s", returnUrlPadrao, pagamento.getReference()));
-
-                return "success";
+                if(pagamento.getStatus().equals(StatusPagamentoEnum.PAGO)) {
+                    // Enviar email para o cliente que realizou o pagamento
+                    notificacaoUseCase.enviarEmailPagamento(
+                        pagamento.getIntencaoPagamento().getContaPagamento().getEmail(),
+                        pagamento.getIntencaoPagamento().getContaPagamento().getName(),
+                        pagamento.getReference(), 
+                        pagamento.getIntencaoPagamento().getValor().doubleValue()
+                    );
+                    
+                    // Enviar notificação para o comerciante/lojista
+                    notificacaoUseCase.notificarComerciante(
+                        configuracaoPagamento.getEmail(),  // Email do lojista
+                        configuracaoPagamento.getNomeLoja(),  // Nome da loja
+                        pagamento.getIntencaoPagamento().getContaPagamento().getName(),  // Nome do cliente
+                        pagamento.getIntencaoPagamento().getContaPagamento().getEmail(),  // Email do cliente
+                        pagamento.getReference(),  // Referência do pagamento
+                        pagamento.getIntencaoPagamento().getValor().doubleValue()  // Valor do pagamento
+                    );
+                }
+                model.addAttribute("pagamento", pagamento);
+                return pagamento.getStatus().getRetorno();
             }else {
                 model.addAttribute("response", responseDto);
                 model.addAttribute("submitFormUrl", configuracaoPagamento.getReturnUrl());

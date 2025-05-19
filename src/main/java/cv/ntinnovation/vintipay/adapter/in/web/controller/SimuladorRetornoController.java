@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 @Controller
 @RequestMapping("/simulador/")
@@ -51,9 +54,10 @@ public class SimuladorRetornoController {
         var configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId(sispCheckoutRequest.getPosID());
 
         validaConfiguracaoPagamento(configuracaoPagamento);
-
+        DecimalFormat df = new DecimalFormat("#");
         validaFingerPrint(sispCheckoutRequest, configuracaoPagamento);
-
+        double valor = Double.parseDouble(sispCheckoutRequest.getAmount());
+        sispCheckoutRequest.setAmount(df.format(valor));
         model.addAttribute("request", sispCheckoutRequest);
 
         return "simulador/sisp/3ds_middleware_php";
@@ -75,18 +79,14 @@ public class SimuladorRetornoController {
 
     private SispWebhookRequest responseSucesso(SispCheckoutRequest sispCheckoutRequest, ConfiguracaoPagamento configuracaoPagamento) {
         SispWebhookRequest request = new SispWebhookRequest();
+        request.setMessageType(MessageRespTypeEnum.SUCESSO_COMPRAS);
         request.setMerchantRespMerchantRef(sispCheckoutRequest.getMerchantRef());
         request.setMerchantRespMerchantSession(sispCheckoutRequest.getMerchantSession());
-        request.setMerchantRespErrorCode("");
-        request.setMerchantRespErrorDescription("");
-        request.setMerchantRespErrorDetail("");
-        request.setMerchantRespAdditionalErrorMessage("");
         request.setMerchantRespCP("987");
         request.setMerchantRespTid("26");
 
         String originalCard = sispCheckoutRequest.getCardNumber();
         int visibleDigits = 4;
-
         String lastFour = originalCard.substring(originalCard.length() - visibleDigits);
         String maskedCard = "*".repeat(originalCard.length() - visibleDigits) + lastFour;
         request.setMerchantRespPan(maskedCard);
@@ -95,13 +95,13 @@ public class SimuladorRetornoController {
         request.setMerchantRespMessageID("J38HvwHPPn22P1se0OxJ");
         request.setMerchantResp("C");
         request.setLanguageMessages(sispCheckoutRequest.getLanguageMessages());
-        request.setMessageType(MessageRespTypeEnum.SUCESSO_COMPRAS);
         request.setMerchantRespTimeStamp(sispCheckoutRequest.getTimeStamp());
         request.setResultFingerPrintVersion(sispCheckoutRequest.getFingerprintversion());
-        request.setMerchantRespEntityCode(sispCheckoutRequest.getEntityCode());
+        request.setMerchantRespAdditionalErrorMessage("");
         request.setMerchantRespReloadCode("");
-        request.setMerchantRespReferenceNumber(sispCheckoutRequest.getReferenceNumber());
-
+        request.setMerchantRespClientReceipt("");
+        request.setMerchantRespEntityCode("");
+        request.setMerchantRespReferenceNumber("");
 
         DataFingerPrint810MPResponse dataFingerPrint810MPResponse = DataFingerPrint810MPResponse.builder().build();
         dataFingerPrint810MPResponse.setMessageType(request.getMessageType().getCode());
@@ -109,7 +109,7 @@ public class SimuladorRetornoController {
         dataFingerPrint810MPResponse.setMerchantRespTid(request.getMerchantRespTid());
         dataFingerPrint810MPResponse.setMerchantRespMerchantRef(request.getMerchantRespMerchantRef());
         dataFingerPrint810MPResponse.setMerchantRespMerchantSession(request.getMerchantRespMerchantSession());
-        dataFingerPrint810MPResponse.setMerchantRespPurchaseAmount(request.getMerchantRespPurchaseAmount().toString());
+        dataFingerPrint810MPResponse.setMerchantRespPurchaseAmount(sispCheckoutRequest.getAmount());
         dataFingerPrint810MPResponse.setMerchantRespMessageID(request.getMerchantRespMessageID());
         dataFingerPrint810MPResponse.setMerchantRespPan(request.getMerchantRespPan());
         dataFingerPrint810MPResponse.setMerchantResp(request.getMerchantResp());
@@ -119,8 +119,8 @@ public class SimuladorRetornoController {
         dataFingerPrint810MPResponse.setMerchantRespClientReceipt(request.getMerchantRespClientReceipt());
         dataFingerPrint810MPResponse.setMerchantRespAdditionalErrorMessage(request.getMerchantRespAdditionalErrorMessage());
         dataFingerPrint810MPResponse.setMerchantRespReloadCode(request.getMerchantRespReloadCode());
-        dataFingerPrint810MPResponse.setResultFingerPrint(request.getResultFingerPrint());
         dataFingerPrint810MPResponse.setPosAutCode(configuracaoPagamento.getPosAutCode());
+        System.out.println("POS AUT CODE: " + configuracaoPagamento.getPosAutCode());
         var fingerPrintResult = HashGenerate.HashGenerate810MP(dataFingerPrint810MPResponse);
 
         request.setResultFingerPrint(fingerPrintResult);

@@ -86,7 +86,9 @@ public class FingerPrintService {
 
 		FingerPrintResult fingerPrintResult = FingerPrintResult.builder().build();
 
-		String resHash= HashGenerate.HashGenerate810MP(dataFingerPrint810MPResponse);
+		logger.log(Level.INFO,dataFingerPrint810MPResponse.toString()); //dataFingerPrint810MPResponse
+
+		String resHash = HashGenerate.HashGenerate810MP(dataFingerPrint810MPResponse);
 
 		logger.log(Level.INFO,
 				"Generate resHash: " +resHash);

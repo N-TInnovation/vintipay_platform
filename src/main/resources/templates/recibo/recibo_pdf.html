@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Recibo de Pagamento</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+        }
+        .logo {
+            max-width: 150px;
+            margin-bottom: 10px;
+        }
+        .title {
+            font-size: 24px;
+            color: #4CAF50;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .reference {
+            font-size: 14px;
+            color: #777;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #eee;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #444;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        table th {
+            background-color: #f5f5f5;
+            padding: 8px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+        }
+        table td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .qr-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .qr-text {
+            font-size: 12px;
+            color: #777;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img class="logo" src="https://vintipay.cv/images/logo.png" alt="Logo VintiPay"/>
+        <div class="title">Recibo de Pagamento</div>
+        <div class="reference">Referência: <span th:text="${pagamento.reference}"></span></div>
+        <div class="status">PAGO</div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Detalhes do Pagamento</div>
+        <table>
+            <tr>
+                <th style="width: 40%;">Item</th>
+                <th style="width: 60%;">Informação</th>
+            </tr>
+            <tr>
+                <td>Valor</td>
+                <td><strong th:text="${pagamento.intencaoPagamento.valor + ' ' + pagamento.intencaoPagamento.moeda}"></strong></td>
+            </tr>
+            <tr>
+                <td>Data/Hora</td>
+                <td th:text="${dataFormatada}"></td>
+            </tr>
+            <tr th:if="${pagamento.metodo != null}">
+                <td>Método de Pagamento</td>
+                <td th:text="${pagamento.metodo}"></td>
+            </tr>
+            <tr th:if="${pagamento.id != null}">
+                <td>ID da Transação</td>
+                <td th:text="${pagamento.id}"></td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Dados do Cliente</div>
+        <table>
+            <tr>
+                <th style="width: 40%;">Item</th>
+                <th style="width: 60%;">Informação</th>
+            </tr>
+            <tr>
+                <td>Nome</td>
+                <td><strong th:text="${pagamento.intencaoPagamento.contaPagamento.name}"></strong></td>
+            </tr>
+            <tr>
+                <td>Email</td>
+                <td th:text="${pagamento.intencaoPagamento.contaPagamento.email}"></td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="section" th:if="${pagamento.intencaoPagamento.descricao != null}">
+        <div class="section-title">Descrição</div>
+        <p th:text="${pagamento.intencaoPagamento.descricao}"></p>
+    </div>
+    
+    <div class="qr-container">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://vintipay.cv/validar/payment/reference/[[${pagamento.reference}]]" alt="QR Code de validação" width="150" height="150" />
+        <div class="qr-text">Escaneie para validar este recibo</div>
+    </div>
+    
+    <div class="footer">
+        <p>Este documento foi gerado automaticamente pelo sistema VintiPay.</p>
+        <p>Para qualquer dúvida, entre em contato com o suporte.</p>
+        <p>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> VintiPay. Todos os direitos reservados.</p>
+    </div>
+</body>
+</html>

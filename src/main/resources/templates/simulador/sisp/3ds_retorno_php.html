@@ -95,7 +95,7 @@
                     <input type="hidden" th:value="*{merchantRespMessageID}" name="merchantRespMessageID">
                     <input type="hidden" th:value="*{merchantResp}" name="merchantResp">
                     <input type="hidden" th:value="*{languageMessages}" name="languageMessages">
-                    <input type="hidden" th:value="*{messageType != null ? messageType.name() : ''}" name="messageType">
+                    <input type="hidden" th:value="*{messageType != null ? messageType.code : ''}" name="messageType">
                     <input type="hidden" th:value="*{merchantRespTimeStamp}" name="merchantRespTimeStamp">
                     <input type="hidden" th:value="*{merchantRespReloadCode}" name="merchantRespReloadCode">
                     <input type="hidden" th:value="*{merchantRespClientReceipt}" name="merchantRespClientReceipt">

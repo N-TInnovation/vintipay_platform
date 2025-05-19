@@ -7,11 +7,12 @@ import lombok.Getter;
 @Getter
 public enum StatusPagamentoEnum {
 
-    PENDENTE("PENDENTE"),
-    PROCESSANDO("PROCESSANDO"),
-    PAGO("PAGO"),
-    ERRO("ERRO"),
-    CANCELADO("CANCELADO");
+    PENDENTE("PENDENTE", "retorno/pendente"),
+    PROCESSANDO("PROCESSANDO", "retorno/pendente"),
+    PAGO("PAGO", "retorno/sucesso"),
+    ERRO("ERRO", "retorno/erro"),
+    CANCELADO("CANCELADO", "retorno/cancelado");
 
     private final String status;
+    private final String retorno;
 }
