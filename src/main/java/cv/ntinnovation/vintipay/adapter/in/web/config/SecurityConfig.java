@@ -84,7 +84,8 @@ public class SecurityConfig {
                     .oauth2ResourceServer((oauth2) -> {
                         oauth2.jwt(withDefaults()).bearerTokenResolver(bearerTokenResolver());
                     })
-                    .csrf(AbstractHttpConfigurer::disable)
+                    .csrf(cookie -> cookie.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                            .ignoringRequestMatchers("/webhook/sisp/pagamentos/retorno/{reference}", "/webhook/stripe"))
                     .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
             return http.build();
