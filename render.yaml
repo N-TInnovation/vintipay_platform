@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: vintipay
+    env: docker
+    region: sao1  # São Paulo (America do Sul)
+    plan: standard
+    buildCommand: ./mvnw package -DskipTests
+    startCommand: java -jar target/*.jar --spring.profiles.active=prod
+    healthCheckPath: /
+    numInstances: 1
+    envVars:
+      - key: ENVIRONMENT
+        value: prod
+      - key: APP_BASE_URL
+        sync: false  # Será definido manualmente no Render
+      - key: PAYMENT_DB_URI
+        sync: false
+      - key: PAYMENT_DB_USERNAME
+        sync: false
+      - key: PAYMENT_DB_PASSWORD
+        sync: false
+      - key: SERVER_SSL_KEY_PASSWORD
+        sync: false
+      - key: SISP_URL_3D
+        sync: false
+      - key: SISP_URL_NORMAL
+        sync: false
+      - key: SISP_DEV_URL_3D
+        sync: false
+      - key: SISP_DEV_URL_NORMAL
+        sync: false
+      - key: SISP_QLD_URL_3D
+        sync: false
+      - key: SISP_QLD_URL_NORMAL
+        sync: false
+      - key: SISP_CHECKOUT_RETURN_URL
+        sync: false
+      - key: VENDUS_API_KEY
+        sync: false
+      - key: VENDUS_API_URL
+        sync: false
