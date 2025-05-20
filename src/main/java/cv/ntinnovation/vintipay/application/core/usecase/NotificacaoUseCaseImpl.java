@@ -34,12 +34,12 @@ public class NotificacaoUseCaseImpl implements NotificacaoUseCase {
     }
 
     @Override
-    public boolean enviarEmailPagamento(String destinatario, String destinatarioNome, String referenciaPagamento, Double valor) {
+    public boolean enviarEmailPagamento(String destinatario, String destinatarioNome, String referenciaPagamento, Double valor, String descricao, String urlVisualizarRecibo) {
         try {
             String valorFormatado = NumberFormat.getCurrencyInstance(new Locale("pt", "CV")).format(valor);
             String assunto = "Confirmação de Pagamento - VintiPay";
             
-            String conteudo = buildEmailConfirmacaoPagamento(referenciaPagamento, valorFormatado);
+            String conteudo = buildEmailConfirmacaoPagamento(referenciaPagamento, valorFormatado, descricao, urlVisualizarRecibo);
             
             log.debug("Enviando email de pagamento para {}, nome: {}, referência: {}",
                     destinatario, destinatarioNome, referenciaPagamento);
@@ -84,7 +84,7 @@ public class NotificacaoUseCaseImpl implements NotificacaoUseCase {
     /**
      * Constrói o HTML para o email de confirmação de pagamento
      */
-    private String buildEmailConfirmacaoPagamento(String referenciaPagamento, String valor) {
+    private String buildEmailConfirmacaoPagamento(String referenciaPagamento, String valor, String descricao, String urlVisualizarRecibo) {
         return "<html>" +
                 "<head>" +
                 "  <style>" +
@@ -94,8 +94,9 @@ public class NotificacaoUseCaseImpl implements NotificacaoUseCase {
                 "    .content { padding: 20px; border: 1px solid #ddd; border-top: none; }" +
                 "    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #777; }" +
                 "    .btn { display: inline-block; padding: 10px 20px; background-color: #3b91d3; color: white; " +
-                "           text-decoration: none; border-radius: 4px; }" +
+                "           text-decoration: none; border-radius: 4px; margin: 20px 0; text-align: center; }" +
                 "    .highlight { font-weight: bold; color: #3b91d3; }" +
+                "    .actions { text-align: center; margin: 25px 0; }" +
                 "  </style>" +
                 "</head>" +
                 "<body>" +
@@ -109,8 +110,15 @@ public class NotificacaoUseCaseImpl implements NotificacaoUseCase {
                 "      <p>Detalhes da transação:</p>" +
                 "      <ul>" +
                 "        <li><strong>Referência:</strong> <span class='highlight'>" + referenciaPagamento + "</span></li>" +
-                "        <li><strong>Valor:</strong> <span class='highlight'>" + valor + " ECV</span></li>" +
+                "        <li><strong>Valor:</strong> <span class='highlight'>" + valor + "</span></li>" +
+                (descricao != null && !descricao.isEmpty() ? 
+                "        <li><strong>Produto/Serviço:</strong> <span class='highlight'>" + descricao + "</span></li>" : "") +
                 "      </ul>" +
+                "      <div class='actions'>" +
+                "        <a href='" + urlVisualizarRecibo + "' class='btn'>Visualizar Recibo</a>" +
+                "      </div>" +
+                "      <p>Você também pode acessar o seu recibo a qualquer momento através do link abaixo:</p>" +
+                "      <p><a href='" + urlVisualizarRecibo + "'>" + urlVisualizarRecibo + "</a></p>" +
                 "      <p>Obrigado por utilizar nossos serviços.</p>" +
                 "    </div>" +
                 "    <div class='footer'>" +

@@ -13,6 +13,7 @@ import cv.ntinnovation.vintipay.application.core.domain.rules.DataFingerPrint810
 import cv.ntinnovation.vintipay.application.core.domain.rules.FingerPrintService;
 import cv.ntinnovation.vintipay.application.core.utils.HashGenerate;
 import cv.ntinnovation.vintipay.application.port.in.BuscaConfiguracaoPagamentoUseCase;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,7 +39,7 @@ public class SimuladorRetornoController {
             @RequestParam(value = "FingerPrint") String fingerPrint,
             @RequestParam(value = "TimeStamp") String timeStamp,
             @RequestParam(value = "FingerPrintVersion") String fingerPrintVersion,
-            @ModelAttribute SispCheckoutRequest sispCheckoutRequest,
+            @ModelAttribute @NotNull SispCheckoutRequest sispCheckoutRequest,
             Model model
             ) {
         if(!sispCheckoutRequest.getFingerprint().equals(fingerPrint)) {

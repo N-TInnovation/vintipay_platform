@@ -24,9 +24,12 @@ public interface NotificacaoUseCase {
      * @param destinatarioNome Nome do destinatário
      * @param referenciaPagamento Referência do pagamento
      * @param valor Valor da transação
+     * @param descricao Descrição do produto ou serviço (opcional)
+     * @param urlVisualizarRecibo URL para visualizar o recibo online
      * @return true se o email foi enviado com sucesso, false caso contrário
      */
-    boolean enviarEmailPagamento(String destinatario, String destinatarioNome, String referenciaPagamento, Double valor);
+    boolean enviarEmailPagamento(String destinatario, String destinatarioNome, String referenciaPagamento, 
+                                Double valor, String descricao, String urlVisualizarRecibo);
 
     /**
      * Envia um email de notificação de pagamento recebido para o comerciante

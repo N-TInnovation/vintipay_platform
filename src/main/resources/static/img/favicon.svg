@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <!-- Gradiente refinado para o fundo -->
+    <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3498db;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2980b9;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Sutis sombras internas e externas -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
+      <feOffset dx="0" dy="1" result="offsetblur" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" /> 
+      </feMerge>
+    </filter>
+    
+    <!-- Sutil brilho para as letras -->
+    <filter id="letterGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="0.5" />
+      <feOffset dx="0" dy="0" result="offsetblur" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" /> 
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Fundo circular com gradiente e sombra sutil -->
+  <circle cx="64" cy="64" r="60" fill="url(#circleGradient)" filter="url(#dropShadow)" />
+  
+  <!-- Anel decorativo de realce -->
+  <circle cx="64" cy="64" r="57" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" />
+  
+  <!-- Iniciais VP (VintiPay) com tipografia refinada -->
+  <g filter="url(#letterGlow)">
+    <!-- Letra V melhorada -->
+    <path d="M 31,46 L 46,82 L 55,82 L 70,46 L 60,46 L 50,72 L 41,46 Z" fill="white" />
+    
+    <!-- Letra P melhorada -->
+    <path d="M 77,46 L 97,46 C 101,46 104,48 106,50 C 108,52 109,56 109,60 C 109,64 108,68 106,70 C 104,72 101,74 97,74 L 87,74 L 87,82 L 77,82 Z M 87,54 L 96,54 C 97,54 98,54 99,53 C 100,52 100,51 100,50 C 100,48 99,47 98,46 C 97,45 96,45 95,45 L 87,45 L 87,54 Z" fill="white" />
+  </g>
+  
+  <!-- Reflexo sutil no topo -->
+  <path d="M 64,4 C 37,4 14.5,21 6,43 C 15,25 38,12 64,12 C 90,12 113,25 122,43 C 113.5,21 91,4 64,4 Z" fill="rgba(255,255,255,0.1)" />
+</svg>

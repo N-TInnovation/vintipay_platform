@@ -135,12 +135,20 @@ public class WebhookPagamentoController {
             if(configuracaoPagamento.getReturnUrl() == null || configuracaoPagamento.getReturnUrl().isEmpty()) {
                 //configuracaoPagamento.setReturnUrl(String.format("%s/%s", returnUrlPadrao, pagamento.getReference()));
                 if(pagamento.getStatus().equals(StatusPagamentoEnum.PAGO)) {
+                    // Construir URL para visualização do recibo
+                    String urlVisualizarRecibo = request2.getScheme() + "://" + 
+                                                request2.getServerName() + 
+                                                (request2.getServerPort() != 80 && request2.getServerPort() != 443 ? ":" + request2.getServerPort() : "") + 
+                                                "/recibo/view/" + pagamento.getReference();
+                                                
                     // Enviar email para o cliente que realizou o pagamento
                     notificacaoUseCase.enviarEmailPagamento(
                         pagamento.getIntencaoPagamento().getContaPagamento().getEmail(),
                         pagamento.getIntencaoPagamento().getContaPagamento().getName(),
                         pagamento.getReference(), 
-                        pagamento.getIntencaoPagamento().getValor().doubleValue()
+                        pagamento.getIntencaoPagamento().getValor().doubleValue(),
+                        pagamento.getIntencaoPagamento().getDescricao(),
+                        urlVisualizarRecibo
                     );
                     
                     // Enviar notificação para o comerciante/lojista
