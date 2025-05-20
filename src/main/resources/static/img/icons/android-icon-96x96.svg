@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <defs>
+    <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3498db;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2980b9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fundo circular com gradiente -->
+  <circle cx="48" cy="48" r="45" fill="url(#circleGradient)" />
+  
+  <!-- Iniciais VP (VintiPay) -->
+  <g>
+    <!-- Letra V -->
+    <path d="M 19,34 L 29,62 L 41,62 L 52,34 L 40,34 L 35,52 L 31,34 Z" fill="white" />
+    
+    <!-- Letra P -->
+    <path d="M 58,34 L 73,34 C 76,34 78,36 80,38 C 81,40 82,42 82,45 C 82,48 81,50 80,52 C 78,54 76,55 73,55 L 65,55 L 65,62 L 58,62 Z M 65,40 L 72,40 C 73,40 74,40 74,41 C 75,42 75,43 75,44 C 75,45 75,46 74,47 C 74,48 73,48 72,48 L 65,48 L 65,40 Z" fill="white" />
+  </g>
+  
+  <!-- Anel decorativo de realce -->
+  <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
+</svg>
