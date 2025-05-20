@@ -118,6 +118,7 @@ public class SecurityConfig {
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                     )
                     .authorizeHttpRequests(auth -> auth
+                            .requestMatchers("/").permitAll()
                             .requestMatchers("/admin/**").hasRole("ADMIN")
                             .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                             .requestMatchers("/permissoes/**").hasRole("ADMIN")
