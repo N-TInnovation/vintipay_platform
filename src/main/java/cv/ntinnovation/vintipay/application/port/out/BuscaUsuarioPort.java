@@ -20,4 +20,18 @@ public interface BuscaUsuarioPort {
      * @return Optional contendo o usuário se encontrado, ou vazio se não existir
      */
     Optional<Usuario> buscarPorId(Long id);
+    
+    /**
+     * Busca um usuário pelo seu e-mail
+     * @param email E-mail do usuário a ser buscado
+     * @return Optional contendo o usuário se encontrado, ou vazio se não existir
+     */
+    Optional<Usuario> buscarPorEmail(String email);
+    
+    /**
+     * Busca um usuário pelo token de recuperação de senha
+     * @param token Token de recuperação de senha
+     * @return Optional contendo o usuário se encontrado, ou vazio se não existir
+     */
+    Optional<Usuario> buscarPorResetToken(String token);
 }

@@ -34,4 +34,16 @@ public class BuscaUsuarioAdapter implements BuscaUsuarioPort {
         return usuarioRepository.findById(id)
                 .map(ususarioMapper::toDomain);
     }
+    
+    @Override
+    public Optional<Usuario> buscarPorEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .map(ususarioMapper::toDomain);
+    }
+    
+    @Override
+    public Optional<Usuario> buscarPorResetToken(String token) {
+        return usuarioRepository.findByResetPasswordToken(token)
+                .map(ususarioMapper::toDomain);
+    }
 }

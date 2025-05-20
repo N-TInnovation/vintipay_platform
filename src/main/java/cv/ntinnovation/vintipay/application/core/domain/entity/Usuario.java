@@ -59,6 +59,14 @@ public class Usuario extends User {
     @Setter
     private Set<Papel> papeis = new HashSet<>();
 
+    @Getter
+    @Setter
+    private String resetPasswordToken;
+
+    @Getter
+    @Setter
+    private LocalDateTime resetPasswordExpires;
+
     /**
      * Construtor padrão para criar instâncias simplificadas
      * Usado principalmente para referências em relacionamentos

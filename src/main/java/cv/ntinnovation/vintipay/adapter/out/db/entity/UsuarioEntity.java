@@ -54,6 +54,12 @@ public class UsuarioEntity {
     @Column(name = "ultimo_login")
     private java.time.LocalDateTime ultimoLogin;
     
+    @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+    
+    @Column(name = "reset_password_expires")
+    private java.time.LocalDateTime resetPasswordExpires;
+
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
     private PlanoAssinaturaEntity planoAssinatura;
 }

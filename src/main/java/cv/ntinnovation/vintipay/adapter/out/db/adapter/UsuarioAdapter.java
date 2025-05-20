@@ -22,8 +22,9 @@ public class UsuarioAdapter implements SalvaUsuario, BuscaUsuario {
     private final UsusarioMapper ususarioMapper;
 
     @Override
-    public void salvar(Usuario usuario) {
-        repository.save(ususarioMapper.toEntity(usuario));
+    public Usuario salvar(Usuario usuario) {
+        var user = repository.save(ususarioMapper.toEntity(usuario));
+        return ususarioMapper.toDomain(user);
     }
 
     @Override

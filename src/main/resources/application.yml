@@ -9,17 +9,12 @@ spring:
     allow-circular-references: true
   application:
     name: vintipay
-  cloud:
-    openfeign:
-      client:
-        config:
-          default:
-            loggerLevel: full
+
 logging:
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql: TRACE
-    org.springframework.jdbc.datasource.init: DEBUG
+    #org.hibernate.SQL: DEBUG
+    #org.hibernate.type.descriptor.sql: TRACE
+    #org.springframework.jdbc.datasource.init: DEBUG
     cv.ntinnovation.vintipay: DEBUG
     org.springframework.security: DEBUG
 

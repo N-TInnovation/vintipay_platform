@@ -53,6 +53,8 @@ public class UsuarioMapper {
         usuario.setStripeCustomerId(userEntity.getStripeCustomerId());
         usuario.setDataRegistro(userEntity.getDataRegistro());
         usuario.setUltimoLogin(userEntity.getUltimoLogin());
+        usuario.setResetPasswordToken(userEntity.getResetPasswordToken());
+        usuario.setResetPasswordExpires(userEntity.getResetPasswordExpires());
         
         // Mapear papéis
         if (userEntity.getPapeis() != null && !userEntity.getPapeis().isEmpty()) {
@@ -89,6 +91,8 @@ public class UsuarioMapper {
                 .stripeCustomerId(user.getStripeCustomerId())
                 .dataRegistro(user.getDataRegistro())
                 .ultimoLogin(user.getUltimoLogin())
+                .resetPasswordToken(user.getResetPasswordToken())
+                .resetPasswordExpires(user.getResetPasswordExpires())
                 .build();
         
         // Mapear papéis
