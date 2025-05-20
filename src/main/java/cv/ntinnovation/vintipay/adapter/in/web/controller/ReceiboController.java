@@ -149,6 +149,51 @@ public class ReceiboController {
     }
 
     /**
+     * Exibe uma versão web do recibo para visualização com URL amigável sem o prefixo 'view'
+     * Acesso direto via /recibo/{id}
+     */
+    @GetMapping("/{id}")
+    public String visualizarReciboPorId(@PathVariable String id, Map<String, Object> model) {
+        try {
+            log.info("Requisição de visualização do recibo com ID: {}", id);
+            
+            // Busca o pagamento
+            Optional<Pagamento> pagamentoOptional = pagamentoUseCase.buscarPorReferencia(id);
+            if (pagamentoOptional.isEmpty()) {
+                log.warn("Pagamento não encontrado para o ID: {}", id);
+                model.put("error", "Pagamento não encontrado");
+                return "error/404";
+            }
+
+            Pagamento pagamento = pagamentoOptional.get();
+            
+            // Adiciona dados do pagamento ao modelo
+            model.put("pagamento", pagamento);
+            model.put("dataFormatada", 
+                pagamento.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+                
+            // Busca informações da loja/configuração de pagamento
+            ConfiguracaoPagamento config =
+                buscaConfiguracaoPagamentoUseCase.buscarPorPosId(pagamento.getIntencaoPagamento().getPosId());
+            if (config != null) {
+                model.put("loja", config);
+            }
+            
+            // Gera o QR code e converte para base64
+            String qrCodeBase64 = gerarQRCodeBase64("https://vintipay.cv/validar/payment/reference/" + pagamento.getReference());
+            model.put("qrCodeBase64", qrCodeBase64);
+            
+            // Retorna o template com o recibo
+            return "recibo/visualizar";
+            
+        } catch (Exception e) {
+            log.error("Erro ao exibir recibo com ID {}: {}", id, e.getMessage(), e);
+            model.put("error", "Erro ao processar o recibo: " + e.getMessage());
+            return "error/500";
+        }
+    }
+
+    /**
      * Exibe uma versão web do recibo para visualização
      */
     @GetMapping("/view/{referencia}")

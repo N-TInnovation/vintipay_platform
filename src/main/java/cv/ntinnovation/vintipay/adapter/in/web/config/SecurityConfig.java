@@ -172,6 +172,9 @@ public class SecurityConfig {
         public SecurityFilterChain simulatorSecurityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 
             http.securityMatcher("/simulador/**")
+                    .csrf(csrf -> csrf
+                            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    )
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers(HttpMethod.POST, "/simulador/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/simulador/**").permitAll()
