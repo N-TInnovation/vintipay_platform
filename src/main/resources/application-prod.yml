@@ -4,15 +4,25 @@ spring:
     username: ${PAYMENT_DB_USERNAME}
     password: ${PAYMENT_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 120000
+      max-lifetime: 1800000
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
-        use_sql_comments: true
+        format_sql: false
+        use_sql_comments: false
+        jdbc:
+          time_zone: UTC
+        connection:
+          provider_disables_autocommit: false
     defer-datasource-initialization: false
   sql:
     init:
@@ -24,10 +34,11 @@ spring:
     enabled: true
     baseline-on-migrate: true
     repair-on-migrate: true
-    clean-on-validation-error: true
+    clean-on-validation-error: false
     locations: classpath:db/migration
     validate-on-migrate: false
     out-of-order: true
+    baseline-version: 0
 
 server:
   port: ${SERVER_PORT}
