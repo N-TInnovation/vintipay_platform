@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.ContaPagamento;
+import cv.ntinnovation.vintipay.application.core.domain.entity.ContatoContaPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.InfoContaPagamento;
 import cv.ntinnovation.vintipay.application.port.out.BuscaContaPagamentoPorEmail;
 import cv.ntinnovation.vintipay.application.port.out.SalvaContaPagamento;
@@ -83,16 +84,33 @@ class CriaContaPagamentoUseCaseTest {
     void criarOuBuscarPorEmail_QuandoContaExiste_DeveRetornarContaExistente() {
         // Arrange
         ContaPagamento contaExistente = createSampleContaPagamento();
+        
+        // Configurar telefone na conta existente
+        ContatoContaPagamento mobilePhone = ContatoContaPagamento.builder()
+                .cc(phoneCode)
+                .subscriber(phoneNumber)
+                .build();
+        contaExistente.setMobilePhone(mobilePhone);
+        
         when(buscaContaPagamentoPorEmail.buscarPorEmail(email)).thenReturn(contaExistente);
 
         // Act
         ContaPagamento resultado = criaContaPagamentoUseCase.criarOuBuscarPorEmail("",
-                email, billAddrCity, "",billAddrCountry, billAddrLine1, "",billAddrPostCode, phoneCode, phoneNumber);
+                email, billAddrCity, "", billAddrCountry, billAddrLine1, "", billAddrPostCode, phoneCode, phoneNumber);
 
         // Assert
         assertNotNull(resultado);
         assertEquals(contaExistente.getId(), resultado.getId());
         assertEquals(contaExistente.getEmail(), resultado.getEmail());
+        assertEquals(contaExistente.getBillAddrCity(), resultado.getBillAddrCity());
+        assertEquals(contaExistente.getBillAddrCountry(), resultado.getBillAddrCountry());
+        assertEquals(contaExistente.getBillAddrLine1(), resultado.getBillAddrLine1());
+        assertEquals(contaExistente.getBillAddrPostCode(), resultado.getBillAddrPostCode());
+        
+        // Verificar telefone
+        assertNotNull(resultado.getMobilePhone());
+        assertEquals(phoneCode, resultado.getMobilePhone().getCc());
+        assertEquals(phoneNumber, resultado.getMobilePhone().getSubscriber());
         
         // Verify
         verify(buscaContaPagamentoPorEmail).buscarPorEmail(email);

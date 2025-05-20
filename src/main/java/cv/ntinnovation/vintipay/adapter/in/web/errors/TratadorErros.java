@@ -3,11 +3,15 @@ package cv.ntinnovation.vintipay.adapter.in.web.errors;
 import cv.ntinnovation.vintipay.application.core.domain.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import java.util.List;
 
 @ControllerAdvice
 public class TratadorErros {
@@ -59,6 +63,13 @@ public class TratadorErros {
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public String error400(MissingServletRequestParameterException ex, Model model) {
         model.addAttribute("mensagem",  ex.getMessage());
+        return "erro-400";
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public String error400(MethodArgumentNotValidException ex, Model model) {
+        List<FieldError> errors = ex.getBindingResult().getFieldErrors();
+        model.addAttribute("mensagem",  errors.toString());
         return "erro-400";
     }
 

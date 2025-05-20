@@ -3,7 +3,6 @@ package cv.ntinnovation.vintipay.application.core.usecase;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ContaPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.IntencaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
-import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.out.SalvaIntencaoPagamento;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +32,10 @@ class CriaIntencaoPagamentoUseCaseImplTest {
                 .valor(BigDecimal.valueOf(100.50))
                 .contaPagamento(ContaPagamento.builder().id(1L).build())
                 .moeda("CVE")
+                .merchantRef("MERCHANT123")
+                .merchantSession("SESSION456")
+                .posId("POS789")
+                .transactionCode("TRANS001")
                 .build();
 
         IntencaoPagamento intencaoPagamentoSalva = IntencaoPagamento.builder()
@@ -42,6 +45,10 @@ class CriaIntencaoPagamentoUseCaseImplTest {
                 .status(StatusIntencaoPagamentoEnum.PENDENTE)
                 .referencia("REF123")
                 .moeda("CVE")
+                .merchantRef("MERCHANT123")
+                .merchantSession("SESSION456")
+                .posId("POS789")
+                .transactionCode("TRANS001")
                 .build();
 
         when(salvaIntencaoPagamento.salvar(any(IntencaoPagamento.class))).thenReturn(intencaoPagamentoSalva);
@@ -53,7 +60,7 @@ class CriaIntencaoPagamentoUseCaseImplTest {
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
         assertEquals(BigDecimal.valueOf(100.50), resultado.getValor());
-        assertEquals(StatusPagamentoEnum.PENDENTE, resultado.getStatus());
+        assertEquals(StatusIntencaoPagamentoEnum.PENDENTE, resultado.getStatus());
         assertNotNull(resultado.getReferencia());
         
         verify(salvaIntencaoPagamento, times(1)).salvar(any(IntencaoPagamento.class));
@@ -70,6 +77,10 @@ class CriaIntencaoPagamentoUseCaseImplTest {
                 .contaPagamentoBillAddrLine1("Rua Principal, 123")
                 .contaPagamentoBillAddrPostCode("12345")
                 .moeda("CVE")
+                .merchantRef("MERCHANT123")
+                .merchantSession("SESSION456")
+                .posId("POS789")
+                .transactionCode("TRANS001")
                 .build();
 
         IntencaoPagamento intencaoPagamentoSalva = IntencaoPagamento.builder()
@@ -80,9 +91,13 @@ class CriaIntencaoPagamentoUseCaseImplTest {
                 .contaPagamentoBillAddrCountry("CV")
                 .contaPagamentoBillAddrLine1("Rua Principal, 123")
                 .contaPagamentoBillAddrPostCode("12345")
-                .status(StatusIntencaoPagamentoEnum.PENDENTE.PENDENTE)
+                .status(StatusIntencaoPagamentoEnum.PENDENTE)
                 .referencia("REF123")
                 .moeda("CVE")
+                .merchantRef("MERCHANT123")
+                .merchantSession("SESSION456")
+                .posId("POS789")
+                .transactionCode("TRANS001")
                 .build();
 
         when(salvaIntencaoPagamento.salvar(any(IntencaoPagamento.class))).thenReturn(intencaoPagamentoSalva);
@@ -94,7 +109,7 @@ class CriaIntencaoPagamentoUseCaseImplTest {
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
         assertEquals(BigDecimal.valueOf(100.50), resultado.getValor());
-        assertEquals(StatusPagamentoEnum.PENDENTE, resultado.getStatus());
+        assertEquals(StatusIntencaoPagamentoEnum.PENDENTE, resultado.getStatus());
         assertNotNull(resultado.getReferencia());
         assertEquals("cliente@example.com", resultado.getContaPagamentoEmail());
         
@@ -102,10 +117,15 @@ class CriaIntencaoPagamentoUseCaseImplTest {
     }
 
     @Test
-    void criar_QuandoAmountNulo_DeveLancarExcecao() {
+    void criar_QuandoValorNulo_DeveLancarExcecao() {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
                 .contaPagamento(ContaPagamento.builder().id(1L).build())
+                .moeda("CVE")
+                .merchantRef("MERCHANT123")
+                .merchantSession("SESSION456")
+                .posId("POS789")
+                .transactionCode("TRANS001")
                 .build();
 
         // Act & Assert
@@ -117,11 +137,16 @@ class CriaIntencaoPagamentoUseCaseImplTest {
     }
 
     @Test
-    void criar_QuandoAmountNegativo_DeveLancarExcecao() {
+    void criar_QuandoValorNegativo_DeveLancarExcecao() {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
                 .valor(BigDecimal.valueOf(-10.0))
                 .contaPagamento(ContaPagamento.builder().id(1L).build())
+                .moeda("CVE")
+                .merchantRef("MERCHANT123")
+                .merchantSession("SESSION456")
+                .posId("POS789")
+                .transactionCode("TRANS001")
                 .build();
 
         // Act & Assert
@@ -133,18 +158,102 @@ class CriaIntencaoPagamentoUseCaseImplTest {
     }
 
     @Test
-    void criar_QuandoMetodoPagamentoNulo_DeveLancarExcecao() {
+    void criar_QuandoMoedaNula_DeveLancarExcecao() {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
                 .valor(BigDecimal.valueOf(100.50))
                 .contaPagamento(ContaPagamento.builder().id(1L).build())
+                .merchantRef("MERCHANT123")
+                .merchantSession("SESSION456")
+                .posId("POS789")
+                .transactionCode("TRANS001")
                 .build();
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> criaIntencaoPagamentoUseCase.criar(intencaoPagamento));
         
-        assertEquals("O método de pagamento é obrigatório", exception.getMessage());
+        assertEquals("A moeda do pagamento é obrigatória", exception.getMessage());
+        verify(salvaIntencaoPagamento, never()).salvar(any(IntencaoPagamento.class));
+    }
+
+    @Test
+    void criar_QuandoMerchantRefNulo_DeveLancarExcecao() {
+        // Arrange
+        IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
+                .valor(BigDecimal.valueOf(100.50))
+                .contaPagamento(ContaPagamento.builder().id(1L).build())
+                .moeda("CVE")
+                .merchantSession("SESSION456")
+                .posId("POS789")
+                .transactionCode("TRANS001")
+                .build();
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> criaIntencaoPagamentoUseCase.criar(intencaoPagamento));
+        
+        assertEquals("A referência do merchant é obrigatória", exception.getMessage());
+        verify(salvaIntencaoPagamento, never()).salvar(any(IntencaoPagamento.class));
+    }
+
+    @Test
+    void criar_QuandoMerchantSessionNulo_DeveLancarExcecao() {
+        // Arrange
+        IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
+                .valor(BigDecimal.valueOf(100.50))
+                .contaPagamento(ContaPagamento.builder().id(1L).build())
+                .moeda("CVE")
+                .merchantRef("MERCHANT123")
+                .posId("POS789")
+                .transactionCode("TRANS001")
+                .build();
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> criaIntencaoPagamentoUseCase.criar(intencaoPagamento));
+        
+        assertEquals("A sessão do merchant é obrigatória", exception.getMessage());
+        verify(salvaIntencaoPagamento, never()).salvar(any(IntencaoPagamento.class));
+    }
+
+    @Test
+    void criar_QuandoPosIdNulo_DeveLancarExcecao() {
+        // Arrange
+        IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
+                .valor(BigDecimal.valueOf(100.50))
+                .contaPagamento(ContaPagamento.builder().id(1L).build())
+                .moeda("CVE")
+                .merchantRef("MERCHANT123")
+                .merchantSession("SESSION456")
+                .transactionCode("TRANS001")
+                .build();
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> criaIntencaoPagamentoUseCase.criar(intencaoPagamento));
+        
+        assertEquals("O ID do POS é obrigatório", exception.getMessage());
+        verify(salvaIntencaoPagamento, never()).salvar(any(IntencaoPagamento.class));
+    }
+
+    @Test
+    void criar_QuandoTransactionCodeNulo_DeveLancarExcecao() {
+        // Arrange
+        IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
+                .valor(BigDecimal.valueOf(100.50))
+                .contaPagamento(ContaPagamento.builder().id(1L).build())
+                .moeda("CVE")
+                .merchantRef("MERCHANT123")
+                .merchantSession("SESSION456")
+                .posId("POS789")
+                .build();
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> criaIntencaoPagamentoUseCase.criar(intencaoPagamento));
+        
+        assertEquals("O código da transação é obrigatório", exception.getMessage());
         verify(salvaIntencaoPagamento, never()).salvar(any(IntencaoPagamento.class));
     }
 
@@ -153,6 +262,11 @@ class CriaIntencaoPagamentoUseCaseImplTest {
         // Arrange
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
                 .valor(BigDecimal.valueOf(100.50))
+                .moeda("CVE")
+                .merchantRef("MERCHANT123")
+                .merchantSession("SESSION456")
+                .posId("POS789")
+                .transactionCode("TRANS001")
                 .build();
 
         // Act & Assert
@@ -169,6 +283,11 @@ class CriaIntencaoPagamentoUseCaseImplTest {
         IntencaoPagamento intencaoPagamento = IntencaoPagamento.builder()
                 .valor(BigDecimal.valueOf(100.50))
                 .contaPagamentoEmail("")
+                .moeda("CVE")
+                .merchantRef("MERCHANT123")
+                .merchantSession("SESSION456")
+                .posId("POS789")
+                .transactionCode("TRANS001")
                 .build();
 
         // Act & Assert
