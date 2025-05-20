@@ -31,12 +31,14 @@ spring:
     out-of-order: true
 
 server:
-  port: 8443
+  port: ${SERVER_PORT}
   ssl:
     enabled: true
-    key-store: classpath:keystore1.jks
+    key-store: ${SERVER_SSL_KEY_STORE}
+    key-store-type: ${SERVER_SSL_KEY_STORE_TYPE}
     key-store-password: ${SERVER_SSL_KEY_PASSWORD}
     key-password:  ${SERVER_SSL_KEY_PASSWORD}
+    key-alias: ${SERVER_SSL_KEY_ALIAS}
   servlet:
     context-path: /
 
@@ -46,9 +48,9 @@ security:
 
 jwt:
   public:
-    key: "classpath:app.pub"
+    key: ${JWT_PUBLIC_KEY}
   private:
-    key: "classpath:app.key"
+    key: ${JWT_PRIVATE_KEY}
 
 # Configurações da API SISP
 sisp:
