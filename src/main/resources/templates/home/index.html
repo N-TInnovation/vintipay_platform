@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VintiPay - Sua Solução de Pagamento Digital em Cabo Verde</title>
+    
+    <!-- Incluir fragmento de favicon reutilizável -->
+    <th:block th:replace="~{fragments/head-favicons :: favicons}"></th:block>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #198754;
+            --dark-color: #212529;
+            --light-color: #f8f9fa;
+            --accent-color: #fd7e14;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+        }
+        
+        .navbar {
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand img {
+            max-height: 40px;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0dcaf0 100%);
+            color: white;
+            padding: 5rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/img/pattern.png');
+            opacity: 0.1;
+            z-index: 1;
+        }
+        
+        .hero .container {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .hero-image {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .features {
+            padding: 5rem 0;
+            background-color: var(--light-color);
+        }
+        
+        .feature-box {
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .how-it-works {
+            padding: 5rem 0;
+        }
+        
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 3rem;
+        }
+        
+        .step-number {
+            background-color: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .testimonials {
+            padding: 5rem 0;
+            background-color: var(--light-color);
+        }
+        
+        .testimonial-card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .testimonial-card img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
+        
+        .cta {
+            padding: 5rem 0;
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+        }
+        
+        .footer {
+            padding: 3rem 0;
+            background-color: var(--dark-color);
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .footer h5 {
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            color: white;
+        }
+        
+        .social-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+        
+        .btn-rounded {
+            border-radius: 50px;
+            padding: 10px 25px;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-image {
+                margin-top: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="/img/logo.png" alt="VintiPay Logo" onerror="this.onerror=null; this.src='/img/payment-icon.png';">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Características</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#how-it-works">Como Funciona</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#testimonials">Depoimentos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/login">Entrar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary btn-rounded ms-2" href="/registro">Criar Conta</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" style="margin-top: 70px;">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1>Pagamentos digitais simplificados para Cabo Verde</h1>
+                    <p>VintiPay é uma plataforma de pagamentos completa, projetada para atender às necessidades específicas do mercado cabo-verdiano. Receba pagamentos online, gerencie suas finanças e faça crescer seu negócio.</p>
+                    <a href="/registro" class="btn btn-light btn-lg btn-rounded me-2">Comece Grátis</a>
+                    <a href="#features" class="btn btn-outline-light btn-lg btn-rounded">Saiba Mais</a>
+                </div>
+                <div class="col-lg-6">
+                    <img src="/img/payment-illustration.png" alt="VintiPay Dashboard" class="hero-image img-fluid" onerror="this.onerror=null; this.src='https://via.placeholder.com/600x400?text=VintiPay';">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>Características Principais</h2>
+                <p class="lead">Por que escolher o VintiPay para seu negócio</p>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <div class="feature-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <h3>Pagamentos Online</h3>
+                        <p>Aceite pagamentos digitais diretamente em seu site ou aplicativo, com suporte a múltiplos métodos de pagamento.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <div class="feature-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3>Segurança Total</h3>
+                        <p>Todas as transações são protegidas com a mais alta tecnologia de criptografia, garantindo a segurança dos seus dados e pagamentos.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Relatórios Detalhados</h3>
+                        <p>Acompanhe todas as suas transações com relatórios detalhados e insights valiosos para o crescimento do seu negócio.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <div class="feature-icon">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <h3>Dashboard Intuitivo</h3>
+                        <p>Interface amigável que permite gerenciar facilmente suas transações, clientes e financeiro em um só lugar.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <div class="feature-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <h3>Links de Pagamento</h3>
+                        <p>Crie e compartilhe links de pagamento rapidamente, sem necessidade de website ou conhecimento técnico.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <div class="feature-icon">
+                            <i class="fas fa-life-ring"></i>
+                        </div>
+                        <h3>Suporte Local</h3>
+                        <p>Conte com nossa equipe de suporte local em Cabo Verde para ajudar com qualquer dúvida ou problema.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>Como Funciona</h2>
+                <p class="lead">Começar a usar o VintiPay é simples e rápido</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div>
+                            <h4>Crie sua conta</h4>
+                            <p>Registre-se gratuitamente na plataforma VintiPay, fornecendo informações básicas sobre você ou sua empresa.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div>
+                            <h4>Configure sua conta</h4>
+                            <p>Complete seu perfil e adicione suas informações bancárias para começar a receber pagamentos.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div>
+                            <h4>Integre ao seu negócio</h4>
+                            <p>Adicione botões de pagamento ao seu site, crie links de pagamento ou use nossa API para uma integração completa.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div>
+                            <h4>Receba pagamentos</h4>
+                            <p>Comece a aceitar pagamentos de seus clientes e acompanhe todas as transações pelo painel administrativo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>O Que Nossos Clientes Dizem</h2>
+                <p class="lead">Empresas de Cabo Verde que confiam no VintiPay</p>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="Cliente 1">
+                        <h5>João Silva</h5>
+                        <p class="text-muted">Dono da Loja Virtual Cabo Verde</p>
+                        <p>"O VintiPay revolucionou meu negócio online. Agora posso receber pagamentos de clientes em todo o país de forma simples e segura."</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <img src="https://randomuser.me/api/portraits/women/1.jpg" alt="Cliente 2">
+                        <h5>Maria Santos</h5>
+                        <p class="text-muted">CEO da Agência Turismo Praia</p>
+                        <p>"Com o VintiPay, conseguimos oferecer um processo de reserva e pagamento muito mais fluido para nossos clientes internacionais."</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <img src="https://randomuser.me/api/portraits/men/2.jpg" alt="Cliente 3">
+                        <h5>Pedro Neves</h5>
+                        <p class="text-muted">Fundador da Tech CV</p>
+                        <p>"A integração com a API do VintiPay foi surpreendentemente fácil. Em poucos dias, tínhamos um sistema de pagamento robusto funcionando."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2 class="mb-4">Pronto para começar a aceitar pagamentos online?</h2>
+            <p class="lead mb-4">Junte-se a centenas de empresas em Cabo Verde que já utilizam o VintiPay</p>
+            <a href="/registro" class="btn btn-light btn-lg btn-rounded">Crie Sua Conta Grátis</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5>VintiPay</h5>
+                    <p>A solução de pagamentos digitais líder em Cabo Verde, oferecendo serviços seguros e confiáveis para empresas de todos os tamanhos.</p>
+                    <div class="mt-3">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-4 mb-md-0">
+                    <h5>Links</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#features">Características</a></li>
+                        <li class="mb-2"><a href="#how-it-works">Como Funciona</a></li>
+                        <li class="mb-2"><a href="#testimonials">Depoimentos</a></li>
+                        <li class="mb-2"><a href="/admin/login">Entrar</a></li>
+                        <li class="mb-2"><a href="/registro">Registrar</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-4 mb-md-0">
+                    <h5>Recursos</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#">Blog</a></li>
+                        <li class="mb-2"><a href="#">FAQ</a></li>
+                        <li class="mb-2"><a href="#">API Docs</a></li>
+                        <li class="mb-2"><a href="#">Suporte</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contato</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> Praia, Ilha de Santiago, Cabo Verde</li>
+                        <li class="mb-2"><i class="fas fa-phone me-2"></i> +238 xxx-xxxx</li>
+                        <li class="mb-2"><i class="fas fa-envelope me-2"></i> contato@vintipay.cv</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="mt-4 mb-4" style="background-color: rgba(255, 255, 255, 0.1);">
+            <div class="text-center">
+                <p class="mb-0">&copy; <span id="current-year">2025</span> VintiPay. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap & JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Update current year in footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
