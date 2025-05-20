@@ -10,23 +10,10 @@ spring:
   application:
     name: vintipay
 
-logging:
-  level:
-    #org.hibernate.SQL: DEBUG
-    #org.hibernate.type.descriptor.sql: TRACE
-    #org.springframework.jdbc.datasource.init: DEBUG
-    cv.ntinnovation.vintipay: DEBUG
-    org.springframework.security: DEBUG
-
 # Configurações da aplicação
 app:
   base-url: ${APP_BASE_URL:https://localhost:8443}
   stripe:
     success-url: ${app.base-url}/assinaturas/sucesso
     cancel-url: ${app.base-url}/assinaturas/cancelado
-
-# Configurações da API Vendus
-vendus:
-  api:
-    key: ${VENDUS_API_KEY:1bcf15d3da754d5322ace80382703722}
-    base-url: ${VENDUS_API_URL:https://www.vendus.cv/ws/v1.2}
+  return-url-padrao: ${APP_BASE_URL:https://localhost:8443}/pagamento/recibo

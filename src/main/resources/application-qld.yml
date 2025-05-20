@@ -16,6 +16,8 @@ server:
     key-store: classpath:keystore1.jks
     key-store-password: ${SERVER_SSL_KEY_PASSWORD}
     key-password:  ${SERVER_SSL_KEY_PASSWORD}
+  servlet:
+    context-path: /
 
 # Tell Spring Security (if used) to require requests over HTTPS
 security:
@@ -27,6 +29,7 @@ jwt:
   private:
     key: "classpath:app.key"
 
+# Configurações da API SISP
 sisp:
   url:
     prod:
@@ -41,3 +44,24 @@ sisp:
   checkout:
     return:
       url: ${SISP_CHECKOUT_RETURN_URL}
+
+# Configurações da API Brevo
+brevo:
+  api:
+    key: ${BREVO_API_KEY}
+    url: ${BREVO_API_URL}
+  email:
+    from: ${BREVO_EMAIL_FROM}
+
+# Configurações da API Stripe'
+stripe:
+  api:
+    key: ${STRIPE_API_KEY}
+  webhook:
+    secret: ${STRIPE_WEBHOOK_SECRET}
+
+# Configurações da API Vendus
+vendus:
+  api:
+    key: ${VENDUS_API_KEY}
+    base-url: ${VENDUS_API_URL}

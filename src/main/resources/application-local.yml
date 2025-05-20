@@ -34,9 +34,6 @@ sisp:
     return:
       url: ${APP_BASE_URL:https://localhost:8443}/webhook/sisp/pagamentos/retorno
 
-app:
-  return-url-padrao: ${APP_BASE_URL:https://localhost:8443}/pagamento/recibo
-
 brevo:
   api:
     key: ${BREVO_API_KEY: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}
@@ -102,3 +99,9 @@ logging:
       max-file-size: 10MB
       max-history: 7
       total-size-cap: 100MB
+
+# Configurações da API Vendus
+vendus:
+  api:
+    key: 1bcf15d3da754d5322ace80382703722
+    base-url: https://www.vendus.cv/ws/v1.2

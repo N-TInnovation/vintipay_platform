@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -241,11 +241,16 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#testimonials">Depoimentos</a>
                     </li>
-                    <li class="nav-item">
+                    <!-- Se o usuário NÃO estiver autenticado, mostra as opções de login e cadastro -->
+                    <li class="nav-item" sec:authorize="!isAuthenticated()">
                         <a class="nav-link" href="/admin/login">Entrar</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" sec:authorize="!isAuthenticated()">
                         <a class="btn btn-primary btn-rounded ms-2" href="/registro">Criar Conta</a>
+                    </li>
+                    <!-- Se o usuário estiver autenticado, mostra o link para o dashboard -->
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="btn btn-primary btn-rounded ms-2" href="/user">Meu Dashboard</a>
                     </li>
                 </ul>
             </div>
@@ -263,7 +268,7 @@
                     <a href="#features" class="btn btn-outline-light btn-lg btn-rounded">Saiba Mais</a>
                 </div>
                 <div class="col-lg-6">
-                    <img src="/img/payment-illustration.png" alt="VintiPay Dashboard" class="hero-image img-fluid" onerror="this.onerror=null; this.src='https://via.placeholder.com/600x400?text=VintiPay';">
+                    <img src="/img/dashboard.png" alt="VintiPay Dashboard" class="hero-image img-fluid" onerror="this.onerror=null; this.src='https://via.placeholder.com/600x400?text=VintiPay';">
                 </div>
             </div>
         </div>
