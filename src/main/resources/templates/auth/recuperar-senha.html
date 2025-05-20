@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha - VintiPay</title>
+    
+    <!-- Incluir fragmento de favicon reutilizável -->
+    <th:block th:replace="fragments/head-favicons :: favicons"></th:block>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .recover-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 1.5rem;
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #3a0ca3 0%, #4361ee 100%);
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            position: relative;
+            border-bottom: none;
+        }
+        .card-header::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: white;
+            border-radius: 50% 50% 0 0;
+            z-index: 2;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover, .btn-primary:focus {
+            background: linear-gradient(135deg, #3a0ca3 0%, #4361ee 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+        .alert {
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #4361ee;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="recover-container">
+        <div class="card">
+            <div class="card-header">
+                <img src="/img/logo.png" alt="Logo" class="logo mb-3" onerror="this.onerror=null; this.src='/img/payment-icon.png';" style="max-height: 48px;">
+                <h4 class="mb-0">Recuperar Senha</h4>
+                <p class="mb-0">Informe seu e-mail para redefinir sua senha</p>
+            </div>
+            <div class="card-body p-4">
+                <div th:if="${error}" class="alert alert-danger mb-4" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${error}">Erro</span>
+                </div>
+                
+                <p class="text-muted mb-4">
+                    Digite o e-mail associado à sua conta. Enviaremos um link para redefinir sua senha.
+                </p>
+                
+                <form th:action="@{/recuperar-senha}" method="post">
+                    <div class="form-floating mb-4">
+                        <input type="email" class="form-control" id="email" name="email" placeholder="seu@email.com" required autofocus>
+                        <label for="email">E-mail</label>
+                    </div>
+                    
+                    <button class="w-100 btn btn-lg btn-primary" type="submit">
+                        <i class="fas fa-paper-plane me-2"></i> Enviar Link de Recuperação
+                    </button>
+                </form>
+            </div>
+            <div class="card-footer bg-white py-3 border-top">
+                <div class="text-center">
+                    <a th:href="@{/login}" class="text-decoration-none">
+                        <i class="fas fa-arrow-left me-1"></i> Voltar para o Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

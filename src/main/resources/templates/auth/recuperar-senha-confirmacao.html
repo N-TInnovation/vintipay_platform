@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperação de Senha - VintiPay</title>
+    
+    <!-- Incluir fragmento de favicon reutilizável -->
+    <th:block th:replace="fragments/head-favicons :: favicons"></th:block>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .confirmation-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 1.5rem;
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #3a0ca3 0%, #4361ee 100%);
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            position: relative;
+            border-bottom: none;
+        }
+        .card-header::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: white;
+            border-radius: 50% 50% 0 0;
+            z-index: 2;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover, .btn-primary:focus {
+            background: linear-gradient(135deg, #3a0ca3 0%, #4361ee 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+        .icon-success {
+            font-size: 4rem;
+            color: #10b981;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmation-container">
+        <div class="card">
+            <div class="card-header">
+                <img src="/img/logo.png" alt="Logo" class="logo mb-3" onerror="this.onerror=null; this.src='/img/payment-icon.png';" style="max-height: 48px;">
+                <h4 class="mb-0">Recuperação Enviada</h4>
+                <p class="mb-0">Verifique seu e-mail</p>
+            </div>
+            <div class="card-body p-4 text-center">
+                <div class="icon-success">
+                    <i class="fas fa-envelope-open-text"></i>
+                </div>
+                
+                <h5 class="mb-3">E-mail Enviado</h5>
+                
+                <p class="text-muted mb-4">
+                    <span th:text="${mensagem != null ? mensagem : 'Se o e-mail informado estiver cadastrado em nosso sistema, enviaremos instruções para recuperação de senha.'}"></span>
+                </p>
+                
+                <p class="mb-4">
+                    Verifique sua caixa de entrada e também a pasta de spam.
+                    <br>O link de recuperação é válido por 24 horas.
+                </p>
+                
+                <a th:href="@{/login}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-2"></i> Voltar para o Login
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
