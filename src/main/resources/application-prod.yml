@@ -3,7 +3,6 @@ spring:
     url: ${PAYMENT_DB_URI}
     username: ${PAYMENT_DB_USERNAME}
     password: ${PAYMENT_DB_PASSWORD}
-    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
