@@ -29,7 +29,7 @@
             }
             
             .card-header {
-                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+                background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
                 color: white;
                 padding: 1.25rem 1.5rem;
                 border-bottom: none;
@@ -65,7 +65,7 @@
             .plan-header {
                 padding: 2rem 1.5rem;
                 color: white;
-                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+                background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
                 position: relative;
                 overflow: hidden;
             }
@@ -92,13 +92,9 @@
             
             .plan-price {
                 font-size: 2.5rem;
-                font-weight: 800;
-                margin-bottom: 0.5rem;
-                position: relative;
-                z-index: 2;
-                color: white;
-                display: flex;
-                align-items: flex-start;
+                font-weight: 700;
+                color: #0d6efd;
+                margin-bottom: 1rem;
             }
             
             .plan-price small {
@@ -140,7 +136,7 @@
             }
             
             .plan-features li i {
-                color: #4361ee;
+                color: #0d6efd;
                 margin-right: 0.75rem;
                 font-size: 1rem;
             }
@@ -159,77 +155,29 @@
                 background: white;
             }
             
-            /* Status de assinatura */
+            /* Status da assinatura */
             .subscription-status {
                 display: inline-block;
-                padding: 0.5rem 1rem;
+                padding: 0.4rem 1rem;
                 border-radius: 50px;
+                font-size: 0.875rem;
                 font-weight: 600;
-                font-size: 0.8rem;
-                text-transform: uppercase;
-                margin-bottom: 1rem;
+                margin-bottom: 1.5rem;
             }
             
             .subscription-status.active {
-                background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
-                color: #047857;
+                background: linear-gradient(135deg, rgba(25, 135, 84, 0.15) 0%, rgba(25, 135, 84, 0.15) 100%);
+                color: #198754;
             }
             
-            .subscription-status.expired {
-                background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%);
-                color: #b91c1c;
+            .subscription-status.inactive {
+                background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(220, 53, 69, 0.15) 100%);
+                color: #dc3545;
             }
             
             .subscription-status.pending {
-                background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.15) 100%);
-                color: #b45309;
-            }
-            
-            /* Histórico de pagamentos */
-            .payment-history-item {
-                padding: 1rem;
-                border-radius: 8px;
-                margin-bottom: 0.75rem;
-                transition: all 0.3s ease;
-                background: linear-gradient(135deg, rgba(67, 97, 238, 0.03) 0%, rgba(58, 12, 163, 0.03) 100%);
-            }
-            
-            .payment-history-item:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            }
-            
-            .payment-amount {
-                font-weight: 700;
-                color: #4361ee;
-                font-size: 1.1rem;
-            }
-            
-            .payment-date {
-                font-size: 0.85rem;
-                color: #64748b;
-            }
-            
-            .payment-status {
-                padding: 0.35rem 0.75rem;
-                border-radius: 50px;
-                font-size: 0.75rem;
-                font-weight: 600;
-            }
-            
-            .payment-status.completed {
-                background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
-                color: #047857;
-            }
-            
-            .payment-status.pending {
-                background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.15) 100%);
-                color: #b45309;
-            }
-            
-            .payment-status.failed {
-                background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%);
-                color: #b91c1c;
+                background: linear-gradient(135deg, rgba(253, 126, 20, 0.15) 0%, rgba(253, 126, 20, 0.15) 100%);
+                color: #fd7e14;
             }
             
             /* Botões */
@@ -241,25 +189,25 @@
             }
             
             .btn-primary {
-                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+                background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
                 border: none;
-                box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+                box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
             }
             
             .btn-primary:hover {
                 transform: translateY(-3px);
-                box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+                box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
             }
             
             .btn-outline-primary {
-                color: #4361ee;
-                border: 1px solid #4361ee;
+                color: #0d6efd;
+                border: 1px solid #0d6efd;
                 background: transparent;
             }
             
             .btn-outline-primary:hover {
-                background: rgba(67, 97, 238, 0.1);
-                color: #4361ee;
+                background: rgba(13, 110, 253, 0.1);
+                color: #0d6efd;
                 transform: translateY(-3px);
             }
             
@@ -268,32 +216,30 @@
                 position: absolute;
                 top: 0;
                 right: 1.5rem;
-                background: linear-gradient(135deg, #f59e0b, #d97706);
+                background: #0d6efd;
                 color: white;
-                padding: 0.5rem 1rem;
-                font-size: 0.8rem;
+                font-size: 0.75rem;
                 font-weight: 600;
-                text-transform: uppercase;
-                border-radius: 0 0 8px 8px;
-                box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
-                z-index: 10;
+                padding: 5px 12px;
+                border-radius: 50px;
+                z-index: 1;
             }
             
             /* Empty state */
             .empty-state {
-                background: linear-gradient(135deg, rgba(67, 97, 238, 0.03) 0%, rgba(58, 12, 163, 0.03) 100%);
+                background: linear-gradient(135deg, rgba(13, 110, 253, 0.03) 0%, rgba(13, 110, 253, 0.03) 100%);
                 border-radius: 12px;
                 padding: 3rem 2rem;
                 text-align: center;
-                border: 1px dashed rgba(67, 97, 238, 0.3);
+                border: 1px dashed rgba(13, 110, 253, 0.3);
                 margin-bottom: 1.5rem;
             }
             
             .empty-state i {
                 font-size: 3rem;
-                color: #4361ee;
+                color: #0d6efd;
                 margin-bottom: 1.5rem;
-                background: rgba(67, 97, 238, 0.1);
+                background: rgba(13, 110, 253, 0.1);
                 width: 100px;
                 height: 100px;
                 line-height: 100px;
@@ -319,6 +265,23 @@
             
             .popular-badge {
                 animation: pulse 2s infinite;
+            }
+            
+            .btn-upgrade {
+                background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+                color: white;
+                border: none;
+                padding: 0.8rem 2rem;
+                border-radius: 50px;
+                font-weight: 600;
+                letter-spacing: 0.3px;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+            }
+            
+            .btn-upgrade:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
             }
         </style>
     </additionalCss>

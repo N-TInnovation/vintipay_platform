@@ -30,7 +30,7 @@
             
             .card-header {
                 padding: 1.25rem 1.5rem;
-                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+                background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
                 color: white;
                 border-bottom: none;
             }
@@ -50,6 +50,11 @@
                 display: flex;
                 flex-direction: column;
                 height: 100%;
+                border-radius: 10px;
+                overflow: hidden;
+                border: 1px solid rgba(13, 110, 253, 0.1);
+                transition: all 0.3s ease;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             }
             
             .integration-icon {
@@ -113,25 +118,29 @@
             }
             
             .btn-primary {
-                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+                background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
                 border: none;
-                box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+                font-weight: 600;
+                letter-spacing: 0.3px;
+                box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+                transition: all 0.3s ease;
             }
             
             .btn-primary:hover {
+                background: linear-gradient(135deg, #0b5ed7 0%, #0ba5c9 100%);
                 transform: translateY(-3px);
-                box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+                box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
             }
             
             .btn-outline-primary {
-                color: #4361ee;
-                border: 1px solid #4361ee;
+                color: #0d6efd;
+                border: 1px solid #0d6efd;
                 background: transparent;
             }
             
             .btn-outline-primary:hover {
-                background: rgba(67, 97, 238, 0.1);
-                color: #4361ee;
+                background: rgba(13, 110, 253, 0.1);
+                color: #0d6efd;
                 transform: translateY(-3px);
             }
             
@@ -148,12 +157,12 @@
             
             /* Estado vazio */
             .empty-state-container {
-                background: linear-gradient(135deg, rgba(67, 97, 238, 0.03) 0%, rgba(58, 12, 163, 0.03) 100%);
+                background: linear-gradient(135deg, rgba(13, 110, 253, 0.03) 0%, rgba(13, 110, 253, 0.03) 100%);
                 border-radius: 16px;
                 padding: 3rem 2rem;
                 text-align: center;
                 margin-bottom: 2rem;
-                border: 1px dashed rgba(67, 97, 238, 0.3);
+                border: 1px dashed rgba(13, 110, 253, 0.3);
             }
             
             .empty-state-icon {
@@ -163,9 +172,9 @@
                 text-align: center;
                 font-size: 2.5rem;
                 margin: 0 auto 1.5rem;
-                color: #4361ee;
+                color: #0d6efd;
                 border-radius: 50%;
-                background: rgba(67, 97, 238, 0.1);
+                background: rgba(13, 110, 253, 0.1);
             }
             
             /* Integrações disponíveis */
@@ -211,7 +220,7 @@
             
             /* Estatísticas */
             .stats-container {
-                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+                background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
                 border-radius: 16px;
                 padding: 2rem;
                 color: white !important;
@@ -279,6 +288,18 @@
             
             .add-integration-btn:hover::before {
                 transform: translateX(0);
+            }
+            
+            .api-tag {
+                display: inline-block;
+                background: rgba(13, 110, 253, 0.1);
+                color: #0d6efd;
+                font-size: 0.7rem;
+                font-weight: 600;
+                padding: 0.3rem 0.6rem;
+                border-radius: 50px;
+                margin-right: 0.5rem;
+                margin-bottom: 0.5rem;
             }
         </style>
     </additionalCss>

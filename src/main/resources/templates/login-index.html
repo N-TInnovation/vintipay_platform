@@ -1,36 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>Pagamento Unitel</title>
+  <title>VintiPay - Processando Pagamento</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- Incluir fragmento de favicon reutilizável -->
-  <th:block th:replace="fragments/head-favicons :: favicons"></th:block>
+  <th:block th:replace="~{fragments/head-favicons :: favicons}"></th:block>
   
   <!-- Web App Manifest -->
   <link rel="manifest" th:href="@{/manifest.json}">
   
   <!-- Configurações de tema para navegadores móveis -->
-  <meta name="msapplication-TileColor" content="#3498db">
+  <meta name="msapplication-TileColor" content="#0d6efd">
   <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
-  <meta name="theme-color" content="#3498db">
+  <meta name="theme-color" content="#0d6efd">
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <style>
+    :root {
+        --primary-color: #0d6efd;
+        --secondary-color: #0dcaf0;
+    }
+    body {
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+    }
+    .processing-container {
+        text-align: center;
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+    .loader {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        margin: 0 auto 2rem;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
-<body onload="autoPost()">
-
-<h1 class="animate__animated animate__infinite animate__pulse" style="text-align: center;position: relative;margin-top: 25%;">Processando o pagamento...</h1>
-<form th:action="@{/doValidate}" th:object="${request}" method="post">
-  <input type="hidden"
-         th:field="*{session_code}"
-         required class="form-control"
-         id="session_code"
-         aria-describedby="session_codeHelp">
-</form>
-
-<script>
-  function autoPost(){document.forms[0].submit();}
-</script>
+<body>
+  <div class="processing-container">
+    <div class="loader"></div>
+    <h1 class="animate__animated animate__infinite animate__pulse">Processando o pagamento...</h1>
+    <p>Por favor, aguarde enquanto concluímos sua transação.</p>
+    <form th:action="@{/doValidate}" th:object="${request}" method="post">
+      <input type="hidden"
+             th:field="*{session_code}"
+             required class="form-control"
+             id="session_code"
+             aria-describedby="session_codeHelp">
+    </form>
+  </div>
+  <script>
+    function autoPost(){document.forms[0].submit();}
+    window.onload = autoPost;
+  </script>
 </body>
 </html>

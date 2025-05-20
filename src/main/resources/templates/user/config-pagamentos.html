@@ -27,7 +27,7 @@
             }
             
             .card-header {
-                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+                background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
                 color: white;
                 padding: 1.25rem 1.5rem;
                 border-bottom: none;
@@ -62,7 +62,13 @@
             }
             
             .config-card.active {
-                border-left: 4px solid #10b981;
+                background: #f0f9ff;
+                border-left: 4px solid #0d6efd;
+            }
+            
+            .config-card.inactive {
+                background: #f9f9f9;
+                border-left: 4px solid #adb5bd;
             }
             
             .config-card.active::before {
@@ -72,13 +78,9 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.01) 100%);
+                background: linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(13, 110, 253, 0.01) 100%);
                 z-index: 0;
                 pointer-events: none;
-            }
-            
-            .config-card.inactive {
-                border-left: 4px solid #ef4444;
             }
             
             .config-card.inactive::before {
@@ -88,30 +90,29 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.01) 100%);
+                background: linear-gradient(135deg, rgba(220, 53, 69, 0.05) 0%, rgba(220, 53, 69, 0.01) 100%);
                 z-index: 0;
                 pointer-events: none;
             }
             
             .status-badge {
                 position: absolute;
-                top: 1rem;
-                right: 1rem;
-                padding: 0.4rem 1rem;
-                font-size: 0.75rem;
-                border-radius: 50px;
+                top: 15px;
+                right: 15px;
+                padding: 5px 12px;
+                border-radius: 30px;
+                font-size: 12px;
                 font-weight: 600;
-                z-index: 1;
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                letter-spacing: 0.3px;
             }
             
             .status-badge.active {
-                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                background-color: #198754;
                 color: white;
             }
             
             .status-badge.inactive {
-                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                background-color: #dc3545;
                 color: white;
             }
             
@@ -170,14 +171,15 @@
             }
             
             .btn-primary {
-                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+                background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
                 border: none;
-                box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+                box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
             }
             
             .btn-primary:hover {
+                background: linear-gradient(135deg, #0b5ed7 0%, #0ba5c9 100%);
                 transform: translateY(-3px);
-                box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+                box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
             }
             
             .btn-outline-info {

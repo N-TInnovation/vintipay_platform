@@ -29,9 +29,9 @@
             }
             
             .card-header {
-                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-                color: white;
                 padding: 1.25rem 1.5rem;
+                background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+                color: white;
                 border-bottom: none;
             }
             
@@ -58,19 +58,31 @@
                 display: inline-block;
             }
             
-            .status-pago {
-                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                color: white;
+            .badge-success {
+                background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+                border-radius: 50rem;
+                letter-spacing: 0.5px;
             }
             
-            .status-pendente {
-                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-                color: white;
+            .badge-danger {
+                background: linear-gradient(135deg, #dc3545 0%, #e35d6a 100%);
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+                border-radius: 50rem;
+                letter-spacing: 0.5px;
             }
             
-            .status-cancelado {
-                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-                color: white;
+            .badge-warning {
+                background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+                border-radius: 50rem;
+                letter-spacing: 0.5px;
             }
             
             /* Cards de estatísticas */
@@ -271,6 +283,25 @@
                 animation: fadeIn 0.5s ease forwards;
             }
             
+            /* Loading */
+            @keyframes shimmer {
+                0% {
+                    background-position: -100% 0;
+                }
+                100% {
+                    background-position: 100% 0;
+                }
+            }
+            
+            .loading-shimmer {
+                background: linear-gradient(90deg, rgba(13, 110, 253, 0.1) 25%, rgba(13, 202, 240, 0.1) 37%, rgba(13, 110, 253, 0.1) 63%);
+                background-size: 200% 100%;
+                animation: shimmer 1.5s infinite;
+                border-radius: 8px;
+                height: 16px;
+                width: 100%;
+            }
+            
             /* Responsividade */
             @media (max-width: 768px) {
                 .card-header, .card-body {
@@ -413,11 +444,11 @@
                                 <td th:text="${#numbers.formatDecimal(pagamento.intencaoPagamento.valor, 1, 2) + ' ' + (pagamento.intencaoPagamento.moeda == '132' ? 'CVE' : pagamento.intencaoPagamento.moeda)}">100.00 CVE</td>
                                 <td>
                                     <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PAGO}" 
-                                          class="status-badge status-pago">Pago</span>
+                                          class="badge-success">Pago</span>
                                     <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PENDENTE}" 
-                                          class="status-badge status-pendente">Pendente</span>
+                                          class="badge-warning">Pendente</span>
                                     <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).CANCELADO}" 
-                                          class="status-badge status-cancelado">Cancelado</span>
+                                          class="badge-danger">Cancelado</span>
                                 </td>
                                 <td th:text="${pagamento.panMascarado != null ? pagamento.panMascarado : '-'}">**** **** **** 1234</td>
                                 <td>
