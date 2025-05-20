@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
+import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.in.BuscaPagamentoUseCase;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class UserPagamentosController {
     public String listarPagamentos(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "status", required = false) StatusPagamentoEnum status,
+            @RequestParam(name = "ambiente", required = false, defaultValue = "PRODUCAO") AmbienteEnum ambiente,
             Model model) {
         
         // Obter o usuário autenticado
@@ -38,32 +40,37 @@ public class UserPagamentosController {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("created_at").descending());
         
         try {
-            // Buscar pagamentos do usuário com o status especificado (ou todos se status for null)
-            var pagamentos = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioAtual.getId(), status);
+            // Buscar pagamentos do usuário com o status e ambiente especificados
+            var pagamentos = buscaPagamentoUseCase.buscarPorUsuarioEAmbiente(pageable, usuarioAtual.getId(), status, ambiente);
             
             // Adicionar dados ao modelo
             model.addAttribute("pagamentos", pagamentos);
             model.addAttribute("statusAtual", status);
+            model.addAttribute("ambienteAtual", ambiente);
             model.addAttribute("statusOptions", StatusPagamentoEnum.values());
+            model.addAttribute("ambienteOptions", AmbienteEnum.values());
             model.addAttribute("paginaAtual", page);
             
             // Adicionar estatísticas
-            var pagamentosPagos = buscaPagamentoUseCase.buscarPorUsuario(
+            var pagamentosPagos = buscaPagamentoUseCase.buscarPorUsuarioEAmbiente(
                     PageRequest.of(0, Integer.MAX_VALUE), 
                     usuarioAtual.getId(), 
-                    StatusPagamentoEnum.PAGO
+                    StatusPagamentoEnum.PAGO,
+                    ambiente
             ).getTotalElements();
             
-            var pagamentosPendentes = buscaPagamentoUseCase.buscarPorUsuario(
+            var pagamentosPendentes = buscaPagamentoUseCase.buscarPorUsuarioEAmbiente(
                     PageRequest.of(0, Integer.MAX_VALUE), 
                     usuarioAtual.getId(), 
-                    StatusPagamentoEnum.PENDENTE
+                    StatusPagamentoEnum.PENDENTE,
+                    ambiente
             ).getTotalElements();
             
-            var pagamentosCancelados = buscaPagamentoUseCase.buscarPorUsuario(
+            var pagamentosCancelados = buscaPagamentoUseCase.buscarPorUsuarioEAmbiente(
                     PageRequest.of(0, Integer.MAX_VALUE), 
                     usuarioAtual.getId(), 
-                    StatusPagamentoEnum.CANCELADO
+                    StatusPagamentoEnum.CANCELADO,
+                    ambiente
             ).getTotalElements();
             
             model.addAttribute("pagamentosPagos", pagamentosPagos);

@@ -3,6 +3,7 @@ package cv.ntinnovation.vintipay.adapter.out.db.adapter;
 import cv.ntinnovation.vintipay.adapter.out.db.mapper.PagamentoMapper;
 import cv.ntinnovation.vintipay.adapter.out.db.repository.PagamentoRepository;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
+import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.out.BuscaPagamentoPort;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +59,30 @@ public class BuscaPagamentoAdapter implements BuscaPagamentoPort {
             return pagamentos.map(pagamentoMapper::toDomain);
         } catch (Exception e) {
             log.error("Erro ao buscar pagamentos para usuário ID: {}, status: {}", usuarioId, status, e);
+            return Page.empty(pageable);
+        }
+    }
+
+    @Override
+    public Page<Pagamento> buscarPorUsuarioEAmbiente(Pageable pageable, Long usuarioId, StatusPagamentoEnum status, AmbienteEnum ambiente) {
+        // Converter o enum para string apenas se não for nulo
+        String statusStr = status != null ? status.name() : null;
+        // Converter o ambiente para string apenas se não for nulo
+        String ambienteStr = ambiente != null ? ambiente.name() : null;
+        
+        log.info("Buscando pagamentos para usuário ID: {}, status: {}, ambiente: {}", usuarioId, statusStr, ambienteStr);
+        try {
+            var pagamentos = pagamentoRepository.findByUsuarioIdAndStatusAndAmbienteIfPresent(
+                usuarioId, 
+                statusStr, 
+                ambienteStr, 
+                pageable
+            );
+            log.info("Encontrados {} pagamentos no ambiente {}", pagamentos.getTotalElements(), ambienteStr);
+            return pagamentos.map(pagamentoMapper::toDomain);
+        } catch (Exception e) {
+            log.error("Erro ao buscar pagamentos para usuário ID: {}, status: {}, ambiente: {}", 
+                usuarioId, statusStr, ambienteStr, e);
             return Page.empty(pageable);
         }
     }

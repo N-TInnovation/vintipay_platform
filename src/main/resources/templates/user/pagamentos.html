@@ -370,6 +370,16 @@
                                     </option>
                                 </select>
                             </div>
+                            <div class="me-2">
+                                <select name="ambiente" class="form-select form-select-sm" onchange="this.form.submit()">
+                                    <option th:each="ambienteOption : ${ambienteOptions}" 
+                                            th:value="${ambienteOption}" 
+                                            th:text="${ambienteOption.name()}"
+                                            th:selected="${ambienteOption == ambienteAtual}">
+                                        Ambiente
+                                    </option>
+                                </select>
+                            </div>
                         </form>
                     </div>
                 </div>

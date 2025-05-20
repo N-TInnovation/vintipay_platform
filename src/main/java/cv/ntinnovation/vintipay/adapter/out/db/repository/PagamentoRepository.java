@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.out.db.repository;
 
 import cv.ntinnovation.vintipay.adapter.out.db.entity.PagamentoEntity;
+import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,5 +46,29 @@ public interface PagamentoRepository extends JpaRepository<PagamentoEntity, Long
     Page<PagamentoEntity> findByUsuarioIdAndStatusIfPresent(
             @Param("usuarioId") Long usuarioId,
             @Param("status") String status,
+            Pageable pageable);
+
+    @Query(value = "SELECT p.* FROM pagamento p " +
+           "JOIN intencao_pagamento ip ON p.intencao_pagamento_id = ip.id " +
+           "JOIN conta_pagamento cp ON ip.conta_pagamento_id = cp.id " +
+           "JOIN configuracao_pagamento cfp ON ip.pos_id = cfp.pos_id " +
+           "JOIN usuarios u ON cfp.usuario_id = u.id " +
+           "WHERE u.id = :usuarioId " +
+           "AND (:status IS NULL OR p.status = :status) " +
+           "AND (:ambiente IS NULL OR p.ambiente = :ambiente) " +
+           "ORDER BY created_at DESC",
+           countQuery = "SELECT COUNT(*) FROM pagamento p " +
+           "JOIN intencao_pagamento ip ON p.intencao_pagamento_id = ip.id " +
+           "JOIN conta_pagamento cp ON ip.conta_pagamento_id = cp.id " +
+           "JOIN configuracao_pagamento cfp ON ip.pos_id = cfp.pos_id " +
+           "JOIN usuarios u ON cfp.usuario_id = u.id " +
+           "WHERE u.id = :usuarioId " +
+           "AND (:status IS NULL OR p.status = :status) " +
+           "AND (:ambiente IS NULL OR p.ambiente = :ambiente)",
+           nativeQuery = true)
+    Page<PagamentoEntity> findByUsuarioIdAndStatusAndAmbienteIfPresent(
+            @Param("usuarioId") Long usuarioId,
+            @Param("status") String status,
+            @Param("ambiente") String ambiente,
             Pageable pageable);
 }

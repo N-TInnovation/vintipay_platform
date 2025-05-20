@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
+import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.in.BuscaPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.out.BuscaPagamentoPort;
@@ -30,5 +31,10 @@ public class BuscaPagamentoUseCaseImpl implements BuscaPagamentoUseCase {
     @Override
     public Page<Pagamento> buscarPorUsuario(Pageable pageable, Long usuarioId, StatusPagamentoEnum status) {
         return buscaPagamentoPort.buscarPorUsuario(pageable, usuarioId, status);
+    }
+    
+    @Override
+    public Page<Pagamento> buscarPorUsuarioEAmbiente(Pageable pageable, Long usuarioId, StatusPagamentoEnum status, AmbienteEnum ambiente) {
+        return buscaPagamentoPort.buscarPorUsuarioEAmbiente(pageable, usuarioId, status, ambiente);
     }
 }

@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.application.port.out;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
+import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,4 +21,14 @@ public interface BuscaPagamentoPort {
      * @return Página com os pagamentos do usuário
      */
     Page<Pagamento> buscarPorUsuarioIdEStatus(Long usuarioId, String status, Pageable pageable);
+    
+    /**
+     * Busca pagamentos por usuário, status e ambiente
+     * @param pageable Informações de paginação
+     * @param usuarioId ID do usuário
+     * @param status Status do pagamento (opcional, pode ser null)
+     * @param ambiente Ambiente do pagamento (opcional, pode ser null para todos os ambientes)
+     * @return Página com os pagamentos do usuário filtrados por ambiente
+     */
+    Page<Pagamento> buscarPorUsuarioEAmbiente(Pageable pageable, Long usuarioId, StatusPagamentoEnum status, AmbienteEnum ambiente);
 }
