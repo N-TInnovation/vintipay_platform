@@ -1,16 +1,36 @@
 # Build stage
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:17-jdk-alpine AS build
 
 WORKDIR /app
 
-# Copiar o projeto
-COPY . .
+# Install dependencies required for build
+RUN apk add --no-cache maven
 
-# Dar permissão de execução ao mvnw
-RUN chmod +x mvnw
+# Copy maven configuration files
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
 
-# Expor a porta
-EXPOSE 8443
+# Download dependencies (this layer will be cached if pom.xml doesn't change)
+RUN ./mvnw dependency:go-offline -B
 
-# Executar a aplicação pulando os testes
-ENTRYPOINT ["./mvnw", "spring-boot:run", "-DskipTests"]
+# Copy source code
+COPY src src
+
+# Build the application and skip tests
+RUN ./mvnw package -DskipTests
+
+# Runtime stage
+FROM eclipse-temurin:17-jre-alpine
+
+WORKDIR /app
+
+# Add wait-for-it script to handle database dependencies
+RUN apk add --no-cache bash
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose port (match this with SERVER_PORT in environment)
+EXPOSE 8080
+
+# Set entrypoint with appropriate memory settings and connection retry parameters
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-Dspring.profiles.active=prod", "-jar", "app.jar"]

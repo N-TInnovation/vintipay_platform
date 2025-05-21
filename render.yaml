@@ -6,9 +6,15 @@ services:
     plan: standard
     buildCommand: ./mvnw package -DskipTests
     startCommand: java -jar target/*.jar --spring.profiles.active=prod
-    healthCheckPath: /
+    healthCheckPath: /actuator/health
     numInstances: 1
+    disk:
+      name: vintipay-data
+      mountPath: /data
+      sizeGB: 1
     envVars:
+      - key: JAVA_OPTS
+        value: "-Xmx512m -Dserver.tomcat.max-threads=50 -Dspring.datasource.hikari.maximum-pool-size=5"
       - key: ENVIRONMENT
         value: prod
       - key: APP_BASE_URL
@@ -19,7 +25,19 @@ services:
         sync: false
       - key: PAYMENT_DB_PASSWORD
         sync: false
+      - key: SERVER_PORT
+        value: "8080"
+      - key: SERVER_SSL_KEY_STORE
+        sync: false
+      - key: SERVER_SSL_KEY_STORE_TYPE
+        sync: false
       - key: SERVER_SSL_KEY_PASSWORD
+        sync: false
+      - key: SERVER_SSL_KEY_ALIAS
+        sync: false
+      - key: JWT_PUBLIC_KEY
+        sync: false
+      - key: JWT_PRIVATE_KEY
         sync: false
       - key: SISP_URL_3D
         sync: false
@@ -34,6 +52,16 @@ services:
       - key: SISP_QLD_URL_NORMAL
         sync: false
       - key: SISP_CHECKOUT_RETURN_URL
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_API_URL
+        sync: false
+      - key: BREVO_EMAIL_FROM
+        sync: false
+      - key: STRIPE_API_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
         sync: false
       - key: VENDUS_API_KEY
         sync: false
