@@ -12,6 +12,7 @@ spring:
       max-lifetime: 1800000
       connection-test-query: SELECT 1
       validation-timeout: 30000
+      initialization-fail-timeout: 30000
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
@@ -41,6 +42,8 @@ spring:
     validate-on-migrate: false
     out-of-order: true
     baseline-version: 0
+    connect-retries: 10
+    connect-retries-interval: 30
 
 server:
   port: ${SERVER_PORT}
