@@ -1,0 +1,11 @@
+# Default ignored files
+.git
+.gitignore
+.idea
+*.iml
+target
+.mvn/wrapper/maven-wrapper.jar
+
+# Don't ignore these important data files
+!src/main/resources/static/json/
+!src/main/resources/static/sql/

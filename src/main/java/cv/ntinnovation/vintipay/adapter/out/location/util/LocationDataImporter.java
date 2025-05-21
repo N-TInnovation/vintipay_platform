@@ -25,10 +25,12 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -366,47 +368,21 @@ public class LocationDataImporter {
         return args -> {
             log.info("Verificando se é necessário importar localizações de Cabo Verde...");
             if (capeVerdeLocationsRepository.count() == 0) {
-                log.info("Iniciando importação de localizações de Cabo Verde a partir do Excel...");
+                log.info("Iniciando importação de localizações de Cabo Verde a partir do arquivo...");
                 
+                // Tenta primeiro carregar o arquivo Excel
                 try (InputStream is = getResourceAsStream("codigo-paises-lugares-cv.xlsx")) {
-                    if (is == null) {
-                        log.warn("Arquivo codigo-paises-lugares-cv.xlsx não encontrado. Pulando importação de localizações de Cabo Verde.");
-                        return;
-                    }
-                    
-                    try (Workbook workbook = new XSSFWorkbook(is)) {
-                        Sheet sheet = workbook.getSheetAt(0); // Assume primeira planilha
-                        
-                        List<CapeVerdeLocationsEntity> locationsToSave = new ArrayList<>();
-                        
-                        // Pular linha de cabeçalho
-                        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                            Row row = sheet.getRow(i);
-                            if (row == null) continue;
-                            
-                            CapeVerdeLocationsEntity location = new CapeVerdeLocationsEntity();
-                            
-                            // Extrair valores das células
-                            try {
-                                location.setId(getCellValueAsLong(row.getCell(0)));
-                                location.setIsland(getCellValueAsString(row.getCell(1)));
-                                location.setCounty(getCellValueAsString(row.getCell(2)));
-                                location.setParish(getCellValueAsString(row.getCell(3)));
-                                location.setZone(getCellValueAsString(row.getCell(4)));
-                                location.setSubzone(getCellValueAsString(row.getCell(5)));
-                                location.setName(getCellValueAsString(row.getCell(6)));
-                                
-                                locationsToSave.add(location);
-                            } catch (Exception e) {
-                                log.warn("Erro ao processar linha {} do Excel", i, e);
+                    if (is != null) {
+                        importFromExcel(is);
+                    } else {
+                        // Se não encontrar o Excel, tenta CSV
+                        log.info("Arquivo Excel não encontrado. Tentando importar do CSV...");
+                        try (InputStream csvIs = getResourceAsStream("codigo-paises-lugares-cv.csv")) {
+                            if (csvIs != null) {
+                                importFromCsv(csvIs);
+                            } else {
+                                log.warn("Nenhum arquivo de localizações de Cabo Verde (Excel ou CSV) foi encontrado. Pulando importação.");
                             }
-                        }
-                        
-                        if (!locationsToSave.isEmpty()) {
-                            capeVerdeLocationsRepository.saveAll(locationsToSave);
-                            log.info("Importação de {} localizações de Cabo Verde concluída com sucesso.", locationsToSave.size());
-                        } else {
-                            log.warn("Nenhuma localização de Cabo Verde foi extraída do arquivo Excel.");
                         }
                     }
                 } catch (Exception e) {
@@ -416,6 +392,96 @@ public class LocationDataImporter {
                 log.info("Localizações de Cabo Verde já existem no banco de dados. Pulando importação.");
             }
         };
+    }
+    
+    /**
+     * Importa localizações a partir de um arquivo Excel
+     */
+    private void importFromExcel(InputStream is) throws IOException {
+        try (Workbook workbook = new XSSFWorkbook(is)) {
+            Sheet sheet = workbook.getSheetAt(0); // Assume primeira planilha
+            
+            List<CapeVerdeLocationsEntity> locationsToSave = new ArrayList<>();
+            
+            // Pular linha de cabeçalho
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+                
+                CapeVerdeLocationsEntity location = new CapeVerdeLocationsEntity();
+                
+                // Extrair valores das células
+                try {
+                    location.setId(getCellValueAsLong(row.getCell(0)));
+                    location.setIsland(getCellValueAsString(row.getCell(1)));
+                    location.setCounty(getCellValueAsString(row.getCell(2)));
+                    location.setParish(getCellValueAsString(row.getCell(3)));
+                    location.setZone(getCellValueAsString(row.getCell(4)));
+                    location.setSubzone(getCellValueAsString(row.getCell(5)));
+                    location.setName(getCellValueAsString(row.getCell(6)));
+                    
+                    locationsToSave.add(location);
+                } catch (Exception e) {
+                    log.warn("Erro ao processar linha {} do Excel", i, e);
+                }
+            }
+            
+            if (!locationsToSave.isEmpty()) {
+                capeVerdeLocationsRepository.saveAll(locationsToSave);
+                log.info("Importação de {} localizações de Cabo Verde concluída com sucesso.", locationsToSave.size());
+            } else {
+                log.warn("Nenhuma localização de Cabo Verde foi extraída do arquivo Excel.");
+            }
+        }
+    }
+    
+    /**
+     * Importa localizações a partir de um arquivo CSV
+     */
+    private void importFromCsv(InputStream is) throws IOException {
+        List<CapeVerdeLocationsEntity> locationsToSave = new ArrayList<>();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        
+        // Ler e descartar o cabeçalho
+        String header = reader.readLine();
+        if (header == null) {
+            log.warn("Arquivo CSV vazio ou inválido.");
+            return;
+        }
+        
+        String line;
+        int lineNumber = 1;
+        while ((line = reader.readLine()) != null) {
+            lineNumber++;
+            String[] values = line.split(",");
+            
+            if (values.length < 7) {
+                log.warn("Linha {} do CSV tem menos colunas que o esperado", lineNumber);
+                continue;
+            }
+            
+            try {
+                CapeVerdeLocationsEntity location = new CapeVerdeLocationsEntity();
+                location.setId(Long.parseLong(values[0]));
+                location.setIsland(values[1]);
+                location.setCounty(values[2]);
+                location.setParish(values[3]);
+                location.setZone(values[4]);
+                location.setSubzone(values[5]);
+                location.setName(values[6]);
+                
+                locationsToSave.add(location);
+            } catch (Exception e) {
+                log.warn("Erro ao processar linha {} do CSV: {}", lineNumber, e.getMessage());
+            }
+        }
+        
+        if (!locationsToSave.isEmpty()) {
+            capeVerdeLocationsRepository.saveAll(locationsToSave);
+            log.info("Importação de {} localizações de Cabo Verde concluída com sucesso a partir do CSV.", locationsToSave.size());
+        } else {
+            log.warn("Nenhuma localização de Cabo Verde foi extraída do arquivo CSV.");
+        }
     }
     
     /**
