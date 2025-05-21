@@ -164,20 +164,34 @@ public class StripeIntegrationUseCaseImpl implements StripeIntegrationUseCase {
     @Override
     public String criarSubscription(Usuario usuario, String priceId) {
         try {
-            // Certifique-se de que o usuário tem um customerId do Stripe
+            Stripe.apiKey = stripeConfig.getApiKey();
             String customerId = usuario.getStripeCustomerId();
+            
             if (customerId == null || customerId.isEmpty()) {
-                customerId = criarCustomer(usuario);
-                usuario.setStripeCustomerId(customerId);
+                throw new RuntimeException("Usuário não possui ID de cliente no Stripe");
             }
-
+            
+            // Verificar se o priceId é válido
+            if (priceId == null || priceId.trim().isEmpty()) {
+                log.error("Price ID inválido ou vazio: {}", priceId);
+                throw new RuntimeException("Price ID não pode ser vazio para criar uma assinatura");
+            }
+            
             // Verificar se o cliente tem um método de pagamento padrão
             Customer customer = Customer.retrieve(customerId);
-            String defaultPaymentMethod = customer.getInvoiceSettings() != null ? 
-                    customer.getInvoiceSettings().getDefaultPaymentMethod() : null;
-
-            if (defaultPaymentMethod == null || defaultPaymentMethod.isEmpty()) {
-                // Se não tiver método de pagamento, criar uma sessão de checkout para coletar o método de pagamento
+            PaymentMethod defaultPaymentMethod = null;
+            
+            try {
+                if (customer.getInvoiceSettings() != null && 
+                    customer.getInvoiceSettings().getDefaultPaymentMethod() != null) {
+                    String defaultPaymentMethodId = customer.getInvoiceSettings().getDefaultPaymentMethod();
+                    defaultPaymentMethod = PaymentMethod.retrieve(defaultPaymentMethodId);
+                }
+            } catch (Exception e) {
+                log.warn("Erro ao buscar método de pagamento padrão: {}", e.getMessage());
+            }
+            
+            if (defaultPaymentMethod == null) {
                 log.warn("Cliente {} não tem método de pagamento padrão. Criando uma sessão de checkout.", customerId);
                 
                 // Criar uma assinatura de teste sem cobrança real (modo de teste)
@@ -185,13 +199,15 @@ public class StripeIntegrationUseCaseImpl implements StripeIntegrationUseCase {
                         .setSaveDefaultPaymentMethod(SubscriptionCreateParams.PaymentSettings.SaveDefaultPaymentMethod.ON_SUBSCRIPTION)
                         .build();
                 
+                // Garantir que o item de preço é válido
                 SubscriptionCreateParams.Item item = SubscriptionCreateParams.Item.builder()
                         .setPrice(priceId)
+                        .setQuantity(1L) // Adicionar quantidade explícita
                         .build();
 
                 SubscriptionCreateParams params = SubscriptionCreateParams.builder()
                         .setCustomer(customerId)
-                        .addItem(item)
+                        .addItem(item) // Usar o método addItem que funciona com um objeto Item completo
                         .setPaymentSettings(paymentSettings)
                         .setPaymentBehavior(SubscriptionCreateParams.PaymentBehavior.DEFAULT_INCOMPLETE)
                         .setTrialPeriodDays(7L) // Período de teste para evitar cobrança imediata
@@ -201,13 +217,15 @@ public class StripeIntegrationUseCaseImpl implements StripeIntegrationUseCase {
                 return subscription.getId();
             } else {
                 // Se já tiver método de pagamento, criar a assinatura normalmente
+                // Garantir que o item de preço é válido
                 SubscriptionCreateParams.Item item = SubscriptionCreateParams.Item.builder()
                         .setPrice(priceId)
+                        .setQuantity(1L) // Adicionar quantidade explícita
                         .build();
 
                 SubscriptionCreateParams params = SubscriptionCreateParams.builder()
                         .setCustomer(customerId)
-                        .addItem(item)
+                        .addItem(item) // Usar o método addItem que funciona com um objeto Item completo
                         .build();
 
                 Subscription subscription = Subscription.create(params);

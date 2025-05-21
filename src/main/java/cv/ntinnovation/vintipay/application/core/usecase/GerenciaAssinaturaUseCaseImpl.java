@@ -8,7 +8,7 @@ import cv.ntinnovation.vintipay.application.port.in.StripeIntegrationUseCase;
 import cv.ntinnovation.vintipay.application.port.out.BuscaPlanoAssinaturaPort;
 import cv.ntinnovation.vintipay.application.port.out.BuscaPlanoPort;
 import cv.ntinnovation.vintipay.application.port.out.SalvaPlanoAssinaturaPort;
-import cv.ntinnovation.vintipay.application.port.out.SalvaUsuario;
+import cv.ntinnovation.vintipay.application.port.out.SalvaUsuarioPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class GerenciaAssinaturaUseCaseImpl implements GerenciaAssinaturaUseCase 
     private final BuscaPlanoPort buscaPlanoPort;
     private final BuscaPlanoAssinaturaPort buscaPlanoAssinaturaPort;
     private final SalvaPlanoAssinaturaPort salvaPlanoAssinaturaPort;
-    private final SalvaUsuario salvaUsuario;
+    private final SalvaUsuarioPort salvaUsuarioPort;
     private final StripeIntegrationUseCase stripeIntegrationUseCase;
 
     @Override
@@ -59,7 +59,7 @@ public class GerenciaAssinaturaUseCaseImpl implements GerenciaAssinaturaUseCase 
             if (usuario.getStripeCustomerId() == null || usuario.getStripeCustomerId().isEmpty()) {
                 String stripeCustomerId = stripeIntegrationUseCase.criarCustomer(usuario);
                 usuario.setStripeCustomerId(stripeCustomerId);
-                salvaUsuario.salvar(usuario);
+                salvaUsuarioPort.salvar(usuario);
             }
             
             // Criar assinatura no Stripe

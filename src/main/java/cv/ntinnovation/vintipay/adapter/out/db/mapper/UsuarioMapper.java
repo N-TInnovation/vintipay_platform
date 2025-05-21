@@ -55,6 +55,9 @@ public class UsuarioMapper {
         usuario.setUltimoLogin(userEntity.getUltimoLogin());
         usuario.setResetPasswordToken(userEntity.getResetPasswordToken());
         usuario.setResetPasswordExpires(userEntity.getResetPasswordExpires());
+        usuario.setEmailVerificationToken(userEntity.getEmailVerificationToken());
+        usuario.setEmailVerified(userEntity.isEmailVerified());
+        usuario.setEmailVerificationExpires(userEntity.getEmailVerificationExpires());
         
         // Mapear papéis
         if (userEntity.getPapeis() != null && !userEntity.getPapeis().isEmpty()) {
@@ -93,6 +96,9 @@ public class UsuarioMapper {
                 .ultimoLogin(user.getUltimoLogin())
                 .resetPasswordToken(user.getResetPasswordToken())
                 .resetPasswordExpires(user.getResetPasswordExpires())
+                .emailVerificationToken(user.getEmailVerificationToken())
+                .emailVerified(user.isEmailVerified())
+                .emailVerificationExpires(user.getEmailVerificationExpires())
                 .build();
         
         // Mapear papéis

@@ -17,3 +17,14 @@ app:
     success-url: ${app.base-url}/assinaturas/sucesso
     cancel-url: ${app.base-url}/assinaturas/cancelado
   return-url-padrao: ${APP_BASE_URL:https://localhost:8443}/pagamento/recibo
+  email:
+    verification:
+      expiry-hours: 24
+
+# Configurações do Brevo (anteriormente Sendinblue)
+brevo:
+  api:
+    key: ${BREVO_API_KEY:seu_api_key_aqui}
+    url: ${BREVO_API_URL:https://api.brevo.com/v3}
+  email:
+    from: ${BREVO_EMAIL_FROM:noreply@vintipay.cv}

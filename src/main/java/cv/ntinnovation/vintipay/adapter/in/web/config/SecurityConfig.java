@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import cv.ntinnovation.vintipay.adapter.in.web.handler.CustomAuthenticationFailureHandler;
 import cv.ntinnovation.vintipay.application.port.in.SessionAuthenticationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -101,7 +103,10 @@ public class SecurityConfig {
 
     @Configuration
     @Order(2)
+    @RequiredArgsConstructor
     public static class WebSecurityConfig {
+
+        private final CustomAuthenticationFailureHandler authenticationFailureHandler;
 
         @Bean
         public AuthenticationManager authManager(HttpSecurity http, SessionAuthenticationUseCase sessionAuthenticationProvider) throws Exception {
@@ -149,7 +154,7 @@ public class SecurityConfig {
                             .loginPage("/login")
                             .loginProcessingUrl("/login")
                             .defaultSuccessUrl("/dashboard", true)
-                            .failureUrl("/login?error")
+                            .failureHandler(authenticationFailureHandler)
                             .permitAll()
                     )
                     .logout(logout -> logout

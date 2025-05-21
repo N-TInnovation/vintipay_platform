@@ -34,4 +34,11 @@ public interface BuscaUsuarioPort {
      * @return Optional contendo o usuário se encontrado, ou vazio se não existir
      */
     Optional<Usuario> buscarPorResetToken(String token);
+    
+    /**
+     * Busca um usuário pelo token de verificação de email
+     * @param token Token de verificação de email
+     * @return Optional contendo o usuário se encontrado, ou vazio se não existir
+     */
+    Optional<Usuario> buscarPorEmailVerificationToken(String token);
 }

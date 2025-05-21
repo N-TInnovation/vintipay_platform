@@ -46,4 +46,10 @@ public class BuscaUsuarioAdapter implements BuscaUsuarioPort {
         return usuarioRepository.findByResetPasswordToken(token)
                 .map(ususarioMapper::toDomain);
     }
+    
+    @Override
+    public Optional<Usuario> buscarPorEmailVerificationToken(String token) {
+        return usuarioRepository.findByEmailVerificationToken(token)
+                .map(ususarioMapper::toDomain);
+    }
 }

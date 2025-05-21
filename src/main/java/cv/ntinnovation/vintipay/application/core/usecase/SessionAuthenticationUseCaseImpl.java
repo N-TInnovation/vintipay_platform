@@ -3,7 +3,7 @@ package cv.ntinnovation.vintipay.application.core.usecase;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.SessionAuthenticationUseCase;
 import cv.ntinnovation.vintipay.application.port.out.BuscaUsuario;
-import cv.ntinnovation.vintipay.application.port.out.SalvaUsuario;
+import cv.ntinnovation.vintipay.application.port.out.SalvaUsuarioPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -53,8 +53,8 @@ public class SessionAuthenticationUseCaseImpl implements SessionAuthenticationUs
                 usuario.setUltimoLogin(LocalDateTime.now());
                 
                 // Salvar o usuário atualizado
-                if (usuarioUseCase instanceof SalvaUsuario) {
-                    ((SalvaUsuario) usuarioUseCase).salvar(usuario);
+                if (usuarioUseCase instanceof SalvaUsuarioPort) {
+                    ((SalvaUsuarioPort) usuarioUseCase).salvar(usuario);
                 } else {
                     log.warn("Não foi possível salvar o último login do usuário: {} - Interface SalvaUsuario não implementada", username);
                 }

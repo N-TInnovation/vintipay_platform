@@ -5,7 +5,7 @@ import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsusarioMapper;
 import cv.ntinnovation.vintipay.adapter.out.db.repository.UsuarioRepository;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.out.BuscaUsuario;
-import cv.ntinnovation.vintipay.application.port.out.SalvaUsuario;
+import cv.ntinnovation.vintipay.application.port.out.SalvaUsuarioPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +17,7 @@ import java.util.Optional;
 @Primary
 @Component
 @RequiredArgsConstructor
-public class UsuarioAdapter implements SalvaUsuario, BuscaUsuario {
+public class UsuarioAdapter implements SalvaUsuarioPort, BuscaUsuario {
     private final UsuarioRepository repository;
     private final UsusarioMapper ususarioMapper;
 

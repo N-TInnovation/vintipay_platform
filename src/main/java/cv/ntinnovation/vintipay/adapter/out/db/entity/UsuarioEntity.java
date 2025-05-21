@@ -59,6 +59,15 @@ public class UsuarioEntity {
     
     @Column(name = "reset_password_expires")
     private java.time.LocalDateTime resetPasswordExpires;
+    
+    @Column(name = "email_verification_token")
+    private String emailVerificationToken;
+    
+    @Column(name = "email_verified")
+    private boolean emailVerified = false;
+    
+    @Column(name = "email_verification_expires")
+    private java.time.LocalDateTime emailVerificationExpires;
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
     private PlanoAssinaturaEntity planoAssinatura;

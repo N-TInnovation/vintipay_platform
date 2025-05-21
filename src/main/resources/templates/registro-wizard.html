@@ -245,9 +245,7 @@
             </div>
             
             <form th:action="@{/registro}" th:object="${registroRequest}" method="post" id="registrationForm" class="needs-validation" novalidate>
-                <!-- Token CSRF para proteção -->
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                
+
                 <!-- Step 1: Informações Pessoais -->
                 <div class="step-content active" id="step1-content">
                     <div class="form-card">

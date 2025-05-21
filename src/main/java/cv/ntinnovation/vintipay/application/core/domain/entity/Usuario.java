@@ -66,6 +66,18 @@ public class Usuario extends User {
     @Getter
     @Setter
     private LocalDateTime resetPasswordExpires;
+    
+    @Getter
+    @Setter
+    private String emailVerificationToken;
+    
+    @Getter
+    @Setter
+    private boolean emailVerified = false;
+    
+    @Getter
+    @Setter
+    private LocalDateTime emailVerificationExpires;
 
     /**
      * Construtor padrão para criar instâncias simplificadas

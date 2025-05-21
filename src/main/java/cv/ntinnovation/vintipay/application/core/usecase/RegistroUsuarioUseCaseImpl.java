@@ -4,7 +4,7 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaAssinaturaUseCase;
 import cv.ntinnovation.vintipay.application.port.in.RegistroUsuarioUseCase;
 import cv.ntinnovation.vintipay.application.port.out.BuscaUsuarioPort;
-import cv.ntinnovation.vintipay.application.port.out.SalvaUsuario;
+import cv.ntinnovation.vintipay.application.port.out.SalvaUsuarioPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class RegistroUsuarioUseCaseImpl implements RegistroUsuarioUseCase {
-    private final SalvaUsuario salvaUsuario;
+    private final SalvaUsuarioPort salvaUsuarioPort;
     private final PasswordEncoder passwordEncoder;
     private final GerenciaAssinaturaUseCase gerenciaAssinaturaUseCase;
     private final BuscaUsuarioPort buscaUsuarioPort;
@@ -29,37 +29,67 @@ public class RegistroUsuarioUseCaseImpl implements RegistroUsuarioUseCase {
         // Este método é usado pelo DefaultUserInitializer e já recebe a senha criptografada
         log.debug("Registrando usuário: {}", username);
         Usuario user = Usuario.builder(username, password, true, roles.split(","));
-        salvaUsuario.salvar(user);
+        salvaUsuarioPort.salvar(user);
     }
     
     @Override
     @Transactional
     public void registrarNovoUsuario(String username, String email, String nome, String telefone, String password, String roles) {
         log.debug("Registrando novo usuário: {}", username);
+        
+        // Verificar se já existe usuário com esse username
+        Optional<Usuario> usuarioExistente = buscaUsuarioPort.buscarPorUsername(username);
+        if (usuarioExistente.isPresent()) {
+            log.warn("Tentativa de registro com username já existente: {}", username);
+            throw new RuntimeException("Usuário com username '" + username + "' já existe");
+        }
+        
+        // Verificar se já existe usuário com esse email
+        Optional<Usuario> emailExistente = buscaUsuarioPort.buscarPorEmail(email);
+        if (emailExistente.isPresent()) {
+            log.warn("Tentativa de registro com email já existente: {}", email);
+            throw new RuntimeException("Usuário com email '" + email + "' já existe");
+        }
+        
         // Criptografar a senha antes de salvar
         String senhaCriptografada = passwordEncoder.encode(password);
         
         Usuario user = Usuario.builder(username, email, nome, senhaCriptografada, true, roles.split(","));
         user.setTelefone(telefone);
         user.setDataRegistro(LocalDateTime.now());
-        salvaUsuario.salvar(user);
+        salvaUsuarioPort.salvar(user);
         log.info("Usuário {} registrado com sucesso", username);
     }
     
     @Override
     @Transactional
     public void registrarNovoUsuarioComPlano(String username, String email, String nome, String telefone, String password, String roles, Long planoId) {
-        log.debug("Registrando novo usuário com plano: {}, planoId: {}", username, planoId);
+        log.debug("Registrando novo usuário: {}, planoId: {}", username, planoId);
+        
+        // Verificar se já existe usuário com esse username
+        Optional<Usuario> usuarioExistente = buscaUsuarioPort.buscarPorUsername(username);
+        if (usuarioExistente.isPresent()) {
+            log.warn("Tentativa de registro com username já existente: {}", username);
+            throw new RuntimeException("Usuário com username '" + username + "' já existe");
+        }
+        
+        // Verificar se já existe usuário com esse email
+        Optional<Usuario> emailExistente = buscaUsuarioPort.buscarPorEmail(email);
+        if (emailExistente.isPresent()) {
+            log.warn("Tentativa de registro com email já existente: {}", email);
+            throw new RuntimeException("Usuário com email '" + email + "' já existe");
+        }
+        
         // Criptografar a senha antes de salvar
         String senhaCriptografada = passwordEncoder.encode(password);
         
         // Criar o usuário
-        Usuario user = Usuario.builder(username, email, nome, senhaCriptografada, true, roles.split(","));
+        Usuario user = Usuario.builder(username, email, nome, senhaCriptografada, true, roles);
         user.setTelefone(telefone);
         user.setDataRegistro(LocalDateTime.now());
         
         // Salvar o usuário
-        salvaUsuario.salvar(user);
+        salvaUsuarioPort.salvar(user);
         log.info("Usuário {} registrado com sucesso", username);
         
         // Criar assinatura em uma nova transação
@@ -70,6 +100,21 @@ public class RegistroUsuarioUseCaseImpl implements RegistroUsuarioUseCase {
     @Transactional
     public Usuario registrarNovoUsuarioSemPlano(String username, String email, String nome, String telefone, String password, String roles) {
         log.debug("Registrando novo usuário sem plano: {}", username);
+        
+        // Verificar se já existe usuário com esse username
+        Optional<Usuario> usuarioExistente = buscaUsuarioPort.buscarPorUsername(username);
+        if (usuarioExistente.isPresent()) {
+            log.warn("Tentativa de registro com username já existente: {}", username);
+            throw new RuntimeException("Usuário com username '" + username + "' já existe");
+        }
+        
+        // Verificar se já existe usuário com esse email
+        Optional<Usuario> emailExistente = buscaUsuarioPort.buscarPorEmail(email);
+        if (emailExistente.isPresent()) {
+            log.warn("Tentativa de registro com email já existente: {}", email);
+            throw new RuntimeException("Usuário com email '" + email + "' já existe");
+        }
+        
         // Criptografar a senha antes de salvar
         String senhaCriptografada = passwordEncoder.encode(password);
         
@@ -79,7 +124,7 @@ public class RegistroUsuarioUseCaseImpl implements RegistroUsuarioUseCase {
         user.setDataRegistro(LocalDateTime.now());
         
         // Salvar o usuário
-        salvaUsuario.salvar(user);
+        salvaUsuarioPort.salvar(user);
         log.info("Usuário {} registrado com sucesso", username);
         
         return user;

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirme seu email - VintiPay</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .logo {
+            max-width: 150px;
+            margin-bottom: 15px;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #0d6efd;
+            color: white !important;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #0a58ca;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+        }
+        .info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 25px;
+            font-size: 14px;
+        }
+        @media screen and (max-width: 600px) {
+            .container {
+                width: 100%;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="cid:logo" alt="VintiPay" class="logo">
+            <h2>Confirme seu email</h2>
+        </div>
+        <div class="content">
+            <p>Olá <b th:text="${nome}">Usuário</b>,</p>
+            
+            <p>Obrigado por se registrar no VintiPay. Para completar seu cadastro e ativar sua conta, por favor confirme seu endereço de email clicando no botão abaixo:</p>
+            
+            <div style="text-align: center;">
+                <a th:href="${verificationLink}" class="button">Confirmar Email</a>
+            </div>
+            
+            <p>Ou copie e cole o seguinte link no seu navegador:</p>
+            <p style="word-break: break-all; font-size: 14px;" th:text="${verificationLink}">https://vintipay.cv/verificar-email?token=abc123</p>
+            
+            <div class="info">
+                <p><strong>Observação:</strong> Este link é válido por <span th:text="${validHours}">24</span> horas. Se você não solicitou esta verificação de email, por favor, ignore esta mensagem.</p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 VintiPay. Todos os direitos reservados.</p>
+            <p>Este é um email automático, por favor não responda.</p>
+        </div>
+    </div>
+</body>
+</html>

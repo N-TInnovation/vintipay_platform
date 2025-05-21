@@ -6,6 +6,7 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaPlanoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.RegistroUsuarioUseCase;
 import cv.ntinnovation.vintipay.application.port.in.StripeIntegrationUseCase;
+import cv.ntinnovation.vintipay.application.port.in.VerificaEmailUseCase;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public class RegistroUsuarioController {
 
     private final RegistroUsuarioUseCase registroUsuarioUseCase;
     private final GerenciaPlanoUseCase gerenciaPlanoUseCase;
-    private final StripeIntegrationUseCase stripeIntegrationUseCase;
+    private final VerificaEmailUseCase verificaEmailUseCase;
 
     @GetMapping
     public String exibirFormularioRegistro(Model model) {
@@ -54,19 +54,13 @@ public class RegistroUsuarioController {
     public String registrarUsuario(@Valid @ModelAttribute("registroRequest") RegistroUsuarioRequest request,
                                   BindingResult result, Model model, HttpServletRequest servletRequest,
                                   RedirectAttributes redirectAttributes) {
+
         
-        // Garantir que o planoId seja 1 (padrão), mesmo que não venha do formulário
-        if (request.getPlanoId() == null) {
-            request.setPlanoId(1L);
-        }
-        
-        log.info("Tentando registrar usuário: {}, plano: {}", request.getUsername(), request.getPlanoId());
+        log.info("Tentando registrar usuário: {}", request.getUsername());
         
         if (result.hasErrors()) {
             log.warn("Erros de validação: {}", result.getAllErrors());
-            // Recarregar os planos disponíveis em caso de erro
-            List<Plano> planosDisponiveis = gerenciaPlanoUseCase.listarTodosPlanos();
-            model.addAttribute("planosDisponiveis", planosDisponiveis);
+
             // Usar o mesmo template que foi usado para exibir o formulário
             return "registro-wizard";
         }
@@ -83,28 +77,22 @@ public class RegistroUsuarioController {
             );
             
             log.info("Usuário registrado com sucesso: {}", usuario.getUsername());
-            
-            // Obter o plano
-            Optional<Plano> planoOptional = gerenciaPlanoUseCase.buscarPlanoPorId(request.getPlanoId());
-            if (planoOptional.isEmpty()) {
-                throw new RuntimeException("Plano não encontrado: " + request.getPlanoId());
-            }
-            
-            Plano plano = planoOptional.get();
-            log.info("Plano selecionado: {}", plano.getNome());
-            
-            // Criar assinatura para o usuário diretamente
-            boolean success = registroUsuarioUseCase.criarAssinaturaAposRegistro(usuario.getUsername(), plano.getId());
-            
-            if (success) {
-                log.info("Assinatura criada com sucesso para o usuário: {}", usuario.getUsername());
-                redirectAttributes.addFlashAttribute("mensagem", 
-                    "Registro concluído com sucesso! Sua conta foi criada.");
+
+            // Enviar email de verificação
+            boolean emailEnviado = verificaEmailUseCase.criarTokenVerificacaoEEnviarEmail(usuario);
+
+            if (emailEnviado) {
+                log.info("Email de verificação enviado para: {}", usuario.getEmail());
+                redirectAttributes.addFlashAttribute("mensagem",
+                    "Registro concluído com sucesso! Um email de verificação foi enviado para " +
+                    usuario.getEmail() + ". Por favor, verifique sua caixa de entrada para ativar sua conta.");
             } else {
-                log.warn("Problema ao criar assinatura para o usuário: {}", usuario.getUsername());
-                redirectAttributes.addFlashAttribute("alerta", 
-                    "Registro concluído, mas houve um problema ao ativar sua conta. Entre em contato com o suporte.");
+                log.warn("Falha ao enviar email de verificação para: {}", usuario.getEmail());
+                redirectAttributes.addFlashAttribute("mensagem",
+                    "Registro concluído com sucesso! Sua conta foi criada, mas não foi possível enviar o email de verificação. " +
+                    "Entre em contato com o suporte.");
             }
+
             
             return "redirect:/login?registroSucesso";
             
@@ -113,11 +101,7 @@ public class RegistroUsuarioController {
             
             // Verificar se o erro é relacionado a um usuário duplicado
             String errorMessage = e.getMessage();
-            if (errorMessage != null && (
-                    errorMessage.contains("Duplicate entry") || 
-                    errorMessage.contains("duplicate key") || 
-                    errorMessage.contains("usuarios.username"))) {
-                
+            if (errorMessage != null && errorMessage.contains("username")) {
                 // Erro específico para username duplicado
                 model.addAttribute("erroUsername", "Este nome de usuário já está em uso. Por favor, escolha outro.");
             } else if (errorMessage != null && errorMessage.contains("email")) {
@@ -127,10 +111,6 @@ public class RegistroUsuarioController {
                 // Erro genérico
                 model.addAttribute("erro", "Erro ao registrar usuário: " + e.getMessage());
             }
-            
-            // Recarregar os planos disponíveis em caso de erro
-            List<Plano> planosDisponiveis = gerenciaPlanoUseCase.listarTodosPlanos();
-            model.addAttribute("planosDisponiveis", planosDisponiveis);
             
             // Preservar os dados do formulário
             model.addAttribute("registroRequest", request);
