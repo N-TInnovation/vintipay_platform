@@ -41,6 +41,10 @@ public class Usuario extends User {
     
     @Getter
     @Setter
+    private String nif;
+    
+    @Getter
+    @Setter
     private String stripeCustomerId;
     
     @Getter

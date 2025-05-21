@@ -45,6 +45,9 @@ public class UsuarioEntity {
     
     private String telefone;
     
+    @Column(name = "nif")
+    private String nif;
+    
     @Column(name = "stripe_customer_id")
     private String stripeCustomerId;
     

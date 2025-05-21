@@ -279,6 +279,12 @@
                         </div>
                         
                         <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="nif" th:field="*{nif}" placeholder="NIF" required>
+                            <label for="nif"><i class="fas fa-id-badge me-2"></i>NIF</label>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('nif')}" th:errors="*{nif}"></div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
                             <input type="password" class="form-control" id="password" th:field="*{password}" placeholder="Senha" required>
                             <label for="password"><i class="fas fa-lock me-2"></i>Senha</label>
                             <div class="error-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
@@ -326,6 +332,10 @@
                                     <div class="confirm-item">
                                         <span class="confirm-label">Nome de usuário:</span>
                                         <span class="confirm-value" id="confirm-username"></span>
+                                    </div>
+                                    <div class="confirm-item">
+                                        <span class="confirm-label">NIF:</span>
+                                        <span class="confirm-value" id="confirm-nif"></span>
                                     </div>
                                 </div>
                             </div>
@@ -404,6 +414,7 @@
             const emailInput = document.getElementById('email');
             const nomeInput = document.getElementById('nome');
             const telefoneInput = document.getElementById('telefone');
+            const nifInput = document.getElementById('nif');
             const passwordInput = document.getElementById('password');
             const confirmPasswordInput = document.getElementById('confirmPassword');
             const termsCheckInput = document.getElementById('termsCheckConfirm');
@@ -436,7 +447,7 @@
                 form.classList.add('was-validated');
                 
                 if (!usernameInput.value || !emailInput.value || !nomeInput.value || 
-                    !telefoneInput.value || !passwordInput.value || !confirmPasswordInput.value) {
+                    !telefoneInput.value || !nifInput.value || !passwordInput.value || !confirmPasswordInput.value) {
                     return false;
                 }
                 
@@ -472,6 +483,7 @@
                 document.getElementById('confirm-email').textContent = emailInput.value || '-';
                 document.getElementById('confirm-telefone').textContent = telefoneInput.value || '-';
                 document.getElementById('confirm-username').textContent = usernameInput.value || '-';
+                document.getElementById('confirm-nif').textContent = nifInput.value || '-';
             }
             
             // Adicionar efeito de foco nos campos

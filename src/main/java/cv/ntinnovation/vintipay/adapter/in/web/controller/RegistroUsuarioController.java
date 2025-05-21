@@ -72,6 +72,7 @@ public class RegistroUsuarioController {
                     request.getEmail(),
                     request.getNome(),
                     request.getTelefone(),
+                    request.getNif(),
                     request.getPassword(),
                     "USER"
             );

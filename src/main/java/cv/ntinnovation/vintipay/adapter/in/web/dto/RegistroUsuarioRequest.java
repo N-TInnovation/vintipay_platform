@@ -27,8 +27,12 @@ public class RegistroUsuarioRequest {
     private String nome;
 
     @NotBlank(message = "O telefone é obrigatório")
-    @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Telefone inválido")
+    @Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Telefone deve ter pelo menos 7 dígitos")
     private String telefone;
+
+    @NotBlank(message = "O NIF é obrigatório")
+    @Pattern(regexp = "^[0-9]{7,11}$", message = "NIF inválido")
+    private String nif;
 
     @NotBlank(message = "A senha é obrigatória")
     @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres")

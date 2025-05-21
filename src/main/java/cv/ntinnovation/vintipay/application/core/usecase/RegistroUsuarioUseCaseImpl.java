@@ -63,7 +63,7 @@ public class RegistroUsuarioUseCaseImpl implements RegistroUsuarioUseCase {
     
     @Override
     @Transactional
-    public void registrarNovoUsuarioComPlano(String username, String email, String nome, String telefone, String password, String roles, Long planoId) {
+    public void registrarNovoUsuarioComPlano(String username, String email, String nome, String telefone, String nif, String password, String roles, Long planoId) {
         log.debug("Registrando novo usuário: {}, planoId: {}", username, planoId);
         
         // Verificar se já existe usuário com esse username
@@ -86,6 +86,7 @@ public class RegistroUsuarioUseCaseImpl implements RegistroUsuarioUseCase {
         // Criar o usuário
         Usuario user = Usuario.builder(username, email, nome, senhaCriptografada, true, roles);
         user.setTelefone(telefone);
+        user.setNif(nif);
         user.setDataRegistro(LocalDateTime.now());
         
         // Salvar o usuário
@@ -98,7 +99,7 @@ public class RegistroUsuarioUseCaseImpl implements RegistroUsuarioUseCase {
     
     @Override
     @Transactional
-    public Usuario registrarNovoUsuarioSemPlano(String username, String email, String nome, String telefone, String password, String roles) {
+    public Usuario registrarNovoUsuarioSemPlano(String username, String email, String nome, String telefone, String nif, String password, String roles) {
         log.debug("Registrando novo usuário sem plano: {}", username);
         
         // Verificar se já existe usuário com esse username
@@ -119,8 +120,9 @@ public class RegistroUsuarioUseCaseImpl implements RegistroUsuarioUseCase {
         String senhaCriptografada = passwordEncoder.encode(password);
         
         // Criar o usuário
-        Usuario user = Usuario.builder(username, email, nome, senhaCriptografada, true, roles.split(","));
+        Usuario user = Usuario.builder(username, email, nome, senhaCriptografada, true, roles);
         user.setTelefone(telefone);
+        user.setNif(nif);
         user.setDataRegistro(LocalDateTime.now());
         
         // Salvar o usuário

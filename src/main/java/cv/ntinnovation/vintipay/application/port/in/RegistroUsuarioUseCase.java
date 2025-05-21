@@ -13,11 +13,12 @@ public interface RegistroUsuarioUseCase {
      * @param email E-mail do usuário
      * @param nome Nome completo do usuário
      * @param telefone Telefone do usuário
+     * @param nif NIF do usuário
      * @param password Senha do usuário (não criptografada)
      * @param roles Papéis do usuário (separados por vírgula)
      * @param planoId ID do plano escolhido
      */
-    void registrarNovoUsuarioComPlano(String username, String email, String nome, String telefone, String password, String roles, Long planoId);
+    void registrarNovoUsuarioComPlano(String username, String email, String nome, String telefone, String nif, String password, String roles, Long planoId);
     
     /**
      * Registra um novo usuário sem criar uma assinatura
@@ -25,11 +26,12 @@ public interface RegistroUsuarioUseCase {
      * @param email E-mail do usuário
      * @param nome Nome completo do usuário
      * @param telefone Telefone do usuário
+     * @param nif NIF do usuário
      * @param password Senha do usuário (não criptografada)
      * @param roles Papéis do usuário (separados por vírgula)
      * @return O usuário criado
      */
-    Usuario registrarNovoUsuarioSemPlano(String username, String email, String nome, String telefone, String password, String roles);
+    Usuario registrarNovoUsuarioSemPlano(String username, String email, String nome, String telefone, String nif, String password, String roles);
     
     /**
      * Cria uma assinatura para um usuário já registrado
