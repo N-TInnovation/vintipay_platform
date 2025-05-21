@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termos de Uso - VintiPay</title>
+    
+    <!-- Incluir fragmento de favicon reutilizável -->
+    <th:block th:replace="~{fragments/head-favicons :: favicons}"></th:block>
+    
+    <!-- Crisp Chat Widget -->
+    <script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="4ccd3df1-2c32-4b76-98cb-1dd9a36e8976";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark-color);
+            background-color: #f9f9f9;
+        }
+        
+        .terms-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo-area {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo-area img {
+            max-height: 60px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: 1.4rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .section {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+        }
+        
+        .last-updated {
+            font-style: italic;
+            color: var(--secondary-color);
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .btn-back {
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container terms-container">
+        <div class="logo-area">
+            <img th:src="@{/img/logo.png}" alt="VintiPay Logo" onerror="this.src='https://via.placeholder.com/180x60?text=VintiPay'">
+        </div>
+        
+        <h1>Termos de Uso</h1>
+        
+        <div class="section">
+            <h2>1. Aceitação dos Termos</h2>
+            <p>Ao acessar e usar o VintiPay, você concorda em cumprir e estar vinculado a estes Termos de Uso. Se você não concordar com algum aspecto destes termos, não poderá usar nossos serviços.</p>
+        </div>
+        
+        <div class="section">
+            <h2>2. Descrição do Serviço</h2>
+            <p>O VintiPay é uma plataforma de pagamento digital que permite aos usuários enviar, receber e gerenciar pagamentos digitais, especialmente focada no mercado de Cabo Verde.</p>
+            <p>Nossos serviços incluem, mas não se limitam a:</p>
+            <ul>
+                <li>Processamento de pagamentos</li>
+                <li>Transferências de dinheiro</li>
+                <li>Gestão de conta digital</li>
+                <li>Serviços para comerciantes e consumidores</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>3. Registro e Conta</h2>
+            <p>Para utilizar nossos serviços, você deve criar uma conta, fornecer informações precisas e manter suas credenciais de login seguras. Você é responsável por todas as atividades que ocorrem sob sua conta.</p>
+            <p>Você concorda em:</p>
+            <ul>
+                <li>Fornecer informações verdadeiras, precisas e completas</li>
+                <li>Manter e atualizar prontamente seus dados conforme necessário</li>
+                <li>Notificar-nos imediatamente sobre qualquer uso não autorizado da sua conta</li>
+                <li>Ser responsável pela segurança do seu nome de usuário e senha</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>4. Responsabilidades do Usuário</h2>
+            <p>Ao usar o VintiPay, você concorda em:</p>
+            <ul>
+                <li>Não utilizar o serviço para qualquer finalidade ilegal ou não autorizada</li>
+                <li>Não tentar burlar qualquer medida de segurança do VintiPay</li>
+                <li>Não usar o serviço de maneira que possa danificar, desabilitar ou sobrecarregar nossos servidores</li>
+                <li>Cumprir todas as leis locais, nacionais e internacionais aplicáveis</li>
+                <li>Não envolver-se em atividades fraudulentas ou enganosas</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>5. Taxas e Pagamentos</h2>
+            <p>O VintiPay cobra taxas por determinados serviços conforme detalhado em nossa página de preços. Ao usar nossos serviços, você concorda em pagar todas as taxas aplicáveis.</p>
+            <p>Reservamo-nos o direito de alterar nossas taxas mediante aviso prévio. O uso continuado dos serviços após tais alterações constitui sua aceitação das novas taxas.</p>
+        </div>
+        
+        <div class="section">
+            <h2>6. Propriedade Intelectual</h2>
+            <p>Todo o conteúdo do VintiPay, incluindo mas não limitado a logotipos, textos, gráficos, imagens e software, é propriedade do VintiPay ou de seus fornecedores e é protegido por leis de direitos autorais e propriedade intelectual.</p>
+            <p>Você não tem permissão para copiar, modificar, distribuir, vender ou alugar qualquer parte do serviço sem nossa autorização expressa por escrito.</p>
+        </div>
+        
+        <div class="section">
+            <h2>7. Limitação de Responsabilidade</h2>
+            <p>O VintiPay não será responsável por quaisquer danos diretos, indiretos, incidentais, especiais, consequenciais ou punitivos, incluindo, mas não se limitando a, perda de lucros, dados, uso ou outra perda intangível resultante do uso ou da incapacidade de usar o serviço.</p>
+            <p>Não garantimos que o serviço será ininterrupto, oportuno, seguro ou livre de erros.</p>
+        </div>
+        
+        <div class="section">
+            <h2>8. Modificações do Serviço e dos Termos</h2>
+            <p>Reservamo-nos o direito de modificar ou descontinuar, temporária ou permanentemente, o serviço, com ou sem aviso prévio.</p>
+            <p>Podemos revisar estes Termos de Uso a qualquer momento, publicando a versão atualizada em nosso site. Ao continuar a usar o serviço após tais alterações, você concorda em estar vinculado pelos termos revisados.</p>
+        </div>
+        
+        <div class="section">
+            <h2>9. Lei Aplicável</h2>
+            <p>Estes Termos de Uso são regidos e interpretados de acordo com as leis de Cabo Verde, e quaisquer disputas relacionadas a estes termos estarão sujeitas à jurisdição exclusiva dos tribunais de Cabo Verde.</p>
+        </div>
+        
+        <div class="section">
+            <h2>10. Contato</h2>
+            <p>Se você tiver dúvidas sobre estes Termos de Uso, entre em contato conosco através do email: support@vintipay.com</p>
+        </div>
+        
+        <p class="last-updated">Última atualização: 21 de maio de 2025</p>
+        
+        <div class="text-center btn-back">
+            <a th:href="@{/}" class="btn btn-primary">Voltar para a Página Inicial</a>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

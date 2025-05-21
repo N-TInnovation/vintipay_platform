@@ -32,13 +32,31 @@ services:
     ports:
       - "8443:8443"
     environment:
-      - SPRING_PROFILES_ACTIVE=local
+      - spring.profiles.active=local
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/vintipay?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
+      - SERVER_PORT=8443
+      - SERVER_SSL_ENABLED=false
+      - JWT_PUBLIC_KEY=classpath:app.pub
+      - JWT_PRIVATE_KEY=classpath:app.key
+      - BREVO_API_KEY=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
+      - BREVO_API_URL=https://api.brevo.com/v3
+      - BREVO_EMAIL_FROM=no-reply@vintipay.cv
       - STRIPE_API_KEY=sk_test_51JZHlXFLqETPcYGM3OkBuL08Yv8BFyYLkMIuIRBORak5t2aIOQ5IoRtZOoa0kNMcFbGhjSbHgRG8Hf5WIrPqAh1300GGaBDBpk
       - STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
       - APP_BASE_URL=https://localhost:8443
+      # SISP URLs
+      - SISP_URL_3D=https://mc.vinti4net.cv/3ds_middleware_php/public/3ds_init.php
+      - SISP_URL_NORMAL=https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment
+      - SISP_DEV_URL_3D=https://localhost:8443/simulador/sisp/3ds_middleware_php/public/3ds_init.php
+      - SISP_DEV_URL_NORMAL=https://localhost:3001/simulador/sisp/3ds_middleware_php/public/3ds_init.php
+      - SISP_QLD_URL_3D=https://mc.vinti4net.cv/3ds_middleware_php/public/3ds_init.php
+      - SISP_QLD_URL_NORMAL=https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment
+      - SISP_CHECKOUT_RETURN_URL=https://localhost:8443/api/v1/pagamentos/confirmacao
+      # Vendus API
+      - VENDUS_API_URL=api.vendus.pt/1.1
+      - VENDUS_API_KEY=your-vendus-api-key
     volumes:
       - ./logs:/app/logs
     networks:

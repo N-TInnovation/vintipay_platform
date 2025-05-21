@@ -35,10 +35,14 @@ public class RegistroUsuarioController {
 
     @GetMapping
     public String exibirFormularioRegistro(Model model) {
-        // Adicionar o objeto de requisição ao modelo
-        model.addAttribute("registroRequest", new RegistroUsuarioRequest());
+        // Criar uma instância da solicitação com valor padrão de planoId
+        RegistroUsuarioRequest registroRequest = new RegistroUsuarioRequest();
+        registroRequest.setPlanoId(1L); // Definir plano padrão
         
-        // Buscar todos os planos disponíveis
+        // Adicionar o objeto de requisição ao modelo
+        model.addAttribute("registroRequest", registroRequest);
+        
+        // Buscar todos os planos disponíveis para referência
         List<Plano> planosDisponiveis = gerenciaPlanoUseCase.listarTodosPlanos();
         model.addAttribute("planosDisponiveis", planosDisponiveis);
         
@@ -50,16 +54,25 @@ public class RegistroUsuarioController {
     public String registrarUsuario(@Valid @ModelAttribute("registroRequest") RegistroUsuarioRequest request,
                                   BindingResult result, Model model, HttpServletRequest servletRequest,
                                   RedirectAttributes redirectAttributes) {
+        
+        // Garantir que o planoId seja 1 (padrão), mesmo que não venha do formulário
+        if (request.getPlanoId() == null) {
+            request.setPlanoId(1L);
+        }
+        
+        log.info("Tentando registrar usuário: {}, plano: {}", request.getUsername(), request.getPlanoId());
+        
         if (result.hasErrors()) {
+            log.warn("Erros de validação: {}", result.getAllErrors());
             // Recarregar os planos disponíveis em caso de erro
             List<Plano> planosDisponiveis = gerenciaPlanoUseCase.listarTodosPlanos();
             model.addAttribute("planosDisponiveis", planosDisponiveis);
-            // Usar o novo template com formato de wizard
+            // Usar o mesmo template que foi usado para exibir o formulário
             return "registro-wizard";
         }
 
         try {
-            // Registrar o usuário sem criar assinatura ainda
+            // Registrar o usuário com o plano básico diretamente
             Usuario usuario = registroUsuarioUseCase.registrarNovoUsuarioSemPlano(
                     request.getUsername(),
                     request.getEmail(),
@@ -69,36 +82,34 @@ public class RegistroUsuarioController {
                     "USER"
             );
             
-            // Obter o plano selecionado
+            log.info("Usuário registrado com sucesso: {}", usuario.getUsername());
+            
+            // Obter o plano
             Optional<Plano> planoOptional = gerenciaPlanoUseCase.buscarPlanoPorId(request.getPlanoId());
             if (planoOptional.isEmpty()) {
-                throw new RuntimeException("Plano não encontrado");
+                throw new RuntimeException("Plano não encontrado: " + request.getPlanoId());
             }
             
             Plano plano = planoOptional.get();
+            log.info("Plano selecionado: {}", plano.getNome());
             
-            // Construir URLs de sucesso e cancelamento
-            String baseUrl = servletRequest.getScheme() + "://" + servletRequest.getServerName();
-            if (servletRequest.getServerPort() != 80 && servletRequest.getServerPort() != 443) {
-                baseUrl += ":" + servletRequest.getServerPort();
+            // Criar assinatura para o usuário diretamente
+            boolean success = registroUsuarioUseCase.criarAssinaturaAposRegistro(usuario.getUsername(), plano.getId());
+            
+            if (success) {
+                log.info("Assinatura criada com sucesso para o usuário: {}", usuario.getUsername());
+                redirectAttributes.addFlashAttribute("mensagem", 
+                    "Registro concluído com sucesso! Sua conta foi criada.");
+            } else {
+                log.warn("Problema ao criar assinatura para o usuário: {}", usuario.getUsername());
+                redirectAttributes.addFlashAttribute("alerta", 
+                    "Registro concluído, mas houve um problema ao ativar sua conta. Entre em contato com o suporte.");
             }
             
-            String successUrl = baseUrl + "/registro/checkout-success?username=" + usuario.getUsername() + "&planoId=" + plano.getId();
-            String cancelUrl = baseUrl + "/registro/checkout-cancel?username=" + usuario.getUsername();
-            
-            // Criar sessão de checkout do Stripe
-            String checkoutUrl = stripeIntegrationUseCase.criarCheckoutSession(
-                    usuario,
-                    plano.getStripePriceId(),
-                    successUrl,
-                    cancelUrl
-            );
-            
-            // Redirecionar para o checkout do Stripe
-            return "redirect:" + checkoutUrl;
+            return "redirect:/login?registroSucesso";
             
         } catch (Exception e) {
-            log.error("Erro ao registrar usuário", e);
+            log.error("Erro ao registrar usuário: {}", e.getMessage(), e);
             
             // Verificar se o erro é relacionado a um usuário duplicado
             String errorMessage = e.getMessage();
@@ -124,39 +135,9 @@ public class RegistroUsuarioController {
             // Preservar os dados do formulário
             model.addAttribute("registroRequest", request);
             
-            // Usar o novo template com formato de wizard
+            // Usar o mesmo template que foi usado para exibir o formulário
             return "registro-wizard";
         }
     }
-    
-    @GetMapping("/checkout-success")
-    public String checkoutSuccess(@RequestParam String username, @RequestParam Long planoId, 
-                                 RedirectAttributes redirectAttributes) {
-        try {
-            // Criar assinatura para o usuário após pagamento bem-sucedido
-            boolean success = registroUsuarioUseCase.criarAssinaturaAposRegistro(username, planoId);
-            
-            if (success) {
-                redirectAttributes.addFlashAttribute("mensagem", 
-                    "Registro concluído com sucesso! Sua assinatura está ativa.");
-            } else {
-                redirectAttributes.addFlashAttribute("alerta", 
-                    "Registro concluído, mas houve um problema ao ativar sua assinatura. Entre em contato com o suporte.");
-            }
-            
-            return "redirect:/login?registroSucesso";
-        } catch (Exception e) {
-            log.error("Erro ao finalizar registro após checkout", e);
-            redirectAttributes.addFlashAttribute("erro", 
-                "Ocorreu um erro ao finalizar seu registro: " + e.getMessage());
-            return "redirect:/login?erro";
-        }
-    }
-    
-    @GetMapping("/checkout-cancel")
-    public String checkoutCancel(@RequestParam String username, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("alerta", 
-            "O pagamento foi cancelado, mas seu cadastro foi realizado. Você pode fazer login e assinar um plano depois.");
-        return "redirect:/login";
-    }
+
 }

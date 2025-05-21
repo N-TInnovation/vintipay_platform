@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidade - VintiPay</title>
+    
+    <!-- Incluir fragmento de favicon reutilizável -->
+    <th:block th:replace="~{fragments/head-favicons :: favicons}"></th:block>
+    
+    <!-- Crisp Chat Widget -->
+    <script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="4ccd3df1-2c32-4b76-98cb-1dd9a36e8976";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark-color);
+            background-color: #f9f9f9;
+        }
+        
+        .privacy-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo-area {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo-area img {
+            max-height: 60px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: 1.4rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .section {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+        }
+        
+        .last-updated {
+            font-style: italic;
+            color: var(--secondary-color);
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .btn-back {
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container privacy-container">
+        <div class="logo-area">
+            <img th:src="@{/img/logo.png}" alt="VintiPay Logo" onerror="this.src='https://via.placeholder.com/180x60?text=VintiPay'">
+        </div>
+        
+        <h1>Política de Privacidade</h1>
+        
+        <div class="section">
+            <h2>1. Introdução</h2>
+            <p>O VintiPay está comprometido em proteger sua privacidade. Esta Política de Privacidade explica como coletamos, usamos, divulgamos e protegemos suas informações pessoais quando você usa nossos serviços.</p>
+            <p>Ao usar o VintiPay, você concorda com as práticas descritas nesta política. Revise-a cuidadosamente para entender como tratamos suas informações.</p>
+        </div>
+        
+        <div class="section">
+            <h2>2. Informações que Coletamos</h2>
+            <p><strong>Informações Pessoais:</strong> Quando você se registra e usa o VintiPay, coletamos informações como nome, endereço de e-mail, número de telefone, endereço, documentos de identificação e, quando necessário para processamento de pagamentos, informações financeiras.</p>
+            <p><strong>Informações de Uso:</strong> Coletamos dados sobre como você interage com nossos serviços, incluindo registros de acesso, transações realizadas, comportamento de navegação e preferências.</p>
+            <p><strong>Informações do Dispositivo:</strong> Podemos coletar informações sobre o dispositivo que você usa para acessar o VintiPay, incluindo modelo de hardware, sistema operacional, identificadores únicos de dispositivo e informações de rede móvel.</p>
+        </div>
+        
+        <div class="section">
+            <h2>3. Como Usamos Suas Informações</h2>
+            <p>Utilizamos suas informações para:</p>
+            <ul>
+                <li>Fornecer, manter e melhorar nossos serviços</li>
+                <li>Processar suas transações e gerenciar sua conta</li>
+                <li>Verificar sua identidade e prevenir fraudes</li>
+                <li>Comunicar-se com você sobre sua conta, atualizações de serviço e novos recursos</li>
+                <li>Personalizar sua experiência e fornecer conteúdo relevante</li>
+                <li>Cumprir obrigações legais e regulatórias</li>
+                <li>Proteger nossos direitos, propriedade ou segurança, bem como os de nossos usuários</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>4. Compartilhamento de Informações</h2>
+            <p>Podemos compartilhar suas informações nas seguintes circunstâncias:</p>
+            <ul>
+                <li><strong>Parceiros de Serviço:</strong> Compartilhamos informações com prestadores de serviços terceirizados que nos ajudam a operar, fornecer e melhorar nossos serviços (processadores de pagamento, serviços de prevenção a fraudes, etc.).</li>
+                <li><strong>Conformidade Legal:</strong> Podemos divulgar informações quando acreditarmos, de boa fé, que a divulgação é necessária para cumprir a lei, prevenir fraudes, proteger direitos ou responder a processos legais.</li>
+                <li><strong>Com Seu Consentimento:</strong> Compartilharemos suas informações pessoais para fins não descritos nesta política apenas com seu consentimento explícito.</li>
+                <li><strong>Transferências Comerciais:</strong> Em caso de fusão, aquisição ou venda de ativos, suas informações podem ser transferidas como parte desses ativos comerciais.</li>
+            </ul>
+            <p>Não vendemos suas informações pessoais a terceiros para fins de marketing.</p>
+        </div>
+        
+        <div class="section">
+            <h2>5. Segurança das Informações</h2>
+            <p>Implementamos medidas técnicas e organizacionais adequadas para proteger suas informações contra acesso não autorizado, alteração, divulgação ou destruição. Isso inclui criptografia de dados, controles de acesso e monitoramento regular de segurança.</p>
+            <p>No entanto, nenhum método de transmissão pela Internet ou método de armazenamento eletrônico é 100% seguro. Portanto, não podemos garantir sua segurança absoluta.</p>
+        </div>
+        
+        <div class="section">
+            <h2>6. Seus Direitos de Privacidade</h2>
+            <p>Dependendo da sua jurisdição, você pode ter vários direitos em relação aos seus dados pessoais, incluindo:</p>
+            <ul>
+                <li>Direito de acessar e revisar as informações que temos sobre você</li>
+                <li>Direito de corrigir informações imprecisas</li>
+                <li>Direito de excluir suas informações (sujeito a certas exceções)</li>
+                <li>Direito de restringir ou objetar ao processamento de suas informações</li>
+                <li>Direito à portabilidade de dados</li>
+            </ul>
+            <p>Para exercer qualquer um desses direitos, entre em contato conosco pelo e-mail privacy@vintipay.com.</p>
+        </div>
+        
+        <div class="section">
+            <h2>7. Retenção de Dados</h2>
+            <p>Mantemos suas informações pessoais pelo tempo necessário para fornecer os serviços que você solicitou, cumprir nossas obrigações legais, resolver disputas e fazer cumprir nossos acordos.</p>
+            <p>Quando não tivermos mais uma necessidade comercial legítima de processar suas informações pessoais, excluiremos ou anonimizaremos as informações.</p>
+        </div>
+        
+        <div class="section">
+            <h2>8. Crianças</h2>
+            <p>Nossos serviços não são destinados a pessoas com menos de 18 anos. Não coletamos conscientemente informações pessoais de crianças. Se descobrirmos que coletamos informações pessoais de uma criança, tomaremos medidas para excluir essas informações o mais rápido possível.</p>
+        </div>
+        
+        <div class="section">
+            <h2>9. Alterações nesta Política</h2>
+            <p>Podemos atualizar esta Política de Privacidade periodicamente. A versão mais recente estará sempre disponível em nosso site. Alterações significativas serão notificadas por e-mail ou através de avisos em nosso aplicativo ou site.</p>
+            <p>Recomendamos que você revise esta política regularmente para estar ciente de quaisquer alterações.</p>
+        </div>
+        
+        <div class="section">
+            <h2>10. Contato</h2>
+            <p>Se você tiver dúvidas ou preocupações sobre esta Política de Privacidade ou nossas práticas de dados, entre em contato conosco em:</p>
+            <p>
+                VintiPay<br>
+                Email: privacy@vintipay.com<br>
+                Endereço: Praia, Cabo Verde
+            </p>
+        </div>
+        
+        <p class="last-updated">Última atualização: 21 de maio de 2025</p>
+        
+        <div class="text-center btn-back">
+            <a th:href="@{/}" class="btn btn-primary">Voltar para a Página Inicial</a>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

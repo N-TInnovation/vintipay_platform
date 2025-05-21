@@ -17,4 +17,14 @@ public class HomeController {
     public String home() {
         return "home/index";
     }
+
+    @GetMapping("/termos")
+    public String exibirTermosDeUso() {
+        return "termos";
+    }
+
+    @GetMapping("/privacidade")
+    public String exibirPoliticaPrivacidade() {
+        return "privacidade";
+    }
 }
