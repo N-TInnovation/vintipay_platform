@@ -11,9 +11,13 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,184 +64,171 @@ public class DataImportConfig {
     }
     
     /**
+     * Verifica se um recurso existe no classpath
+     */
+    private boolean resourceExists(String path) {
+        try {
+            Resource resource = new ClassPathResource(path);
+            return resource.exists();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Tenta carregar um recurso do classpath ou do sistema de arquivos,
+     * verificando várias localizações possíveis
+     */
+    private InputStream getResourceAsStream(String filename) {
+        List<String> classpathLocations = Arrays.asList(
+            filename,                    // Diretamente na raiz do classpath
+            "sql/" + filename,           // Na pasta sql do classpath
+            "app/sql/" + filename,       // Na pasta app/sql do classpath
+            "static/sql/" + filename,    // Na pasta static/sql do classpath
+            "resources/sql/" + filename  // Na pasta resources/sql do classpath
+        );
+        
+        List<String> fileSystemLocations = Arrays.asList(
+            System.getProperty("user.dir") + "/" + filename,                 // Na raiz do projeto
+            System.getProperty("user.dir") + "/sql/" + filename,             // Na pasta sql do projeto
+            System.getProperty("user.dir") + "/app/sql/" + filename,         // Na pasta app/sql do projeto
+            System.getProperty("user.home") + "/sql/" + filename,            // Na pasta sql da home do usuário
+            "/app/" + filename,                                              // Na pasta app (Docker)
+            "/app/sql/" + filename,                                          // Na pasta app/sql (Docker)
+            "/app/resources/sql/" + filename                                 // Na pasta app/resources/sql (Docker)
+        );
+        
+        // Primeiro, tenta todas as localizações do classpath
+        for (String location : classpathLocations) {
+            try {
+                if (resourceExists(location)) {
+                    log.info("Recurso SQL encontrado no classpath: {}", location);
+                    return new ClassPathResource(location).getInputStream();
+                }
+            } catch (Exception e) {
+                // Ignora e tenta a próxima localização
+            }
+        }
+        
+        // Em seguida, tenta todas as localizações do sistema de arquivos
+        for (String location : fileSystemLocations) {
+            try {
+                File file = new File(location);
+                if (file.exists()) {
+                    log.info("Recurso SQL encontrado no sistema de arquivos: {}", location);
+                    return new FileInputStream(file);
+                }
+            } catch (Exception e) {
+                // Ignora e tenta a próxima localização
+            }
+        }
+        
+        log.warn("Recurso SQL '{}' não encontrado em nenhuma localização.", filename);
+        return null;
+    }
+    
+    /**
      * Importa os dados de localização dos arquivos SQL
      */
     private void importLocationDataFromFiles() {
         log.info("Iniciando importação de dados de localização...");
 
         try {
-            // Caminho para os arquivos SQL usando recursos da classpath
-            // Primeiro tenta buscar do classpath
-            try {
-                Resource countriesResource = new ClassPathResource("sql/countries.sql");
-                Resource statesResource = new ClassPathResource("sql/states.sql");
-                Resource citiesResource = new ClassPathResource("sql/cities.sql");
-                
-                if (countriesResource.exists() && statesResource.exists() && citiesResource.exists()) {
-                    // Importar países
-                    importCountries(countriesResource.getFile().getAbsolutePath());
-                    
-                    // Importar estados
-                    importStates(statesResource.getFile().getAbsolutePath());
-                    
-                    // Importar cidades (este processo pode demorar devido ao tamanho do arquivo)
-                    importCities(citiesResource.getFile().getAbsolutePath());
-                    
-                    log.info("Importação de dados de localização concluída com sucesso!");
-                    return;
-                }
-            } catch (Exception e) {
-                log.warn("Não foi possível encontrar arquivos SQL no classpath, tentando caminho relativo...");
+            // Verificar se os arquivos existem e importar
+            boolean countriesImported = importCountriesFromSQL("countries.sql");
+            boolean statesImported = importStatesFromSQL("states.sql");
+            boolean citiesImported = importCitiesFromSQL("cities.sql");
+            
+            if (!countriesImported || !statesImported || !citiesImported) {
+                log.warn("Alguns arquivos SQL de localização não foram encontrados. " +
+                      "A aplicação continuará sem dados completos de localização.");
+            } else {
+                log.info("Importação de dados de localização concluída com sucesso!");
             }
-            
-            // Se não encontrou no classpath, tenta utilizar caminhos relativos
-            String basePath = System.getProperty("user.dir") + "/sql";
-            log.info("Tentando importar arquivos SQL de: {}", basePath);
-            
-            // Verificar se os arquivos existem
-            File countriesFile = new File(basePath + "/countries.sql");
-            File statesFile = new File(basePath + "/states.sql");
-            File citiesFile = new File(basePath + "/cities.sql");
-            
-            if (!countriesFile.exists() || !statesFile.exists() || !citiesFile.exists()) {
-                log.error("Arquivos SQL de localização não encontrados em {}", basePath);
-                log.error("Verifique se os arquivos countries.sql, states.sql e cities.sql existem neste diretório.");
-                return;
-            }
-            
-            // Importar países
-            importCountries(countriesFile.getAbsolutePath());
-            
-            // Importar estados
-            importStates(statesFile.getAbsolutePath());
-            
-            // Importar cidades (este processo pode demorar devido ao tamanho do arquivo)
-            importCities(citiesFile.getAbsolutePath());
-            
-            log.info("Importação de dados de localização concluída com sucesso!");
         } catch (Exception e) {
             log.error("Erro durante a importação de dados de localização", e);
+            // Não interromper a inicialização da aplicação mesmo em caso de erro
         }
     }
     
-    private void importCountries(String filePath) {
-        log.info("Importando países de {}", filePath);
-        
-        try {
-            // Verificar se o arquivo existe
-            File file = new File(filePath);
-            if (!file.exists()) {
-                log.error("Arquivo de países não encontrado: {}", filePath);
-                return;
+    /**
+     * Importa países do arquivo SQL
+     */
+    private boolean importCountriesFromSQL(String filename) {
+        try (InputStream is = getResourceAsStream(filename)) {
+            if (is == null) {
+                log.warn("Arquivo SQL de países não encontrado. Pulando importação de países.");
+                return false;
             }
             
-            // Ler o arquivo e extrair os comandos INSERT
-            List<String> insertStatements = extractInsertStatements(file);
-            
-            // Executar os comandos INSERT
-            for (String insert : insertStatements) {
-                try {
-                    jdbcTemplate.execute(insert);
-                } catch (Exception e) {
-                    log.error("Erro ao executar INSERT de país: {}", e.getMessage());
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+                String sql = reader.lines().collect(Collectors.joining("\n"));
+                if (!sql.trim().isEmpty()) {
+                    jdbcTemplate.execute(sql);
+                    log.info("Importação de países do arquivo SQL concluída com sucesso.");
+                    return true;
+                } else {
+                    log.warn("Arquivo SQL de países está vazio.");
+                    return false;
                 }
             }
-            
-            log.info("Importação de países concluída. Total de registros: {}", insertStatements.size());
         } catch (Exception e) {
-            log.error("Erro durante a importação de países", e);
+            log.error("Erro ao importar países do arquivo SQL", e);
+            return false;
         }
     }
     
-    private void importStates(String filePath) {
-        log.info("Importando estados de {}", filePath);
-        
-        try {
-            // Verificar se o arquivo existe
-            File file = new File(filePath);
-            if (!file.exists()) {
-                log.error("Arquivo de estados não encontrado: {}", filePath);
-                return;
+    /**
+     * Importa estados do arquivo SQL
+     */
+    private boolean importStatesFromSQL(String filename) {
+        try (InputStream is = getResourceAsStream(filename)) {
+            if (is == null) {
+                log.warn("Arquivo SQL de estados não encontrado. Pulando importação de estados.");
+                return false;
             }
             
-            // Ler o arquivo e extrair os comandos INSERT
-            List<String> insertStatements = extractInsertStatements(file);
-            
-            // Executar os comandos INSERT
-            for (String insert : insertStatements) {
-                try {
-                    jdbcTemplate.execute(insert);
-                } catch (Exception e) {
-                    log.error("Erro ao executar INSERT de estado: {}", e.getMessage());
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+                String sql = reader.lines().collect(Collectors.joining("\n"));
+                if (!sql.trim().isEmpty()) {
+                    jdbcTemplate.execute(sql);
+                    log.info("Importação de estados do arquivo SQL concluída com sucesso.");
+                    return true;
+                } else {
+                    log.warn("Arquivo SQL de estados está vazio.");
+                    return false;
                 }
             }
-            
-            log.info("Importação de estados concluída. Total de registros: {}", insertStatements.size());
         } catch (Exception e) {
-            log.error("Erro durante a importação de estados", e);
+            log.error("Erro ao importar estados do arquivo SQL", e);
+            return false;
         }
     }
     
-    private void importCities(String filePath) {
-        log.info("Importando cidades de {}", filePath);
-        
-        try {
-            // Verificar se o arquivo existe
-            File file = new File(filePath);
-            if (!file.exists()) {
-                log.error("Arquivo de cidades não encontrado: {}", filePath);
-                return;
+    /**
+     * Importa cidades do arquivo SQL
+     */
+    private boolean importCitiesFromSQL(String filename) {
+        try (InputStream is = getResourceAsStream(filename)) {
+            if (is == null) {
+                log.warn("Arquivo SQL de cidades não encontrado. Pulando importação de cidades.");
+                return false;
             }
             
-            // Como o arquivo de cidades é muito grande, vamos processar em lotes
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                StringBuilder insertBuilder = new StringBuilder();
-                String line;
-                int count = 0;
-                boolean insideInsertBlock = false;
-                
-                while ((line = reader.readLine()) != null) {
-                    // Identificar o início de um bloco INSERT
-                    if (line.startsWith("INSERT INTO `cities`")) {
-                        insideInsertBlock = true;
-                        insertBuilder = new StringBuilder(line);
-                    } 
-                    // Continuar acumulando a instrução INSERT
-                    else if (insideInsertBlock && !line.contains("/*!40000 ALTER TABLE")) {
-                        insertBuilder.append(" ").append(line);
-                    } 
-                    // Finalizar e executar a instrução INSERT quando encontrar o fim do bloco
-                    else if (insideInsertBlock) {
-                        insideInsertBlock = false;
-                        try {
-                            String insert = insertBuilder.toString();
-                            jdbcTemplate.execute(insert);
-                            count++;
-                            
-                            if (count % 100 == 0) {
-                                log.info("Importadas {} cidades até o momento", count);
-                            }
-                        } catch (Exception e) {
-                            log.error("Erro ao executar INSERT de cidade: {}", e.getMessage());
-                        }
-                    }
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+                String sql = reader.lines().collect(Collectors.joining("\n"));
+                if (!sql.trim().isEmpty()) {
+                    jdbcTemplate.execute(sql);
+                    log.info("Importação de cidades do arquivo SQL concluída com sucesso.");
+                    return true;
+                } else {
+                    log.warn("Arquivo SQL de cidades está vazio.");
+                    return false;
                 }
-                
-                log.info("Importação de cidades concluída. Total de lotes processados: {}", count);
             }
         } catch (Exception e) {
-            log.error("Erro durante a importação de cidades", e);
+            log.error("Erro ao importar cidades do arquivo SQL", e);
+            return false;
         }
-    }
-    
-    private List<String> extractInsertStatements(File file) throws Exception {
-        return Files.lines(file.toPath())
-                .filter(line -> line.startsWith("INSERT INTO"))
-                .map(line -> {
-                    // Remover os backticks dos nomes das tabelas para compatibilidade com MySQL
-                    // No MySQL, podemos manter os backticks
-                    return line;
-                })
-                .collect(Collectors.toList());
     }
 }
