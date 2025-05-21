@@ -5,11 +5,15 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.util.ResourceUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,8 +66,33 @@ public class DataImportConfig {
         log.info("Iniciando importação de dados de localização...");
 
         try {
-            // Caminho para os arquivos SQL
-            String basePath = "/home/natalio/IdeaProjects/vintipay/sql";
+            // Caminho para os arquivos SQL usando recursos da classpath
+            // Primeiro tenta buscar do classpath
+            try {
+                Resource countriesResource = new ClassPathResource("sql/countries.sql");
+                Resource statesResource = new ClassPathResource("sql/states.sql");
+                Resource citiesResource = new ClassPathResource("sql/cities.sql");
+                
+                if (countriesResource.exists() && statesResource.exists() && citiesResource.exists()) {
+                    // Importar países
+                    importCountries(countriesResource.getFile().getAbsolutePath());
+                    
+                    // Importar estados
+                    importStates(statesResource.getFile().getAbsolutePath());
+                    
+                    // Importar cidades (este processo pode demorar devido ao tamanho do arquivo)
+                    importCities(citiesResource.getFile().getAbsolutePath());
+                    
+                    log.info("Importação de dados de localização concluída com sucesso!");
+                    return;
+                }
+            } catch (Exception e) {
+                log.warn("Não foi possível encontrar arquivos SQL no classpath, tentando caminho relativo...");
+            }
+            
+            // Se não encontrou no classpath, tenta utilizar caminhos relativos
+            String basePath = System.getProperty("user.dir") + "/sql";
+            log.info("Tentando importar arquivos SQL de: {}", basePath);
             
             // Verificar se os arquivos existem
             File countriesFile = new File(basePath + "/countries.sql");

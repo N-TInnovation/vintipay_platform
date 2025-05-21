@@ -21,10 +21,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,11 +47,48 @@ public class LocationDataImporter {
     private final ObjectMapper objectMapper;
     private final CapeVerdeLocationsRepository capeVerdeLocationsRepository;
 
-    private static final String JSON_DIR = "/home/natalio/IdeaProjects/vintipay/json";
-    private static final String COUNTRIES_JSON = JSON_DIR + "/countries.json";
-    private static final String STATES_JSON = JSON_DIR + "/states.json";
-    private static final String CITIES_JSON = JSON_DIR + "/cities.json";
-    private static final String CV_LOCATIONS_EXCEL = "/home/natalio/IdeaProjects/vintipay/codigo-paises-lugares-cv.xlsx";
+    // Usando caminhos relativos baseados no diretório de trabalho
+    private String getJsonDir() {
+        // Primeiro tenta encontrar no classpath
+        try {
+            Resource resource = new ClassPathResource("json");
+            if (resource.exists()) {
+                return resource.getFile().getAbsolutePath();
+            }
+        } catch (Exception e) {
+            log.debug("Não foi possível encontrar diretório json no classpath", e);
+        }
+        
+        // Se não encontrou no classpath, usa o diretório de trabalho
+        return System.getProperty("user.dir") + "/json";
+    }
+    
+    private String getCountriesJsonPath() {
+        return getJsonDir() + "/countries.json";
+    }
+    
+    private String getStatesJsonPath() {
+        return getJsonDir() + "/states.json";
+    }
+    
+    private String getCitiesJsonPath() {
+        return getJsonDir() + "/cities.json";
+    }
+    
+    private String getCvLocationsExcelPath() {
+        // Primeiro tenta encontrar no classpath
+        try {
+            Resource resource = new ClassPathResource("codigo-paises-lugares-cv.xlsx");
+            if (resource.exists()) {
+                return resource.getFile().getAbsolutePath();
+            }
+        } catch (Exception e) {
+            log.debug("Não foi possível encontrar arquivo Excel no classpath", e);
+        }
+        
+        // Se não encontrou no classpath, usa o diretório de trabalho
+        return System.getProperty("user.dir") + "/codigo-paises-lugares-cv.xlsx";
+    }
 
     /**
      * Bean para importar países
@@ -62,7 +102,7 @@ public class LocationDataImporter {
                 log.info("Iniciando importação de países...");
                 try {
                     List<Map<String, Object>> countriesData = objectMapper.readValue(
-                            new File(COUNTRIES_JSON),
+                            new File(getCountriesJsonPath()),
                             new TypeReference<List<Map<String, Object>>>() {}
                     );
                     
@@ -127,7 +167,7 @@ public class LocationDataImporter {
                 log.info("Iniciando importação de estados...");
                 try {
                     List<Map<String, Object>> statesData = objectMapper.readValue(
-                            new File(STATES_JSON),
+                            new File(getStatesJsonPath()),
                             new TypeReference<List<Map<String, Object>>>() {}
                     );
                     
@@ -196,7 +236,7 @@ public class LocationDataImporter {
                     List<String> countryCodesToImport = List.of("CV", "PT", "BR");
                     
                     List<Map<String, Object>> citiesData = objectMapper.readValue(
-                            new File(CITIES_JSON),
+                            new File(getCitiesJsonPath()),
                             new TypeReference<List<Map<String, Object>>>() {}
                     );
                     
@@ -266,8 +306,8 @@ public class LocationDataImporter {
             log.info("Verificando se é necessário importar localizações de Cabo Verde...");
             if (capeVerdeLocationsRepository.count() == 0) {
                 log.info("Iniciando importação de localizações de Cabo Verde a partir do Excel...");
-                try (FileInputStream fis = new FileInputStream(new File(CV_LOCATIONS_EXCEL));
-                     Workbook workbook = new XSSFWorkbook(fis)) {
+                try (InputStream is = new ClassPathResource(getCvLocationsExcelPath()).getInputStream();
+                     Workbook workbook = new XSSFWorkbook(is)) {
                     
                     Sheet sheet = workbook.getSheetAt(0); // Assumindo que os dados estão na primeira planilha
                     
@@ -349,8 +389,8 @@ public class LocationDataImporter {
      */
     public void importCapeVerdeLocationsManually() {
         log.info("Iniciando importação manual de localizações de Cabo Verde a partir do Excel...");
-        try (FileInputStream fis = new FileInputStream(new File(CV_LOCATIONS_EXCEL));
-             Workbook workbook = new XSSFWorkbook(fis)) {
+        try (InputStream is = new ClassPathResource(getCvLocationsExcelPath()).getInputStream();
+             Workbook workbook = new XSSFWorkbook(is)) {
             
             Sheet sheet = workbook.getSheetAt(0); // Assumindo que os dados estão na primeira planilha
             
@@ -442,8 +482,8 @@ public class LocationDataImporter {
      */
     public void readExcelHeader() {
         log.info("Lendo cabeçalho do arquivo Excel de localizações de Cabo Verde...");
-        try (FileInputStream fis = new FileInputStream(new File(CV_LOCATIONS_EXCEL));
-             Workbook workbook = new XSSFWorkbook(fis)) {
+        try (InputStream is = new ClassPathResource(getCvLocationsExcelPath()).getInputStream();
+             Workbook workbook = new XSSFWorkbook(is)) {
             
             Sheet sheet = workbook.getSheetAt(0);
             Row headerRow = sheet.getRow(0);
