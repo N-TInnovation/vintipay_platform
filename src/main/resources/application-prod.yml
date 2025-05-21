@@ -57,10 +57,6 @@ server:
   servlet:
     context-path: /
 
-# Tell Spring Security (if used) to require requests over HTTPS
-security:
-  require-ssl: true
-
 jwt:
   public:
     key: ${JWT_PUBLIC_KEY}
