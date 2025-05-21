@@ -1,0 +1,70 @@
+[
+  {
+    "id": 47745,
+    "name": "Praia",
+    "state": {
+      "id": 3446,
+      "name": "Santiago",
+      "state_code": "ST"
+    },
+    "country": {
+      "id": 132,
+      "name": "Cabo Verde",
+      "iso3": "CPV",
+      "iso2": "CV"
+    },
+    "latitude": "14.93305000",
+    "longitude": "-23.51333000"
+  },
+  {
+    "id": 47746,
+    "name": "Mindelo",
+    "state": {
+      "id": 3447,
+      "name": "São Vicente",
+      "state_code": "SV"
+    },
+    "country": {
+      "id": 132,
+      "name": "Cabo Verde",
+      "iso3": "CPV",
+      "iso2": "CV"
+    },
+    "latitude": "16.88778000",
+    "longitude": "-24.98167000"
+  },
+  {
+    "id": 47748,
+    "name": "Lisboa",
+    "state": {
+      "id": 3450,
+      "name": "Lisboa",
+      "state_code": "11"
+    },
+    "country": {
+      "id": 177,
+      "name": "Portugal",
+      "iso3": "PRT",
+      "iso2": "PT"
+    },
+    "latitude": "38.72554600",
+    "longitude": "-9.13632500"
+  },
+  {
+    "id": 47747,
+    "name": "São Paulo",
+    "state": {
+      "id": 3448,
+      "name": "São Paulo",
+      "state_code": "SP"
+    },
+    "country": {
+      "id": 31,
+      "name": "Brazil",
+      "iso3": "BRA",
+      "iso2": "BR"
+    },
+    "latitude": "-23.55052500",
+    "longitude": "-46.63331300"
+  }
+]
