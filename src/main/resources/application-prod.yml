@@ -48,12 +48,7 @@ spring:
 server:
   port: ${SERVER_PORT}
   ssl:
-    enabled: true
-    key-store: ${SERVER_SSL_KEY_STORE}
-    key-store-type: ${SERVER_SSL_KEY_STORE_TYPE}
-    key-store-password: ${SERVER_SSL_KEY_PASSWORD}
-    key-password:  ${SERVER_SSL_KEY_PASSWORD}
-    key-alias: ${SERVER_SSL_KEY_ALIAS}
+    enabled: false  # Disable SSL in the application for Render deployment
   servlet:
     context-path: /
 

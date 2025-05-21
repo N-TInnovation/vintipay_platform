@@ -27,14 +27,8 @@ services:
         sync: false
       - key: SERVER_PORT
         value: "8080"
-      - key: SERVER_SSL_KEY_STORE
-        sync: false
-      - key: SERVER_SSL_KEY_STORE_TYPE
-        sync: false
-      - key: SERVER_SSL_KEY_PASSWORD
-        sync: false
-      - key: SERVER_SSL_KEY_ALIAS
-        sync: false
+      - key: SERVER_SSL_ENABLED
+        value: "false"  # Disable SSL in the application since Render handles TLS
       - key: JWT_PUBLIC_KEY
         sync: false
       - key: JWT_PRIVATE_KEY
