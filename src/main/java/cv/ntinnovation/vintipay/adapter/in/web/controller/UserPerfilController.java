@@ -5,24 +5,31 @@ import cv.ntinnovation.vintipay.application.core.service.CriptografiaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Enumeration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 @RequestMapping("/user/perfil")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 public class UserPerfilController {
 
     private final CriptografiaService criptografiaService;
+    private static final Logger logger = LoggerFactory.getLogger(UserPerfilController.class);
 
     @GetMapping({"", "/"})
     public String perfilPage(Model model, HttpServletRequest request) {
@@ -45,6 +52,15 @@ public class UserPerfilController {
             "ip", ipAddress,
             "dataHora", usuarioAtual.getUltimoLogin() != null ? usuarioAtual.getUltimoLogin() : LocalDateTime.now()
         ));
+        
+        // Adicionar possíveis mensagens de alerta
+        if (!model.containsAttribute("mensagemSucesso")) {
+            model.addAttribute("mensagemSucesso", null);
+        }
+        
+        if (!model.containsAttribute("mensagemErro")) {
+            model.addAttribute("mensagemErro", null);
+        }
         
         return "user/perfil";
     }
@@ -100,10 +116,20 @@ public class UserPerfilController {
     }
     
     @PostMapping("/atualizar")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public String atualizarPerfil(
-            @RequestParam("nome") String nome,
-            @RequestParam("telefone") String telefone,
-            RedirectAttributes redirectAttributes) {
+            @ModelAttribute Usuario usuario,
+            RedirectAttributes redirectAttributes,
+            HttpServletRequest request) {
+        
+        // Log detalhado da requisição para diagnóstico
+        logger.info("Processando atualização de perfil para usuário com nome: {}", usuario.getNome());
+        logger.info("Headers da requisição:");
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            logger.info("  {} = {}", headerName, request.getHeader(headerName));
+        }
         
         try {
             // Obter o usuário autenticado
@@ -111,17 +137,20 @@ public class UserPerfilController {
             Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
             
             // Atualizar dados do usuário (simulação)
-            usuarioAtual.setNome(nome);
-            usuarioAtual.setTelefone(telefone);
+            usuarioAtual.setNome(usuario.getNome());
+            usuarioAtual.setTelefone(usuario.getTelefone());
+            usuarioAtual.setNif(usuario.getNif());
             
             // Em um cenário real, aqui chamaríamos um serviço para persistir as alterações
             // usuarioService.atualizarUsuario(usuarioAtual);
             
             // Adicionar mensagem de sucesso
             redirectAttributes.addFlashAttribute("mensagemSucesso", "Perfil atualizado com sucesso!");
+            logger.info("Perfil atualizado com sucesso para o usuário: {}", usuarioAtual.getNome());
         } catch (Exception e) {
             // Adicionar mensagem de erro
             redirectAttributes.addFlashAttribute("mensagemErro", "Erro ao atualizar perfil: " + e.getMessage());
+            logger.error("Erro ao atualizar perfil: ", e);
         }
         
         return "redirect:/user/perfil";

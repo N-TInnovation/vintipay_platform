@@ -36,6 +36,7 @@
                         </div>
                         <div class="card-body">
                             <form th:action="@{/admin/perfil/atualizar}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                 <input type="hidden" th:field="${usuario.id}" />
                                 <input type="hidden" th:field="${usuario.username}" />
                                 <input type="hidden" th:field="${usuario.ativo}" />
