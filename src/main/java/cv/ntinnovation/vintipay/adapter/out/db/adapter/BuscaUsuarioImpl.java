@@ -1,6 +1,6 @@
 package cv.ntinnovation.vintipay.adapter.out.db.adapter;
 
-import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsusarioMapper;
+import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsuarioMapper;
 import cv.ntinnovation.vintipay.adapter.out.db.repository.UsuarioRepository;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.out.BuscaUsuario;
@@ -21,7 +21,7 @@ import java.util.Optional;
 public class BuscaUsuarioImpl implements BuscaUsuario {
     
     private final UsuarioRepository usuarioRepository;
-    private final UsusarioMapper usuarioMapper;
+    private final UsuarioMapper usuarioMapper;
 
     @Override
     public String getusername(String username) {

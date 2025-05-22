@@ -126,8 +126,8 @@
                 <div th:if="${param.email_not_verified}" class="alert alert-warning">
                     <p><i class="fas fa-exclamation-triangle me-2"></i> Sua conta ainda não foi verificada.</p>
                     <p class="mb-1">Por favor, verifique seu email para ativar sua conta.</p>
-                    <div th:if="${param.email}">
-                        <a th:href="@{/reenviar-verificacao(email=${param.email})}" class="btn btn-sm btn-outline-primary">Reenviar email de verificação</a>
+                    <div th:if="${param.username}">
+                        <a th:href="@{/reenviar-verificacao(username=${param.username})}" class="btn btn-sm btn-outline-primary">Reenviar email de verificação</a>
                     </div>
                 </div>
                 

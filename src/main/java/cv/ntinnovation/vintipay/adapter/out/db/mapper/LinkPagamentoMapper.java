@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class LinkPagamentoMapper {
     
-    private final UsusarioMapper usuarioMapper;
+    private final UsuarioMapper usuarioMapper;
     private final ProdutoMapper produtoMapper;
     private final ConfiguracaoPagamentoMapper configuracaoPagamentoMapper;
     

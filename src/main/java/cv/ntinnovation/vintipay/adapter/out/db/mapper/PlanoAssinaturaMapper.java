@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PlanoAssinaturaMapper {
 
-    private final UsusarioMapper usuarioMapper;
+    private final UsuarioMapper usuarioMapper;
     private final PlanoMapper planoMapper;
 
     public PlanoAssinatura toDomain(PlanoAssinaturaEntity entity) {

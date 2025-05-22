@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
+import cv.ntinnovation.vintipay.application.core.domain.exception.RegistroUsuarioException;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaAssinaturaUseCase;
 import cv.ntinnovation.vintipay.application.port.in.RegistroUsuarioUseCase;
 import cv.ntinnovation.vintipay.application.port.out.BuscaUsuarioPort;
@@ -106,14 +107,14 @@ public class RegistroUsuarioUseCaseImpl implements RegistroUsuarioUseCase {
         Optional<Usuario> usuarioExistente = buscaUsuarioPort.buscarPorUsername(username);
         if (usuarioExistente.isPresent()) {
             log.warn("Tentativa de registro com username já existente: {}", username);
-            throw new RuntimeException("Usuário com username '" + username + "' já existe");
+            throw new RegistroUsuarioException("Usuário com username '" + username + "' já existe");
         }
         
         // Verificar se já existe usuário com esse email
         Optional<Usuario> emailExistente = buscaUsuarioPort.buscarPorEmail(email);
         if (emailExistente.isPresent()) {
             log.warn("Tentativa de registro com email já existente: {}", email);
-            throw new RuntimeException("Usuário com email '" + email + "' já existe");
+            throw new RegistroUsuarioException("Usuário com email '" + email + "' já existe");
         }
         
         // Criptografar a senha antes de salvar

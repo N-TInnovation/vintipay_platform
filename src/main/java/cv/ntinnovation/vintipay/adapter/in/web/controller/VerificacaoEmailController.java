@@ -6,11 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -59,7 +57,16 @@ public class VerificacaoEmailController {
      * Endpoint para reenviar o email de verificação
      */
     @PostMapping("/reenviar-verificacao")
-    public String reenviarVerificacao(@RequestParam("email") String email, Model model) {
+    public String reenviarVerificacao( @RequestParam("email") String email, Model model) {
+
+        log.info("Reenviando email de verificação para: {}", email);
+
+        if (email == null || email.isEmpty()) {
+            model.addAttribute("mensagem", "Email inválido.");
+            model.addAttribute("tipo", "erro");
+            return "verificacao-email";
+        }
+
         boolean enviado = verificaEmailUseCase.reenviarEmailVerificacao(email);
         
         if (enviado) {

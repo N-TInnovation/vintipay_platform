@@ -1,7 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.out.db.repository.UsuarioRepository;
-import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsusarioMapper;
+import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsuarioMapper;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Plano;
 import cv.ntinnovation.vintipay.application.core.domain.entity.PlanoAssinatura;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
@@ -30,7 +30,7 @@ public class AssinaturaController {
     private final GerenciaAssinaturaUseCase gerenciaAssinaturaUseCase;
     private final StripeIntegrationUseCase stripeIntegrationUseCase;
     private final UsuarioRepository usuarioRepository;
-    private final UsusarioMapper usuarioMapper;
+    private final UsuarioMapper usuarioMapper;
     
     @Value("${app.stripe.success-url}")
     private String successUrl;

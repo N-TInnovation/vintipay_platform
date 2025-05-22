@@ -20,14 +20,14 @@ public class SessionTokenEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity userEntity;
+    private UsuarioEntity userEntity;
 
     @Column(unique = true, nullable = false)
     private String sessionCode;
 
     private Instant expirationTime;
 
-    public SessionTokenEntity(UserEntity userEntity, String sessionCode, Instant expirationTime) {
+    public SessionTokenEntity(UsuarioEntity userEntity, String sessionCode, Instant expirationTime) {
         this.userEntity = userEntity;
         this.sessionCode = sessionCode;
         this.expirationTime = expirationTime;

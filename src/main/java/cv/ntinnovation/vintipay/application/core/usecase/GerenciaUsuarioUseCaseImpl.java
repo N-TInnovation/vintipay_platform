@@ -1,7 +1,7 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.adapter.out.db.entity.UsuarioEntity;
-import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsusarioMapper;
+import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsuarioMapper;
 import cv.ntinnovation.vintipay.adapter.out.db.repository.UsuarioRepository;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaUsuarioUseCase;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class GerenciaUsuarioUseCaseImpl implements GerenciaUsuarioUseCase {
 
     private final UsuarioRepository usuarioRepository;
-    private final UsusarioMapper usuarioMapper;
+    private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
 
     @Override

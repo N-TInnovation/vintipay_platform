@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ProdutoMapper {
     
-    private final UsusarioMapper usuarioMapper;
+    private final UsuarioMapper usuarioMapper;
     
     /**
      * Converte uma entidade de domínio para uma entidade JPA

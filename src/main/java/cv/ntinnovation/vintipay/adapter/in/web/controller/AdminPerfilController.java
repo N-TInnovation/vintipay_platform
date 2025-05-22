@@ -1,7 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.out.db.entity.UsuarioEntity;
-import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsusarioMapper;
+import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsuarioMapper;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaUsuarioUseCase;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import java.util.Optional;
 public class AdminPerfilController {
 
     private final GerenciaUsuarioUseCase gerenciaUsuarioUseCase;
-    private final UsusarioMapper usuarioMapper;
+    private final UsuarioMapper usuarioMapper;
 
     @GetMapping
     public String visualizarPerfil(Model model, RedirectAttributes redirectAttributes) {

@@ -2,7 +2,7 @@ package cv.ntinnovation.vintipay.adapter.out.db.adapter;
 
 import cv.ntinnovation.vintipay.adapter.out.db.entity.UsuarioEntity;
 import cv.ntinnovation.vintipay.adapter.out.db.mapper.PlanoAssinaturaMapper;
-import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsusarioMapper;
+import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsuarioMapper;
 import cv.ntinnovation.vintipay.adapter.out.db.repository.PlanoAssinaturaRepository;
 import cv.ntinnovation.vintipay.application.core.domain.entity.PlanoAssinatura;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
@@ -23,7 +23,7 @@ public class PlanoAssinaturaAdapter implements BuscaPlanoAssinaturaPort, SalvaPl
 
     private final PlanoAssinaturaRepository planoAssinaturaRepository;
     private final PlanoAssinaturaMapper planoAssinaturaMapper;
-    private final UsusarioMapper usuarioMapper;
+    private final UsuarioMapper usuarioMapper;
 
     @Override
     public Optional<PlanoAssinatura> buscarPorUsuario(Usuario usuario) {

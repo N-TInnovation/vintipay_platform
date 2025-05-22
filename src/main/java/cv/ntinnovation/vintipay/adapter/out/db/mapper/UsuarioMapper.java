@@ -58,6 +58,7 @@ public class UsuarioMapper {
         usuario.setEmailVerificationToken(userEntity.getEmailVerificationToken());
         usuario.setEmailVerified(userEntity.isEmailVerified());
         usuario.setEmailVerificationExpires(userEntity.getEmailVerificationExpires());
+        usuario.setNif(userEntity.getNif());
         
         // Mapear papéis
         if (userEntity.getPapeis() != null && !userEntity.getPapeis().isEmpty()) {
@@ -99,6 +100,7 @@ public class UsuarioMapper {
                 .emailVerificationToken(user.getEmailVerificationToken())
                 .emailVerified(user.isEmailVerified())
                 .emailVerificationExpires(user.getEmailVerificationExpires())
+                .nif(user.getNif())
                 .build();
         
         // Mapear papéis

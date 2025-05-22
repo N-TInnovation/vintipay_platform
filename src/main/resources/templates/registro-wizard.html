@@ -279,7 +279,7 @@
                         </div>
                         
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="nif" th:field="*{nif}" placeholder="NIF" required>
+                            <input type="text" class="form-control" id="nif" th:field="*{nif}" placeholder="NIF" required pattern="[0-9]{9}" title="O NIF deve ter exatamente 9 dígitos">
                             <label for="nif"><i class="fas fa-id-badge me-2"></i>NIF</label>
                             <div class="error-feedback" th:if="${#fields.hasErrors('nif')}" th:errors="*{nif}"></div>
                         </div>

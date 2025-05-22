@@ -1,7 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.out.db.repository.UsuarioRepository;
-import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsusarioMapper;
+import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsuarioMapper;
 import cv.ntinnovation.vintipay.application.core.domain.entity.PlanoAssinatura;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaAssinaturaUseCase;
@@ -27,7 +27,7 @@ public class AdminAssinaturaController {
     private final GerenciaAssinaturaUseCase gerenciaAssinaturaUseCase;
     private final GerenciaPlanoUseCase gerenciaPlanoUseCase;
     private final UsuarioRepository usuarioRepository;
-    private final UsusarioMapper usuarioMapper;
+    private final UsuarioMapper usuarioMapper;
 
     @GetMapping
     public String listarAssinaturas(Model model) {

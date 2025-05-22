@@ -1,7 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.out.db.adapter;
 
 import cv.ntinnovation.vintipay.adapter.out.db.entity.UsuarioEntity;
-import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsusarioMapper;
+import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsuarioMapper;
 import cv.ntinnovation.vintipay.adapter.out.db.repository.UsuarioRepository;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.out.BuscaUsuario;
@@ -19,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UsuarioAdapter implements SalvaUsuarioPort, BuscaUsuario {
     private final UsuarioRepository repository;
-    private final UsusarioMapper ususarioMapper;
+    private final UsuarioMapper ususarioMapper;
 
     @Override
     public Usuario salvar(Usuario usuario) {

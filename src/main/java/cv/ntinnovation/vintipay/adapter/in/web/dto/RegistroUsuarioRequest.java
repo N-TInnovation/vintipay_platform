@@ -31,7 +31,7 @@ public class RegistroUsuarioRequest {
     private String telefone;
 
     @NotBlank(message = "O NIF é obrigatório")
-    @Pattern(regexp = "^[0-9]{7,11}$", message = "NIF inválido")
+    @Pattern(regexp = "^[0-9]{9}$", message = "NIF deve ter exatamente 9 dígitos")
     private String nif;
 
     @NotBlank(message = "A senha é obrigatória")

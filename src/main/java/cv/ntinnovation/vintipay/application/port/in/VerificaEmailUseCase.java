@@ -28,4 +28,25 @@ public interface VerificaEmailUseCase {
      * @return true se o email foi reenviado com sucesso, false caso contrário
      */
     boolean reenviarEmailVerificacao(String email);
+
+    /**
+     * Reenvia o email de verificação para um usuário
+     * @param username
+     * @return
+     */
+    boolean reenviarEmailVerificacaoPorUsername(String username);
+
+    /**
+     * Verifica se um username existe
+     * @param username Username a ser verificado
+     * @return true se o username existir, false caso contrário
+     */
+    boolean verificarUsername(String username);
+
+    /**
+     * Verifica se um email foi verificado
+     * @param email Email a ser verificado
+     * @return true se o email foi verificado, false caso contrário
+     */
+    boolean emailVerificado(String email);
 }

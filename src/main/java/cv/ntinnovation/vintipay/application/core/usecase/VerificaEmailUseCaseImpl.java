@@ -156,4 +156,59 @@ public class VerificaEmailUseCaseImpl implements VerificaEmailUseCase {
             return false;
         }
     }
+
+    @Override
+    public boolean reenviarEmailVerificacaoPorUsername(String username) {
+        if (username == null || username.isEmpty()) {
+            log.error("Username inválido");
+            return false;
+        }
+
+        try {
+            Optional<Usuario> usuarioOpt = buscaUsuarioPort.buscarPorUsername(username);
+
+            if (usuarioOpt.isEmpty()) {
+                log.error("Usuário nao encontrado: {}", username);
+                return false;
+            }
+
+            Usuario usuario = usuarioOpt.get();
+
+            return reenviarEmailVerificacao(usuario.getEmail());
+        } catch (Exception e) {
+            log.error("Erro ao verificar username: ", e);
+            return false;
+        }
+
+    }
+
+    @Override
+    public boolean verificarUsername(String username) {
+        if (username == null || username.isEmpty()) {
+            log.error("Username inválido");
+            return false;
+        }
+
+        try {
+            return buscaUsuarioPort.buscarPorUsername(username).isPresent();
+        } catch (Exception e) {
+            log.error("Erro ao verificar username: ", e);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean emailVerificado(String email) {
+        if (email == null || email.isEmpty()) {
+            log.error("Email inválido");
+            return false;
+        }
+
+        try {
+            return buscaUsuarioPort.buscarPorEmail(email).map(Usuario::isEmailVerified).orElse(false);
+        } catch (Exception e) {
+            log.error("Erro ao verificar username: ", e);
+            return false;
+        }
+    }
 }

@@ -24,20 +24,20 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, 
                                         AuthenticationException exception) throws IOException, ServletException {
         String redirectUrl = "/login?error";
-        
+        System.out.println(exception.getMessage());
         // Se for uma exceção de email não verificado, use um parâmetro específico
         if (exception instanceof DisabledException && 
                 exception.getMessage() != null && 
                 exception.getMessage().contains("Email não verificado")) {
             
-            String email = request.getParameter("username");
+            String username = request.getParameter("username");
             redirectUrl = "/login?email_not_verified=true";
             
-            if (email != null && !email.isEmpty()) {
-                redirectUrl += "&email=" + email;
+            if (username != null && !username.isEmpty()) {
+                redirectUrl += "&username=" + username;
             }
             
-            log.info("Usuário com email não verificado tentou fazer login: {}", email);
+            log.info("Usuário com username não verificado tentou fazer login: {}", username);
         } else {
             log.info("Falha de autenticação: {}", exception.getMessage());
         }
