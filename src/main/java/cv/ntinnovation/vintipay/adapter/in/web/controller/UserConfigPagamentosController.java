@@ -39,6 +39,7 @@ public class UserConfigPagamentosController {
     private final FingerPrintService fingerPrintService;
 
     @GetMapping({"", "/"})
+
     public String configPagamentosPage(Model model) {
         // Obter o usuário autenticado
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

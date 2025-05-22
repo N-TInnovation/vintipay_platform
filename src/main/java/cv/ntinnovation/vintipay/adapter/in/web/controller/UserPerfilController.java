@@ -40,6 +40,10 @@ public class UserPerfilController {
         // Adicionar dados do usuário ao modelo
         model.addAttribute("usuario", usuarioAtual);
         
+        // Depuração
+        logger.info("Informações do usuário atual: id={}, nome={}, email={}, nif={}", 
+                usuarioAtual.getId(), usuarioAtual.getNome(), usuarioAtual.getEmail(), usuarioAtual.getNif());
+        
         // Adicionar informações da sessão atual
         String userAgent = request.getHeader("User-Agent");
         String ipAddress = getClientIpAddress(request);
