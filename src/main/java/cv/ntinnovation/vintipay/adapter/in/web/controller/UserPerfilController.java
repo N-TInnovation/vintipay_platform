@@ -9,7 +9,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -117,7 +121,6 @@ public class UserPerfilController {
     }
     
     @PostMapping("/atualizar")
-    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public String atualizarPerfil(
             @ModelAttribute UserPerfilRequest usuarioRequest,
             RedirectAttributes redirectAttributes) {
@@ -175,8 +178,8 @@ public class UserPerfilController {
             }
             
             // Em um cenário real, aqui atualizaríamos a nova senha
-            // String senhaCriptografada = criptografiaService.criptografar(novaSenha);
-            // usuarioService.alterarSenha(usuarioAtual.getId(), senhaCriptografada);
+            String senhaCriptografada = criptografiaService.criptografar(novaSenha);
+            gerenciaUsuarioUseCase.alterarSenha(usuarioAtual.getId(), senhaCriptografada);
             
             // Adicionar mensagem de sucesso
             redirectAttributes.addFlashAttribute("mensagemSucessoSenha", "Senha alterada com sucesso!");

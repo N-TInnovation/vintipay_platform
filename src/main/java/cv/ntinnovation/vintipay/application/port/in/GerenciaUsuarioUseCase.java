@@ -69,4 +69,13 @@ public interface GerenciaUsuarioUseCase {
      * @return Usuário desativado
      */
     Usuario desativarUsuario(Long id);
+
+    /**
+     * Altera a senha de um usuário
+     *
+     * @param id ID do usuário
+     * @param senhaCriptografada Senha criptografada
+     * @return Usuário com senha alterada
+     */
+    Usuario alterarSenha(Long id, String senhaCriptografada);
 }

@@ -119,9 +119,6 @@ public class SecurityConfig {
         public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 
             http.securityMatcher("/**")
-                    .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                    )
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/").permitAll()
                             .requestMatchers("/privacidade").permitAll()
@@ -186,6 +183,9 @@ public class SecurityConfig {
         public SecurityFilterChain simulatorSecurityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 
             http.securityMatcher("/simulador/**")
+                    .csrf(csrf -> csrf
+                            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    )
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers(HttpMethod.POST, "/simulador/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/simulador/**").permitAll()

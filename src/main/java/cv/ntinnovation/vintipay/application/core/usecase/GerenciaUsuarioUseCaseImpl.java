@@ -161,4 +161,15 @@ public class GerenciaUsuarioUseCaseImpl implements GerenciaUsuarioUseCase {
         UsuarioEntity savedEntity = usuarioRepository.save(usuario);
         return usuarioMapper.toDomain(savedEntity);
     }
+
+    @Override
+    public Usuario alterarSenha(Long id, String senhaCriptografada) {
+        log.info("Alterando senha do usuário ID: {}", id);
+        UsuarioEntity usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+
+        usuario.setPassword(senhaCriptografada);
+        UsuarioEntity savedEntity = usuarioRepository.save(usuario);
+        return usuarioMapper.toDomain(savedEntity);
+    }
 }
