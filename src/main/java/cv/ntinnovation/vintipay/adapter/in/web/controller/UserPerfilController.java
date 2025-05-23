@@ -2,8 +2,10 @@ package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.in.web.dto.UserPerfilRequest;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
+import cv.ntinnovation.vintipay.application.core.domain.entity.PreferenciasNotificacao;
 import cv.ntinnovation.vintipay.application.core.service.CriptografiaService;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaUsuarioUseCase;
+import cv.ntinnovation.vintipay.application.port.in.GerenciaPreferenciasNotificacaoUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,6 +32,7 @@ public class UserPerfilController {
 
     private final CriptografiaService criptografiaService;
     private final GerenciaUsuarioUseCase gerenciaUsuarioUseCase;
+    private final GerenciaPreferenciasNotificacaoUseCase gerenciaPreferenciasNotificacaoUseCase;
     private static final Logger logger = LoggerFactory.getLogger(UserPerfilController.class);
 
     @GetMapping({"", "/"})
@@ -40,6 +43,10 @@ public class UserPerfilController {
         
         // Adicionar dados do usuário ao modelo
         model.addAttribute("usuario", usuarioAtual);
+        
+        // Buscar preferências de notificação do usuário
+        PreferenciasNotificacao preferencias = gerenciaPreferenciasNotificacaoUseCase.buscarPreferenciasDoUsuario(usuarioAtual.getId());
+        model.addAttribute("preferenciasNotificacao", preferencias);
         
         // Depuração
         logger.info("Informações do usuário atual: id={}, nome={}, email={}, nif={}", 
@@ -186,6 +193,51 @@ public class UserPerfilController {
         } catch (Exception e) {
             // Adicionar mensagem de erro
             redirectAttributes.addFlashAttribute("mensagemErroSenha", "Erro ao alterar senha: " + e.getMessage());
+        }
+        
+        return "redirect:/user/perfil";
+    }
+    
+    /**
+     * Atualiza as preferências de notificação do usuário
+     * 
+     * @param usuarioRequest Dados do usuário para atualização
+     * @param redirectAttributes Atributos para redirecionamento
+     * @return Redirecionamento para a página de perfil
+     */
+    @PostMapping("/atualizar-notificacoes")
+    public String atualizarPreferenciasNotificacao(
+            @ModelAttribute UserPerfilRequest usuarioRequest,
+            RedirectAttributes redirectAttributes) {
+        
+        logger.info("Processando atualização de preferências de notificação");
+        
+        try {
+            // Obter o usuário autenticado
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            
+            // Montar objeto de preferências
+            PreferenciasNotificacao preferencias = PreferenciasNotificacao.builder()
+                    .usuarioId(usuarioAtual.getId())
+                    .email(usuarioRequest.isNotificacaoEmail())
+                    .sms(usuarioRequest.isNotificacaoSMS())
+                    .push(usuarioRequest.isNotificacaoPush())
+                    .transacoes(usuarioRequest.isNotificacaoTransacoes())
+                    .promocoes(usuarioRequest.isNotificacaoPromocoes())
+                    .seguranca(usuarioRequest.isNotificacaoSeguranca())
+                    .build();
+            
+            // Salvar preferências
+            gerenciaPreferenciasNotificacaoUseCase.atualizarPreferencias(preferencias);
+            
+            // Adicionar mensagem de sucesso
+            redirectAttributes.addFlashAttribute("mensagemSucesso", "Preferências de notificação atualizadas com sucesso!");
+            logger.info("Preferências de notificação atualizadas com sucesso para o usuário: {}", usuarioAtual.getNome());
+        } catch (Exception e) {
+            // Adicionar mensagem de erro
+            redirectAttributes.addFlashAttribute("mensagemErro", "Erro ao atualizar preferências de notificação: " + e.getMessage());
+            logger.error("Erro ao atualizar preferências de notificação: ", e);
         }
         
         return "redirect:/user/perfil";

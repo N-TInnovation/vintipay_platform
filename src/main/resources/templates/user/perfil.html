@@ -298,6 +298,12 @@
             <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${mensagemErro}">Ocorreu um erro!</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
         </div>
+
+        <!-- Alertas de Sucesso/Erro para Alteração de Senha -->
+        <div th:if="${mensagemSucessoSenha}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> <span th:text="${mensagemSucessoSenha}">Senha alterada com sucesso!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
         
         <!-- Cabeçalho do Perfil -->
         <div class="profile-header d-flex align-items-center mb-4 animate-fade-in">
@@ -325,8 +331,11 @@
                             <button class="nav-link" id="v-pills-security-tab" data-bs-toggle="pill" data-bs-target="#v-pills-security" type="button" role="tab" aria-controls="v-pills-security" aria-selected="false">
                                 <i class="fas fa-lock me-2"></i> Segurança
                             </button>
-                            <button class="nav-link" id="v-pills-notifications-tab" data-bs-toggle="pill" data-bs-target="#v-pills-notifications" type="button" role="tab" aria-controls="v-pills-notifications" aria-selected="false">
-                                <i class="fas fa-bell me-2"></i> Notificações
+                            <button class="nav-link" id="v-pills-notification-tab" data-bs-toggle="pill" data-bs-target="#v-pills-notification" type="button" role="tab" aria-controls="v-pills-notification" aria-selected="false">
+                                <i class="fas fa-bell me-2"></i> Preferências de Notificação
+                            </button>
+                            <button class="nav-link" id="v-pills-sessions-tab" data-bs-toggle="pill" data-bs-target="#v-pills-sessions" type="button" role="tab" aria-controls="v-pills-sessions" aria-selected="false">
+                                <i class="fas fa-desktop me-2"></i> Sessões
                             </button>
                         </div>
                     </div>
@@ -374,12 +383,6 @@
                             <!-- Segurança -->
                             <div class="tab-pane fade" id="v-pills-security" role="tabpanel" aria-labelledby="v-pills-security-tab">
                                 <h5 class="card-title mb-4">Segurança</h5>
-                                
-                                <!-- Alertas de Sucesso/Erro para Alteração de Senha -->
-                                <div th:if="${mensagemSucessoSenha}" class="alert alert-success alert-dismissible fade show" role="alert">
-                                    <i class="fas fa-check-circle me-2"></i> <span th:text="${mensagemSucessoSenha}">Senha alterada com sucesso!</span>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-                                </div>
                                 
                                 <div th:if="${mensagemErroSenha}" class="alert alert-danger alert-dismissible fade show" role="alert">
                                     <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${mensagemErroSenha}">Erro ao alterar senha!</span>
@@ -432,36 +435,55 @@
                                 </button>
                             </div>
                             
-                            <!-- Notificações -->
-                            <div class="tab-pane fade" id="v-pills-notifications" role="tabpanel" aria-labelledby="v-pills-notifications-tab">
+                            <!-- Preferências de Notificação -->
+                            <div class="tab-pane fade" id="v-pills-notification" role="tabpanel" aria-labelledby="v-pills-notification-tab">
                                 <h5 class="card-title mb-4">Preferências de Notificação</h5>
                                 
-                                <form>
-                                    <div class="mb-3">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="emailPagamentos" checked>
-                                            <label class="form-check-label" for="emailPagamentos">Receber notificações por e-mail sobre pagamentos</label>
+                                <form method="post" th:action="@{/user/perfil/atualizar-notificacoes}">
+                                    <div class="mb-4">
+                                        <h6 class="text-muted mb-3">Canais de Notificação</h6>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="notificacaoEmail" name="notificacaoEmail" th:checked="${preferenciasNotificacao.email}">
+                                            <label class="form-check-label" for="notificacaoEmail">
+                                                <i class="fas fa-envelope me-2 text-primary"></i> E-mail
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="notificacaoSMS" name="notificacaoSMS" th:checked="${preferenciasNotificacao.sms}">
+                                            <label class="form-check-label" for="notificacaoSMS">
+                                                <i class="fas fa-sms me-2 text-success"></i> SMS
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="notificacaoPush" name="notificacaoPush" th:checked="${preferenciasNotificacao.push}">
+                                            <label class="form-check-label" for="notificacaoPush">
+                                                <i class="fas fa-mobile-alt me-2 text-info"></i> Notificações Push
+                                            </label>
                                         </div>
                                     </div>
                                     
-                                    <div class="mb-3">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="emailAssinatura" checked>
-                                            <label class="form-check-label" for="emailAssinatura">Receber notificações por e-mail sobre assinatura</label>
+                                    <div class="mb-4">
+                                        <h6 class="text-muted mb-3">Tipos de Notificação</h6>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="notificacaoTransacoes" name="notificacaoTransacoes" th:checked="${preferenciasNotificacao.transacoes}">
+                                            <label class="form-check-label" for="notificacaoTransacoes">
+                                                <i class="fas fa-exchange-alt me-2 text-primary"></i> Transações
+                                            </label>
+                                            <div class="form-text">Receber notificações sobre pagamentos, recebimentos e outras atividades financeiras.</div>
                                         </div>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="emailMarketing">
-                                            <label class="form-check-label" for="emailMarketing">Receber e-mails de marketing e promoções</label>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="notificacaoPromocoes" name="notificacaoPromocoes" th:checked="${preferenciasNotificacao.promocoes}">
+                                            <label class="form-check-label" for="notificacaoPromocoes">
+                                                <i class="fas fa-tag me-2 text-warning"></i> Promoções e Novidades
+                                            </label>
+                                            <div class="form-text">Receber informações sobre promoções, novos recursos e ofertas especiais.</div>
                                         </div>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="smsNotifications">
-                                            <label class="form-check-label" for="smsNotifications">Receber notificações por SMS</label>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="notificacaoSeguranca" name="notificacaoSeguranca" th:checked="${preferenciasNotificacao.seguranca}">
+                                            <label class="form-check-label" for="notificacaoSeguranca">
+                                                <i class="fas fa-shield-alt me-2 text-danger"></i> Segurança
+                                            </label>
+                                            <div class="form-text">Receber alertas de segurança como login em um novo dispositivo, alterações de senha, etc.</div>
                                         </div>
                                     </div>
                                     
@@ -469,6 +491,32 @@
                                         <i class="fas fa-save me-2"></i> Salvar Preferências
                                     </button>
                                 </form>
+                            </div>
+                            
+                            <!-- Sessões -->
+                            <div class="tab-pane fade" id="v-pills-sessions" role="tabpanel" aria-labelledby="v-pills-sessions-tab">
+                                <h5 class="card-title mb-4">Sessões</h5>
+                                
+                                <h6 class="mb-3">Sessões Ativas</h6>
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">Sessão Atual</h6>
+                                                <p class="text-muted mb-0 small">
+                                                    Navegador: <span th:text="${sessaoAtual.navegador}">Chrome</span> • 
+                                                    IP: <span th:text="${sessaoAtual.ip}">192.168.1.1</span> • 
+                                                    Último acesso: <span th:text="${#temporals.format(sessaoAtual.dataHora, 'dd/MM/yyyy HH:mm')}">Hoje às 10:30</span>
+                                                </p>
+                                            </div>
+                                            <span class="badge bg-success">Ativa</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button class="btn btn-outline-danger">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Encerrar Todas as Sessões
+                                </button>
                             </div>
                         </div>
                     </div>

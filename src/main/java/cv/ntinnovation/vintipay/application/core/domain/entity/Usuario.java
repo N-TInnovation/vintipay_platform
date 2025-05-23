@@ -45,6 +45,10 @@ public class Usuario extends User {
     
     @Getter
     @Setter
+    private Boolean verificado;
+    
+    @Getter
+    @Setter
     private String stripeCustomerId;
     
     @Getter
@@ -82,6 +86,10 @@ public class Usuario extends User {
     @Getter
     @Setter
     private LocalDateTime emailVerificationExpires;
+
+    @Getter
+    @Setter
+    private PreferenciasNotificacao preferenciasNotificacao;
 
     /**
      * Construtor padrão para criar instâncias simplificadas
