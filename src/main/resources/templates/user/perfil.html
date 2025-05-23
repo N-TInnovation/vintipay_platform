@@ -342,10 +342,6 @@
                                 <h5 class="card-title mb-4">Informações Pessoais</h5>
                                 
                                 <form method="post" th:action="@{/user/perfil/atualizar}" th:object="${usuario}">
-                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                                    <input type="hidden" th:field="*{id}" />
-                                    <input type="hidden" th:field="*{email}" />
-                                    <input type="hidden" th:field="*{username}" />
                                     <div class="mb-3">
                                         <label for="email" class="form-label">E-mail</label>
                                         <input type="email" class="form-control" id="email-display" th:value="*{email}" readonly>
@@ -391,7 +387,6 @@
                                 </div>
                                 
                                 <form method="post" th:action="@{/user/perfil/alterar-senha}">
-                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                     <div class="mb-3">
                                         <label for="senhaAtual" class="form-label">Senha Atual</label>
                                         <input type="password" class="form-control" id="senhaAtual" name="senhaAtual" required>
