@@ -162,6 +162,9 @@ public class SecurityConfig {
                             .logoutSuccessUrl("/login?logout")
                             .permitAll()
                     )
+                    .csrf(csrf -> csrf
+                            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    )
                     .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                             .maximumSessions(1));
 

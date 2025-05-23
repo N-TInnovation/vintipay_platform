@@ -60,22 +60,22 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         use_sql_comments: true
         dialect: org.hibernate.dialect.MySQLDialect
-    defer-datasource-initialization: false
+    defer-datasource-initialization: true
   sql:
     init:
-      mode: never
+      mode: always
       schema-locations: classpath:schema.sql
       data-locations: classpath:data.sql
       continue-on-error: true
   flyway:
-    enabled: true
+    enabled: false
     baseline-on-migrate: true
     repair-on-migrate: true
     clean-on-validation-error: true

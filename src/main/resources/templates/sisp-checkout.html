@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <!-- Incluir fragmento de favicon reutilizável -->
-    <th:block th:replace="fragments/head-favicons :: favicons"></th:block>
+    <th:block th:replace="~{fragments/head-favicons :: favicons}"></th:block>
 </head>
 <body onload="autoPost()">
     <h1 class="animate__animated animate__infinite animate__pulse" style="text-align: center;position: relative;margin-top: 25%;">Processando o pagamento...</h1>
