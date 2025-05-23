@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/user/integracoes")
@@ -55,7 +56,7 @@ public class UserIntegracoesController {
 
         var integracaoEnumList = Arrays.asList(IntegracaoEnum.values());
         model.addAttribute("integracao", novaIntegracao);
-        model.addAttribute("tiposIntegracao", integracaoEnumList.stream().map(IntegracaoEnum::getName).toList());
+        model.addAttribute("tiposIntegracao", integracaoEnumList.stream().map(IntegracaoEnum::getName).collect(Collectors.toList()));
         
         // Buscar configurações de pagamento do usuário para associação
         List<ConfiguracaoPagamento> configsPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorUsuarioIdLista(usuario.getId());
@@ -235,7 +236,7 @@ public class UserIntegracoesController {
 
 
         model.addAttribute("integracao", integracao);
-        model.addAttribute("tiposIntegracao", Arrays.asList(IntegracaoEnum.values()).stream().map(IntegracaoEnum::getName).toList());
+        model.addAttribute("tiposIntegracao", Arrays.asList(IntegracaoEnum.values()).stream().map(IntegracaoEnum::getName).collect(Collectors.toList()));
         
         // Buscar configurações de pagamento do usuário para associação
         List<ConfiguracaoPagamento> configsPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorUsuarioIdLista(usuario.getId());

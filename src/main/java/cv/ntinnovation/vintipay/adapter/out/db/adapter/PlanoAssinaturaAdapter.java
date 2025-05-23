@@ -47,18 +47,28 @@ public class PlanoAssinaturaAdapter implements BuscaPlanoAssinaturaPort, SalvaPl
 
     @Override
     public List<PlanoAssinatura> buscarPorStatus(PlanoAssinatura.StatusAssinatura status) {
-        var statusEntity = switch (status) {
-            case ATIVA -> cv.ntinnovation.vintipay.adapter.out.db.entity.PlanoAssinaturaEntity.StatusAssinatura.ATIVA;
-            case TRIAL -> cv.ntinnovation.vintipay.adapter.out.db.entity.PlanoAssinaturaEntity.StatusAssinatura.TRIAL;
-            case CANCELADA -> cv.ntinnovation.vintipay.adapter.out.db.entity.PlanoAssinaturaEntity.StatusAssinatura.CANCELADA;
-            case PENDENTE -> cv.ntinnovation.vintipay.adapter.out.db.entity.PlanoAssinaturaEntity.StatusAssinatura.PENDENTE;
-            case EXPIRADA -> cv.ntinnovation.vintipay.adapter.out.db.entity.PlanoAssinaturaEntity.StatusAssinatura.EXPIRADA;
-        };
-        
+        var statusEntity = getStatusEntity(status);
         return planoAssinaturaRepository.findByStatus(statusEntity)
                 .stream()
                 .map(planoAssinaturaMapper::toDomain)
                 .collect(Collectors.toList());
+    }
+    
+    private cv.ntinnovation.vintipay.adapter.out.db.entity.PlanoAssinaturaEntity.StatusAssinatura getStatusEntity(PlanoAssinatura.StatusAssinatura status) {
+        switch (status) {
+            case ATIVA:
+                return cv.ntinnovation.vintipay.adapter.out.db.entity.PlanoAssinaturaEntity.StatusAssinatura.ATIVA;
+            case TRIAL:
+                return cv.ntinnovation.vintipay.adapter.out.db.entity.PlanoAssinaturaEntity.StatusAssinatura.TRIAL;
+            case CANCELADA:
+                return cv.ntinnovation.vintipay.adapter.out.db.entity.PlanoAssinaturaEntity.StatusAssinatura.CANCELADA;
+            case PENDENTE:
+                return cv.ntinnovation.vintipay.adapter.out.db.entity.PlanoAssinaturaEntity.StatusAssinatura.PENDENTE;
+            case EXPIRADA:
+                return cv.ntinnovation.vintipay.adapter.out.db.entity.PlanoAssinaturaEntity.StatusAssinatura.EXPIRADA;
+            default:
+                return null;
+        }
     }
 
     @Override

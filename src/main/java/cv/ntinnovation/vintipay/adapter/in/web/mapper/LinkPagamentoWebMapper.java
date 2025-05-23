@@ -90,6 +90,7 @@ public class LinkPagamentoWebMapper {
         
         return LinkPagamentoRequest.builder()
                 .produtoId(link.getProdutoId())
+                .configuracaoPagamentoId(link.getConfiguracaoPagamentoId())
                 .nome(link.getTitulo())
                 .descricao(link.getDescricao())
                 .dataExpiracao(link.getDataExpiracao())

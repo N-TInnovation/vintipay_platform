@@ -87,9 +87,6 @@ public class TratadorErros {
         return "erro-404";
     }
 
-    public record Messagem(Boolean success){
-
-    }
 
     @ExceptionHandler(Throwable.class)
     public String error500(Throwable ex) {

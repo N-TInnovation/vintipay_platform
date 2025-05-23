@@ -201,8 +201,12 @@ public class LinkPagamentoController {
             // Buscar produtos do usuário para o dropdown
             List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
             
+            // Buscar configurações de pagamento ativas do usuário
+            List<ConfiguracaoPagamento> configuracoes = gerenciaConfiguracaoPagamentoUsuarioUseCase.buscarConfiguracoesAtivasDoUsuario(usuarioId);
+            
             model.addAttribute("link", request);
             model.addAttribute("produtos", produtos);
+            model.addAttribute("configuracoes", configuracoes);
             model.addAttribute("linkId", id);
             
             return "user/link-pagamento-form";

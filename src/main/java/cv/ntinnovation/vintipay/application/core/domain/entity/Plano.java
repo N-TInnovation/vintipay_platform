@@ -40,12 +40,18 @@ public class Plano {
         }
         
         public String getDescricao() {
-            return switch (this) {
-                case MENSAL -> "Mensal";
-                case TRIMESTRAL -> "Trimestral";
-                case SEMESTRAL -> "Semestral";
-                case ANUAL -> "Anual";
-            };
+            switch (this) {
+                case MENSAL:
+                    return "Mensal";
+                case TRIMESTRAL:
+                    return "Trimestral";
+                case SEMESTRAL:
+                    return "Semestral";
+                case ANUAL:
+                    return "Anual";
+                default:
+                    return "";
+            }
         }
     }
 }

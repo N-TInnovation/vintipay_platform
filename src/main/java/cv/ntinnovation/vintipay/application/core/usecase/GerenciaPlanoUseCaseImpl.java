@@ -186,18 +186,30 @@ public class GerenciaPlanoUseCaseImpl implements GerenciaPlanoUseCase {
     }
     
     private String mapPeriodoCobrancaParaStripe(Plano.PeriodoCobranca periodoCobranca) {
-        return switch (periodoCobranca) {
-            case MENSAL, TRIMESTRAL, SEMESTRAL -> "month";
-            case ANUAL -> "year";
-        };
+        switch (periodoCobranca) {
+            case MENSAL:
+            case TRIMESTRAL:
+            case SEMESTRAL:
+                return "month";
+            case ANUAL:
+                return "year";
+            default:
+                return "month"; // valor padrão
+        }
     }
     
     private int getIntervalCount(Plano.PeriodoCobranca periodoCobranca) {
-        return switch (periodoCobranca) {
-            case MENSAL -> 1;
-            case TRIMESTRAL -> 3;
-            case SEMESTRAL -> 6;
-            case ANUAL -> 1;
-        };
+        switch (periodoCobranca) {
+            case MENSAL:
+                return 1;
+            case TRIMESTRAL:
+                return 3;
+            case SEMESTRAL:
+                return 6;
+            case ANUAL:
+                return 1;
+            default:
+                return 1; // valor padrão
+        }
     }
 }

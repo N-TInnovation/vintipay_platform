@@ -55,13 +55,20 @@ public class PlanoAssinaturaMapper {
             return null;
         }
         
-        return switch (status) {
-            case ATIVA -> PlanoAssinatura.StatusAssinatura.ATIVA;
-            case TRIAL -> PlanoAssinatura.StatusAssinatura.TRIAL;
-            case CANCELADA -> PlanoAssinatura.StatusAssinatura.CANCELADA;
-            case PENDENTE -> PlanoAssinatura.StatusAssinatura.PENDENTE;
-            case EXPIRADA -> PlanoAssinatura.StatusAssinatura.EXPIRADA;
-        };
+        switch (status) {
+            case ATIVA:
+                return PlanoAssinatura.StatusAssinatura.ATIVA;
+            case TRIAL:
+                return PlanoAssinatura.StatusAssinatura.TRIAL;
+            case CANCELADA:
+                return PlanoAssinatura.StatusAssinatura.CANCELADA;
+            case PENDENTE:
+                return PlanoAssinatura.StatusAssinatura.PENDENTE;
+            case EXPIRADA:
+                return PlanoAssinatura.StatusAssinatura.EXPIRADA;
+            default:
+                return null;
+        }
     }
     
     private PlanoAssinaturaEntity.StatusAssinatura mapStatus(PlanoAssinatura.StatusAssinatura status) {
@@ -69,12 +76,19 @@ public class PlanoAssinaturaMapper {
             return null;
         }
         
-        return switch (status) {
-            case ATIVA -> PlanoAssinaturaEntity.StatusAssinatura.ATIVA;
-            case TRIAL -> PlanoAssinaturaEntity.StatusAssinatura.TRIAL;
-            case CANCELADA -> PlanoAssinaturaEntity.StatusAssinatura.CANCELADA;
-            case PENDENTE -> PlanoAssinaturaEntity.StatusAssinatura.PENDENTE;
-            case EXPIRADA -> PlanoAssinaturaEntity.StatusAssinatura.EXPIRADA;
-        };
+        switch (status) {
+            case ATIVA:
+                return PlanoAssinaturaEntity.StatusAssinatura.ATIVA;
+            case TRIAL:
+                return PlanoAssinaturaEntity.StatusAssinatura.TRIAL;
+            case CANCELADA:
+                return PlanoAssinaturaEntity.StatusAssinatura.CANCELADA;
+            case PENDENTE:
+                return PlanoAssinaturaEntity.StatusAssinatura.PENDENTE;
+            case EXPIRADA:
+                return PlanoAssinaturaEntity.StatusAssinatura.EXPIRADA;
+            default:
+                return null;
+        }
     }
 }

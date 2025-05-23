@@ -16,14 +16,14 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.util.ResourceUtils;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,7 +43,7 @@ import java.util.Optional;
  * a partir de arquivos JSON.
  */
 @Slf4j
-@Configuration
+@Component
 @RequiredArgsConstructor
 public class LocationDataImporter {
 
@@ -54,67 +54,176 @@ public class LocationDataImporter {
     private final CapeVerdeLocationsRepository capeVerdeLocationsRepository;
 
     /**
-     * Verifica se um recurso existe no classpath
+     * Retorna o diretório onde os arquivos JSON estão localizados
+     * Tentando primeiro no classpath e depois no sistema de arquivos
      */
-    private boolean resourceExists(String path) {
-        try {
-            Resource resource = new ClassPathResource(path);
-            return resource.exists();
-        } catch (Exception e) {
-            return false;
+    private String getJsonDir() {
+        log.info("Buscando diretório de arquivos JSON...");
+        
+        // Lista de possíveis caminhos relativos para o diretório JSON
+        List<String> possiblePaths = Arrays.asList(
+            "/json/",
+            "/static/json/",
+            "/resources/json/",
+            "/resources/static/json/"
+        );
+        
+        // Primeiro tenta encontrar no classpath
+        for (String path : possiblePaths) {
+            try {
+                Resource resource = new ClassPathResource(path);
+                if (resource.exists()) {
+                    log.info("Diretório JSON encontrado no classpath: {}", path);
+                    return path;
+                }
+            } catch (Exception e) {
+                log.debug("Não foi possível encontrar o diretório JSON no classpath: {}", path);
+            }
         }
+        
+        // Se não encontrou no classpath, tenta no sistema de arquivos
+        String userDir = System.getProperty("user.dir");
+        for (String path : possiblePaths) {
+            String fullPath = userDir + "/src/main/resources" + path;
+            File dir = new File(fullPath);
+            if (dir.exists() && dir.isDirectory()) {
+                log.info("Diretório JSON encontrado no sistema de arquivos: {}", fullPath);
+                return fullPath;
+            }
+        }
+        
+        // Se não encontrou em nenhum lugar, usa um padrão
+        log.warn("Diretório JSON não encontrado. Usando padrão: src/main/resources/json/");
+        return userDir + "/src/main/resources/json/";
     }
-
+    
     /**
-     * Tenta carregar um recurso do classpath ou do sistema de arquivos,
-     * verificando várias localizações possíveis
+     * Obtém o caminho para o arquivo countries.json
      */
-    private InputStream getResourceAsStream(String filename) {
-        List<String> classpathLocations = Arrays.asList(
-            filename,                    // Diretamente na raiz do classpath
-            "json/" + filename,          // Na pasta json do classpath
-            "app/" + filename,           // Na pasta app do classpath
-            "static/" + filename,        // Na pasta static do classpath
-            "resources/" + filename      // Na pasta resources do classpath
+    private File getCountriesJsonPath() {
+        // Primeiro tenta carregar do classpath
+        try {
+            Resource resource = new ClassPathResource("json/countries.json");
+            if (resource.exists()) {
+                log.info("Arquivo countries.json encontrado no classpath");
+                return resource.getFile();
+            }
+        } catch (Exception e) {
+            log.debug("Não foi possível carregar countries.json do classpath", e);
+        }
+        
+        // Depois tenta no diretório json
+        String jsonDir = getJsonDir();
+        String filePath = jsonDir.endsWith("/") ? jsonDir + "countries.json" : jsonDir + "/countries.json";
+        File file = new File(filePath);
+        
+        if (file.exists()) {
+            log.info("Arquivo countries.json encontrado em: {}", filePath);
+            return file;
+        }
+        
+        // Se não encontrou, verifica em caminhos alternativos específicos
+        List<String> specificPaths = Arrays.asList(
+            System.getProperty("user.dir") + "/src/main/resources/json/countries.json",
+            System.getProperty("user.dir") + "/src/main/resources/static/json/countries.json"
         );
         
-        List<String> fileSystemLocations = Arrays.asList(
-            System.getProperty("user.dir") + "/" + filename,                 // Na raiz do projeto
-            System.getProperty("user.dir") + "/json/" + filename,            // Na pasta json do projeto
-            System.getProperty("user.dir") + "/app/" + filename,             // Na pasta app do projeto
-            System.getProperty("user.home") + "/" + filename,                // Na pasta home do usuário
-            "/app/" + filename,                                              // Na pasta app (Docker)
-            "/app/json/" + filename,                                         // Na pasta app/json (Docker)
-            "/app/resources/" + filename                                     // Na pasta app/resources (Docker)
-        );
-        
-        // Primeiro, tenta todas as localizações do classpath
-        for (String location : classpathLocations) {
-            try {
-                if (resourceExists(location)) {
-                    log.info("Recurso encontrado no classpath: {}", location);
-                    return new ClassPathResource(location).getInputStream();
-                }
-            } catch (Exception e) {
-                // Ignora e tenta a próxima localização
+        for (String path : specificPaths) {
+            File specificFile = new File(path);
+            if (specificFile.exists()) {
+                log.info("Arquivo countries.json encontrado em caminho específico: {}", path);
+                return specificFile;
             }
         }
         
-        // Em seguida, tenta todas as localizações do sistema de arquivos
-        for (String location : fileSystemLocations) {
-            try {
-                File file = new File(location);
-                if (file.exists()) {
-                    log.info("Recurso encontrado no sistema de arquivos: {}", location);
-                    return new FileInputStream(file);
-                }
-            } catch (Exception e) {
-                // Ignora e tenta a próxima localização
+        log.warn("Arquivo countries.json não encontrado em nenhum local");
+        return file; // Retorna o último arquivo tentado, mesmo que não exista
+    }
+    
+    /**
+     * Obtém o caminho para o arquivo states.json
+     */
+    private File getStatesJsonPath() {
+        // Primeiro tenta carregar do classpath
+        try {
+            Resource resource = new ClassPathResource("json/states.json");
+            if (resource.exists()) {
+                log.info("Arquivo states.json encontrado no classpath");
+                return resource.getFile();
+            }
+        } catch (Exception e) {
+            log.debug("Não foi possível carregar states.json do classpath", e);
+        }
+        
+        // Depois tenta no diretório json
+        String jsonDir = getJsonDir();
+        String filePath = jsonDir.endsWith("/") ? jsonDir + "states.json" : jsonDir + "/states.json";
+        File file = new File(filePath);
+        
+        if (file.exists()) {
+            log.info("Arquivo states.json encontrado em: {}", filePath);
+            return file;
+        }
+        
+        // Se não encontrou, verifica em caminhos alternativos específicos
+        List<String> specificPaths = Arrays.asList(
+            System.getProperty("user.dir") + "/src/main/resources/json/states.json",
+            System.getProperty("user.dir") + "/src/main/resources/static/json/states.json"
+        );
+        
+        for (String path : specificPaths) {
+            File specificFile = new File(path);
+            if (specificFile.exists()) {
+                log.info("Arquivo states.json encontrado em caminho específico: {}", path);
+                return specificFile;
             }
         }
         
-        log.warn("Recurso '{}' não encontrado em nenhuma localização.", filename);
-        return null;
+        log.warn("Arquivo states.json não encontrado em nenhum local");
+        return file; // Retorna o último arquivo tentado, mesmo que não exista
+    }
+    
+    /**
+     * Obtém o caminho para o arquivo cities.json
+     */
+    private File getCitiesJsonPath() {
+        // Primeiro tenta carregar do classpath
+        try {
+            Resource resource = new ClassPathResource("json/cities.json");
+            if (resource.exists()) {
+                log.info("Arquivo cities.json encontrado no classpath");
+                return resource.getFile();
+            }
+        } catch (Exception e) {
+            log.debug("Não foi possível carregar cities.json do classpath", e);
+        }
+        
+        // Depois tenta no diretório json
+        String jsonDir = getJsonDir();
+        String filePath = jsonDir.endsWith("/") ? jsonDir + "cities.json" : jsonDir + "/cities.json";
+        File file = new File(filePath);
+        
+        if (file.exists()) {
+            log.info("Arquivo cities.json encontrado em: {}", filePath);
+            return file;
+        }
+        
+        // Se não encontrou, verifica em caminhos alternativos específicos
+        List<String> specificPaths = Arrays.asList(
+            System.getProperty("user.dir") + "/src/main/resources/json/cities.json",
+            System.getProperty("user.dir") + "/src/main/resources/static/json/cities.json"
+        );
+        
+        for (String path : specificPaths) {
+            File specificFile = new File(path);
+            if (specificFile.exists()) {
+                log.info("Arquivo cities.json encontrado em caminho específico: {}", path);
+                return specificFile;
+            }
+        }
+        
+        log.warn("Arquivo cities.json não encontrado em nenhum local");
+        return file; // Retorna o último arquivo tentado, mesmo que não exista
     }
 
     /**
@@ -122,64 +231,80 @@ public class LocationDataImporter {
      */
     @Bean
     @Order(1)
+    @Transactional
     public CommandLineRunner importCountries() {
         return args -> {
-            // Verificar se já existem países no banco de dados
-            if (countryRepository.count() > 0) {
-                log.info("Países já existem no banco de dados. Pulando importação.");
-                return;
-            }
-            
-            log.info("Iniciando importação de países...");
-            
-            try (InputStream is = getResourceAsStream("countries.json")) {
-                if (is == null) {
-                    log.warn("Arquivo countries.json não encontrado. Pulando importação de países.");
+            try {
+                // Verificar se já existem países no banco de dados
+                long count = countryRepository.count();
+                log.info("Contagem atual de países no banco: {}", count);
+                
+                log.info("Iniciando importação de países...");
+                
+                File jsonFile = getCountriesJsonPath();
+                
+                if (!jsonFile.exists()) {
+                    log.error("Arquivo countries.json não encontrado em nenhum caminho. Pulando importação.");
                     return;
                 }
                 
-                List<Map<String, Object>> countriesData = objectMapper.readValue(
-                        is,
-                        new TypeReference<List<Map<String, Object>>>() {}
-                );
-                
-                List<CountryEntity> countriesToSave = new ArrayList<>();
-                
-                for (Map<String, Object> countryData : countriesData) {
-                    CountryEntity country = new CountryEntity();
-                    country.setId(Long.valueOf(countryData.get("id").toString()));
-                    country.setName((String) countryData.get("name"));
-                    country.setIso3((String) countryData.get("iso3"));
-                    country.setIso2((String) countryData.get("iso2"));
-                    country.setNumericCode((String) countryData.get("numeric_code"));
-                    country.setPhonecode((String) countryData.get("phone_code"));
-                    country.setCapital((String) countryData.get("capital"));
-                    country.setCurrency((String) countryData.get("currency"));
-                    country.setCurrencyName((String) countryData.get("currency_name"));
-                    country.setCurrencySymbol((String) countryData.get("currency_symbol"));
-                    country.setTld((String) countryData.get("tld"));
-                    country.setNativeName((String) countryData.get("native"));
-                    country.setRegion((String) countryData.get("region"));
-                    country.setSubregion((String) countryData.get("subregion"));
+                // Usar FileInputStream diretamente
+                try (InputStream is = new FileInputStream(jsonFile)) {
+                    log.info("Arquivo countries.json encontrado. Iniciando importação...");
                     
-                    // Latitude e longitude são do tipo String no entity
-                    if (countryData.get("latitude") != null) {
-                        country.setLatitude(countryData.get("latitude").toString());
+                    List<Map<String, Object>> countriesData = objectMapper.readValue(
+                        is, new TypeReference<List<Map<String, Object>>>() {});
+                    
+                    log.info("Processando {} países do arquivo JSON...", countriesData.size());
+                    
+                    List<CountryEntity> countriesToSave = new ArrayList<>();
+                    
+                    for (Map<String, Object> countryData : countriesData) {
+                        try {
+                            CountryEntity country = new CountryEntity();
+                            country.setId(Long.valueOf(countryData.get("id").toString()));
+                            country.setName((String) countryData.get("name"));
+                            country.setIso3((String) countryData.get("iso3"));
+                            country.setIso2((String) countryData.get("iso2"));
+                            country.setNumericCode((String) countryData.get("numeric_code"));
+                            country.setPhonecode((String) countryData.get("phonecode"));
+                            country.setCapital((String) countryData.get("capital"));
+                            country.setCurrency((String) countryData.get("currency"));
+                            country.setCurrencyName((String) countryData.get("currency_name"));
+                            country.setCurrencySymbol((String) countryData.get("currency_symbol"));
+                            country.setTld((String) countryData.get("tld"));
+                            country.setNativeName((String) countryData.get("native_name"));
+                            country.setRegion((String) countryData.get("region"));
+                            country.setSubregion((String) countryData.get("subregion"));
+                            
+                            // Latitude e longitude são do tipo String no entity
+                            country.setLatitude(countryData.get("latitude") != null ? countryData.get("latitude").toString() : null);
+                            country.setLongitude(countryData.get("longitude") != null ? countryData.get("longitude").toString() : null);
+                            
+                            countriesToSave.add(country);
+                            
+                            // Salvar em lotes de 100 para evitar problemas de memória
+                            if (countriesToSave.size() >= 100) {
+                                countryRepository.saveAll(countriesToSave);
+                                countriesToSave.clear();
+                                log.info("Lote de 100 países importado.");
+                            }
+                        } catch (Exception e) {
+                            log.warn("Erro ao processar país: {}", countryData, e);
+                        }
                     }
-                    if (countryData.get("longitude") != null) {
-                        country.setLongitude(countryData.get("longitude").toString());
+                    
+                    // Salvar países restantes
+                    if (!countriesToSave.isEmpty()) {
+                        countryRepository.saveAll(countriesToSave);
+                        log.info("Lote final de {} países importado.", countriesToSave.size());
                     }
                     
-                    country.setEmoji((String) countryData.get("emoji"));
-                    country.setEmojiU((String) countryData.get("emojiU"));
-                    
-                    countriesToSave.add(country);
+                    log.info("Importação de países concluída com sucesso.");
                 }
-                
-                countryRepository.saveAll(countriesToSave);
-                log.info("Importação de {} países concluída com sucesso.", countriesToSave.size());
             } catch (Exception e) {
-                log.error("Erro ao importar países", e);
+                // Capturar qualquer exceção, incluindo TableNotFoundException, para permitir que a aplicação continue
+                log.error("Erro ao importar países: {}", e.getMessage(), e);
             }
         };
     }
@@ -189,77 +314,104 @@ public class LocationDataImporter {
      */
     @Bean
     @Order(2)
+    @Transactional
     public CommandLineRunner importStates() {
         return args -> {
-            // Verificar se já existem estados no banco de dados
-            if (stateRepository.count() > 0) {
-                log.info("Estados já existem no banco de dados. Pulando importação.");
-                return;
-            }
-            
-            log.info("Iniciando importação de estados...");
-            
-            try (InputStream is = getResourceAsStream("states.json")) {
-                if (is == null) {
-                    log.warn("Arquivo states.json não encontrado. Pulando importação de estados.");
+            try {
+                // Verificar se já existem estados no banco de dados
+                long count = stateRepository.count();
+                log.info("Contagem atual de estados no banco: {}", count);
+                
+                log.info("Iniciando importação de estados...");
+                
+                File jsonFile = getStatesJsonPath();
+                
+                if (!jsonFile.exists()) {
+                    log.error("Arquivo states.json não encontrado em nenhum caminho. Pulando importação.");
                     return;
                 }
                 
-                List<Map<String, Object>> statesData = objectMapper.readValue(
-                        is,
-                        new TypeReference<List<Map<String, Object>>>() {}
-                );
-                
-                List<StateEntity> statesToSave = new ArrayList<>();
-                Map<Long, CountryEntity> countryCache = new HashMap<>();
-                
-                // Importar apenas estados de países específicos (BR, PT, CV)
-                List<String> countryCodesToImport = List.of("CV", "PT", "BR");
-                
-                for (Map<String, Object> stateData : statesData) {
-                    Map<String, Object> countryData = (Map<String, Object>) stateData.get("country");
-                    String countryCode = (String) countryData.get("iso2");
+                // Usar FileInputStream diretamente
+                try (InputStream is = new FileInputStream(jsonFile)) {
+                    log.info("Arquivo states.json encontrado. Iniciando importação...");
                     
-                    if (countryCodesToImport.contains(countryCode)) {
-                        StateEntity state = new StateEntity();
-                        state.setId(Long.valueOf(stateData.get("id").toString()));
-                        state.setName((String) stateData.get("name"));
-                        
-                        // Procurar o país no cache ou no banco
-                        Long countryId = Long.valueOf(countryData.get("id").toString());
-                        CountryEntity country = countryCache.get(countryId);
-                        if (country == null) {
-                            Optional<CountryEntity> countryOpt = countryRepository.findById(countryId);
-                            if (countryOpt.isPresent()) {
-                                country = countryOpt.get();
-                                countryCache.put(countryId, country);
-                            } else {
-                                log.warn("País com ID {} não encontrado. Pulando estado {}.", countryId, state.getName());
+                    List<Map<String, Object>> statesData = objectMapper.readValue(
+                        is, new TypeReference<List<Map<String, Object>>>() {});
+                    
+                    log.info("Processando {} estados do arquivo JSON...", statesData.size());
+                    
+                    List<StateEntity> statesToSave = new ArrayList<>();
+                    Map<Long, CountryEntity> countryCache = new HashMap<>();
+                    
+                    // Importar apenas estados de países específicos (BR, PT, CV)
+                    List<String> countryCodesToImport = List.of("CV", "PT", "BR");
+                    
+                    for (Map<String, Object> stateData : statesData) {
+                        try {
+                            String countryCode = (String) stateData.get("country_code");
+                            
+                            // Ignorar estados de países que não estão na lista
+                            if (!countryCodesToImport.contains(countryCode)) {
                                 continue;
                             }
+                            
+                            // Obter país pelo ID
+                            Long countryId = Long.valueOf(stateData.get("country_id").toString());
+                            CountryEntity country = countryCache.get(countryId);
+                            if (country == null) {
+                                CountryEntity countryEntity = countryRepository.findById(countryId).orElse(null);
+                                if (countryEntity == null) {
+                                    log.warn("País com ID {} não encontrado, pulando estado: {}", countryId, stateData.get("name"));
+                                    continue;
+                                }
+                                country = countryEntity;
+                                countryCache.put(countryId, country);
+                            }
+                            
+                            // Criar entidade de estado
+                            StateEntity state = new StateEntity();
+                            state.setId(Long.valueOf(stateData.get("id").toString()));
+                            state.setName((String) stateData.get("name"));
+                            state.setCountry(country);
+                            state.setCountryCode(countryCode);
+                            state.setFipsCode((String) stateData.get("fips_code"));
+                            state.setIso2((String) stateData.get("iso2"));
+                            state.setType((String) stateData.get("type"));
+                            
+                            // Latitude e longitude são decimais no entity
+                            state.setLatitude(stateData.get("latitude") != null
+                                ? stateData.get("latitude").toString() : null);
+                            state.setLongitude(stateData.get("longitude") != null
+                                ? stateData.get("longitude").toString(): null);
+                            
+                            state.setCreatedAt(null);
+                            state.setUpdatedAt(null);
+                            state.setWikiDataId((String) stateData.get("wikiDataId"));
+                            
+                            statesToSave.add(state);
+                            
+                            // Salvar em lotes de 100 para evitar problemas de memória
+                            if (statesToSave.size() >= 100) {
+                                stateRepository.saveAll(statesToSave);
+                                statesToSave.clear();
+                                log.info("Lote de 100 estados importado.");
+                            }
+                        } catch (Exception e) {
+                            log.warn("Erro ao processar estado: {}", stateData, e);
                         }
-                        
-                        state.setCountry(country);
-                        state.setCountryCode((String) countryData.get("iso2"));
-                        state.setStateCode((String) stateData.get("state_code"));
-                        state.setType((String) stateData.get("type"));
-                        
-                        // Latitude e longitude são do tipo String no entity
-                        if (stateData.get("latitude") != null) {
-                            state.setLatitude(stateData.get("latitude").toString());
-                        }
-                        if (stateData.get("longitude") != null) {
-                            state.setLongitude(stateData.get("longitude").toString());
-                        }
-                        
-                        statesToSave.add(state);
                     }
+                    
+                    // Salvar estados restantes
+                    if (!statesToSave.isEmpty()) {
+                        stateRepository.saveAll(statesToSave);
+                        log.info("Lote final de {} estados importado.", statesToSave.size());
+                    }
+                    
+                    log.info("Importação de estados concluída com sucesso.");
                 }
-                
-                stateRepository.saveAll(statesToSave);
-                log.info("Importação de {} estados concluída com sucesso.", statesToSave.size());
             } catch (Exception e) {
-                log.error("Erro ao importar estados", e);
+                // Capturar qualquer exceção, incluindo TableNotFoundException, para permitir que a aplicação continue
+                log.error("Erro ao importar estados: {}", e.getMessage(), e);
             }
         };
     }
@@ -269,96 +421,132 @@ public class LocationDataImporter {
      */
     @Bean
     @Order(3)
+    @Transactional
     public CommandLineRunner importCities() {
         return args -> {
-            // Verificar se já existem cidades no banco de dados
-            if (cityRepository.count() > 0) {
-                log.info("Cidades já existem no banco de dados. Pulando importação.");
-                return;
-            }
-            
-            log.info("Iniciando importação de cidades...");
-            
-            // Importar apenas cidades de países específicos (BR, PT, CV)
-            List<String> countryCodesToImport = List.of("CV", "PT", "BR");
-            
-            try (InputStream is = getResourceAsStream("cities.json")) {
-                if (is == null) {
-                    log.warn("Arquivo cities.json não encontrado. Pulando importação de cidades.");
+            try {
+                // Verificar se já existem cidades no banco de dados
+                long count = cityRepository.count();
+                log.info("Contagem atual de cidades no banco: {}", count);
+                
+                log.info("Iniciando importação de cidades...");
+                
+                // Importar apenas cidades de países específicos (BR, PT, CV)
+                List<String> countryCodesToImport = List.of("CV", "PT", "BR");
+                
+                File jsonFile = getCitiesJsonPath();
+                
+                if (!jsonFile.exists()) {
+                    log.error("Arquivo cities.json não encontrado em nenhum caminho. Pulando importação.");
                     return;
                 }
                 
-                List<Map<String, Object>> citiesData = objectMapper.readValue(
-                        is,
-                        new TypeReference<List<Map<String, Object>>>() {}
-                );
-                
-                List<CityEntity> citiesToSave = new ArrayList<>();
-                Map<Long, CountryEntity> countryCache = new HashMap<>();
-                Map<Long, StateEntity> stateCache = new HashMap<>();
-                
-                for (Map<String, Object> cityData : citiesData) {
-                    Map<String, Object> countryData = (Map<String, Object>) cityData.get("country");
-                    String countryCode = (String) countryData.get("iso2");
+                // Usar FileInputStream diretamente
+                try (InputStream is = new FileInputStream(jsonFile)) {
+                    log.info("Arquivo cities.json encontrado. Iniciando importação...");
                     
-                    if (countryCodesToImport.contains(countryCode)) {
-                        CityEntity city = new CityEntity();
-                        city.setId(Long.valueOf(cityData.get("id").toString()));
-                        city.setName((String) cityData.get("name"));
-                        
-                        // Obter dados do estado
-                        Map<String, Object> stateData = (Map<String, Object>) cityData.get("state");
-                        Long stateId = Long.valueOf(stateData.get("id").toString());
-                        StateEntity state = stateCache.get(stateId);
-                        if (state == null) {
-                            Optional<StateEntity> stateOpt = stateRepository.findById(stateId);
-                            if (stateOpt.isPresent()) {
-                                state = stateOpt.get();
-                                stateCache.put(stateId, state);
-                            } else {
-                                log.warn("Estado com ID {} não encontrado. Pulando cidade {}.", stateId, city.getName());
+                    List<Map<String, Object>> citiesData = objectMapper.readValue(
+                        is, new TypeReference<List<Map<String, Object>>>() {});
+                    
+                    log.info("Processando {} cidades do arquivo JSON...", citiesData.size());
+                    
+                    List<CityEntity> citiesToSave = new ArrayList<>();
+                    Map<Long, CountryEntity> countryCache = new HashMap<>();
+                    Map<Long, StateEntity> stateCache = new HashMap<>();
+                    
+                    int processedCount = 0;
+                    int importedCount = 0;
+                    
+                    for (Map<String, Object> cityData : citiesData) {
+                        try {
+                            processedCount++;
+                            
+                            // Log de progresso a cada 1000 registros
+                            if (processedCount % 1000 == 0) {
+                                log.info("Processados {} registros de cidades...", processedCount);
+                            }
+                            
+                            String countryCode = (String) cityData.get("country_code");
+                            
+                            // Ignorar cidades de países que não estão na lista
+                            if (!countryCodesToImport.contains(countryCode)) {
                                 continue;
                             }
-                        }
-                        city.setState(state);
-                        city.setStateCode((String) stateData.get("state_code"));
-                        
-                        // Obter dados do país
-                        Long countryId = Long.valueOf(countryData.get("id").toString());
-                        CountryEntity country = countryCache.get(countryId);
-                        if (country == null) {
-                            Optional<CountryEntity> countryOpt = countryRepository.findById(countryId);
-                            if (countryOpt.isPresent()) {
-                                country = countryOpt.get();
+                            
+                            // Obter país pelo ID
+                            Long countryId = Long.valueOf(cityData.get("country_id").toString());
+                            CountryEntity country = countryCache.get(countryId);
+                            if (country == null) {
+                                CountryEntity countryEntity = countryRepository.findById(countryId).orElse(null);
+                                if (countryEntity == null) {
+                                    log.warn("País com ID {} não encontrado, pulando cidade: {}", countryId, cityData.get("name"));
+                                    continue;
+                                }
+                                country = countryEntity;
                                 countryCache.put(countryId, country);
-                            } else {
-                                log.warn("País com ID {} não encontrado. Pulando cidade {}.", countryId, city.getName());
-                                continue;
                             }
+                            
+                            // Obter estado pelo ID
+                            Long stateId = Long.valueOf(cityData.get("state_id").toString());
+                            StateEntity state = stateCache.get(stateId);
+                            if (state == null) {
+                                StateEntity stateEntity = stateRepository.findById(stateId).orElse(null);
+                                if (stateEntity == null) {
+                                    log.warn("Estado com ID {} não encontrado, pulando cidade: {}", stateId, cityData.get("name"));
+                                    continue;
+                                }
+                                state = stateEntity;
+                                stateCache.put(stateId, state);
+                            }
+                            
+                            // Criar entidade de cidade
+                            CityEntity city = new CityEntity();
+                            city.setId(Long.valueOf(cityData.get("id").toString()));
+                            city.setName((String) cityData.get("name"));
+                            city.setState(state);
+                            city.setStateCode((String) cityData.get("state_code"));
+                            city.setCountry(country);
+                            city.setCountryCode(countryCode);
+                            
+                            // Latitude e longitude são decimais no entity
+                            city.setLatitude(cityData.get("latitude") != null 
+                                ? cityData.get("latitude").toString() : null);
+                            city.setLongitude(cityData.get("longitude") != null 
+                                ? cityData.get("longitude").toString() : null);
+                            
+                            city.setCreatedAt(null);
+                            city.setUpdatedAt(null);
+                            city.setWikiDataId((String) cityData.get("wikiDataId"));
+                            
+                            citiesToSave.add(city);
+                            importedCount++;
+                            
+                            // Salvar em lotes de 100 para evitar problemas de memória
+                            if (citiesToSave.size() >= 100) {
+                                cityRepository.saveAll(citiesToSave);
+                                citiesToSave.clear();
+                                log.info("Lote de 100 cidades importado. Total importado: {}", importedCount);
+                            }
+                        } catch (Exception e) {
+                            log.warn("Erro ao processar cidade: {}", cityData, e);
                         }
-                        city.setCountry(country);
-                        city.setCountryCode(countryCode);
-                        
-                        // Latitude e longitude são do tipo String no entity
-                        if (cityData.get("latitude") != null) {
-                            city.setLatitude(cityData.get("latitude").toString());
-                        }
-                        if (cityData.get("longitude") != null) {
-                            city.setLongitude(cityData.get("longitude").toString());
-                        }
-                        
-                        citiesToSave.add(city);
                     }
+                    
+                    // Salvar cidades restantes
+                    if (!citiesToSave.isEmpty()) {
+                        cityRepository.saveAll(citiesToSave);
+                        log.info("Lote final de {} cidades importado. Total importado: {}", citiesToSave.size(), importedCount);
+                    }
+                    
+                    log.info("Importação de cidades concluída com sucesso. Total de cidades importadas: {}", importedCount);
                 }
-                
-                cityRepository.saveAll(citiesToSave);
-                log.info("Importação de {} cidades concluída com sucesso.", citiesToSave.size());
             } catch (Exception e) {
-                log.error("Erro ao importar cidades", e);
+                // Capturar qualquer exceção para permitir que a aplicação continue
+                log.error("Erro ao importar cidades: {}", e.getMessage(), e);
             }
         };
     }
-
+    
     /**
      * Bean para importar localizações de Cabo Verde
      */
@@ -398,7 +586,7 @@ public class LocationDataImporter {
      * Importa localizações a partir de um arquivo Excel
      */
     private void importFromExcel(InputStream is) throws IOException {
-        try (Workbook workbook = new XSSFWorkbook(is)) {
+        try (Workbook workbook = WorkbookFactory.create(is)) {
             Sheet sheet = workbook.getSheetAt(0); // Assume primeira planilha
             
             List<CapeVerdeLocationsEntity> locationsToSave = new ArrayList<>();
@@ -497,7 +685,7 @@ public class LocationDataImporter {
                 return;
             }
             
-            try (Workbook workbook = new XSSFWorkbook(is)) {
+            try (Workbook workbook = WorkbookFactory.create(is)) {
                 Sheet sheet = workbook.getSheetAt(0); // Assume primeira planilha
                 
                 List<CapeVerdeLocationsEntity> locationsToSave = new ArrayList<>();
@@ -548,7 +736,7 @@ public class LocationDataImporter {
                 return;
             }
             
-            try (Workbook workbook = new XSSFWorkbook(is)) {
+            try (Workbook workbook = WorkbookFactory.create(is)) {
                 Sheet sheet = workbook.getSheetAt(0); // Assume primeira planilha
                 Row headerRow = sheet.getRow(0);
                 
@@ -610,5 +798,61 @@ public class LocationDataImporter {
             default:
                 return null;
         }
+    }
+    
+    /**
+     * Obtém um InputStream para o arquivo especificado, procurando em várias localizações possíveis.
+     * 
+     * @param filename Nome do arquivo a ser carregado
+     * @return InputStream do arquivo, ou null se não encontrado
+     */
+    private InputStream getResourceAsStream(String filename) {
+        log.info("Tentando carregar o arquivo: {}", filename);
+        
+        // Primeiro tenta como resource no classpath
+        try {
+            ClassPathResource resource = new ClassPathResource(filename);
+            if (resource.exists()) {
+                log.info("Arquivo encontrado como ClassPathResource: {}", filename);
+                return resource.getInputStream();
+            }
+        } catch (Exception e) {
+            log.warn("Não foi possível carregar o arquivo como ClassPathResource: {}", e.getMessage());
+        }
+        
+        // Tenta no diretório de recursos
+        try {
+            Resource resource = new ClassPathResource("json/" + filename);
+            if (resource.exists()) {
+                log.info("Arquivo encontrado como ClassPathResource: json/{}", filename);
+                return resource.getInputStream();
+            }
+        } catch (Exception e) {
+            log.warn("Não foi possível carregar o arquivo como ClassPathResource em /json: {}", e.getMessage());
+        }
+        
+        // Tenta no sistema de arquivos
+        String resourcesPath = System.getProperty("user.dir") + "/src/main/resources/";
+        List<String> possiblePaths = Arrays.asList(
+            resourcesPath + filename,
+            resourcesPath + "json/" + filename,
+            resourcesPath + "static/json/" + filename,
+            resourcesPath + "static/" + filename
+        );
+        
+        for (String path : possiblePaths) {
+            try {
+                File file = new File(path);
+                if (file.exists()) {
+                    log.info("Arquivo encontrado no sistema de arquivos: {}", path);
+                    return new FileInputStream(file);
+                }
+            } catch (Exception e) {
+                log.warn("Não foi possível carregar o arquivo do caminho: {}: {}", path, e.getMessage());
+            }
+        }
+        
+        log.error("Arquivo {} não encontrado em nenhum local!", filename);
+        return null;
     }
 }

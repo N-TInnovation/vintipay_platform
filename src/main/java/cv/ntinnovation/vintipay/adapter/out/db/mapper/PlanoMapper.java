@@ -48,12 +48,18 @@ public class PlanoMapper {
             return null;
         }
         
-        return switch (periodoCobranca) {
-            case MENSAL -> Plano.PeriodoCobranca.MENSAL;
-            case TRIMESTRAL -> Plano.PeriodoCobranca.TRIMESTRAL;
-            case SEMESTRAL -> Plano.PeriodoCobranca.SEMESTRAL;
-            case ANUAL -> Plano.PeriodoCobranca.ANUAL;
-        };
+        switch (periodoCobranca) {
+            case MENSAL:
+                return Plano.PeriodoCobranca.MENSAL;
+            case TRIMESTRAL:
+                return Plano.PeriodoCobranca.TRIMESTRAL;
+            case SEMESTRAL:
+                return Plano.PeriodoCobranca.SEMESTRAL;
+            case ANUAL:
+                return Plano.PeriodoCobranca.ANUAL;
+            default:
+                return null;
+        }
     }
     
     private PlanoEntity.PeriodoCobranca mapPeriodoCobranca(Plano.PeriodoCobranca periodoCobranca) {
@@ -61,11 +67,17 @@ public class PlanoMapper {
             return null;
         }
         
-        return switch (periodoCobranca) {
-            case MENSAL -> PlanoEntity.PeriodoCobranca.MENSAL;
-            case TRIMESTRAL -> PlanoEntity.PeriodoCobranca.TRIMESTRAL;
-            case SEMESTRAL -> PlanoEntity.PeriodoCobranca.SEMESTRAL;
-            case ANUAL -> PlanoEntity.PeriodoCobranca.ANUAL;
-        };
+        switch (periodoCobranca) {
+            case MENSAL:
+                return PlanoEntity.PeriodoCobranca.MENSAL;
+            case TRIMESTRAL:
+                return PlanoEntity.PeriodoCobranca.TRIMESTRAL;
+            case SEMESTRAL:
+                return PlanoEntity.PeriodoCobranca.SEMESTRAL;
+            case ANUAL:
+                return PlanoEntity.PeriodoCobranca.ANUAL;
+            default:
+                return null;
+        }
     }
 }
