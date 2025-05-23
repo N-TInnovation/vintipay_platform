@@ -4,7 +4,6 @@ import cv.ntinnovation.vintipay.adapter.out.location.City;
 import cv.ntinnovation.vintipay.adapter.out.location.Country;
 import cv.ntinnovation.vintipay.adapter.out.location.LocationService;
 import cv.ntinnovation.vintipay.adapter.out.location.State;
-import cv.ntinnovation.vintipay.adapter.out.location.util.LocationDataImporter;
 import cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -217,33 +216,4 @@ public class LocationController {
         return ResponseEntity.ok(subzones);
     }
 
-    @GetMapping("/cape-verde/read-excel-header")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> readExcelHeader() {
-        try {
-            // Obter o bean LocationDataImporter para chamar o método de leitura do cabeçalho
-            LocationDataImporter importer = applicationContext.getBean(LocationDataImporter.class);
-            importer.readExcelHeader();
-            return ResponseEntity.ok("Leitura do cabeçalho do arquivo Excel iniciada. Verifique os logs para mais informações.");
-        } catch (Exception e) {
-            log.error("Erro ao ler cabeçalho do arquivo Excel", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao ler cabeçalho do arquivo Excel: " + e.getMessage());
-        }
-    }
-
-    @PostMapping("/cape-verde/import")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> importCapeVerdeLocations() {
-        try {
-            // Obter o bean LocationDataImporter para chamar o método de importação manual
-            LocationDataImporter importer = applicationContext.getBean(LocationDataImporter.class);
-            importer.importCapeVerdeLocationsManually();
-            return ResponseEntity.ok("Importação de localizações de Cabo Verde iniciada com sucesso!");
-        } catch (Exception e) {
-            log.error("Erro ao importar localizações de Cabo Verde", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao importar localizações de Cabo Verde: " + e.getMessage());
-        }
-    }
 }
