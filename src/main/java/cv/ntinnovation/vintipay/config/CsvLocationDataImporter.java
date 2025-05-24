@@ -63,6 +63,9 @@ public class CsvLocationDataImporter implements ApplicationRunner {
     public void onApplicationReady() {
         logger.info("Evento ApplicationReady recebido, iniciando importação de dados geográficos...");
         importLocationData();
+        
+        // Força a importação apenas dos dados de Cabo Verde, independente do estado do banco
+        forceImportCvLocationsOnly();
     }
 
     /**
@@ -86,6 +89,7 @@ public class CsvLocationDataImporter implements ApplicationRunner {
             String countriesCsv = getResourceAsString("csv/countries.csv");
             String statesCsv = getResourceAsString("csv/states.csv");
             String citiesCsv = getResourceAsString("csv/cities.csv");
+            String cvLocationsCsv = getResourceAsString("csv/cv/codigo-lugares-cv.csv");
             
             if (countriesCsv == null || statesCsv == null || citiesCsv == null) {
                 logger.error("Não foi possível carregar todos os arquivos CSV necessários.");
@@ -117,6 +121,15 @@ public class CsvLocationDataImporter implements ApplicationRunner {
                     importCities(conn, citiesCsv);
                     conn.commit();
                     logger.info("Importação de cidades concluída e confirmada no banco.");
+                    
+                    // Importar localizações de Cabo Verde, se o arquivo estiver disponível
+                    if (cvLocationsCsv != null) {
+                        importCvLocations(conn, cvLocationsCsv);
+                        conn.commit();
+                        logger.info("Importação de localizações de Cabo Verde concluída e confirmada no banco.");
+                    } else {
+                        logger.warn("Arquivo de localizações de Cabo Verde não encontrado. Pulando importação.");
+                    }
                     
                     logger.info("Importação de dados geográficos concluída com sucesso!");
                 } catch (Exception e) {
@@ -156,6 +169,24 @@ public class CsvLocationDataImporter implements ApplicationRunner {
             stmt.execute();
         }
         
+        // Tenta limpar a tabela cv_locations se ela existir
+        try {
+            PreparedStatement stmt = conn.prepareStatement(
+                "SELECT COUNT(*) FROM information_schema.tables " +
+                "WHERE table_schema = (SELECT database()) AND table_name = 'cv_locations'"
+            );
+            try (var rs = stmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    try (PreparedStatement truncateStmt = conn.prepareStatement("TRUNCATE TABLE cv_locations")) {
+                        truncateStmt.execute();
+                        logger.info("Tabela cv_locations limpa com sucesso.");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            logger.warn("Erro ao limpar tabela cv_locations: {}. Isso pode ser normal se a tabela não existir.", e.getMessage());
+        }
+        
         try (PreparedStatement stmt = conn.prepareStatement("SET FOREIGN_KEY_CHECKS = 1")) {
             stmt.execute();
         }
@@ -173,15 +204,22 @@ public class CsvLocationDataImporter implements ApplicationRunner {
             List<String> tables = jdbcTemplate.queryForList(
                 "SELECT table_name FROM information_schema.tables " +
                 "WHERE table_schema = (SELECT database()) " +
-                "AND table_name IN ('countries', 'states', 'cities')",
+                "AND table_name IN ('countries', 'states', 'cities', 'cv_locations')",
                 String.class
             );
             
-            boolean hasAllTables = tables.size() == 3;
-            if (!hasAllTables) {
-                logger.warn("Nem todas as tabelas necessárias existem. Encontradas: {}", tables);
+            boolean hasBasicTables = tables.contains("countries") && tables.contains("states") && tables.contains("cities");
+            boolean hasCvLocationsTable = tables.contains("cv_locations");
+            
+            if (!hasBasicTables) {
+                logger.warn("Nem todas as tabelas básicas (countries, states, cities) existem. Encontradas: {}", tables);
             }
-            return hasAllTables;
+            
+            if (!hasCvLocationsTable) {
+                logger.warn("A tabela cv_locations não existe. Importação de localizações de Cabo Verde será ignorada.");
+            }
+            
+            return hasBasicTables;
         } catch (Exception e) {
             logger.error("Erro ao verificar existência das tabelas: {}", e.getMessage());
             return false;
@@ -601,6 +639,253 @@ public class CsvLocationDataImporter implements ApplicationRunner {
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
             return 0;
+        }
+    }
+    
+    /**
+     * Importa localizações de Cabo Verde do arquivo CSV específico
+     */
+    private void importCvLocations(Connection conn, String csvContent) throws IOException, SQLException {
+        logger.info("Importando localizações de Cabo Verde...");
+        if (csvContent == null) {
+            logger.error("Conteúdo do arquivo codigo-lugares-cv.csv é nulo");
+            return;
+        }
+        
+        // Verificar se a tabela cv_locations existe
+        PreparedStatement checkStmt = conn.prepareStatement(
+            "SELECT COUNT(*) FROM information_schema.tables " +
+            "WHERE table_schema = (SELECT database()) AND table_name = 'cv_locations'"
+        );
+        
+        try (var rs = checkStmt.executeQuery()) {
+            if (!rs.next() || rs.getInt(1) == 0) {
+                logger.error("A tabela cv_locations não existe. Pulando importação.");
+                return;
+            }
+        }
+        
+        String[] lines = csvContent.split("\n");
+        if (lines.length <= 1) {
+            logger.warn("Arquivo codigo-lugares-cv.csv vazio ou só com cabeçalho");
+            return;
+        }
+        
+        String sql = "INSERT INTO cv_locations (id, island, county, parish, zone, subzone, name, lat, lng) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            int count = 0;
+            int processed = 0;
+            int skipped = 0;
+            
+            // Pular cabeçalho
+            for (int i = 1; i < lines.length; i++) {
+                String line = lines[i].trim();
+                if (line.isEmpty()) continue;
+                
+                String[] fields = parseCsvLine(line);
+                if (fields.length < 9) {
+                    logger.warn("Linha com formato inválido (CV location): {}", line);
+                    continue;
+                }
+                
+                processed++;
+                try {
+                    // CODIGO,NIVEL,PAIS,ILHA,CONCELHO,FREGUESIA,ZONA,LUGAR,NOME
+                    String codigo = fields[0];
+                    String nivel = fields[1];
+                    String ilha = fields[3].isEmpty() ? null : fields[3];
+                    String concelho = fields[4].isEmpty() ? null : fields[4];
+                    String freguesia = fields[5].isEmpty() ? null : fields[5];
+                    String zona = fields[6].isEmpty() ? null : fields[6];
+                    String lugar = fields[7].isEmpty() ? null : fields[7];
+                    String nome = fields[8];
+                    
+                    // Coordenadas (não disponíveis no CSV, definindo como null)
+                    String lat = null;
+                    String lng = null;
+                    
+                    // Converter código string para id numérico
+                    long id;
+                    try {
+                        id = Long.parseLong(codigo.replaceAll("[^0-9]", ""));
+                    } catch (NumberFormatException e) {
+                        logger.warn("Código inválido para conversão numérica: {}", codigo);
+                        id = processed; // Usar o número sequencial como fallback
+                    }
+                    
+                    stmt.setLong(1, id);
+                    stmt.setString(2, ilha);
+                    stmt.setString(3, concelho);
+                    stmt.setString(4, freguesia);
+                    stmt.setString(5, zona);
+                    stmt.setString(6, lugar); // lugar -> subzone na tabela
+                    stmt.setString(7, nome);
+                    stmt.setString(8, lat);
+                    stmt.setString(9, lng);
+                    
+                    stmt.addBatch();
+                    count++;
+                    
+                    if (count % BATCH_SIZE == 0) {
+                        executeAndLogBatch(stmt, "localizações CV", count);
+                        
+                        if (count % (BATCH_SIZE * 5) == 0) {
+                            logger.info("Importadas {} localizações de Cabo Verde de {} ({:.2f}%)...", 
+                                    count, lines.length - 1, (count * 100.0 / (lines.length - 1)));
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("Erro ao processar localização CV (linha {}): {}", i, e.getMessage());
+                    skipped++;
+                }
+            }
+            
+            if (count % BATCH_SIZE != 0) {
+                executeAndLogBatch(stmt, "localizações CV", count);
+            }
+            
+            logger.info("Importação de localizações de Cabo Verde concluída. Total: {} processados, {} importados, {} ignorados", 
+                    processed, count, skipped);
+        }
+    }
+
+    /**
+     * Força a importação apenas dos dados de Cabo Verde, independente do estado do banco
+     */
+    public void forceImportCvLocationsOnly() {
+        try {
+            logger.info("Iniciando importação forçada de localizações de Cabo Verde...");
+            
+            // Verifica se a tabela cv_locations existe
+            if (!tableExists("cv_locations")) {
+                logger.error("A tabela cv_locations não existe. Não é possível importar dados de Cabo Verde.");
+                return;
+            }
+            
+            // Verificar quantos registros já existem
+            int existingRecords = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cv_locations", Integer.class);
+            logger.info("Registros existentes na tabela cv_locations antes da importação: {}", existingRecords);
+            
+            // Carregar o arquivo CSV
+            String cvLocationsCsv = null;
+            String foundPath = null;
+            
+            // Tentar vários caminhos para encontrar o arquivo
+            String[] possiblePaths = {
+                "csv/cv/codigo-lugares-cv.csv",
+                "csv/codigo-lugares-cv.csv",
+                "/csv/cv/codigo-lugares-cv.csv",
+                "static/csv/cv/codigo-lugares-cv.csv",
+                "classpath:csv/cv/codigo-lugares-cv.csv"
+            };
+            
+            for (String path : possiblePaths) {
+                logger.info("Tentando carregar arquivo de: {}", path);
+                cvLocationsCsv = getResourceAsString(path);
+                if (cvLocationsCsv != null) {
+                    foundPath = path;
+                    logger.info("Arquivo encontrado em: {}", path);
+                    break;
+                }
+            }
+            
+            // Tentar caminho absoluto como último recurso
+            if (cvLocationsCsv == null) {
+                String[] absolutePaths = {
+                    System.getProperty("user.dir") + "/src/main/resources/csv/cv/codigo-lugares-cv.csv",
+                    System.getProperty("user.dir") + "/src/main/resources/static/csv/cv/codigo-lugares-cv.csv",
+                    System.getProperty("user.dir") + "/target/classes/csv/cv/codigo-lugares-cv.csv"
+                };
+                
+                for (String path : absolutePaths) {
+                    logger.info("Tentando caminho absoluto: {}", path);
+                    File file = new File(path);
+                    if (file.exists()) {
+                        logger.info("Arquivo encontrado em caminho absoluto: {}", path);
+                        cvLocationsCsv = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+                        foundPath = path;
+                        break;
+                    }
+                }
+            }
+            
+            if (cvLocationsCsv == null) {
+                logger.error("Arquivo CSV de Cabo Verde não encontrado em nenhum caminho.");
+                return;
+            }
+            
+            logger.info("Arquivo CSV de Cabo Verde carregado com sucesso de {}, tamanho: {} bytes", 
+                    foundPath, cvLocationsCsv.length());
+            
+            // Verificar conteúdo do arquivo
+            String[] lines = cvLocationsCsv.split("\n");
+            logger.info("Arquivo contém {} linhas", lines.length);
+            if (lines.length > 0) {
+                logger.info("Primeira linha (cabeçalho): {}", lines[0]);
+                if (lines.length > 1) {
+                    logger.info("Segunda linha (primeiro registro): {}", lines[1]);
+                }
+            }
+            
+            // Realizar a importação em uma transação
+            try (Connection conn = dataSource.getConnection()) {
+                conn.setAutoCommit(false);
+                
+                try {
+                    // Limpar dados existentes
+                    try (PreparedStatement stmt = conn.prepareStatement("TRUNCATE TABLE cv_locations")) {
+                        stmt.execute();
+                        logger.info("Tabela cv_locations limpa com sucesso.");
+                    }
+                    
+                    // Importar localizações de Cabo Verde
+                    importCvLocations(conn, cvLocationsCsv);
+                    conn.commit();
+                    
+                    // Verificar quantos registros foram importados
+                    int importedRecords = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cv_locations", Integer.class);
+                    logger.info("Importação forçada de localizações de Cabo Verde concluída. Registros na tabela: {}", importedRecords);
+                    
+                    if (importedRecords == 0) {
+                        logger.error("A importação foi concluída, mas nenhum registro foi inserido na tabela.");
+                    }
+                } catch (Exception e) {
+                    try {
+                        conn.rollback();
+                    } catch (SQLException rollbackEx) {
+                        logger.error("Erro ao fazer rollback: {}", rollbackEx.getMessage());
+                    }
+                    throw e;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Erro ao importar localizações de Cabo Verde: {}", e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Verifica se uma tabela específica existe no banco de dados
+     */
+    private boolean tableExists(String tableName) {
+        try {
+            List<String> tables = jdbcTemplate.queryForList(
+                "SELECT table_name FROM information_schema.tables " +
+                "WHERE table_schema = (SELECT database()) " +
+                "AND table_name = ?",
+                String.class,
+                tableName
+            );
+            
+            boolean exists = !tables.isEmpty();
+            if (!exists) {
+                logger.warn("A tabela {} não existe no banco de dados.", tableName);
+            }
+            return exists;
+        } catch (Exception e) {
+            logger.error("Erro ao verificar existência da tabela {}: {}", tableName, e.getMessage());
+            return false;
         }
     }
 }
