@@ -103,6 +103,12 @@
 			<artifactId>lombok-mapstruct-binding</artifactId>
 			<version>0.1.0</version>
 		</dependency>
+		<!-- Dependência do OpenCSV para processamento de arquivos CSV -->
+		<dependency>
+			<groupId>com.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>5.8</version>
+		</dependency>
 		<!-- Dependências para trabalhar com Excel -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>

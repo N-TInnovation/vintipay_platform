@@ -187,7 +187,7 @@ public class LocationService {
      */
     public List<String> getAllCapeVerdeIslands() {
         try {
-            return capeVerdeLocationsRepository.findDistinctIsland();
+            return capeVerdeLocationsRepository.findDistinctIlha();
         } catch (Exception e) {
             log.error("Erro ao obter lista de ilhas de Cabo Verde", e);
             return Collections.emptyList();
@@ -196,56 +196,56 @@ public class LocationService {
 
     /**
      * Obtém a lista de concelhos de uma ilha específica
-     * @param island Nome da ilha
+     * @param ilha Nome da ilha
      * @return Lista de concelhos
      */
-    public List<String> getCapeVerdeCountiesByIsland(String island) {
+    public List<String> getCapeVerdeCountiesByIsland(String ilha) {
         try {
-            return capeVerdeLocationsRepository.findDistinctCountyByIsland(island);
+            return capeVerdeLocationsRepository.findDistinctConcelhoByIlha(ilha);
         } catch (Exception e) {
-            log.error("Erro ao obter lista de concelhos para a ilha {}", island, e);
+            log.error("Erro ao obter lista de concelhos para a ilha {}", ilha, e);
             return Collections.emptyList();
         }
     }
 
     /**
      * Obtém a lista de freguesias de um concelho específico
-     * @param county Nome do concelho
+     * @param concelho Nome do concelho
      * @return Lista de freguesias
      */
-    public List<String> getCapeVerdeParishesByCounty(String county) {
+    public List<String> getCapeVerdeParishesByCounty(String concelho) {
         try {
-            return capeVerdeLocationsRepository.findDistinctParishByCounty(county);
+            return capeVerdeLocationsRepository.findDistinctFreguesiaByConcelho(concelho);
         } catch (Exception e) {
-            log.error("Erro ao obter lista de freguesias para o concelho {}", county, e);
+            log.error("Erro ao obter lista de freguesias para o concelho {}", concelho, e);
             return Collections.emptyList();
         }
     }
 
     /**
      * Obtém a lista de zonas de uma freguesia específica
-     * @param parish Nome da freguesia
+     * @param freguesia Nome da freguesia
      * @return Lista de zonas
      */
-    public List<String> getCapeVerdeZonesByParish(String parish) {
+    public List<String> getCapeVerdeZonesByParish(String freguesia) {
         try {
-            return capeVerdeLocationsRepository.findDistinctZoneByParish(parish);
+            return capeVerdeLocationsRepository.findDistinctZonaByFreguesia(freguesia);
         } catch (Exception e) {
-            log.error("Erro ao obter lista de zonas para a freguesia {}", parish, e);
+            log.error("Erro ao obter lista de zonas para a freguesia {}", freguesia, e);
             return Collections.emptyList();
         }
     }
 
     /**
      * Obtém a lista de subzonas de uma zona específica
-     * @param zone Nome da zona
+     * @param zona Nome da zona
      * @return Lista de subzonas
      */
-    public List<String> getCapeVerdeSubzonesByZone(String zone) {
+    public List<String> getCapeVerdeSubzonesByZone(String zona) {
         try {
-            return capeVerdeLocationsRepository.findDistinctSubzoneByZone(zone);
+            return capeVerdeLocationsRepository.findDistinctLugarByZona(zona);
         } catch (Exception e) {
-            log.error("Erro ao obter lista de subzonas para a zona {}", zone, e);
+            log.error("Erro ao obter lista de subzonas para a zona {}", zona, e);
             return Collections.emptyList();
         }
     }
@@ -256,7 +256,7 @@ public class LocationService {
      */
     public List<LocationOptionDTO> getAllCapeVerdeIslandsWithNames() {
         try {
-            return capeVerdeLocationsRepository.findDistinctIslandWithNames();
+            return capeVerdeLocationsRepository.findDistinctIlhaWithNames();
         } catch (Exception e) {
             log.error("Erro ao obter lista de ilhas de Cabo Verde com nomes", e);
             return Collections.emptyList();
@@ -265,56 +265,56 @@ public class LocationService {
 
     /**
      * Obtém a lista de concelhos de uma ilha específica com seus nomes para exibição
-     * @param island Nome da ilha
+     * @param ilha Nome da ilha
      * @return Lista de opções de concelho (valor/label)
      */
-    public List<LocationOptionDTO> getCapeVerdeCountiesByIslandWithNames(String island) {
+    public List<LocationOptionDTO> getCapeVerdeCountiesByIslandWithNames(String ilha) {
         try {
-            return capeVerdeLocationsRepository.findDistinctCountyByIslandWithNames(island);
+            return capeVerdeLocationsRepository.findDistinctConcelhoByIlhaWithNames(ilha);
         } catch (Exception e) {
-            log.error("Erro ao obter lista de concelhos para a ilha {} com nomes", island, e);
+            log.error("Erro ao obter lista de concelhos para a ilha {} com nomes", ilha, e);
             return Collections.emptyList();
         }
     }
 
     /**
      * Obtém a lista de freguesias de um concelho específico com seus nomes para exibição
-     * @param county Nome do concelho
+     * @param concelho Nome do concelho
      * @return Lista de opções de freguesia (valor/label)
      */
-    public List<LocationOptionDTO> getCapeVerdeParishesByCountyWithNames(String county) {
+    public List<LocationOptionDTO> getCapeVerdeParishesByCountyWithNames(String concelho) {
         try {
-            return capeVerdeLocationsRepository.findDistinctParishByCountyWithNames(county);
+            return capeVerdeLocationsRepository.findDistinctFreguesiaByConcelhoWithNames(concelho);
         } catch (Exception e) {
-            log.error("Erro ao obter lista de freguesias para o concelho {} com nomes", county, e);
+            log.error("Erro ao obter lista de freguesias para o concelho {} com nomes", concelho, e);
             return Collections.emptyList();
         }
     }
 
     /**
      * Obtém a lista de zonas de uma freguesia específica com seus nomes para exibição
-     * @param parish Nome da freguesia
+     * @param freguesia Nome da freguesia
      * @return Lista de opções de zona (valor/label)
      */
-    public List<LocationOptionDTO> getCapeVerdeZonesByParishWithNames(String parish) {
+    public List<LocationOptionDTO> getCapeVerdeZonesByParishWithNames(String freguesia) {
         try {
-            return capeVerdeLocationsRepository.findDistinctZoneByParishWithNames(parish);
+            return capeVerdeLocationsRepository.findDistinctZonaByFreguesiaWithNames(freguesia);
         } catch (Exception e) {
-            log.error("Erro ao obter lista de zonas para a freguesia {} com nomes", parish, e);
+            log.error("Erro ao obter lista de zonas para a freguesia {} com nomes", freguesia, e);
             return Collections.emptyList();
         }
     }
 
     /**
      * Obtém a lista de subzonas de uma zona específica com seus nomes para exibição
-     * @param zone Nome da zona
+     * @param zona Nome da zona
      * @return Lista de opções de subzona (valor/label)
      */
-    public List<LocationOptionDTO> getCapeVerdeSubzonesByZoneWithNames(String zone) {
+    public List<LocationOptionDTO> getCapeVerdeSubzonesByZoneWithNames(String zona) {
         try {
-            return capeVerdeLocationsRepository.findDistinctSubzoneByZoneWithNames(zone);
+            return capeVerdeLocationsRepository.findDistinctLugarByZonaWithNames(zona);
         } catch (Exception e) {
-            log.error("Erro ao obter lista de subzonas para a zona {} com nomes", zone, e);
+            log.error("Erro ao obter lista de subzonas para a zona {} com nomes", zona, e);
             return Collections.emptyList();
         }
     }
@@ -380,12 +380,15 @@ public class LocationService {
     private CapeVerdeLocationDTO mapToCapeVerdeLocationDTO(CapeVerdeLocationsEntity entity) {
         CapeVerdeLocationDTO dto = new CapeVerdeLocationDTO();
         dto.setId(entity.getId());
-        dto.setIsland(entity.getIsland());
-        dto.setCounty(entity.getCounty());
-        dto.setParish(entity.getParish());
-        dto.setZone(entity.getZone());
-        dto.setSubzone(entity.getSubzone());
-        dto.setName(entity.getName());
+        dto.setCodigo(entity.getCodigo());
+        dto.setNivel(entity.getNivel());
+        dto.setPais(entity.getPais());
+        dto.setIlha(entity.getIlha());
+        dto.setConcelho(entity.getConcelho());
+        dto.setFreguesia(entity.getFreguesia());
+        dto.setZona(entity.getZona());
+        dto.setLugar(entity.getLugar());
+        dto.setNome(entity.getNome());
         return dto;
     }
 }

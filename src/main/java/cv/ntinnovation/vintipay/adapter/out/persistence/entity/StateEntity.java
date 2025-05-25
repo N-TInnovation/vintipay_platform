@@ -36,6 +36,9 @@ public class StateEntity {
 
     @Column(name = "country_code", length = 2)
     private String countryCode;
+    
+    @Column(name = "country_name")
+    private String countryName;
 
     @Column(name = "fips_code")
     private String fipsCode;

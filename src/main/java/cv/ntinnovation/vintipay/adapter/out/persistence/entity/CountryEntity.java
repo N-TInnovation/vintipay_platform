@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -58,6 +60,20 @@ public class CountryEntity {
     private String region;
 
     private String subregion;
+    
+    @Column(name = "region_id")
+    private Long regionId;
+
+    @Column(name = "subregion_id")
+    private Long subregionId;
+    
+    @ManyToOne
+    @JoinColumn(name = "region_id", insertable = false, updatable = false)
+    private RegionEntity regionEntity;
+
+    @ManyToOne
+    @JoinColumn(name = "subregion_id", insertable = false, updatable = false)
+    private SubRegionEntity subRegionEntity;
 
     @Column(length = 50)
     private String latitude;

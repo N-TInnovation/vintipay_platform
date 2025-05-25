@@ -1,4 +1,4 @@
-CODIGO,NIVEL,PAIS,ILHA,CONCELHO,FREGUESIA,ZONA,LUGAR,NOME
+codigo,nivel,pais,ilha,concelho,freguesia,zona,lugar,nome
 CV,1,CV,,,,,,CAPE VERDE
 CV1,2,CV,1,,,,,SANTO ANTÃO
 CV111,3,CV,1,11,,,,RIBEIRA GRANDE

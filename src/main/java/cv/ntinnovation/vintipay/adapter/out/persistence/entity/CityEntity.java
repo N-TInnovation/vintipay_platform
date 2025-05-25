@@ -34,6 +34,9 @@ public class CityEntity {
 
     @Column(name = "state_code")
     private String stateCode;
+    
+    @Column(name = "state_name")
+    private String stateName;
 
     @ManyToOne
     @JoinColumn(name = "country_id", nullable = false)
@@ -41,6 +44,9 @@ public class CityEntity {
 
     @Column(name = "country_code", length = 2)
     private String countryCode;
+    
+    @Column(name = "country_name")
+    private String countryName;
 
     @Column(length = 50)
     private String latitude;

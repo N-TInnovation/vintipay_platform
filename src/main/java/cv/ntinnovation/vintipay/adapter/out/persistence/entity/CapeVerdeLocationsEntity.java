@@ -1,41 +1,56 @@
 package cv.ntinnovation.vintipay.adapter.out.persistence.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @Entity
+@Table(name = "cv_locations")
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "cv_locations")
 public class CapeVerdeLocationsEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @Column(name = "island")
-    private String island;
+    @Column(name = "codigo", unique = true)
+    private String codigo;
 
-    @Column(name = "county")
-    private String county;
+    @Column(name = "nivel")
+    private Integer nivel;
 
-    @Column(name = "parish")
-    private String parish;
+    @Column(name = "pais")
+    private String pais;
 
-    @Column(name = "zone")
-    private String zone;
+    @Column(name = "ilha")
+    private String ilha;
 
-    @Column(name = "subzone")
-    private String subzone;
+    @Column(name = "concelho")
+    private String concelho;
+
+    @Column(name = "freguesia")
+    private String freguesia;
+
+    @Column(name = "zona")
+    private String zona;
+
+    @Column(name = "lugar")
+    private String lugar;
+
+    @Column(name = "nome")
+    private String nome;
 
     @Column(name = "lat")
     private String lat;
 
     @Column(name = "lng")
     private String lng;
-
-    @Column(name = "name")
-    private String name;
 }
