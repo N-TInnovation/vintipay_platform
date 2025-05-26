@@ -1,4 +1,0 @@
--- Como a coluna return_url já foi adicionada no script V4 durante a criação da tabela,
--- não precisamos adicioná-la novamente. Este script é mantido para compatibilidade histórica.
--- Originalmente fazia:
--- ALTER TABLE configuracao_pagamento ADD COLUMN return_url VARCHAR(255) NOT NULL DEFAULT 'https://localhost:8443/admin/pagamentos';
