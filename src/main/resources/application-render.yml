@@ -44,6 +44,8 @@ spring:
     baseline-version: 0
     connect-retries: 10
     connect-retries-interval: 30
+    repair-history: true          # Ativa o FlywayRepairConfig
+    repair-strategy: mark-successful  # Estratégia: mark-successful, delete-failed, clean-all
 
 # Outras configurações mantidas iguais ao arquivo application-prod.yml
 server:
