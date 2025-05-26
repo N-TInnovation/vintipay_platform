@@ -170,7 +170,7 @@ public class CsvDataImportService {
                     // Atualizar sub-região existente
                     SubRegionEntity subRegion = existingSubRegion.get();
                     subRegion.setName(getValueOrEmpty(line, headerMap, "name"));
-                    subRegion.setRegionId(regionId);
+                    subRegion.setRegion(region.get());
                     subRegion.setWikiDataId(getValueOrEmpty(line, headerMap, "wikiDataId"));
                     subRegionRepository.save(subRegion);
                 } else {
@@ -178,7 +178,7 @@ public class CsvDataImportService {
                     SubRegionEntity subRegion = new SubRegionEntity();
                     subRegion.setId(id);
                     subRegion.setName(getValueOrEmpty(line, headerMap, "name"));
-                    subRegion.setRegionId(regionId);
+                    subRegion.setRegion(region.get());
                     subRegion.setWikiDataId(getValueOrEmpty(line, headerMap, "wikiDataId"));
                     subRegionRepository.save(subRegion);
                     importCount++;
@@ -456,14 +456,19 @@ public class CsvDataImportService {
         country.setCurrencySymbol(getValueOrEmpty(line, headerMap, "currency_symbol"));
         country.setTld(getValueOrEmpty(line, headerMap, "tld"));
         country.setNativeName(getValueOrEmpty(line, headerMap, "native"));
-        country.setRegion(getValueOrEmpty(line, headerMap, "region"));
-        country.setSubregion(getValueOrEmpty(line, headerMap, "subregion"));
         
-        // Verificar se existem os campos region_id e subregion_id no CSV
+        // Configurar região e sub-região usando entidades relacionadas
         String regionId = getValueOrEmpty(line, headerMap, "region_id");
         if (!regionId.isEmpty()) {
             try {
-                country.setRegionId(Long.parseLong(regionId));
+                Long regionIdLong = Long.parseLong(regionId);
+                Optional<RegionEntity> regionEntity = regionRepository.findById(regionIdLong);
+                if (regionEntity.isPresent()) {
+                    // O JPA irá automaticamente configurar o region_id
+                    country.setRegion(regionEntity.get());
+                } else {
+                    logger.warn("Região com ID {} não encontrada", regionIdLong);
+                }
             } catch (NumberFormatException e) {
                 logger.warn("Valor inválido para region_id: {}", regionId);
             }
@@ -472,7 +477,14 @@ public class CsvDataImportService {
         String subregionId = getValueOrEmpty(line, headerMap, "subregion_id");
         if (!subregionId.isEmpty()) {
             try {
-                country.setSubregionId(Long.parseLong(subregionId));
+                Long subregionIdLong = Long.parseLong(subregionId);
+                Optional<SubRegionEntity> subRegionEntity = subRegionRepository.findById(subregionIdLong);
+                if (subRegionEntity.isPresent()) {
+                    // O JPA irá automaticamente configurar o subregion_id
+                    country.setSubRegion(subRegionEntity.get());
+                } else {
+                    logger.warn("Sub-região com ID {} não encontrada", subregionIdLong);
+                }
             } catch (NumberFormatException e) {
                 logger.warn("Valor inválido para subregion_id: {}", subregionId);
             }
