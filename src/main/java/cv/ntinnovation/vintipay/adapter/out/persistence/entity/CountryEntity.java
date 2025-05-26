@@ -57,18 +57,13 @@ public class CountryEntity {
     @Column(name = "native_name")
     private String nativeName;
 
-    private String region;
-
-    private String subregion;
-
-    
     @ManyToOne
     @JoinColumn(name = "region_id", insertable = false, updatable = false)
-    private RegionEntity regionEntity;
+    private RegionEntity region;
 
     @ManyToOne
     @JoinColumn(name = "subregion_id", insertable = false, updatable = false)
-    private SubRegionEntity subRegionEntity;
+    private SubRegionEntity subRegion;
 
     @Column(length = 50)
     private String latitude;

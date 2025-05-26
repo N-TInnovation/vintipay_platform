@@ -28,9 +28,6 @@ public class SubRegionEntity {
     @Column(nullable = false)
     private String name;
     
-    @Column(name = "region_id", nullable = false)
-    private Long regionId;
-    
     @ManyToOne
     @JoinColumn(name = "region_id", insertable = false, updatable = false)
     private RegionEntity region;
