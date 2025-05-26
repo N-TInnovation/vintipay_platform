@@ -147,7 +147,7 @@ public class SecurityConfig {
                             .requestMatchers("/registro/checkout-cancel").permitAll()
                             .requestMatchers(HttpMethod.POST, "/login").permitAll()
                             .requestMatchers(HttpMethod.POST, "/registro").permitAll()
-                            .requestMatchers("/images/**", "/css/**", "/js/**", "/img/**", "/uploads/**").permitAll()
+                            .requestMatchers("/admin/**","/user/**").permitAll()
                             .anyRequest().authenticated()
                     )
                     .formLogin(form -> form
@@ -164,6 +164,7 @@ public class SecurityConfig {
                     )
                     .csrf(csrf -> csrf
                             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                            .ignoringRequestMatchers("/images/**", "/css/**", "/js/**", "/img/**", "/uploads/**")
                     )
                     .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                             .maximumSessions(1));
