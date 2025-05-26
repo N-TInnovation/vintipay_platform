@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS cv_locations;
 -- Primeiro, criar a tabela se não existir
 CREATE TABLE IF NOT EXISTS cv_locations (
     id BIGINT PRIMARY KEY,
