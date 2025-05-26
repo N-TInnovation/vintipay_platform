@@ -60,9 +60,6 @@ public class CountryEntity {
     private String region;
 
     private String subregion;
-    
-    @Column(name = "region_id")
-    private Long regionId;
 
     @Column(name = "subregion_id")
     private Long subregionId;
