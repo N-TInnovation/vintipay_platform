@@ -1,0 +1,103 @@
+spring:
+  datasource:
+    url: ${PAYMENT_DB_URI}
+    username: ${PAYMENT_DB_USERNAME}
+    password: ${PAYMENT_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 60000
+      maximum-pool-size: 8
+      minimum-idle: 2
+      idle-timeout: 120000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+      validation-timeout: 30000
+      initialization-fail-timeout: 30000
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+        jdbc:
+          time_zone: UTC
+        connection:
+          provider_disables_autocommit: false
+    defer-datasource-initialization: false
+  sql:
+    init:
+      mode: never
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+      continue-on-error: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    clean-on-validate-error: true  # Limpará o banco de dados em caso de erro de validação
+    clean-disabled: false  # Permite limpeza do banco de dados
+    locations: classpath:db/migration
+    validate-on-migrate: false
+    out-of-order: true
+    baseline-version: 0
+    connect-retries: 10
+    connect-retries-interval: 30
+
+# Outras configurações mantidas iguais ao arquivo application-prod.yml
+server:
+  port: ${SERVER_PORT}
+  ssl:
+    enabled: false
+  servlet:
+    context-path: /
+
+jwt:
+  public:
+    key: ${JWT_PUBLIC_KEY}
+  private:
+    key: ${JWT_PRIVATE_KEY}
+
+# Configurações da API SISP
+sisp:
+  url:
+    prod:
+      3d: ${SISP_URL_3D}
+      normal: ${SISP_URL_NORMAL}
+    dev:
+      3d: ${SISP_DEV_URL_3D}
+      normal: ${SISP_DEV_URL_NORMAL}
+    qld:
+      3d: ${SISP_QLD_URL_3D}
+      normal: ${SISP_QLD_URL_NORMAL}
+  checkout:
+    return:
+      url: ${SISP_CHECKOUT_RETURN_URL}
+
+# Configurações da API Brevo
+brevo:
+  api:
+    key: ${BREVO_API_KEY}
+    url: ${BREVO_API_URL}
+  email:
+    from: ${BREVO_EMAIL_FROM}
+
+# Configurações da API Stripe
+stripe:
+  api:
+    key: ${STRIPE_API_KEY}
+  webhook:
+    secret: ${STRIPE_WEBHOOK_SECRET}
+
+# Configurações da API Vendus
+vendus:
+  api:
+    key: ${VENDUS_API_KEY}
+    base-url: ${VENDUS_API_URL}
+
+# Ativar importação automática
+vintipay:
+  auto-import:
+    enabled: true
+    skip-if-data-exists: false  # Forçar importação mesmo se dados existirem
