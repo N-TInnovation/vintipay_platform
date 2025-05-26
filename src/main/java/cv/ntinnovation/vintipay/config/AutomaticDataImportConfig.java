@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Configuração para importação automática de dados geográficos na inicialização
@@ -63,7 +65,7 @@ public class AutomaticDataImportConfig implements ApplicationListener<Applicatio
             // Verificar se as tabelas existem
             boolean tablesExist = checkTablesExist();
             if (!tablesExist) {
-                logger.warn("As tabelas necessárias não existem. Pulando importação automática.");
+                logger.warn("Tabelas essenciais não existem. Pulando importação automática.");
                 return;
             }
 
@@ -119,18 +121,39 @@ public class AutomaticDataImportConfig implements ApplicationListener<Applicatio
      */
     private boolean checkTablesExist() {
         try {
+            Map<String, Boolean> tableExistence = new HashMap<>();
             String[] tables = {"regions", "subregions", "countries", "states", "cities", "cv_locations"};
+            
+            // Verificar a existência de cada tabela
             for (String table : tables) {
-                Integer count = jdbcTemplate.queryForObject(
-                    "SELECT COUNT(*) FROM information_schema.tables " +
-                    "WHERE table_schema = (SELECT database()) AND table_name = ?",
-                    Integer.class, table);
-                
-                if (count == null || count == 0) {
-                    logger.warn("Tabela {} não existe no banco de dados", table);
-                    return false;
+                try {
+                    Integer count = jdbcTemplate.queryForObject(
+                        "SELECT COUNT(*) FROM information_schema.tables " +
+                        "WHERE table_schema = (SELECT database()) AND table_name = ?",
+                        Integer.class, table);
+                    
+                    boolean exists = (count != null && count > 0);
+                    tableExistence.put(table, exists);
+                    
+                    if (!exists) {
+                        logger.warn("Tabela {} não existe no banco de dados", table);
+                    }
+                } catch (Exception e) {
+                    tableExistence.put(table, false);
+                    logger.error("Erro ao verificar existência da tabela {}: {}", table, e.getMessage());
                 }
             }
+            
+            // Verificar se as tabelas essenciais existem
+            boolean essentialTablesExist = tableExistence.getOrDefault("countries", false) && 
+                                          tableExistence.getOrDefault("states", false) && 
+                                          tableExistence.getOrDefault("cities", false);
+                                          
+            if (!essentialTablesExist) {
+                logger.warn("Tabelas essenciais (countries, states, cities) não existem. Pulando importação.");
+                return false;
+            }
+            
             return true;
         } catch (Exception e) {
             logger.error("Erro ao verificar existência das tabelas: {}", e.getMessage(), e);
@@ -143,19 +166,27 @@ public class AutomaticDataImportConfig implements ApplicationListener<Applicatio
      */
     private boolean dataAlreadyExists() {
         try {
-            String[] tables = {"regions", "subregions", "countries", "states", "cities", "cv_locations"};
-            for (String table : tables) {
-                Integer count = jdbcTemplate.queryForObject(
-                    "SELECT COUNT(*) FROM " + table, Integer.class);
-                
-                if (count == null || count == 0) {
-                    logger.info("Tabela {} está vazia", table);
+            // Verificar apenas tabelas essenciais para decidir se importa ou não
+            String[] essentialTables = {"countries", "states", "cities"};
+            for (String table : essentialTables) {
+                try {
+                    Integer count = jdbcTemplate.queryForObject(
+                        "SELECT COUNT(*) FROM " + table, Integer.class);
+                    
+                    if (count == null || count == 0) {
+                        logger.info("Tabela {} está vazia", table);
+                        return false;
+                    }
+                } catch (Exception e) {
+                    logger.warn("Erro ao verificar dados na tabela {}: {}", table, e.getMessage());
+                    // Se não conseguir verificar uma tabela, considera que precisa importar
                     return false;
                 }
             }
             return true;
         } catch (Exception e) {
             logger.error("Erro ao verificar existência de dados: {}", e.getMessage(), e);
+            // Em caso de erro, assume que precisa importar
             return false;
         }
     }
