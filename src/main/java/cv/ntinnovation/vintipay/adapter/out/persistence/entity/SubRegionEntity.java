@@ -29,7 +29,7 @@ public class SubRegionEntity {
     private String name;
     
     @ManyToOne
-    @JoinColumn(name = "region_id", insertable = false, updatable = false)
+    @JoinColumn(name = "region_id", nullable = false)
     private RegionEntity region;
     
     @Column(name = "wiki_data_id")
