@@ -61,8 +61,6 @@ public class CountryEntity {
 
     private String subregion;
 
-    @Column(name = "subregion_id")
-    private Long subregionId;
     
     @ManyToOne
     @JoinColumn(name = "region_id", insertable = false, updatable = false)
