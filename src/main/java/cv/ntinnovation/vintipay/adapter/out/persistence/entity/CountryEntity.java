@@ -91,5 +91,6 @@ public class CountryEntity {
     @OneToMany(mappedBy = "country")
     private List<StateEntity> states;
 
+    @Column(name = "timezones", columnDefinition = "TEXT")
     private String timezones;
 }

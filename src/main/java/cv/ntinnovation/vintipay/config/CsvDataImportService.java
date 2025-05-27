@@ -450,6 +450,7 @@ public class CsvDataImportService {
         country.setCurrencyName(getValueOrEmpty(line, headerMap, "currency_name"));
         country.setCurrencySymbol(getValueOrEmpty(line, headerMap, "currency_symbol"));
         country.setTld(getValueOrEmpty(line, headerMap, "tld"));
+        country.setTimezones(getValueOrEmpty(line, headerMap, "timezones"));
         country.setNativeName(getValueOrEmpty(line, headerMap, "native"));
         
         // Configurar região e sub-região usando entidades relacionadas
