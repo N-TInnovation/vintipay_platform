@@ -364,7 +364,7 @@ public class CsvDataImportService {
         }
         
         // Verificar colunas obrigatórias
-        String[] requiredColumns = {"id", "codigo", "nivel", "pais", "ilha", "concelho", "freguesia", "zona", "lugar", "nome", "lat", "lng"};
+        String[] requiredColumns = {"codigo", "nivel", "pais", "ilha", "concelho", "freguesia", "zona", "lugar", "nome", "lat", "lng"};
         for (String column : requiredColumns) {
             if (!headerMap.containsKey(column)) {
                 logger.warn("Coluna obrigatória '{}' não encontrada no CSV de localidades de Cabo Verde", column);
@@ -375,19 +375,14 @@ public class CsvDataImportService {
         String[] line;
         
         // Cache para evitar consultas repetidas ao banco
-        Map<Long, CapeVerdeLocationsEntity> existingLocationsMap = new HashMap<>();
+        Map<String, CapeVerdeLocationsEntity> existingLocationsMap = new HashMap<>();
         capeVerdeLocationsRepository.findAll().forEach(location -> 
-            existingLocationsMap.put(location.getId(), location));
+            existingLocationsMap.put(location.getCodigo(), location));
         
         logger.info("Encontrados {} registros existentes de localidades de Cabo Verde", existingLocationsMap.size());
         
         while ((line = csvReader.readNext()) != null) {
             try {
-                Long id = getValueAsLong(line, headerMap, "id");
-                if (id == null) {
-                    logger.warn("ID inválido ou ausente na linha. Pulando...");
-                    continue;
-                }
                 
                 String codigo = getValueAsString(line, headerMap, "codigo");
                 Integer nivel = getValueAsInteger(line, headerMap, "nivel");
@@ -402,13 +397,12 @@ public class CsvDataImportService {
                 String lng = getValueAsString(line, headerMap, "lng");
                 
                 CapeVerdeLocationsEntity location;
-                boolean isNew = !existingLocationsMap.containsKey(id);
+                boolean isNew = !existingLocationsMap.containsKey(codigo);
                 
                 if (isNew) {
                     location = new CapeVerdeLocationsEntity();
-                    location.setId(id);
                 } else {
-                    location = existingLocationsMap.get(id);
+                    location = existingLocationsMap.get(codigo);
                 }
                 
                 location.setCodigo(codigo);
