@@ -101,9 +101,9 @@ public class AutomaticDataImportConfig implements ApplicationListener<Applicatio
                     logger.info("Importação de cidades concluída. {} registros importados.", citiesCount);
                     
                     // Por último, importar as localidades de Cabo Verde
-                    logger.info("Iniciando importação automática de localidades de Cabo Verde...");
-                    int cvLocationsCount = csvDataImportService.importCapeVerdeLocations();
-                    logger.info("Importação de localidades de Cabo Verde concluída. {} registros importados.", cvLocationsCount);
+                    //logger.info("Iniciando importação automática de localidades de Cabo Verde...");
+                   // int cvLocationsCount = csvDataImportService.importCapeVerdeLocations();
+                   // logger.info("Importação de localidades de Cabo Verde concluída. {} registros importados.", cvLocationsCount);
 
                     logger.info("Importação automática finalizada com sucesso!");
                 } catch (Exception e) {

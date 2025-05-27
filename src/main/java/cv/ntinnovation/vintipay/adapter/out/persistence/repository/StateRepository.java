@@ -20,6 +20,8 @@ public interface StateRepository extends JpaRepository<StateEntity, Long> {
     Optional<StateEntity> findByCountryCodeAndStateCode(String countryCode, String stateCode);
     
     Optional<StateEntity> findByStateCodeAndCountry_Id(String stateCode, Long countryId);
+
+    Optional<StateEntity> findByStateCode(String stateCode);
     
     default Optional<StateEntity> findByStateCodeAndCountryId(String stateCode, Long countryId) {
         return findByStateCodeAndCountry_Id(stateCode, countryId);

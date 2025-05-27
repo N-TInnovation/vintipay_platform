@@ -60,8 +60,6 @@ public class CityEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    private Boolean flag;
-
     @Column(name = "wikiDataId")
     private String wikiDataId;
 }

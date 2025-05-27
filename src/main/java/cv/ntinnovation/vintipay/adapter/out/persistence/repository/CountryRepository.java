@@ -15,4 +15,5 @@ public interface CountryRepository extends JpaRepository<CountryEntity, Long> {
     Optional<CountryEntity> findByNumericCode(String numericCode);
     
     List<CountryEntity> findAllByOrderByNameAsc();
+
 }

@@ -40,15 +40,10 @@ public class StateEntity {
     @Column(name = "country_name")
     private String countryName;
 
-    @Column(name = "fips_code")
-    private String fipsCode;
-
-    @Column(name = "iso2")
-    private String iso2;
-
     @Column(name = "state_code")
     private String stateCode;
 
+    @Column(name = "type")
     private String type;
 
     @Column(length = 50)
@@ -62,11 +57,6 @@ public class StateEntity {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    private Boolean flag;
-
-    @Column(name = "wikiDataId")
-    private String wikiDataId;
 
     @OneToMany(mappedBy = "state")
     private List<CityEntity> cities;

@@ -31,19 +31,20 @@ public class CountryEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(length = 3)
+    @Column(length = 3, unique = true)
     private String iso3;
 
-    @Column(name = "numeric_code", length = 3)
+    @Column(name = "numeric_code", length = 3, unique = true)
     private String numericCode;
 
-    @Column(length = 2)
+    @Column(length = 2, unique = true)
     private String iso2;
 
     private String phonecode;
 
     private String capital;
 
+    @Column(name = "currency")
     private String currency;
 
     @Column(name = "currency_name")
@@ -52,6 +53,7 @@ public class CountryEntity {
     @Column(name = "currency_symbol")
     private String currencySymbol;
 
+    @Column(name = "tld")
     private String tld;
 
     @Column(name = "native_name")
@@ -75,6 +77,9 @@ public class CountryEntity {
 
     private String emojiU;
 
+    @Column(name = "region_id")
+    private Long regionId;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -83,9 +88,14 @@ public class CountryEntity {
 
     private Boolean flag;
 
+    @Column(name = "nationality")
+    private String nationality;
+
     @Column(name = "wikiDataId")
     private String wikiDataId;
 
     @OneToMany(mappedBy = "country")
     private List<StateEntity> states;
+
+    private String timezones;
 }

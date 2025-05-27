@@ -213,11 +213,8 @@ public class CsvDataImportService {
                 String iso2 = getValueOrEmpty(line, headerMap, "iso2");
                 Optional<CountryEntity> existingCountry = countryRepository.findByIso2(iso2);
 
-                if (existingCountry.isPresent()) {
+                if (existingCountry.isEmpty()) {
                     // Atualizar país existente
-                    updateCountry(existingCountry.get(), line, headerMap);
-                } else {
-                    // Criar novo país
                     CountryEntity country = new CountryEntity();
                     populateCountry(country, line, headerMap);
                     countryRepository.save(country);
@@ -255,22 +252,18 @@ public class CsvDataImportService {
 
                 if (country.isPresent()) {
                     String stateCode = getValueOrEmpty(line, headerMap, "state_code");
-                    String countryId = getValueOrEmpty(line, headerMap, "country_id");
 
                     // Verificar se o estado já existe
                     Optional<StateEntity> existingState = stateRepository.findByStateCodeAndCountryId(
-                            stateCode, Long.parseLong(countryId));
+                            stateCode, country.get().getId());
 
-                    if (existingState.isPresent()) {
-                        // Atualizar estado existente
-                        updateState(existingState.get(), line, headerMap, country.get());
-                    } else {
-                        // Criar novo estado
+                    if (existingState.isEmpty()) {
                         StateEntity state = new StateEntity();
                         populateState(state, line, headerMap, country.get());
                         stateRepository.save(state);
                         importCount++;
                     }
+
                 } else {
                     logger.warn("País não encontrado para o código: {}", countryCode);
                 }
@@ -304,22 +297,24 @@ public class CsvDataImportService {
 
             while ((line = csvReader.readNext()) != null) {
                 // Obter o país e o estado associados
-                String countryId = getValueOrEmpty(line, headerMap, "country_id");
-                String stateId = getValueOrEmpty(line, headerMap, "state_id");
+                String countryCode = getValueOrEmpty(line, headerMap, "country_code");
+                String stateCode = getValueOrEmpty(line, headerMap, "state_code");
 
-                Optional<CountryEntity> country = countryRepository.findById(Long.parseLong(countryId));
-                Optional<StateEntity> state = stateRepository.findById(Long.parseLong(stateId));
+                Optional<CountryEntity> country = countryRepository.findByIso2(countryCode);
+                if (country.isEmpty()) {
+                    logger.warn("País nao encontrado para o codigo: {}", countryCode);
+                    continue;
+                }
 
-                if (country.isPresent() && state.isPresent()) {
+                Optional<StateEntity> state = stateRepository.findByStateCodeAndCountry_Id(stateCode, country.get().getId());
+
+                if (state.isPresent()) {
                     // Verificar se a cidade já existe
                     String cityName = getValueOrEmpty(line, headerMap, "name");
                     Optional<CityEntity> existingCity = cityRepository.findByNameAndStateId(
-                            cityName, Long.parseLong(stateId));
+                            cityName, state.get().getId());
 
-                    if (existingCity.isPresent()) {
-                        // Atualizar cidade existente
-                        updateCity(existingCity.get(), line, headerMap, country.get(), state.get());
-                    } else {
+                    if (existingCity.isEmpty()) {
                         // Criar nova cidade
                         CityEntity city = new CityEntity();
                         populateCity(city, line, headerMap, country.get(), state.get());
@@ -334,7 +329,7 @@ public class CsvDataImportService {
                         logger.debug("Processado lote de {} cidades. Total até agora: {}", batchSize, importCount);
                     }
                 } else {
-                    logger.warn("País ou estado não encontrado para os IDs: country={}, state={}", countryId, stateId);
+                    logger.warn("País ou estado não encontrado para os IDs: country={}, state={}", countryCode, stateCode);
                 }
             }
         }
@@ -500,58 +495,33 @@ public class CsvDataImportService {
         country.setWikiDataId(getValueOrEmpty(line, headerMap, "wikiDataId"));
     }
 
-    private void updateCountry(CountryEntity country, String[] line, Map<String, Integer> headerMap) {
-        country.setName(getValueOrEmpty(line, headerMap, "name"));
-        country.setUpdatedAt(LocalDateTime.now());
-        countryRepository.save(country);
-    }
-
     private void populateState(StateEntity state, String[] line, Map<String, Integer> headerMap, CountryEntity country) {
         state.setName(getValueOrEmpty(line, headerMap, "name"));
         state.setCountry(country);
-        state.setCountryCode(getValueOrEmpty(line, headerMap, "country_code"));
+        state.setCountryCode(country.getIso2());
         state.setCountryName(country.getName());
-        state.setFipsCode(getValueOrEmpty(line, headerMap, "fips_code"));
-        state.setIso2(getValueOrEmpty(line, headerMap, "iso2"));
         state.setStateCode(getValueOrEmpty(line, headerMap, "state_code"));
         state.setType(getValueOrEmpty(line, headerMap, "type"));
         state.setLatitude(getValueOrEmpty(line, headerMap, "latitude"));
         state.setLongitude(getValueOrEmpty(line, headerMap, "longitude"));
         state.setCreatedAt(LocalDateTime.now());
         state.setUpdatedAt(LocalDateTime.now());
-        state.setFlag(true);
-        state.setWikiDataId(getValueOrEmpty(line, headerMap, "wikiDataId"));
     }
 
-    private void updateState(StateEntity state, String[] line, Map<String, Integer> headerMap, CountryEntity country) {
-        state.setName(getValueOrEmpty(line, headerMap, "name"));
-        state.setCountryName(country.getName());
-        state.setUpdatedAt(LocalDateTime.now());
-        stateRepository.save(state);
-    }
 
     private void populateCity(CityEntity city, String[] line, Map<String, Integer> headerMap, CountryEntity country, StateEntity state) {
         city.setName(getValueOrEmpty(line, headerMap, "name"));
         city.setState(state);
-        city.setStateCode(getValueOrEmpty(line, headerMap, "state_code"));
+        city.setStateCode(state.getStateCode());
         city.setStateName(state.getName());
         city.setCountry(country);
-        city.setCountryCode(getValueOrEmpty(line, headerMap, "country_code"));
+        city.setCountryCode(country.getIso2());
         city.setCountryName(country.getName());
         city.setLatitude(getValueOrEmpty(line, headerMap, "latitude"));
         city.setLongitude(getValueOrEmpty(line, headerMap, "longitude"));
         city.setCreatedAt(LocalDateTime.now());
         city.setUpdatedAt(LocalDateTime.now());
-        city.setFlag(true);
         city.setWikiDataId(getValueOrEmpty(line, headerMap, "wikiDataId"));
-    }
-
-    private void updateCity(CityEntity city, String[] line, Map<String, Integer> headerMap, CountryEntity country, StateEntity state) {
-        city.setName(getValueOrEmpty(line, headerMap, "name"));
-        city.setStateName(state.getName());
-        city.setCountryName(country.getName());
-        city.setUpdatedAt(LocalDateTime.now());
-        cityRepository.save(city);
     }
 
     private String getValueOrEmpty(String[] line, Map<String, Integer> headerMap, String columnName) {
