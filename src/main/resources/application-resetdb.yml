@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: ${PAYMENT_DB_URI}
+    username: ${PAYMENT_DB_USERNAME}
+    password: ${PAYMENT_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: create
+  flyway:
+    enabled: true
+    clean-on-validation-error: true
+    clean-disabled: false
+    baseline-on-migrate: true
+    repair-on-migrate: true
+    validate-on-migrate: false
+    out-of-order: true
+    baseline-version: 0
+    repair-history: true
+    repair-strategy: clean-all
