@@ -23,7 +23,7 @@ public interface CapeVerdeLocationsRepository extends JpaRepository<CapeVerdeLoc
      * Encontra todas as ilhas distintas de Cabo Verde com seus nomes para exibição
      * @return Lista de objetos com valor e label
      */
-    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.ilha, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.ilha IS NOT NULL AND c.ilha <> '' AND c.zona = '' AND c.lugar = '' AND c.freguesia = '' AND c.concelho = '' GROUP BY c.ilha, c.nome ORDER BY c.ilha")
+    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.ilha, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.ilha IS NOT NULL AND c.ilha <> '' AND c.zona IS NULL AND c.lugar IS NULL AND c.freguesia IS NULL AND c.concelho IS NULL GROUP BY c.ilha, c.nome ORDER BY c.ilha")
     List<LocationOptionDTO> findDistinctIlhaWithNames();
     
     /**
@@ -39,7 +39,7 @@ public interface CapeVerdeLocationsRepository extends JpaRepository<CapeVerdeLoc
      * @param ilha Nome da ilha
      * @return Lista de objetos com valor e label
      */
-    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.concelho, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.ilha = ?1 AND c.concelho IS NOT NULL AND c.zona = '' AND c.lugar = '' AND c.freguesia = '' AND c.concelho <> '' GROUP BY c.concelho, c.nome ORDER BY c.concelho")
+    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.concelho, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.ilha = ?1 AND c.concelho IS NOT NULL AND c.zona IS NULL AND c.lugar IS NULL AND c.freguesia IS NULL AND c.concelho <> '' GROUP BY c.concelho, c.nome ORDER BY c.concelho")
     List<LocationOptionDTO> findDistinctConcelhoByIlhaWithNames(String ilha);
     
     /**
@@ -55,7 +55,7 @@ public interface CapeVerdeLocationsRepository extends JpaRepository<CapeVerdeLoc
      * @param concelho Nome do concelho
      * @return Lista de objetos com valor e label
      */
-    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.freguesia, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.concelho = ?1 AND c.freguesia IS NOT NULL AND c.zona = '' AND c.lugar = '' AND c.freguesia <> ''  GROUP BY c.freguesia, c.nome ORDER BY c.freguesia")
+    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.freguesia, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.concelho = ?1 AND c.freguesia IS NOT NULL AND c.zona IS NULL AND c.lugar IS NULL AND c.freguesia <> ''  GROUP BY c.freguesia, c.nome ORDER BY c.freguesia")
     List<LocationOptionDTO> findDistinctFreguesiaByConcelhoWithNames(String concelho);
     
     /**
@@ -71,7 +71,7 @@ public interface CapeVerdeLocationsRepository extends JpaRepository<CapeVerdeLoc
      * @param freguesia Nome da freguesia
      * @return Lista de objetos com valor e label
      */
-    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.zona, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.freguesia = ?1 AND c.zona IS NOT NULL AND c.zona <> '' AND c.lugar = '' GROUP BY c.zona, c.nome ORDER BY c.zona")
+    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.zona, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.freguesia = ?1 AND c.zona IS NOT NULL AND c.zona <> '' AND c.lugar IS NULL GROUP BY c.zona, c.nome ORDER BY c.zona")
     List<LocationOptionDTO> findDistinctZonaByFreguesiaWithNames(String freguesia);
     
     /**
@@ -107,16 +107,16 @@ public interface CapeVerdeLocationsRepository extends JpaRepository<CapeVerdeLoc
     @Query("SELECT DISTINCT c.lugar FROM CapeVerdeLocationsEntity c WHERE c.zona = ?1 ORDER BY c.lugar")
     List<String> findDistinctSubzoneByZone(String zone);
     
-    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.ilha, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.ilha IS NOT NULL AND c.ilha <> '' AND c.zona = '' AND c.lugar = '' AND c.freguesia = '' AND c.concelho = '' GROUP BY c.ilha, c.nome ORDER BY c.ilha")
+    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.ilha, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.ilha IS NOT NULL AND c.ilha <> '' AND c.zona IS NULL AND c.lugar IS NULL AND c.freguesia IS NULL AND c.concelho IS NULL GROUP BY c.ilha, c.nome ORDER BY c.ilha")
     List<LocationOptionDTO> findDistinctIslandWithNames();
     
-    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.concelho, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.ilha = ?1 AND c.concelho IS NOT NULL AND c.zona = '' AND c.lugar = '' AND c.freguesia = '' AND c.concelho <> '' GROUP BY c.concelho, c.nome ORDER BY c.concelho")
+    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.concelho, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.ilha = ?1 AND c.concelho IS NOT NULL AND c.zona IS NULL AND c.lugar IS NULL AND c.freguesia IS NULL AND c.concelho <> '' GROUP BY c.concelho, c.nome ORDER BY c.concelho")
     List<LocationOptionDTO> findDistinctCountyByIslandWithNames(String island);
     
-    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.freguesia, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.concelho = ?1 AND c.freguesia IS NOT NULL AND c.zona = '' AND c.lugar = '' AND c.freguesia <> ''  GROUP BY c.freguesia, c.nome ORDER BY c.freguesia")
+    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.freguesia, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.concelho = ?1 AND c.freguesia IS NOT NULL AND c.zona IS NULL AND c.lugar IS NULL AND c.freguesia <> ''  GROUP BY c.freguesia, c.nome ORDER BY c.freguesia")
     List<LocationOptionDTO> findDistinctParishByCountyWithNames(String county);
     
-    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.zona, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.freguesia = ?1 AND c.zona IS NOT NULL AND c.zona <> '' AND c.lugar = '' GROUP BY c.zona, c.nome ORDER BY c.zona")
+    @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.zona, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.freguesia = ?1 AND c.zona IS NOT NULL AND c.zona <> '' AND c.lugar IS NULL GROUP BY c.zona, c.nome ORDER BY c.zona")
     List<LocationOptionDTO> findDistinctZoneByParishWithNames(String parish);
     
     @Query("SELECT NEW cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO(c.lugar, c.nome) FROM CapeVerdeLocationsEntity c WHERE c.zona = ?1 AND c.lugar IS NOT NULL AND c.lugar <> '' GROUP BY c.lugar, c.nome ORDER BY c.lugar")
