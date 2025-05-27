@@ -94,3 +94,7 @@ vendus:
   api:
     key: ${VENDUS_API_KEY}
     base-url: ${VENDUS_API_URL}
+
+app:
+  upload:
+     dir: /var/data/vintipay/uploads
