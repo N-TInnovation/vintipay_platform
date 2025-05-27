@@ -167,7 +167,7 @@ public class AutomaticDataImportConfig implements ApplicationListener<Applicatio
     private boolean dataAlreadyExists() {
         try {
             // Verificar apenas tabelas essenciais para decidir se importa ou não
-            String[] essentialTables = {"countries", "states", "cities"};
+            String[] essentialTables = {"countries", "states", "cities", "cv_locations"};
             for (String table : essentialTables) {
                 try {
                     Integer count = jdbcTemplate.queryForObject(
