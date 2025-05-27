@@ -60,11 +60,11 @@ public class CountryEntity {
     private String nativeName;
 
     @ManyToOne
-    @JoinColumn(name = "region_id", insertable = false, updatable = false)
+    @JoinColumn(name = "region_id")
     private RegionEntity region;
 
     @ManyToOne
-    @JoinColumn(name = "subregion_id", insertable = false, updatable = false)
+    @JoinColumn(name = "subregion_id")
     private SubRegionEntity subRegion;
 
     @Column(length = 50)
@@ -77,9 +77,6 @@ public class CountryEntity {
 
     private String emojiU;
 
-    @Column(name = "region_id")
-    private Long regionId;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -87,9 +84,6 @@ public class CountryEntity {
     private LocalDateTime updatedAt;
 
     private Boolean flag;
-
-    @Column(name = "nationality")
-    private String nationality;
 
     @Column(name = "wikiDataId")
     private String wikiDataId;
