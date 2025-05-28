@@ -311,7 +311,7 @@ public class CsvDataImportService {
                 if (state.isPresent()) {
                     // Verificar se a cidade já existe
                     String cityName = getValueOrEmpty(line, headerMap, "name");
-                    Optional<CityEntity> existingCity = cityRepository.findByNameAndStateCodeCountryCode(
+                    Optional<CityEntity> existingCity = cityRepository.findByNameAndStateCodeAndCountryCode(
                             cityName, state.get().getStateCode(), country.get().getIso2());
 
                     if (existingCity.isEmpty()) {

@@ -25,7 +25,7 @@ public interface CityRepository extends JpaRepository<CityEntity, Long> {
         return findByNameAndState_Id(name, stateId);
     }
 
-    Optional<CityEntity> findByNameAndStateCodeCountryCode(String name, String stateCode, String countryCode);
+    Optional<CityEntity> findByNameAndStateCodeAndCountryCode(String name, String stateCode, String countryCode);
     
     @Modifying
     @Query("DELETE FROM CityEntity")
