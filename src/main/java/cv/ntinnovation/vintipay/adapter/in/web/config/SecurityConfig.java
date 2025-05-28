@@ -189,6 +189,7 @@ public class SecurityConfig {
             http.securityMatcher("/simulador/**")
                     .csrf(csrf -> csrf
                             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                            .ignoringRequestMatchers("/simulador/**")
                     )
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers(HttpMethod.POST, "/simulador/**").permitAll()
