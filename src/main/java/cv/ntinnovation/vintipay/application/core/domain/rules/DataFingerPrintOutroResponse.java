@@ -23,7 +23,10 @@ public class DataFingerPrintOutroResponse implements RetornoFingerprint {
 	@Override
 	public void validarFingerPrint(FingerPrintService fingerPrintService) {
 		var fingerPrintResult = fingerPrintService.validatorFingerPrintMessageTypeOutros(this);
-		if (!fingerPrintResult.getResult()) {
+        boolean invalidRef = !this.pagamento.getIntencaoPagamento().getMerchantRef().equals(merchantRespMerchantRef);
+        boolean invalidSession = !this.pagamento.getIntencaoPagamento().getMerchantSession().equals(merchantRespMerchantSession);
+
+        if(!fingerPrintResult.getResult() || invalidRef || invalidSession){
 			throw new FingerprintInvalidoException(this.resultFingerPrint);
 		}
 	}

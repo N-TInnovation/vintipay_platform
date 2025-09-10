@@ -31,6 +31,8 @@ public class WebhookPagamentoMapper {
             dataFingerPrint810MPResponse.setMerchantRespAdditionalErrorMessage(sispWebhookRequest.getMerchantRespAdditionalErrorMessage());
             dataFingerPrint810MPResponse.setMerchantRespReloadCode(sispWebhookRequest.getMerchantRespReloadCode());
             dataFingerPrint810MPResponse.setResultFingerPrint(sispWebhookRequest.getResultFingerPrint());
+            dataFingerPrint810MPResponse.setLanguageMessages(sispWebhookRequest.getLanguageMessages());
+            dataFingerPrint810MPResponse.setResultFingerPrintVersion(sispWebhookRequest.getResultFingerPrintVersion());
 
             return dataFingerPrint810MPResponse;
         }if ( messageType != null && messageType.getRetornoFingerprint() instanceof DataFingerPrint6Response) {
@@ -45,6 +47,16 @@ public class WebhookPagamentoMapper {
             dataFingerPrint6Response.setResultFingerPrint(sispWebhookRequest.getResultFingerPrint());
             dataFingerPrint6Response.setMerchantRespMessageID(sispWebhookRequest.getMerchantRespMessageID());
             dataFingerPrint6Response.setMerchantRespTimeStamp(sispWebhookRequest.getMerchantRespTimeStamp());
+            dataFingerPrint6Response.setDcc(sispWebhookRequest.getDcc());
+            dataFingerPrint6Response.setDccAmount(sispWebhookRequest.getDccAmount());
+            dataFingerPrint6Response.setLanguageMessages(sispWebhookRequest.getLanguageMessages());
+            dataFingerPrint6Response.setDccCurrency(sispWebhookRequest.getDccCurrency());
+            dataFingerPrint6Response.setDccMarkup(sispWebhookRequest.getDccMarkup());
+            dataFingerPrint6Response.setDccRate(sispWebhookRequest.getDccRate());
+            dataFingerPrint6Response.setMerchantRespPurchaseAmount(sispWebhookRequest.getMerchantRespPurchaseAmount().toString());
+            dataFingerPrint6Response.setResultFingerPrintVersion(sispWebhookRequest.getResultFingerPrintVersion());
+            dataFingerPrint6Response.setMerchantRespCP(sispWebhookRequest.getMerchantRespCP());
+            dataFingerPrint6Response.setMerchantRespTid(sispWebhookRequest.getMerchantRespTid());
 
             return dataFingerPrint6Response;
         }else {

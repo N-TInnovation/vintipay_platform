@@ -43,9 +43,6 @@ public class WebhookPagamentoController {
 
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
 
-    @Value("${app.return-url-padrao}")
-    private String returnUrlPadrao;
-
     @PostMapping(value = "/sisp/pagamentos/retorno/{reference}",
             consumes={"application/x-www-form-urlencoded;charset=UTF-8"}, produces={ MediaType.ALL_VALUE })
     public String handlePaymentWebhook(@PathVariable("reference") String reference,
@@ -133,7 +130,6 @@ public class WebhookPagamentoController {
             log.debug("HMAC Fingerprint gerado: {}", hmacFingerprint);
 
             if(configuracaoPagamento.getReturnUrl() == null || configuracaoPagamento.getReturnUrl().isEmpty()) {
-                //configuracaoPagamento.setReturnUrl(String.format("%s/%s", returnUrlPadrao, pagamento.getReference()));
                 if(pagamento.getStatus().equals(StatusPagamentoEnum.PAGO)) {
                     // Construir URL para visualização do recibo
                     String urlVisualizarRecibo = request2.getScheme() + "://" + 

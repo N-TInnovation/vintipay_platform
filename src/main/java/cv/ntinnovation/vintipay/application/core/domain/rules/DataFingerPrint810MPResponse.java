@@ -5,12 +5,10 @@ import cv.ntinnovation.vintipay.application.core.domain.exception.FingerprintInv
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.ToString;
 
 @Builder
 @AllArgsConstructor
 @Data
-@ToString
 public class DataFingerPrint810MPResponse implements RetornoFingerprint {
 
 	private String posAutCode;
@@ -36,13 +34,11 @@ public class DataFingerPrint810MPResponse implements RetornoFingerprint {
 
 	@Override
 	public void validarFingerPrint(FingerPrintService fingerPrintService) {
-		var fingerPrintResult = fingerPrintService.validateFinferPrintAuthorizationCode(this);
-		if(!fingerPrintResult.getResult()){
-			throw new FingerprintInvalidoException(this.resultFingerPrint);
-		}
+		var fingerPrintResult = fingerPrintService.validatorFingerPrintMessageType810MP(this);
+        boolean invalidRef = !this.pagamento.getIntencaoPagamento().getMerchantRef().equals(merchantRespMerchantRef);
+        boolean invalidSession = !this.pagamento.getIntencaoPagamento().getMerchantSession().equals(merchantRespMerchantSession);
 
-		fingerPrintResult = fingerPrintService.validatorFingerPrintMessageType810MP(this);
-		if(!fingerPrintResult.getResult()){
+        if(!fingerPrintResult.getResult() || invalidRef || invalidSession){
 			throw new FingerprintInvalidoException(this.resultFingerPrint);
 		}
 

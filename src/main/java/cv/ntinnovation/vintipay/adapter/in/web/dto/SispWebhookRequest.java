@@ -38,4 +38,9 @@ public class SispWebhookRequest {
     private String resultFingerPrint; // Hash alfanumérico (44A)
     private String resultFingerPrintVersion; // Versão do hash (1A)
     private Boolean userCancelled;
+    private String dcc;
+    private String dccAmount;
+    private String dccCurrency;
+    private String dccMarkup;
+    private String dccRate;
 }
