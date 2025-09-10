@@ -36,7 +36,7 @@ sisp:
 
 brevo:
   api:
-    key: ${BREVO_API_KEY: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}
+    key: ${BREVO_API_KEY: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}
     url: ${BREVO_API_URL:https://api.brevo.com/v3}
   email:
     from: ${BREVO_EMAIL_FROM:no-reply@vintipay.cv}

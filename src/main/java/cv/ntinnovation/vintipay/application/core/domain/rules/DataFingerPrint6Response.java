@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.application.core.domain.rules;
 
+import cv.ntinnovation.vintipay.adapter.in.web.dto.SispWebhookRequest;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.vintipay.application.core.domain.exception.FingerprintInvalidoException;
 import lombok.AllArgsConstructor;
@@ -35,4 +36,64 @@ public class DataFingerPrint6Response implements RetornoFingerprint {
 			throw new FingerprintInvalidoException(this.resultFingerPrint);
 		}
 	}
+
+    @Override
+    public void setMerchantRespCP(String merchantRespCP) {
+
+    }
+
+    @Override
+    public void setMerchantRespTid(String merchantRespTid) {
+
+    }
+
+    @Override
+    public void setMerchantRespPurchaseAmount(String merchantRespPurchaseAmount) {
+
+    }
+
+    @Override
+    public void setMerchantRespPan(String merchantRespPan) {
+
+    }
+
+    @Override
+    public void setMerchantResp(String merchantResp) {
+
+    }
+
+    @Override
+    public void setMerchantRespEntityCode(String merchantRespEntityCode) {
+
+    }
+
+    @Override
+    public void setMerchantRespReferenceNumber(String merchantRespReferenceNumber) {
+
+    }
+
+    @Override
+    public void setMerchantRespClientReceipt(String merchantRespClientReceipt) {
+
+    }
+
+    @Override
+    public void setMerchantRespReloadCode(String merchantRespReloadCode) {
+
+    }
+
+    @Override
+    public void toBuilder(SispWebhookRequest sispWebhookRequest) {
+        var messageType = sispWebhookRequest.getMessageType();
+        this.setMessageType(messageType.getCode());
+        this.setMerchantRespErrorCode(sispWebhookRequest.getMerchantRespErrorCode());
+        this.setMerchantRespErrorDetail(sispWebhookRequest.getMerchantRespErrorDetail());
+        this.setMerchantRespErrorDescription(sispWebhookRequest.getMerchantRespErrorDescription());
+        this.setMerchantRespMerchantRef(sispWebhookRequest.getMerchantRespMerchantRef());
+        this.setMerchantRespMerchantSession(sispWebhookRequest.getMerchantRespMerchantSession());
+        this.setMerchantRespAdditionalErrorMessage(sispWebhookRequest.getMerchantRespAdditionalErrorMessage());
+        this.setResultFingerPrint(sispWebhookRequest.getResultFingerPrint());
+        this.setMerchantRespMessageID(sispWebhookRequest.getMerchantRespMessageID());
+        this.setMerchantRespTimeStamp(sispWebhookRequest.getMerchantRespTimeStamp());
+    }
 }

@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.adapter.out.client.api.brevo;
 
+import cv.ntinnovation.vintipay.adapter.out.client.api.brevo.config.ConfigBrevo;
 import cv.ntinnovation.vintipay.adapter.out.client.api.brevo.dto.BrevoEmailRequest;
 import cv.ntinnovation.vintipay.adapter.out.client.api.brevo.dto.BrevoEmailResponse;
 import cv.ntinnovation.vintipay.adapter.out.client.api.brevo.dto.BrevoTransactionalEmailRequest;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-@FeignClient(name = "BrevoApi", url = "${brevo.api.url}")
+@FeignClient(name = "BrevoApi", url = "${brevo.api.url}", configuration = ConfigBrevo.class)
 public interface Brevo {
     
     /**
