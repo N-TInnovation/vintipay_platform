@@ -26,9 +26,9 @@ public class Pagamento {
     private LocalDateTime createdAt;
     private String resultFingerPrint;
     private String authorizationCode;
-
+    private String clearingPeriod;
+    private String transactionId;
     private AmbienteEnum ambiente;
-
 
     public void gerarTimestamp() {
         this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));

@@ -321,6 +321,12 @@
                 class="btn btn-primary">
                 <i class="fas fa-receipt me-2"></i> Ver Recibo
             </a>
+            
+            <a th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PAGO}"
+                th:href="@{/user/pagamentos/{reference}/estornar(reference=${pagamento.reference})}" 
+                class="btn btn-warning ms-2">
+                <i class="fas fa-undo me-2"></i> Estornar Pagamento
+            </a>
         </div>
 
         <div class="row">

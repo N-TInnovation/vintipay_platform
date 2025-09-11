@@ -10,19 +10,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SispCheckoutRequest {
-    private String timeStamp;
+    private String timestamp;
     private String fingerprint;
     private String fingerprintversion;
     private String amount;
     private String transactionCode;
     private String posID;
+    private String posAutCode;
     private String merchantRef;
     private String merchantSession;
     private String currency;
     private String is3DSec;
     private String urlMerchantResponse;
     private String languageMessages;
-    
+
     // Campos opcionais
     private String entityCode;
     private String referenceNumber;
@@ -32,7 +33,12 @@ public class SispCheckoutRequest {
     private String billAddrCountry;
     private String billAddrLine1;
     private String billAddrPostCode;
-    
+
+    private String transactionID;
+    private String clearingPeriod;
+
+    private String reversal;
+
     private String submitFormUrl;
 
     private String cardNumber;

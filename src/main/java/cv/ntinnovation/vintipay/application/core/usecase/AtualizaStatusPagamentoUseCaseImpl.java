@@ -32,14 +32,14 @@ public class AtualizaStatusPagamentoUseCaseImpl implements AtualizaStatusPagamen
                     var tempoInicial = pagamento.getIntencaoPagamento().getDataCriacao();
                     if (Duration.between(tempoInicial, LocalDateTime.now()).toMinutes() >= 10) {
                         atualizar(pagamento.getReference(),
-                                StatusPagamentoEnum.CANCELADO, "Transação cancelada pelo Sistema", null, null);
+                                StatusPagamentoEnum.CANCELADO, "Transação cancelada pelo Sistema", null, null, null, null);
                     }
                 });
     }
 
     @Override
     @Transactional
-    public Pagamento atualizar(String reference, StatusPagamentoEnum status, String message, String fingerprint, String pan) {
+    public Pagamento atualizar(String reference, StatusPagamentoEnum status, String message, String fingerprint, String pan, String clearingPeriod, String transactionId) {
         var pagamento = buscaPagamentoPort.buscarPorReferencia(reference)
                 .orElseThrow(() -> new PagamentoNaoEncontradoException("Pagamento não encontrado: " + reference));
 
@@ -47,8 +47,13 @@ public class AtualizaStatusPagamentoUseCaseImpl implements AtualizaStatusPagamen
         pagamento.setStatus(status);
         pagamento.setMensagem(message);
         pagamento.setReference(reference);
-        pagamento.setPanMascarado(pan);
+        if(pan != null)
+            pagamento.setPanMascarado(pan);
         pagamento.setResultFingerPrint(fingerprint);
+        if(clearingPeriod != null)
+            pagamento.setClearingPeriod(clearingPeriod);
+        if(transactionId != null)
+            pagamento.setTransactionId(transactionId);
 
         salvaIntencaoPagamento.salvar(pagamento.getIntencaoPagamento());
 

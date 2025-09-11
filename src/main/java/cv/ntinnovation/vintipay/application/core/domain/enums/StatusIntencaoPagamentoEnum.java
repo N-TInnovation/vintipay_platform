@@ -59,6 +59,8 @@ public enum StatusIntencaoPagamentoEnum {
                 return CANCELADO;
             case PROCESSANDO:
                 return PROCESSANDO;
+            case ESTORNADO:
+                return REEMBOLSADO;
             case ERRO:
                 return FALHA;
             default:

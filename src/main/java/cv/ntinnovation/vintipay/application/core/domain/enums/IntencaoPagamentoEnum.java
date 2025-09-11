@@ -9,7 +9,8 @@ public enum IntencaoPagamentoEnum {
 
     COMPRAS("1","compras","Compras"),
     RECARGA("3","recarga","Recarga"),
-    PAGAMENTO_SERVICO("2","servico","Pagamento de Serviço");
+    PAGAMENTO_SERVICO("2","servico","Pagamento de Serviço"),
+    ESTORNO("4","estorno","Estorno");
 
     private final String transactionCode;
     private final String intencaoPagamento;
@@ -17,7 +18,6 @@ public enum IntencaoPagamentoEnum {
 
     public static IntencaoPagamentoEnum findByIntencaoPagamento(String intencaoPagamento) {
         for (IntencaoPagamentoEnum intencaoPagamentoEnum : IntencaoPagamentoEnum.values()) {
-            System.out.println(intencaoPagamentoEnum.getIntencaoPagamento());
             if (intencaoPagamentoEnum.getIntencaoPagamento().equals(intencaoPagamento)) {
                 return intencaoPagamentoEnum;
             }

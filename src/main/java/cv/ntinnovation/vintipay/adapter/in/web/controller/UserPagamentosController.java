@@ -1,10 +1,15 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
+import cv.ntinnovation.vintipay.adapter.in.web.dto.SispCheckoutRequest;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.MoedaEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.in.BuscaPagamentoUseCase;
+import cv.ntinnovation.vintipay.application.port.in.EstornarPagamentoUseCase;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -12,10 +17,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriUtils;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Controller
 @RequestMapping("/user/pagamentos")
@@ -23,7 +29,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class UserPagamentosController {
 
     private final BuscaPagamentoUseCase buscaPagamentoUseCase;
+    private final EstornarPagamentoUseCase estornarPagamentoUseCase;
     private static final int PAGE_SIZE = 10;
+
+    @Value("${sisp.url.normal}")
+    private String submitFormUrl;
+
+    @Value("${sisp.estorno.return.url}")
+    private String returnUrl;
 
     @GetMapping({"", "/"})
     public String listarPagamentos(
@@ -118,5 +131,47 @@ public class UserPagamentosController {
             // Em caso de erro, redirecionar para a listagem com mensagem de erro
             return "redirect:/user/pagamentos?erro=" + e.getMessage();
         }
+    }
+
+    @GetMapping("/{reference}/estornar")
+    public String estornarPagamento(@PathVariable String reference, Model model, @CookieValue(value = "sessao", required = false) String sessionId) {
+
+        var pagamento = estornarPagamentoUseCase.estornar(reference);
+
+        var referenceNumber = pagamento.getIntencaoPagamento().getReferenceNumber() == null ? null : pagamento.getIntencaoPagamento().getReferenceNumber().toString();
+        var entityCode = pagamento.getIntencaoPagamento().getEntityCode() == null ? null : pagamento.getIntencaoPagamento().getEntityCode();
+
+
+        var requestResponse = SispCheckoutRequest.builder()
+                .timestamp(pagamento.getTimestamp())
+                .purchaseRequest(null)
+                .fingerprint(pagamento.getFingerprint())
+                .fingerprintversion(null) // Versão fixa por enquanto
+                .amount(pagamento.getIntencaoPagamento().getValor().toString())
+                .transactionCode(IntencaoPagamentoEnum.ESTORNO.getTransactionCode())
+                .posID(pagamento.getIntencaoPagamento().getPosId())
+                .merchantRef(pagamento.getIntencaoPagamento().getMerchantRef())
+                .merchantSession(pagamento.getIntencaoPagamento().getMerchantSession())
+                .currency(MoedaEnum.getByName(pagamento.getIntencaoPagamento().getMoeda()).getCodigoISO())
+                .is3DSec(null) // Habilitado por padrão
+                .urlMerchantResponse(String.format("%s/%s?fingerPrintCode=%s", returnUrl, pagamento.getIntencaoPagamento().getReferencia(), URLEncoder.encode(pagamento.getAuthorizationCode())))
+                .languageMessages("pt") // Português por padrão
+                .entityCode(entityCode)
+                .referenceNumber(referenceNumber)
+                .clearingPeriod(pagamento.getClearingPeriod())
+                .transactionID(pagamento.getTransactionId())
+                .reversal("R")
+                .submitFormUrl(String.format("%s?FingerPrint=%s&TimeStamp=%s&FingerPrintVersion=%s",
+                        submitFormUrl,
+                        UriUtils.encode(pagamento.getFingerprint(), StandardCharsets.UTF_8),
+                        UriUtils.encode(pagamento.getTimestamp(), StandardCharsets.UTF_8),
+                        UriUtils.encode("1", StandardCharsets.UTF_8)))
+                .build();
+
+        model.addAttribute("pagamento", pagamento);
+        model.addAttribute("request", requestResponse);
+        model.addAttribute("sessao", sessionId);
+
+        return "estorno";
     }
 }

@@ -45,7 +45,7 @@ public class SimuladorRetornoController {
         if(!sispCheckoutRequest.getFingerprint().equals(fingerPrint)) {
             throw new FingerprintInvalidoException("FingerPrint does not match");
         }
-        if(!sispCheckoutRequest.getTimeStamp().equals(timeStamp)) {
+        if(!sispCheckoutRequest.getTimestamp().equals(timeStamp)) {
             throw new FingerprintInvalidoException("TimeStamp does not match");
         }
         if (!sispCheckoutRequest.getFingerprintversion().equals(fingerPrintVersion)) {
@@ -96,7 +96,7 @@ public class SimuladorRetornoController {
         request.setMerchantRespMessageID("J38HvwHPPn22P1se0OxJ");
         request.setMerchantResp("C");
         request.setLanguageMessages(sispCheckoutRequest.getLanguageMessages());
-        request.setMerchantRespTimeStamp(sispCheckoutRequest.getTimeStamp());
+        request.setMerchantRespTimeStamp(sispCheckoutRequest.getTimestamp());
         request.setResultFingerPrintVersion(sispCheckoutRequest.getFingerprintversion());
         request.setMerchantRespAdditionalErrorMessage("");
         request.setMerchantRespReloadCode("");
@@ -143,7 +143,7 @@ public class SimuladorRetornoController {
         // Gerar fingerprint usando o FingerPrintService
         DataFingerPrint dataFingerPrint = DataFingerPrint.builder()
                 .posAutCode(configuracaoPagamento.getPosAutCode())
-                .timestamp(sispCheckoutRequest.getTimeStamp())
+                .timestamp(sispCheckoutRequest.getTimestamp())
                 .amount(new BigDecimal(sispCheckoutRequest.getAmount()))
                 .merchantRef(sispCheckoutRequest.getMerchantRef())
                 .merchantSession(sispCheckoutRequest.getMerchantSession())

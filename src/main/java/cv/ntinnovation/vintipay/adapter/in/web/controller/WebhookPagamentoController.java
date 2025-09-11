@@ -23,6 +23,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.Optional;
 
@@ -90,7 +92,9 @@ public class WebhookPagamentoController {
                     mensagemRetornoEnum.getStatus(),
                     mensagem,
                     request.getResultFingerPrint(),
-                    request.getMerchantRespPan()
+                    request.getMerchantRespPan(),
+                    null,
+                    null
             );
             log.debug("Pagamento atualizado: {}", pagamento);
 
@@ -177,5 +181,50 @@ public class WebhookPagamentoController {
 
     private String getMensagemRetorno(MensagemRetornoEnum mensagemRetornoEnum, SispWebhookRequest request) {
         return mensagemRetornoEnum.getDescricao();
+    }
+
+    @PostMapping(value = "/sisp/estorno/retorno/{reference}",
+            consumes={"application/x-www-form-urlencoded;charset=UTF-8"}, produces={ MediaType.ALL_VALUE })
+    public RedirectView estornarPagamentoRetorno(@PathVariable("reference") String reference,
+                                                 @RequestParam("fingerPrintCode") String authorization,
+                                                 @ModelAttribute SispWebhookRequest request,
+                                                 RedirectAttributes attributes ) {
+
+        log.info("Recebido estorno do SISP - Reference: {}, Request: {} ", reference, request );
+        var pagamento = buscaPagamentoUseCase.buscarPorReferencia(reference)
+                .orElseThrow(() -> new RuntimeException("Pagamento não encontrado: " + reference));
+
+        var retornoFingerprint = webhookPagamentoMapper.toRetornoFingerprint(request);
+
+        retornoFingerprint.setPagamento(pagamento);
+
+        retornoFingerprint.setAuthorizationCode(authorization);
+
+        ConfiguracaoPagamento configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId(pagamento.getIntencaoPagamento().getPosId());
+        retornoFingerprint.setPosAutCode(configuracaoPagamento.getPosAutCode());
+
+        validaRetornoUseCase.executar(retornoFingerprint);
+
+        log.debug("Processando mensagem de retorno");
+        MensagemRetornoEnum mensagemRetornoEnum = MensagemRetornoEnum.getMensagemRetornoEnum(
+                request.getMessageType(),
+                request.getMerchantResp(),
+                request.getUserCancelled());
+
+        String mensagem = mensagemRetornoEnum.getDescricao();
+        log.debug("Mensagem de retorno: {}", mensagem);
+
+        pagamento = atualizaStatusPagamentoUseCase.atualizar(
+                reference,
+                mensagemRetornoEnum.getStatus(),
+                mensagem,
+                request.getResultFingerPrint(),
+                null,
+                request.getMerchantRespCP(),
+                request.getMerchantRespTid()
+        );
+
+        return new RedirectView("/user/pagamentos/"+reference);
+
     }
 }

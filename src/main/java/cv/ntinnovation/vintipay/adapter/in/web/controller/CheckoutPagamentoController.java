@@ -104,7 +104,7 @@ public class CheckoutPagamentoController {
         var submitFormUrl = configuracaoPagamento.getAmbiente().getSubmitUrl(environmentProperties);
 
         var requestResponse = SispCheckoutRequest.builder()
-            .timeStamp(pagamento.getTimestamp())
+            .timestamp(pagamento.getTimestamp())
             .purchaseRequest(purchaseRequest)
             .fingerprint(pagamento.getFingerprint())
             .fingerprintversion("1") // Versão fixa por enquanto

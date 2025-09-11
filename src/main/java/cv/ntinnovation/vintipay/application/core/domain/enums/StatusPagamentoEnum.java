@@ -11,6 +11,7 @@ public enum StatusPagamentoEnum {
     PROCESSANDO("PROCESSANDO", "retorno/pendente"),
     PAGO("PAGO", "retorno/sucesso"),
     ERRO("ERRO", "retorno/erro"),
+    ESTORNADO("ESTORNADO", "retorno/estorno"),
     CANCELADO("CANCELADO", "retorno/cancelado");
 
     private final String status;

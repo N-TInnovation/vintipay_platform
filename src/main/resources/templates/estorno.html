@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Gateway de Pagamento</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .payment-card {
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .payment-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .payment-form {
+            display: none;
+        }
+        .loading-container {
+            text-align: center;
+            padding: 2rem;
+        }
+        .spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid #3498db;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            color: #666;
+            font-size: 1.2rem;
+            margin-top: 1rem;
+        }
+        .payment-amount {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            color: #2c3e50;
+        }
+        .payment-info {
+            margin-top: 2rem;
+        }
+        .payment-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .payment-info-label {
+            color: #7f8c8d;
+        }
+        .payment-info-value {
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="bg-light" onload="document.getElementById('paymentForm').submit();">
+    <div class="container">
+        <div class="payment-card bg-white">
+            <div class="loading-container">
+                <div class="spinner"></div>
+                <div class="loading-text">
+                    Processando Estorno...
+                    <br>
+                    <small>Por favor, aguarde...</small>
+                </div>
+            </div>
+            <div class="payment-form">
+                <div class="payment-header">
+                    <h2>Confirmação de Pagamento</h2>
+                </div>
+
+                <div class="payment-amount">
+                    <span th:text="${#numbers.formatDecimal(pagamento.intencaoPagamento.amount, 1, 2)}">0.00</span>
+                    <span th:text="${pagamento.intencaoPagamento.currency}">CVE</span>
+                </div>
+
+                <div class="payment-info">
+                    <div class="payment-info-item">
+                        <span class="payment-info-label">Referência</span>
+                        <span class="payment-info-value" th:text="${pagamento.intencaoPagamento.merchantRef}"></span>
+                    </div>
+                    <div class="payment-info-item">
+                        <span class="payment-info-label">Sessão</span>
+                        <span class="payment-info-value" th:text="${pagamento.intencaoPagamento.merchantSession}"></span>
+                    </div>
+                    <div class="payment-info-item">
+                        <span class="payment-info-label">Terminal</span>
+                        <span class="payment-info-value" th:text="${pagamento.intencaoPagamento.posId}"></span>
+                    </div>
+                    <div class="payment-info-item">
+                        <span class="payment-info-label">Código da Transação</span>
+                        <span class="payment-info-value" th:text="${pagamento.intencaoPagamento.transactionCode}"></span>
+                    </div>
+                    <div class="payment-info-item">
+                        <span class="payment-info-label">Código da Entidade</span>
+                        <span class="payment-info-value" th:text="${pagamento.intencaoPagamento.entityCode}"></span>
+                    </div>
+                    <div class="payment-info-item">
+                        <span class="payment-info-label">Número de Referência</span>
+                        <span class="payment-info-value" th:text="${pagamento.intencaoPagamento.referenceNumber}"></span>
+                    </div>
+                    <div class="payment-info-item">
+                        <span class="payment-info-label">Timestamp</span>
+                        <span class="payment-info-value" th:text="${pagamento.timestamp}"></span>
+                    </div>
+                    <div class="payment-info-item">
+                        <span class="payment-info-label">Status</span>
+                        <span class="payment-info-value" th:text="${pagamento.status}"></span>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <form id="paymentForm" th:action="@{${request.submitFormUrl}}" th:object="${request}" method="post">
+                        <input type="hidden"
+                               th:value="*{posID}"
+                               name="posID">
+
+                        <input type="hidden"
+                               th:value="*{transactionCode}"
+                               name="transactionCode">
+
+                        <input type="hidden"
+                               th:value="*{amount}"
+                               name="amount">
+
+                        <input type="hidden"
+                               th:value="*{merchantRef}"
+                               name="merchantRef">
+
+                        <input type="hidden"
+                               th:value="*{merchantSession}"
+                               name="merchantSession">
+
+                        <input th:if="*{reversal}" type="hidden"
+                               th:value="*{reversal}"
+                               name="reversal">
+
+                        <input th:if="*{clearingPeriod}" type="hidden"
+                               th:value="*{clearingPeriod}"
+                               name="clearingPeriod">
+
+                        <input th:if="*{transactionID}" type="hidden"
+                               th:value="*{transactionID}"
+                               name="transactionID">
+
+                        <input type="hidden"
+                               th:value="*{currency}"
+                               name="currency">
+
+                        <input type="hidden"
+                               th:value="*{languageMessages}"
+                               name="languageMessages">
+
+                        <input type="hidden"
+                               th:value="*{timestamp}"
+                               name="timestamp">
+
+                        <input type="hidden"
+                               th:if="*{fingerprint}"
+                               th:value="*{fingerprint}"
+                               name="FingerPrint">
+
+                        <input type="hidden"
+                               th:value="*{urlMerchantResponse}"
+                               name="urlMerchantResponse">
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Confirmar Pagamento</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

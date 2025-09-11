@@ -86,7 +86,7 @@
                 <div class="mt-4">
                     <form id="paymentForm" th:action="@{${request.submitFormUrl}}" th:object="${request}" method="post">
                         <input type="hidden"
-                               th:value="*{timeStamp}"
+                               th:value="*{timestamp}"
                                name="timeStamp">
                         <input type="hidden"
                                th:value="*{fingerprint}"
