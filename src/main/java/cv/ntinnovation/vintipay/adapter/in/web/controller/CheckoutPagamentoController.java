@@ -36,7 +36,6 @@ public class CheckoutPagamentoController {
     private final BuscaPagamentoUseCase buscaPagamentoUseCase;
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
     private final BuscaIntencaoPagamentoUseCase buscaIntencaoPagamentoUseCase;
-    private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase;
 
     private static final String SESSION_COOKIE_NAME = "PAYMENT_SESSION_ID";
     private static final int SESSION_COOKIE_MAX_AGE = 1800; // 30 minutos em segundos
@@ -68,19 +67,6 @@ public class CheckoutPagamentoController {
 
         var intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(reference);
 
-        var configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId(intencaoPagamento.getPosId());
-
-        if(configuracaoPagamento.getAtivo() == null || !configuracaoPagamento.getAtivo()) {
-            throw new PagamentoNaoEncontradoException("Configuração de pagamento inativa");
-        }
-
-        Base64.Encoder encoder = Base64.getEncoder();
-        var merchantRef = encoder.encodeToString((intencaoPagamento.getMerchantRef()+"-"+intencaoPagamento.getId()).getBytes());
-        var merchantSession = encoder.encodeToString((intencaoPagamento.getMerchantSession()).getBytes());
-
-        intencaoPagamento.setMerchantRef(merchantRef.replace("=", ""));
-        intencaoPagamento.setMerchantSession(merchantSession.replace("=", ""));
-        
         var pagamentoOptional = buscaPagamentoUseCase.buscarPorReferencia(reference);
 
         var pagamento = pagamentoOptional.orElseGet(() -> criaPagamentoUseCase.criar(intencaoPagamento));
@@ -101,7 +87,7 @@ public class CheckoutPagamentoController {
         var referenceNumber = pagamento.getIntencaoPagamento().getReferenceNumber() == null ? null : pagamento.getIntencaoPagamento().getReferenceNumber().toString();
         var entityCode = pagamento.getIntencaoPagamento().getEntityCode() == null ? null : pagamento.getIntencaoPagamento().getEntityCode();
 
-        var submitFormUrl = configuracaoPagamento.getAmbiente().getSubmitUrl(environmentProperties);
+        var submitFormUrl = intencaoPagamento.getAmbiente().getSubmitUrl(environmentProperties);
 
         var requestResponse = SispCheckoutRequest.builder()
             .timestamp(pagamento.getTimestamp())

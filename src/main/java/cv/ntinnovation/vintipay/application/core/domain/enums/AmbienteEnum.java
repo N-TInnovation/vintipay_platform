@@ -32,4 +32,13 @@ public enum AmbienteEnum {
         return environmentProperties.getSubmitPaymentDevFormUrl();
     }
 
+    public String getSubmitNormalUrl(EnvironmentProperties environmentProperties) {
+        if(this == PRODUCAO) {
+            return environmentProperties.getSubmitPaymentNormalProdFormUrl();
+        } else if(this == HOMOLOGACAO) {
+            return environmentProperties.getSubmitPaymentNormalQldFormUrl();
+        }
+        return environmentProperties.getSubmitPaymentNormalDevFormUrl();
+    }
+
 }

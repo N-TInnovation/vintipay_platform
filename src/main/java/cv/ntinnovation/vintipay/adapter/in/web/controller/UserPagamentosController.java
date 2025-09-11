@@ -1,11 +1,15 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
+import cv.ntinnovation.vintipay.adapter.in.web.config.EnvironmentProperties;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.SispCheckoutRequest;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.MoedaEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.exception.PagamentoNaoEncontradoException;
+import cv.ntinnovation.vintipay.application.port.in.BuscaConfiguracaoPagamentoUseCase;
+import cv.ntinnovation.vintipay.application.port.in.BuscaIntencaoPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.BuscaPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.EstornarPagamentoUseCase;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +36,8 @@ public class UserPagamentosController {
     private final EstornarPagamentoUseCase estornarPagamentoUseCase;
     private static final int PAGE_SIZE = 10;
 
-    @Value("${sisp.url.normal}")
-    private String submitFormUrl;
+    private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase;
+    private final EnvironmentProperties environmentProperties;
 
     @Value("${sisp.estorno.return.url}")
     private String returnUrl;
@@ -140,7 +144,14 @@ public class UserPagamentosController {
 
         var referenceNumber = pagamento.getIntencaoPagamento().getReferenceNumber() == null ? null : pagamento.getIntencaoPagamento().getReferenceNumber().toString();
         var entityCode = pagamento.getIntencaoPagamento().getEntityCode() == null ? null : pagamento.getIntencaoPagamento().getEntityCode();
+        var postId = pagamento.getIntencaoPagamento().getPosId();
+        var configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId(postId);
 
+        if(configuracaoPagamento.getAtivo() == null || !configuracaoPagamento.getAtivo()) {
+            throw new PagamentoNaoEncontradoException("Configuração de pagamento inativa");
+        }
+
+        var submitFormUrl = configuracaoPagamento.getAmbiente().getSubmitNormalUrl(environmentProperties);
 
         var requestResponse = SispCheckoutRequest.builder()
                 .timestamp(pagamento.getTimestamp())

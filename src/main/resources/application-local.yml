@@ -33,6 +33,9 @@ sisp:
   checkout:
     return:
       url: ${APP_BASE_URL:https://localhost:8443}/webhook/sisp/pagamentos/retorno
+  estorno:
+    return:
+      url: https://localhost:8443/webhook/sisp/estorno/retorno
 
 brevo:
   api:

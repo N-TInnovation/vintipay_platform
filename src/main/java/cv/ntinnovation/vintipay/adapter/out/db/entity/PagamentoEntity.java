@@ -30,6 +30,12 @@ public class PagamentoEntity {
     @Column(name = "result_fingerprint")
     private String resultFingerprint;
 
+    @Column(name = "transaction_id")
+    private String transactionId;
+
+    @Column(name = "clearing_period")
+    private String clearingPeriod;
+
     @Column(name = "timestamp", nullable = false)
     private String timestamp;
 

@@ -84,8 +84,8 @@
                 </div>
 
                 <div class="payment-amount">
-                    <span th:text="${#numbers.formatDecimal(pagamento.intencaoPagamento.amount, 1, 2)}">0.00</span>
-                    <span th:text="${pagamento.intencaoPagamento.currency}">CVE</span>
+                    <span th:text="${#numbers.formatDecimal(pagamento.intencaoPagamento.valor, 1, 2)}">0.00</span>
+                    <span th:text="${pagamento.intencaoPagamento.moeda}">CVE</span>
                 </div>
 
                 <div class="payment-info">

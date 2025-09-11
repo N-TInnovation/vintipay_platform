@@ -16,6 +16,15 @@ public class EnvironmentProperties {
     @Value("${sisp.url.qld.3d}")
     private String submitPaymentQldFormUrl;
 
+    @Value("${sisp.url.prod.normal}")
+    private String submitPaymentNormalProdFormUrl;
+
+    @Value("${sisp.url.dev.normal}")
+    private String submitPaymentNormalDevFormUrl;
+
+    @Value("${sisp.url.qld.normal}")
+    private String submitPaymentNormalQldFormUrl;
+
     @Value("${sisp.checkout.return.url}")
     private String returnUrl;
 }

@@ -17,6 +17,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,7 +47,29 @@ public class PagamentoPublicoController {
      * Exibe a página de checkout para um link de pagamento
      */
     @GetMapping("/p/{codigo}")
-    public String paginaCheckout(@PathVariable String codigo, Model model) {
+    public String paginaCheckout(@PathVariable String codigo, @CookieValue(value = SESSION_COOKIE_NAME, required = false) String sessionId,
+                                 @CookieValue(value = CLIENT_ID, required = false) String clientId, Model model, HttpServletRequest request, HttpServletResponse response) {
+        if (clientId == null) {
+            clientId = UUID.randomUUID().toString();
+        }
+
+        // Adicionar cookie de sessão na resposta
+
+        Cookie clientIdCookie = new Cookie(CLIENT_ID, clientId);
+        clientIdCookie.setMaxAge(CLIENT_ID_MAX_AGE);
+        clientIdCookie.setPath("/");
+        clientIdCookie.setHttpOnly(true);
+        clientIdCookie.setSecure(true); // Somente HTTPS
+        response.addCookie(clientIdCookie);
+
+        if (sessionId != null) {
+            Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(sessionId);
+
+            if (sessaoOpt.isPresent()) {
+                validaSessaoPagamentoUseCase.invalidarSessao(sessionId);
+            }
+        }
+
         Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigo);
         
         if (linkOpt.isEmpty() || !linkOpt.get().isDisponivel()) {
@@ -70,6 +94,21 @@ public class PagamentoPublicoController {
         
         model.addAttribute("compradorInfoRequest", compradorInfo);
 
+        // Criar uma sessão de pagamento para esta intenção
+        SessaoPagamento sessao = criaSessaoPagamentoUseCase.criar(
+                UUID.randomUUID().toString(),
+                clientId,
+                request
+        );
+
+        // Adicionar cookie de sessão na resposta
+        Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessao.getSessionId());
+        sessionCookie.setMaxAge(SESSION_COOKIE_MAX_AGE);
+        sessionCookie.setPath("/");
+        sessionCookie.setHttpOnly(true);
+        sessionCookie.setSecure(true); // Somente HTTPS
+        response.addCookie(sessionCookie);
+
         
         return "links/checkout";
     }
@@ -81,23 +120,21 @@ public class PagamentoPublicoController {
     public String processarPagamento(
             @PathVariable String codigo,
             @Valid @ModelAttribute("compradorInfoRequest") CompradorInfoRequest compradorInfo,
-            @CookieValue(value = SESSION_COOKIE_NAME, required = false) String sessionId,
+            @CookieValue(value = SESSION_COOKIE_NAME) String sessionId,
             @CookieValue(value = CLIENT_ID, required = false) String clientId,
             BindingResult bindingResult,
             Model model,
             HttpServletRequest request,
             HttpServletResponse response) {
 
-        Optional<SessaoPagamento> sessaoOpt = Optional.empty();
+        Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(sessionId);
 
-        if (sessionId != null) {
-            sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(sessionId);
-
-            if (sessaoOpt.isPresent()) {
-                validaSessaoPagamentoUseCase.invalidarSessao(sessionId);
-            }
+        if (sessaoOpt.isEmpty()) {
+            model.addAttribute("erro", "Sessão inválida");
+            return "links/erro";
         }
-        
+
+
         Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigo);
         
         if (linkOpt.isEmpty() || !linkOpt.get().isDisponivel()) {
@@ -121,17 +158,20 @@ public class PagamentoPublicoController {
 
         IntencaoPagamento intencaoPagamento = intencaoPagamentoWebMapper.toIntencaoPagamento(compradorInfo);
 
+        intencaoPagamento.setReferencia(sessaoOpt.get().getReferencia());
+
         intencaoPagamento.setValor(produto.getPreco());
 
         intencaoPagamento.setMoeda(MoedaEnum.getByName(produto.getMoeda()).getCodigoISO());
 
         // Definir o posId da configuração
         intencaoPagamento.setPosId(link.getConfiguracaoPagamento().getPosId());
-        intencaoPagamento.setMerchantRef(produto.getId().toString());
-        intencaoPagamento.setMerchantSession(link.getCodigo());
+        intencaoPagamento.setMerchantRef(getMerchantRef(produto.getId().toString()));
+        intencaoPagamento.setMerchantSession(getMerchantSession(link.getCodigo()));
 
         intencaoPagamento.setTransactionCode(IntencaoPagamentoEnum.COMPRAS.getTransactionCode());
-
+        log.info("Ambiente: {}",
+                link.getConfiguracaoPagamento().getAmbiente());
         intencaoPagamento.setAmbiente(link.getConfiguracaoPagamento().getAmbiente());
 
         // Criar ou buscar a conta de pagamento pelo email
@@ -153,36 +193,19 @@ public class PagamentoPublicoController {
         // Criar a intenção de pagamento
         IntencaoPagamento intencaoPagamentoCriada = criaIntencaoPagamentoUseCase.criar(intencaoPagamento);
 
-        if (clientId == null) {
-            clientId = UUID.randomUUID().toString();
-        }
-
-        // Criar uma sessão de pagamento para esta intenção
-        SessaoPagamento sessao = criaSessaoPagamentoUseCase.criar(
-                intencaoPagamentoCriada.getReferencia(),
-                clientId,
-                request
-        );
-
-        // Adicionar cookie de sessão na resposta
-        Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessao.getSessionId());
-        sessionCookie.setMaxAge(SESSION_COOKIE_MAX_AGE);
-        sessionCookie.setPath("/");
-        sessionCookie.setHttpOnly(true);
-        sessionCookie.setSecure(true); // Somente HTTPS
-        response.addCookie(sessionCookie);
-
-        Cookie clientIdCookie = new Cookie(CLIENT_ID, clientId);
-        clientIdCookie.setMaxAge(SESSION_COOKIE_MAX_AGE);
-        clientIdCookie.setPath("/");
-        clientIdCookie.setHttpOnly(true);
-        clientIdCookie.setSecure(true); // Somente HTTPS
-        response.addCookie(clientIdCookie);
 
         gerenciaLinkPagamentoUseCase.incrementarUsos(link.getId());
 
         //model.addAttribute("sessionId", sessao.getSessionId());
         return "redirect:/pagamento/checkout/" + intencaoPagamentoCriada.getReferencia();
+    }
+
+    private String getMerchantRef(String merchantRef){
+        return "R"+ LocalDate.now().toString()+merchantRef;
+    }
+
+    private String getMerchantSession(String merchantSession){
+        return "S"+ LocalDate.now().toString()+merchantSession;
     }
 
 }
