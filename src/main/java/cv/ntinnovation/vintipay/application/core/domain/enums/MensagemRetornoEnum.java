@@ -10,6 +10,12 @@ public enum MensagemRetornoEnum {
     TRANSACAO_COMPRAS_SUCESSO(MessageRespTypeEnum.SUCESSO_COMPRAS, "C", "Transação realizada com sucesso", StatusPagamentoEnum.PAGO),
     TRANSACAO_RECARGA_SUCESSO(MessageRespTypeEnum.SUCESSO_RECARGA, "C", "Transação realizada com sucesso", StatusPagamentoEnum.PAGO),
     TRANSACAO_SERVICO_SUCESSO(MessageRespTypeEnum.SUCESSO_SERVICO, "C", "Transação realizada com sucesso", StatusPagamentoEnum.PAGO),
+
+    TRANSACAO_ESTORNO_EM_ANDAMENTO(MessageRespTypeEnum.SUCESSO_ESTORNO, "", "Transação de estorno em andamento", StatusPagamentoEnum.ESTORNADO),
+    TRANSACAO_ESTORNADA(MessageRespTypeEnum.SUCESSO_ESTORNO, "", "Transação estornada", StatusPagamentoEnum.ESTORNADO),
+
+    TRANSACAO_EXPIRADA(MessageRespTypeEnum.FALHA, "", "Transação expirada", StatusPagamentoEnum.EXPIRADO),
+
     TRANSACAO_FALHA(MessageRespTypeEnum.FALHA, "", "Transação falhou", StatusPagamentoEnum.ERRO),
     TRANSACAO_CANCELADA(MessageRespTypeEnum.FALHA_OUTROS, "", "Transação cancelada pelo usuário", StatusPagamentoEnum.CANCELADO);
 

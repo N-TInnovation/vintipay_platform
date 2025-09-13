@@ -86,8 +86,8 @@ public class WebhookPagamentoController {
                     mensagem,
                     request.getResultFingerPrint(),
                     request.getMerchantRespPan(),
-                    null,
-                    null
+                    request.getMerchantRespCP(),
+                    request.getMerchantRespTid()
             );
             log.debug("Pagamento atualizado: {}", pagamento);
 

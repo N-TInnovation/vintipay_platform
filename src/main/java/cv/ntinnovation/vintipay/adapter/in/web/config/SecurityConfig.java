@@ -81,13 +81,14 @@ public class SecurityConfig {
             http.securityMatcher("/webhook/**")
                     .authorizeHttpRequests((authorize) ->
                             authorize.requestMatchers(HttpMethod.POST,"/webhook/sisp/pagamentos/retorno/{reference}").permitAll()
+                                    .requestMatchers(HttpMethod.POST,"/webhook/sisp/estorno/retorno/{reference}").permitAll()
                                     .requestMatchers("/webhook/stripe").permitAll()
                                     .anyRequest().authenticated())
                     .oauth2ResourceServer((oauth2) -> {
                         oauth2.jwt(withDefaults()).bearerTokenResolver(bearerTokenResolver());
                     })
                     .csrf(cookie -> cookie.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                            .ignoringRequestMatchers("/webhook/sisp/pagamentos/retorno/{reference}", "/webhook/stripe"))
+                            .ignoringRequestMatchers("/webhook/sisp/pagamentos/retorno/{reference}", "/webhook/sisp/estorno/retorno/{reference}", "/webhook/stripe"))
                     .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
             return http.build();

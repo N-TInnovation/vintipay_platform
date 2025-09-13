@@ -8,8 +8,8 @@ import lombok.Getter;
 public enum AmbienteEnum {
 
     PRODUCAO("PRODUCAO"),
-    HOMOLOGACAO("HOMOLOGACAO"),
-    DESENVOLVIMENTO("DESENVOLVIMENTO");
+    HOMOLOGACAO("HOMOLOGACAO");
+   // DESENVOLVIMENTO("DESENVOLVIMENTO");
 
     @Getter
     private String ambiente;
@@ -20,7 +20,7 @@ public enum AmbienteEnum {
                 return a;
             }
         }
-        return DESENVOLVIMENTO;
+        return HOMOLOGACAO;
     }
 
     public String getSubmitUrl(EnvironmentProperties environmentProperties) {

@@ -86,9 +86,9 @@ public enum StatusIntencaoPagamentoEnum {
             case FALHA:
                 return StatusPagamentoEnum.ERRO;
             case EXPIRADO:
-                return StatusPagamentoEnum.CANCELADO; // Mapeando expirado para cancelado
+                return StatusPagamentoEnum.CANCELADO;
             case REEMBOLSADO:
-                return StatusPagamentoEnum.CANCELADO; // Mapeando reembolsado para cancelado
+                return StatusPagamentoEnum.ESTORNADO;
             default:
                 throw new IllegalArgumentException("Status de intenção de pagamento não suportado: " + this);
         }

@@ -13,6 +13,7 @@ import cv.ntinnovation.vintipay.application.port.in.BuscaIntencaoPagamentoUseCas
 import cv.ntinnovation.vintipay.application.port.in.BuscaPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.EstornarPagamentoUseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ import org.springframework.web.util.UriUtils;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+@Slf4j
 @Controller
 @RequestMapping("/user/pagamentos")
 @RequiredArgsConstructor
@@ -89,10 +91,18 @@ public class UserPagamentosController {
                     StatusPagamentoEnum.CANCELADO,
                     ambiente
             ).getTotalElements();
+
+            var pagamentosEstornados = buscaPagamentoUseCase.buscarPorUsuarioEAmbiente(
+                    PageRequest.of(0, Integer.MAX_VALUE),
+                    usuarioAtual.getId(),
+                    StatusPagamentoEnum.ESTORNADO,
+                    ambiente
+            ).getTotalElements();
             
             model.addAttribute("pagamentosPagos", pagamentosPagos);
             model.addAttribute("pagamentosPendentes", pagamentosPendentes);
             model.addAttribute("pagamentosCancelados", pagamentosCancelados);
+            model.addAttribute("pagamentosEstornados", pagamentosEstornados);
             
         } catch (Exception e) {
             // Em caso de erro, adicionar mensagem ao modelo
@@ -123,6 +133,8 @@ public class UserPagamentosController {
                         .equals(usuarioAtual.getEmail())) {
                     return "redirect:/user/pagamentos?erro=Acesso+negado";
                 }
+
+                log.info("Pagamento encontrado: {}", pagamento);
                 
                 // Adicionar o pagamento ao modelo
                 model.addAttribute("pagamento", pagamento);

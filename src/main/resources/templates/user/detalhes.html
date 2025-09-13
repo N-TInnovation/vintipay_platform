@@ -71,6 +71,11 @@
                 color: white;
             }
             
+            .status-ESTORNADO {
+                background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+                color: white;
+            }
+            
             .status-ERRO {
                 background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
                 color: white;
@@ -362,6 +367,8 @@
                                                   class="status-badge status-PENDENTE">Pendente</span>
                                             <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).CANCELADO}" 
                                                   class="status-badge status-CANCELADO">Cancelado</span>
+                                            <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).ESTORNADO}" 
+                                                  class="status-badge status-ESTORNADO">Estornado</span>
                                             <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).ERRO}" 
                                                   class="status-badge status-ERRO">Erro</span>
                                         </td>
@@ -500,6 +507,13 @@
                                 <h6 class="mb-1 fw-bold text-danger">Pagamento Cancelado</h6>
                                 <p class="text-muted mb-0 small" th:text="${#temporals.format(pagamento.createdAt.plusMinutes(5), 'dd/MM/yyyy HH:mm')}">01/01/2025 12:35</p>
                                 <p class="text-danger small mb-0">Seu pagamento foi cancelado.</p>
+                            </div>
+                            
+                            <!-- Status para Pagamentos Estornados -->
+                            <div class="timeline-item" th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).ESTORNADO}">
+                                <h6 class="mb-1 fw-bold text-purple">Pagamento Estornado</h6>
+                                <p class="text-muted mb-0 small" th:text="${#temporals.format(pagamento.createdAt.plusMinutes(5), 'dd/MM/yyyy HH:mm')}">01/01/2025 12:35</p>
+                                <p class="text-purple small mb-0">Seu pagamento foi estornado.</p>
                             </div>
                             
                             <!-- Status para Pagamentos com Erro -->

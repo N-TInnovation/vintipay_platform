@@ -15,9 +15,11 @@ import java.util.Arrays;
 @AllArgsConstructor
 @Getter
 public enum MessageRespTypeEnum {
+    @JsonProperty("8")
     SUCESSO_COMPRAS("8", "Sucesso", DataFingerPrint810MPResponse.builder().build()),
     SUCESSO_RECARGA("M", "Sucesso", DataFingerPrint810MPResponse.builder().build()),
     SUCESSO_SERVICO("P", "Sucesso", DataFingerPrint810MPResponse.builder().build()),
+    SUCESSO_ESTORNO("10", "Sucesso", DataFingerPrint810MPResponse.builder().build()),
     FALHA("6", "Falha", DataFingerPrint6Response.builder().build()),
     FALHA_OUTROS(null, "Falha", DataFingerPrintOutroResponse.builder().build());
 

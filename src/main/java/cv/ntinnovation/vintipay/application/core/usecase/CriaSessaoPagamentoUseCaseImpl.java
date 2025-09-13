@@ -2,6 +2,8 @@ package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.SessaoPagamento;
 import cv.ntinnovation.vintipay.application.port.in.CriaSessaoPagamentoUseCase;
+import cv.ntinnovation.vintipay.application.port.in.ValidaSessaoPagamentoUseCase;
+import cv.ntinnovation.vintipay.application.port.out.BuscaSessaoPagamentoPort;
 import cv.ntinnovation.vintipay.application.port.out.SalvaSessaoPagamentoPort;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static cv.ntinnovation.vintipay.adapter.in.web.utils.GerarUtil.geraMerchantSession;
@@ -21,6 +24,7 @@ import static cv.ntinnovation.vintipay.adapter.in.web.utils.GerarUtil.geraMercha
 public class CriaSessaoPagamentoUseCaseImpl implements CriaSessaoPagamentoUseCase {
 
     private final SalvaSessaoPagamentoPort salvaSessaoPagamentoPort;
+    private final BuscaSessaoPagamentoPort buscaSessaoPagamentoPort;
     
     @Value("${app.session.timeout-minutes:30}")
     private int sessionTimeoutMinutes;
@@ -33,8 +37,10 @@ public class CriaSessaoPagamentoUseCaseImpl implements CriaSessaoPagamentoUseCas
         
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiresAt = now.plusMinutes(sessionTimeoutMinutes);
+
+        Optional<SessaoPagamento> sessaoOpt = buscaSessaoPagamentoPort.buscarPorSessionId(sessionId);
         
-        SessaoPagamento sessaoPagamento = SessaoPagamento.builder()
+        SessaoPagamento sessaoPagamento = sessaoOpt.orElse(SessaoPagamento.builder()
                 .sessionId(sessionId)
                 .referencia(reference)
                 .clientId(clientId)
@@ -43,7 +49,7 @@ public class CriaSessaoPagamentoUseCaseImpl implements CriaSessaoPagamentoUseCas
                 .dataCriacao(now)
                 .dataExpiracao(expiresAt)
                 .valid(true)
-                .build();
+                .build());
         
         log.info("Criando nova sessão de pagamento para referência: {}, cliente: {}, IP: {}", 
                 reference, clientId, ipAddress);

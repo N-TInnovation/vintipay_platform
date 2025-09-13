@@ -20,6 +20,8 @@ app:
   email:
     verification:
       expiry-hours: 24
+  encryption:
+    secret: ${APP_ENCRYPTION_SECRET:chave_secreta_padrao_para_criptografia_aes256}
 
 # Configurações do Brevo (anteriormente Sendinblue)
 brevo:

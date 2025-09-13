@@ -134,9 +134,9 @@ public class SimuladorRetornoController {
             throw new ConfiguracaoPagamentoIvalidaException("Configuração de pagamento inativa");
         }
 
-        if(configuracaoPagamento.getAmbiente() == null || !configuracaoPagamento.getAmbiente().equals(AmbienteEnum.DESENVOLVIMENTO)) {
+        /*if(configuracaoPagamento.getAmbiente() == null || !configuracaoPagamento.getAmbiente().equals(AmbienteEnum.DESENVOLVIMENTO)) {
             throw new ConfiguracaoPagamentoIvalidaException("Configuração de ambiente inválida");
-        }
+        }*/
     }
 
     private void validaFingerPrint(SispCheckoutRequest sispCheckoutRequest, ConfiguracaoPagamento configuracaoPagamento) {

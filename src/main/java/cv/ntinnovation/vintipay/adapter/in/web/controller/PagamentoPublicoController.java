@@ -6,6 +6,7 @@ import cv.ntinnovation.vintipay.adapter.in.web.utils.CookieUtil;
 import cv.ntinnovation.vintipay.application.core.domain.entity.*;
 import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.MoedaEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.in.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,6 +46,7 @@ public class PagamentoPublicoController {
     private final IntencaoPagamentoWebMapper intencaoPagamentoWebMapper;
     private final CriaSessaoPagamentoUseCase criaSessaoPagamentoUseCase;
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
+    private final BuscaPagamentoUseCase buscaPagamentoUseCase;
 
 
     /**
@@ -57,18 +59,24 @@ public class PagamentoPublicoController {
             clientId = UUID.randomUUID().toString();
         }
 
+        setClientIdCookie(response, clientId);
+
         Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(sessionId);
 
         if (sessaoOpt.isEmpty()) {
             sessionId = geraMerchantSession();
         }
 
-        if (sessaoOpt. isPresent() && sessaoOpt.get().getDataExpiracao().isAfter(LocalDateTime.now().minusMinutes(10))){
+        if (sessaoOpt.isPresent() && sessaoOpt.get().getDataExpiracao().isAfter(LocalDateTime.now().minusMinutes(20))){
             sessionId = geraMerchantSession();
         }
 
-
-        setClientIdCookie(response, clientId);
+        if (sessaoOpt.isPresent()) {
+            Optional<Pagamento> pagamentoOpt = buscaPagamentoUseCase.buscarPorReferencia(sessaoOpt.get().getReferencia());
+            if (pagamentoOpt.isPresent() && !pagamentoOpt.get().getStatus().equals(StatusPagamentoEnum.PENDENTE)) {
+                sessionId = geraMerchantSession();
+            }
+        }
 
         Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigo);
         
