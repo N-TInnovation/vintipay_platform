@@ -75,5 +75,10 @@ public class CriaIntencaoPagamentoUseCaseImpl implements CriaIntencaoPagamentoUs
             (intencaoPagamento.getContaPagamentoEmail() == null || intencaoPagamento.getContaPagamentoEmail().isEmpty())) {
             throw new IllegalArgumentException("A conta de pagamento ou informações para criação são obrigatórias");
         }
+
+        if (intencaoPagamento.getAmbiente() == null) {
+            throw new IllegalArgumentException("O ambiente é obrigatório");
+        }
+
     }
 }

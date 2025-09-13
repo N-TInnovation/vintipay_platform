@@ -55,13 +55,6 @@ public class WebhookPagamentoController {
                                        Model model, HttpServletRequest request2, HttpServletResponse response) {
         log.info("Recebido webhook do SISP - Reference: {}, Request: {}", reference, request);
 
-        Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(reference, request2, sessionId, clientId);
-
-        if (sessaoOpt.isEmpty()) {
-            log.warn("Tentativa de acesso ao checkout com sessão inválida para referência: {}", reference);
-            throw new SessaoPagamentoInvalidaException("Sessão de pagamento inválida ou expirada para referência: " + reference);
-        }
-
         var pagamentoExistente = buscaPagamentoUseCase.buscarPorReferencia(reference);
 
         if (pagamentoExistente.isPresent()) {
@@ -160,6 +153,7 @@ public class WebhookPagamentoController {
                         pagamento.getReference(),  // Referência do pagamento
                         pagamento.getIntencaoPagamento().getValor().doubleValue()  // Valor do pagamento
                     );
+                    validaSessaoPagamentoUseCase.invalidarSessao(responseDto.getMerchantSession());
                 }
                 model.addAttribute("pagamento", pagamento);
                 return pagamento.getStatus().getRetorno();

@@ -48,7 +48,5 @@ public class CompradorInfoRequest {
     @NotBlank(message = "O número de telefone é obrigatório")
     @Pattern(regexp = "^[0-9]{7,15}$", message = "Número de telefone inválido")
     private String phoneNumber;
-    
-    // Campo para armazenar o merchantSession que será gerado pelo sistema
-    private String merchantSession;
+
 }

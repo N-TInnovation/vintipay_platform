@@ -6,6 +6,7 @@ import cv.ntinnovation.vintipay.adapter.in.web.dto.SispCheckoutRequest;
 import cv.ntinnovation.vintipay.application.core.domain.entity.SessaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.enums.MoedaEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.exception.IntencaoPagamentoNaoExisteExeption;
 import cv.ntinnovation.vintipay.application.core.domain.exception.PagamentoNaoEncontradoException;
 import cv.ntinnovation.vintipay.application.core.domain.exception.PagamentoStatusNaoPendenteException;
 import cv.ntinnovation.vintipay.application.core.domain.exception.SessaoPagamentoInvalidaException;
@@ -26,6 +27,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
 
+import static cv.ntinnovation.vintipay.adapter.in.web.utils.CookieUtil.CLIENT_ID;
+import static cv.ntinnovation.vintipay.adapter.in.web.utils.CookieUtil.setSessionCookie;
+
 @Slf4j
 @Controller
 @RequestMapping("/pagamento")
@@ -37,15 +41,20 @@ public class CheckoutPagamentoController {
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
     private final BuscaIntencaoPagamentoUseCase buscaIntencaoPagamentoUseCase;
 
-    private static final String SESSION_COOKIE_NAME = "PAYMENT_SESSION_ID";
-    private static final int SESSION_COOKIE_MAX_AGE = 1800; // 30 minutos em segundos
 
     private final EnvironmentProperties environmentProperties;
 
     @GetMapping("/checkout/{reference}")
-    public String checkout(@PathVariable String reference, @RequestParam(value = "sessionId" , required = false) String sessionId, @CookieValue(value = "CLIENT_ID") String clientId, Model model, HttpServletRequest request, HttpServletResponse servletResponse) {
+    public String checkout(@PathVariable String reference, Model model, HttpServletRequest request, HttpServletResponse servletResponse) {
+
+        var intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(reference);
+
+        if(intencaoPagamento == null) {
+            throw new IntencaoPagamentoNaoExisteExeption("Intencao de pagamento nao encontrada para a referência: " + reference);
+        }
+
         // Validar a sessão de pagamento
-        Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(reference, request, sessionId, clientId);
+        Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(reference, request);
         
         if (sessaoOpt.isEmpty()) {
             log.warn("Tentativa de acesso ao checkout com sessão inválida para referência: {}", reference);
@@ -53,23 +62,15 @@ public class CheckoutPagamentoController {
         }
         
         log.info("Sessão válida para checkout da referência: {}, sessionId: {}", 
-                reference, sessaoOpt.get().getId());
+                reference, sessaoOpt.get().getSessionId());
 
-        sessionId = sessaoOpt.get().getSessionId();
-
-        // Adicionar cookie de sessão na resposta
-        Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessionId);
-        sessionCookie.setMaxAge(SESSION_COOKIE_MAX_AGE);
-        sessionCookie.setPath("/");
-        sessionCookie.setHttpOnly(true);
-        sessionCookie.setSecure(true); // Somente HTTPS
-        servletResponse.addCookie(sessionCookie);
-
-        var intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(reference);
+        setSessionCookie(servletResponse, sessaoOpt.get().getSessionId());
 
         var pagamentoOptional = buscaPagamentoUseCase.buscarPorReferencia(reference);
 
         var pagamento = pagamentoOptional.orElseGet(() -> criaPagamentoUseCase.criar(intencaoPagamento));
+
+        pagamento.gerarTimestamp();
 
         if (!pagamento.getStatus().equals(StatusPagamentoEnum.PENDENTE)){
             throw new PagamentoStatusNaoPendenteException("Pagamento está "+ pagamento.getStatus());

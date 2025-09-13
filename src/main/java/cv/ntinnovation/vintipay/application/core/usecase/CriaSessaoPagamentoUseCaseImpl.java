@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static cv.ntinnovation.vintipay.adapter.in.web.utils.GerarUtil.geraMerchantSession;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -25,8 +27,7 @@ public class CriaSessaoPagamentoUseCaseImpl implements CriaSessaoPagamentoUseCas
 
     @Override
     @Transactional
-    public SessaoPagamento criar(String reference, String clientId, HttpServletRequest request) {
-        String sessionId = UUID.randomUUID().toString();
+    public SessaoPagamento criar(String reference, String sessionId, String clientId, HttpServletRequest request) {
         String ipAddress = getClientIpAddress(request);
         String userAgent = request.getHeader("User-Agent");
         

@@ -12,7 +12,7 @@ public interface ValidaSessaoPagamentoUseCase {
      * @param request Requisição HTTP para extrair informações como sessionId do cookie
      * @return Sessão de pagamento se válida, ou empty se inválida
      */
-    Optional<SessaoPagamento> validarSessao(String reference, HttpServletRequest request, String sessionId, String clientId);
+    Optional<SessaoPagamento> validarSessao(String reference, HttpServletRequest request);
     
     /**
      * Invalida uma sessão de pagamento

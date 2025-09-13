@@ -164,10 +164,9 @@ public class SecurityConfig {
                     )
                     .csrf(csrf -> csrf
                             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                            .ignoringRequestMatchers("/admin/**","/user/**")
+                            .ignoringRequestMatchers("/admin/**","/user/**","/p/**")
                     )
-                    .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                            .maximumSessions(1));
+                    .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
 
             return http.build();
         }

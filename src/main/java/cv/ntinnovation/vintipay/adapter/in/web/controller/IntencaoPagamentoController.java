@@ -3,6 +3,7 @@ package cv.ntinnovation.vintipay.adapter.in.web.controller;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.IntencaoPagamentoRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.IntencaoPagamentoResponse;
 import cv.ntinnovation.vintipay.adapter.in.web.mapper.IntencaoPagamentoWebMapper;
+import cv.ntinnovation.vintipay.adapter.in.web.utils.CookieUtil;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ContaPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.IntencaoPagamento;
@@ -23,6 +24,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 import java.security.Principal;
+
+import static cv.ntinnovation.vintipay.adapter.in.web.utils.GerarUtil.geraMerchantRef;
+import static cv.ntinnovation.vintipay.adapter.in.web.utils.GerarUtil.geraMerchantSession;
 
 @RestController
 @RequestMapping("/api/v1/pagamentos")
@@ -89,6 +93,7 @@ public class IntencaoPagamentoController {
             
             // Associar a conta de pagamento à intenção
             intencaoPagamento.setContaPagamento(contaPagamento);
+            intencaoPagamento.setReferencia(geraMerchantRef());
             
             // Criar a intenção de pagamento
             IntencaoPagamento intencaoPagamentoCriada = criaIntencaoPagamentoUseCase.criar(intencaoPagamento);
@@ -96,24 +101,13 @@ public class IntencaoPagamentoController {
             // Criar uma sessão de pagamento para esta intenção
             SessaoPagamento sessao = criaSessaoPagamentoUseCase.criar(
                     intencaoPagamentoCriada.getReferencia(),
+                    request.getMerchantSession(),
                     clientId,
                     servletRequest
             );
-            
-            // Adicionar cookie de sessão na resposta
-            Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessao.getSessionId());
-            sessionCookie.setMaxAge(SESSION_COOKIE_MAX_AGE);
-            sessionCookie.setPath("/");
-            sessionCookie.setHttpOnly(true);
-            sessionCookie.setSecure(true); // Somente HTTPS
 
-            Cookie clientIdCookie = new Cookie(CLIENT_ID, "API_KEY_" + configuracao.getApiKey());
-            clientIdCookie.setMaxAge(3600);
-            clientIdCookie.setPath("/");
-            clientIdCookie.setHttpOnly(true);
-            clientIdCookie.setSecure(true); // Somente HTTPS
-            servletResponse.addCookie(sessionCookie);
-            servletResponse.addCookie(clientIdCookie);
+            CookieUtil.setSessionCookie(servletResponse, sessao.getSessionId());
+            CookieUtil.setClientIdCookie(servletResponse, "API_KEY_" + configuracao.getApiKey());
             
             // Converter para response e retornar
             IntencaoPagamentoResponse response = intencaoPagamentoWebMapper.toIntencaoPagamentoResponse(intencaoPagamentoCriada);

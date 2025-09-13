@@ -16,6 +16,9 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Optional;
 
+import static cv.ntinnovation.vintipay.adapter.in.web.utils.CookieUtil.CLIENT_ID;
+import static cv.ntinnovation.vintipay.adapter.in.web.utils.CookieUtil.SESSION_COOKIE_NAME;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,14 +26,13 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
 
     private final BuscaSessaoPagamentoPort buscaSessaoPagamentoPort;
     private final SalvaSessaoPagamentoPort salvaSessaoPagamentoPort;
-    
-    private static final String SESSION_COOKIE_NAME = "PAYMENT_SESSION_ID";
+
 
     @Override
-    public Optional<SessaoPagamento> validarSessao(String reference, HttpServletRequest request, String sessionIdparam, String clientId) {
+    public Optional<SessaoPagamento> validarSessao(String reference, HttpServletRequest request) {
         // Primeiro verifica se existe uma sessão válida para a referência
         Optional<SessaoPagamento> sessaoByReference = buscaSessaoPagamentoPort.buscarSessaoValidaPorReferencia(reference);
-        
+
         // Se não existir sessão válida para a referência, retorna vazio
         if (sessaoByReference.isEmpty()) {
             log.warn("Nenhuma sessão válida encontrada para a referência: {}", reference);
@@ -38,7 +40,8 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
         }
 
         // Busca o cookie de sessão
-        String sessionId = sessionIdparam != null ? sessionIdparam : getSessionIdFromCookie(request);
+        String sessionId = getSessionIdFromCookie(request,SESSION_COOKIE_NAME);
+        String clientId = getSessionIdFromCookie(request,CLIENT_ID);
         var sessao = sessaoByReference.get();
 
         if(clientId != null && !clientId.equals(sessao.getClientId())) {
@@ -47,7 +50,7 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
 
         if(!sessao.getSessionId().equals(sessionId)) {
             log.warn("Session ID do cookie ({}) não corresponde ao Session ID da sessão ({}) para referência: {}",
-                    sessionIdparam, sessao.getId(), reference);
+                    sessionId, sessao.getId(), reference);
             return Optional.empty();
         }
 
@@ -94,14 +97,14 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
     /**
      * Obtém o ID da sessão a partir do cookie
      */
-    private String getSessionIdFromCookie(HttpServletRequest request) {
+    private String getSessionIdFromCookie(HttpServletRequest request, String cookieName) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
             return null;
         }
         
         return Arrays.stream(cookies)
-                .filter(cookie -> SESSION_COOKIE_NAME.equals(cookie.getName()))
+                .filter(cookie -> cookieName.equals(cookie.getName()))
                 .map(Cookie::getValue)
                 .findFirst()
                 .orElse(null);

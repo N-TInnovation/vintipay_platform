@@ -24,7 +24,6 @@ public class IntencaoPagamentoWebMapper {
                 .contaPagamentoBillAddrCountry(request.getBillAddrCountry())
                 .contaPagamentoBillAddrLine1(request.getBillAddrLine1())
                 .contaPagamentoBillAddrPostCode(request.getBillAddrPostCode())
-                .merchantSession(request.getMerchantSession())
                 .timestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
                 .build();
     }

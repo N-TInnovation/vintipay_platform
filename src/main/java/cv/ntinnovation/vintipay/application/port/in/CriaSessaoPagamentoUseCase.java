@@ -7,9 +7,10 @@ public interface CriaSessaoPagamentoUseCase {
     /**
      * Cria uma nova sessão de pagamento
      * @param reference Referência do pagamento
+     * @param sessionId ID da sessão
      * @param clientId ID do cliente
      * @param request Requisição HTTP para extrair informações como IP e User-Agent
      * @return Sessão de pagamento criada
      */
-    SessaoPagamento criar(String reference, String clientId, HttpServletRequest request);
+    SessaoPagamento criar(String reference, String sessionId, String clientId, HttpServletRequest request);
 }

@@ -2,6 +2,7 @@ package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.in.web.dto.CompradorInfoRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.mapper.IntencaoPagamentoWebMapper;
+import cv.ntinnovation.vintipay.adapter.in.web.utils.CookieUtil;
 import cv.ntinnovation.vintipay.application.core.domain.entity.*;
 import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.MoedaEnum;
@@ -19,8 +20,15 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
+
+import static cv.ntinnovation.vintipay.adapter.in.web.utils.CookieUtil.*;
+import static cv.ntinnovation.vintipay.adapter.in.web.utils.GerarUtil.geraMerchantRef;
+import static cv.ntinnovation.vintipay.adapter.in.web.utils.GerarUtil.geraMerchantSession;
 
 /**
  * Controller para gerenciar as páginas públicas de pagamento
@@ -38,10 +46,6 @@ public class PagamentoPublicoController {
     private final CriaSessaoPagamentoUseCase criaSessaoPagamentoUseCase;
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
 
-    private static final String SESSION_COOKIE_NAME = "PAYMENT_SESSION_ID";
-    private static final String CLIENT_ID = "CLIENT_ID";
-    private static final int SESSION_COOKIE_MAX_AGE = 1800; // 30 minutos em segundos
-    private static final int CLIENT_ID_MAX_AGE = 86400; // 40 dias em segundos
 
     /**
      * Exibe a página de checkout para um link de pagamento
@@ -53,22 +57,18 @@ public class PagamentoPublicoController {
             clientId = UUID.randomUUID().toString();
         }
 
-        // Adicionar cookie de sessão na resposta
+        Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(sessionId);
 
-        Cookie clientIdCookie = new Cookie(CLIENT_ID, clientId);
-        clientIdCookie.setMaxAge(CLIENT_ID_MAX_AGE);
-        clientIdCookie.setPath("/");
-        clientIdCookie.setHttpOnly(true);
-        clientIdCookie.setSecure(true); // Somente HTTPS
-        response.addCookie(clientIdCookie);
-
-        if (sessionId != null) {
-            Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(sessionId);
-
-            if (sessaoOpt.isPresent()) {
-                validaSessaoPagamentoUseCase.invalidarSessao(sessionId);
-            }
+        if (sessaoOpt.isEmpty()) {
+            sessionId = geraMerchantSession();
         }
+
+        if (sessaoOpt. isPresent() && sessaoOpt.get().getDataExpiracao().isAfter(LocalDateTime.now().minusMinutes(10))){
+            sessionId = geraMerchantSession();
+        }
+
+
+        setClientIdCookie(response, clientId);
 
         Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigo);
         
@@ -89,27 +89,20 @@ public class PagamentoPublicoController {
         compradorInfo.setPhoneCode("238"); // Código padrão para Cabo Verde
         compradorInfo.setBillAddrCountry("132"); // País padrão
         
-        // Gerar um merchantSession único
-        compradorInfo.setMerchantSession(UUID.randomUUID().toString());
-        
         model.addAttribute("compradorInfoRequest", compradorInfo);
 
         // Criar uma sessão de pagamento para esta intenção
         SessaoPagamento sessao = criaSessaoPagamentoUseCase.criar(
-                UUID.randomUUID().toString(),
+                geraMerchantRef(),
+                sessionId,
                 clientId,
                 request
         );
 
-        // Adicionar cookie de sessão na resposta
-        Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessao.getSessionId());
-        sessionCookie.setMaxAge(SESSION_COOKIE_MAX_AGE);
-        sessionCookie.setPath("/");
-        sessionCookie.setHttpOnly(true);
-        sessionCookie.setSecure(true); // Somente HTTPS
-        response.addCookie(sessionCookie);
+        log.info("Sessão criada para o link {}, e id da sessão: {}", codigo, sessao.getSessionId());
 
-        
+        setSessionCookie(response, sessao.getSessionId());
+
         return "links/checkout";
     }
 
@@ -120,7 +113,7 @@ public class PagamentoPublicoController {
     public String processarPagamento(
             @PathVariable String codigo,
             @Valid @ModelAttribute("compradorInfoRequest") CompradorInfoRequest compradorInfo,
-            @CookieValue(value = SESSION_COOKIE_NAME) String sessionId,
+            @CookieValue(value = SESSION_COOKIE_NAME, required = false) String sessionId,
             @CookieValue(value = CLIENT_ID, required = false) String clientId,
             BindingResult bindingResult,
             Model model,
@@ -166,12 +159,12 @@ public class PagamentoPublicoController {
 
         // Definir o posId da configuração
         intencaoPagamento.setPosId(link.getConfiguracaoPagamento().getPosId());
-        intencaoPagamento.setMerchantRef(getMerchantRef(produto.getId().toString()));
-        intencaoPagamento.setMerchantSession(getMerchantSession(link.getCodigo()));
+        intencaoPagamento.setMerchantRef(sessaoOpt.get().getReferencia());
+        intencaoPagamento.setMerchantSession(sessaoOpt.get().getSessionId());
+
 
         intencaoPagamento.setTransactionCode(IntencaoPagamentoEnum.COMPRAS.getTransactionCode());
-        log.info("Ambiente: {}",
-                link.getConfiguracaoPagamento().getAmbiente());
+
         intencaoPagamento.setAmbiente(link.getConfiguracaoPagamento().getAmbiente());
 
         // Criar ou buscar a conta de pagamento pelo email
@@ -196,16 +189,9 @@ public class PagamentoPublicoController {
 
         gerenciaLinkPagamentoUseCase.incrementarUsos(link.getId());
 
-        //model.addAttribute("sessionId", sessao.getSessionId());
         return "redirect:/pagamento/checkout/" + intencaoPagamentoCriada.getReferencia();
     }
 
-    private String getMerchantRef(String merchantRef){
-        return "R"+ LocalDate.now().toString()+merchantRef;
-    }
 
-    private String getMerchantSession(String merchantSession){
-        return "S"+ LocalDate.now().toString()+merchantSession;
-    }
 
 }

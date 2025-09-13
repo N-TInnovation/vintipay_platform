@@ -34,10 +34,6 @@ public class CriaPagamentoUseCaseImpl implements CriaPagamentoUseCase {
     public Pagamento criar(IntencaoPagamento intencaoPagamento) {
         // Buscar a intenção de pagamento pela referência
 
-        if (intencaoPagamento == null ) {
-            throw new IntencaoPagamentoNaoExisteExeption("Intenção de pagamento não encontrada: " + intencaoPagamento.getReferencia());
-        }
-
         if(!intencaoPagamento.getStatus().equals(StatusIntencaoPagamentoEnum.PENDENTE)) {
             throw new RuntimeException("Interação de pagamento com status diferente de pendente: " + intencaoPagamento);
         }
