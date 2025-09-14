@@ -2,6 +2,7 @@ package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.ContaPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.IntencaoPagamento;
+import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.out.SalvaIntencaoPagamento;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,7 @@ class CriaIntencaoPagamentoUseCaseImplTest {
                 .merchantSession("SESSION456")
                 .posId("POS789")
                 .transactionCode("TRANS001")
+                .ambiente(AmbienteEnum.HOMOLOGACAO)
                 .build();
 
         IntencaoPagamento intencaoPagamentoSalva = IntencaoPagamento.builder()
@@ -81,6 +83,7 @@ class CriaIntencaoPagamentoUseCaseImplTest {
                 .merchantSession("SESSION456")
                 .posId("POS789")
                 .transactionCode("TRANS001")
+                .ambiente(AmbienteEnum.HOMOLOGACAO)
                 .build();
 
         IntencaoPagamento intencaoPagamentoSalva = IntencaoPagamento.builder()
