@@ -6,7 +6,9 @@ import cv.ntinnovation.vintipay.application.core.domain.exception.FingerprintInv
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Builder
 @AllArgsConstructor
 @Data
@@ -14,7 +16,10 @@ public class DataFingerPrint6Response implements RetornoFingerprint {
 
 	private String posAutCode;
 	private String messageType;
+    private String merchantRespCP;
+    private String merchantRespTid;
 	private String merchantRespMessageID;
+    private String merchantRespPan;
 	private String merchantRespErrorCode;
 	private String merchantRespErrorDetail;
 	private String merchantRespErrorDescription;
@@ -24,6 +29,13 @@ public class DataFingerPrint6Response implements RetornoFingerprint {
 	private String merchantRespTimeStamp;
 	private String resultFingerPrint;
 	private String authorizationCode;
+    private String merchantResp;
+    private String merchantRespEntityCode;
+    private String merchantRespReferenceNumber;
+    private String merchantRespClientReceipt;
+    private String merchantRespReloadCode;
+    private String merchantRespPurchaseAmount;
+
 	private Pagamento pagamento;
 
 	@Override
@@ -37,55 +49,17 @@ public class DataFingerPrint6Response implements RetornoFingerprint {
 		}
 	}
 
-    @Override
-    public void setMerchantRespCP(String merchantRespCP) {
 
-    }
-
-    @Override
-    public void setMerchantRespTid(String merchantRespTid) {
-
-    }
-
-    @Override
-    public void setMerchantRespPurchaseAmount(String merchantRespPurchaseAmount) {
-
-    }
-
-    @Override
-    public void setMerchantRespPan(String merchantRespPan) {
-
-    }
-
-    @Override
-    public void setMerchantResp(String merchantResp) {
-
-    }
-
-    @Override
-    public void setMerchantRespEntityCode(String merchantRespEntityCode) {
-
-    }
-
-    @Override
-    public void setMerchantRespReferenceNumber(String merchantRespReferenceNumber) {
-
-    }
-
-    @Override
-    public void setMerchantRespClientReceipt(String merchantRespClientReceipt) {
-
-    }
-
-    @Override
-    public void setMerchantRespReloadCode(String merchantRespReloadCode) {
-
-    }
 
     @Override
     public void toBuilder(SispWebhookRequest sispWebhookRequest) {
+        log.info("toBuilder: {}", sispWebhookRequest);
         var messageType = sispWebhookRequest.getMessageType();
         this.setMessageType(messageType.getCode());
+        this.setMerchantRespTid(sispWebhookRequest.getMerchantRespTid());
+        this.setMerchantResp(sispWebhookRequest.getMerchantResp());
+        this.setMerchantRespPurchaseAmount(sispWebhookRequest.getMerchantRespPurchaseAmount().toString());
+        this.setMerchantRespPan(sispWebhookRequest.getMerchantRespPan());
         this.setMerchantRespErrorCode(sispWebhookRequest.getMerchantRespErrorCode());
         this.setMerchantRespErrorDetail(sispWebhookRequest.getMerchantRespErrorDetail());
         this.setMerchantRespErrorDescription(sispWebhookRequest.getMerchantRespErrorDescription());

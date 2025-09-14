@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.in.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import cv.ntinnovation.vintipay.application.core.domain.enums.MessageErrorEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.MessageRespTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

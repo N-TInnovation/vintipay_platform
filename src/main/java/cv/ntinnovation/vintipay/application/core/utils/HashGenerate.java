@@ -76,12 +76,12 @@ public class HashGenerate {
 	}
 
 	public static String HashGenerate6(DataFingerPrint6Response dataFingerPrint6Response){
-		
+
 		String toHash =SHA.GenerateSHA512StringToBase64(dataFingerPrint6Response.getPosAutCode())+
-				dataFingerPrint6Response.getMessageType()+dataFingerPrint6Response.getMerchantRespMessageID()+dataFingerPrint6Response.getMerchantRespErrorCode()+
-				dataFingerPrint6Response.getMerchantRespErrorDetail()+dataFingerPrint6Response.getMerchantRespErrorDescription()+
-				dataFingerPrint6Response.getMerchantRespMerchantRef()+dataFingerPrint6Response.getMerchantRespMerchantSession()+
-				dataFingerPrint6Response.getMerchantRespAdditionalErrorMessage()+dataFingerPrint6Response.getMerchantRespTimeStamp();
+				dataFingerPrint6Response.getMessageType()+dataFingerPrint6Response.getMerchantRespMerchantRef().trim()+
+                dataFingerPrint6Response.getMerchantRespMerchantSession().trim()+ ((long)(Double.parseDouble(dataFingerPrint6Response.getMerchantRespPurchaseAmount())*1000))+
+                dataFingerPrint6Response.getMerchantRespMessageID()+dataFingerPrint6Response.getMerchantRespPan().trim()+
+                dataFingerPrint6Response.getMerchantResp().trim() +dataFingerPrint6Response.getMerchantRespTimeStamp();
 		logger.log(Level.INFO,
 				"Clear Hash: " +toHash);
 		return SHA.GenerateSHA512StringToBase64(toHash);

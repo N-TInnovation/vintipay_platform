@@ -7,9 +7,7 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagam
 import cv.ntinnovation.vintipay.application.core.domain.entity.IntencaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.SessaoPagamento;
-import cv.ntinnovation.vintipay.application.core.domain.enums.IntegracaoEnum;
-import cv.ntinnovation.vintipay.application.core.domain.enums.MensagemRetornoEnum;
-import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.*;
 import cv.ntinnovation.vintipay.application.core.domain.exception.PagamentoNaoEncontradoException;
 import cv.ntinnovation.vintipay.application.core.domain.exception.SessaoPagamentoInvalidaException;
 import cv.ntinnovation.vintipay.application.core.domain.rules.FingerPrintService;
@@ -156,6 +154,7 @@ public class WebhookPagamentoController {
                     validaSessaoPagamentoUseCase.invalidarSessao(responseDto.getMerchantSession());
                 }
                 model.addAttribute("pagamento", pagamento);
+                model.addAttribute("erro", mensagem);
                 return pagamento.getStatus().getRetorno();
             }else {
                 model.addAttribute("response", responseDto);
@@ -174,6 +173,15 @@ public class WebhookPagamentoController {
 
 
     private String getMensagemRetorno(MensagemRetornoEnum mensagemRetornoEnum, SispWebhookRequest request) {
+        if (mensagemRetornoEnum.getMessageType().equals(MessageRespTypeEnum.FALHA)){
+            int codigoErro;
+            try {
+                codigoErro = Integer.parseInt(request.getMerchantRespErrorCode());
+            }catch (NumberFormatException e){
+                codigoErro = 0;
+            }
+            return MessageErrorEnum.fromCodigo(codigoErro).getMensagem();
+        }
         return mensagemRetornoEnum.getDescricao();
     }
 
