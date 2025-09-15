@@ -53,7 +53,6 @@ public class DataFingerPrint6Response implements RetornoFingerprint {
 
     @Override
     public void toBuilder(SispWebhookRequest sispWebhookRequest) {
-        log.info("toBuilder: {}", sispWebhookRequest);
         var messageType = sispWebhookRequest.getMessageType();
         this.setMessageType(messageType.getCode());
         this.setMerchantRespTid(sispWebhookRequest.getMerchantRespTid());
