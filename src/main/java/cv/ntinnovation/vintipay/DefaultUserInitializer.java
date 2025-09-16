@@ -1,10 +1,5 @@
 package cv.ntinnovation.vintipay;
 
-import cv.ntinnovation.vintipay.adapter.out.db.repository.ConfiguracaoPagamentoRepository;
-import cv.ntinnovation.vintipay.application.port.in.BuscaConfiguracaoPagamentoUseCase;
-import cv.ntinnovation.vintipay.application.port.in.CriaConfiguracaoPagamentoUseCase;
-import cv.ntinnovation.vintipay.application.port.in.CriaMetodoPagamentoUseCase;
-import cv.ntinnovation.vintipay.application.port.out.BuscaConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.port.out.BuscaUsuario;
 import cv.ntinnovation.vintipay.application.port.in.RegistroUsuarioUseCase;
 import lombok.RequiredArgsConstructor;

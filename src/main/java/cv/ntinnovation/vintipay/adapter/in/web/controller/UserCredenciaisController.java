@@ -1,7 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
-import cv.ntinnovation.vintipay.adapter.out.db.entity.ConfiguracaoPagamentoEntity;
-import cv.ntinnovation.vintipay.adapter.out.db.repository.ConfiguracaoPagamentoRepository;
+import cv.ntinnovation.vintipay.adapter.out.persistence.entity.ConfiguracaoPagamentoEntity;
+import cv.ntinnovation.vintipay.adapter.out.persistence.repository.ConfiguracaoPagamentoRepository;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.core.domain.rules.FingerPrintService;

@@ -1,8 +1,8 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
-import cv.ntinnovation.vintipay.adapter.out.db.entity.UsuarioEntity;
-import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsuarioMapper;
-import cv.ntinnovation.vintipay.adapter.out.db.repository.UsuarioRepository;
+import cv.ntinnovation.vintipay.adapter.out.persistence.entity.UsuarioEntity;
+import cv.ntinnovation.vintipay.adapter.out.persistence.mapper.UsuarioMapper;
+import cv.ntinnovation.vintipay.adapter.out.persistence.repository.UsuarioRepository;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaUsuarioUseCase;
 import lombok.RequiredArgsConstructor;

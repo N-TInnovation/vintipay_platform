@@ -1,7 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
-import cv.ntinnovation.vintipay.adapter.out.db.entity.UsuarioEntity;
-import cv.ntinnovation.vintipay.adapter.out.db.mapper.UsuarioMapper;
+import cv.ntinnovation.vintipay.adapter.out.persistence.entity.UsuarioEntity;
+import cv.ntinnovation.vintipay.adapter.out.persistence.mapper.UsuarioMapper;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.PlanoAssinatura;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
