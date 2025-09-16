@@ -31,13 +31,20 @@ public class UserDashboardController {
         var pagamentosPagos = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioAtual.getId(), StatusPagamentoEnum.PAGO).getTotalElements();
         var pagamentosPendentes = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioAtual.getId(), StatusPagamentoEnum.PENDENTE).getTotalElements();
         var pagamentosCancelados = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioAtual.getId(), StatusPagamentoEnum.CANCELADO).getTotalElements();
-        var totalPagamentos = pagamentosPagos + pagamentosPendentes + pagamentosCancelados;
+        var pagamentosEstornados = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioAtual.getId(), StatusPagamentoEnum.ESTORNADO).getTotalElements();
+        var pagamentosErro = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioAtual.getId(), StatusPagamentoEnum.ERRO).getTotalElements();
+        var pagamentosExpirados = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioAtual.getId(), StatusPagamentoEnum.EXPIRADO).getTotalElements();
+        
+        var totalPagamentos = pagamentosPagos + pagamentosPendentes + pagamentosCancelados + pagamentosEstornados + pagamentosErro + pagamentosExpirados;
 
         // Adiciona estatísticas ao modelo
         model.addAttribute("totalPagamentos", totalPagamentos);
         model.addAttribute("pagamentosPagos", pagamentosPagos);
         model.addAttribute("pagamentosPendentes", pagamentosPendentes);
         model.addAttribute("pagamentosCancelados", pagamentosCancelados);
+        model.addAttribute("pagamentosEstornados", pagamentosEstornados);
+        model.addAttribute("pagamentosErro", pagamentosErro);
+        model.addAttribute("pagamentosExpirados", pagamentosExpirados);
         model.addAttribute("usuario", usuarioAtual);
 
         return "user/dashboard";

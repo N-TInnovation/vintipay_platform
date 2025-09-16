@@ -6,6 +6,8 @@ import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnu
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 
 public interface BuscaPagamentoPort {
@@ -28,7 +30,17 @@ public interface BuscaPagamentoPort {
      * @param usuarioId ID do usuário
      * @param status Status do pagamento (opcional, pode ser null)
      * @param ambiente Ambiente do pagamento (opcional, pode ser null para todos os ambientes)
-     * @return Página com os pagamentos do usuário filtrados por ambiente
+     * @return Página com os pagamentos do usuário
      */
     Page<Pagamento> buscarPorUsuarioEAmbiente(Pageable pageable, Long usuarioId, StatusPagamentoEnum status, AmbienteEnum ambiente);
+    
+    /**
+     * Busca pagamentos agrupados por período e status para geração de gráficos no dashboard
+     * @param usuarioId ID do usuário 
+     * @param dataInicio Data de início do período
+     * @param dataFim Data de fim do período
+     * @param tipoPeriodo Tipo de período (DIA, MES, ANO)
+     * @return Mapa com dados agrupados por status e período
+     */
+    Map<String, Map<String, Long>> buscarPorPeriodoAgrupado(Long usuarioId, LocalDate dataInicio, LocalDate dataFim, String tipoPeriodo);
 }

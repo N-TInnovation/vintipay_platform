@@ -72,6 +72,10 @@
                 background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 50%);
             }
             
+            .stats-card-danger {
+                background: linear-gradient(135deg, #dc3545 0%, #fd7e14 50%);
+            }
+            
             .numbers {
                 padding: 0.5rem 0;
             }
@@ -250,6 +254,22 @@
                 background: rgba(239, 68, 68, 0.1);
                 color: #ef4444;
             }
+            
+            /* Estilos para as seções de gráficos */
+            .chart-container {
+                position: relative;
+                height: 300px;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .filters-container {
+                background-color: white;
+                border-radius: 10px;
+                padding: 15px;
+                margin-bottom: 20px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            }
         </style>
     </additionalCss>
 </head>
@@ -257,76 +277,214 @@
     <content>
         <!-- Cards de Estatísticas -->
         <div class="row">
-            <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+            <!-- Card Total de Pagamentos -->
+            <div class="col-12 mb-4">
                 <div class="card stats-card stats-card-primary">
                     <div class="card-body p-3">
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Total de Pagamentos</p>
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">TOTAL DE<br>PAGAMENTOS</p>
                                     <h5 class="font-weight-bolder" th:text="${totalPagamentos}">0</h5>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-primary shadow-primary text-center rounded-circle p-3">
-                                    <i class="fas fa-money-bill-wave text-white"></i>
+                                <div class="icon icon-shape bg-white shadow-primary text-center rounded-circle p-3">
+                                    <i class="fas fa-money-bill-wave text-primary"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-                <div class="card stats-card stats-card-success">
+        </div>
+        
+        <!-- Primeira linha de cards 2x2 -->
+        <div class="row">
+            <!-- Card Pagamentos Pagos -->
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card stats-card" style="background: linear-gradient(135deg, #198754 0%, #20c997 100%);">
                     <div class="card-body p-3">
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Pagamentos Pagos</p>
-                                    <h5 class="font-weight-bolder text-success" th:text="${pagamentosPagos}">0</h5>
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">PAGAMENTOS<br>PAGOS</p>
+                                    <h5 class="font-weight-bolder text-white" th:text="${pagamentosPagos}">0</h5>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-success shadow-success text-center rounded-circle p-3">
-                                    <i class="fas fa-check text-white"></i>
+                                <div class="icon icon-shape bg-white shadow-success text-center rounded-circle p-3">
+                                    <i class="fas fa-check text-success"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-                <div class="card stats-card stats-card-warning">
+            
+            <!-- Card Pagamentos Pendentes -->
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card stats-card" style="background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);">
                     <div class="card-body p-3">
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Pagamentos Pendentes</p>
-                                    <h5 class="font-weight-bolder text-warning" th:text="${pagamentosPendentes}">0</h5>
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">PAGAMENTOS<br>PENDENTES</p>
+                                    <h5 class="font-weight-bolder text-white" th:text="${pagamentosPendentes}">0</h5>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-warning shadow-warning text-center rounded-circle p-3">
-                                    <i class="fas fa-clock text-white"></i>
+                                <div class="icon icon-shape bg-white shadow-warning text-center rounded-circle p-3">
+                                    <i class="fas fa-clock text-warning"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-sm-6">
-                <div class="card stats-card stats-card-info">
+            
+            <!-- Card Pagamentos Cancelados -->
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card stats-card" style="background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 50%);">
                     <div class="card-body p-3">
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Pagamentos Cancelados</p>
-                                    <h5 class="font-weight-bolder text-danger" th:text="${pagamentosCancelados}">0</h5>
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">PAGAMENTOS<br>CANCELADOS</p>
+                                    <h5 class="font-weight-bolder text-white" th:text="${pagamentosCancelados}">0</h5>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-danger shadow-danger text-center rounded-circle p-3">
-                                    <i class="fas fa-times text-white"></i>
+                                <div class="icon icon-shape bg-white shadow-danger text-center rounded-circle p-3">
+                                    <i class="fas fa-times text-danger"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card Pagamentos Estornados -->
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card stats-card" style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 50%);">
+                    <div class="card-body p-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">PAGAMENTOS<br>ESTORNADOS</p>
+                                    <h5 class="font-weight-bolder text-white" th:text="${pagamentosEstornados}">0</h5>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="icon icon-shape bg-white shadow-danger text-center rounded-circle p-3">
+                                    <i class="fas fa-undo text-danger"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Segunda linha de cards 2x2 -->
+        <div class="row">
+            <!-- Card Pagamentos com Erro -->
+            <div class="col-md-6 col-sm-6 mb-4">
+                <div class="card stats-card" style="background: linear-gradient(135deg, #dc3545 0%, #6c757d 100%);">
+                    <div class="card-body p-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">PAGAMENTOS COM<br>ERRO</p>
+                                    <h5 class="font-weight-bolder text-white" th:text="${pagamentosErro}">0</h5>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="icon icon-shape bg-white shadow-danger text-center rounded-circle p-3">
+                                    <i class="fas fa-exclamation-circle text-danger"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card Pagamentos Expirados -->
+            <div class="col-md-6 col-sm-6 mb-4">
+                <div class="card stats-card" style="background: linear-gradient(135deg, #6c757d 0%, #343a40 100%);">
+                    <div class="card-body p-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">PAGAMENTOS<br>EXPIRADOS</p>
+                                    <h5 class="font-weight-bolder text-white" th:text="${pagamentosExpirados}">0</h5>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="icon icon-shape bg-white shadow-secondary text-center rounded-circle p-3">
+                                    <i class="fas fa-hourglass-end text-secondary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seção de Gráficos -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header pb-0 p-3">
+                        <h6 class="mb-0">Análise de Pagamentos</h6>
+                    </div>
+                    <div class="card-body p-3">
+                        <!-- Filtros para os gráficos -->
+                        <div class="filters-container mb-4">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="tipoPeriodo">Agrupar por</label>
+                                        <select class="form-control" id="tipoPeriodo" onchange="updatePeriod()">
+                                            <option value="MES">Mês</option>
+                                            <option value="DIA">Dia</option>
+                                            <option value="ANO">Ano</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="dataInicio">Data Início</label>
+                                        <input type="date" class="form-control" id="dataInicio">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="dataFim">Data Fim</label>
+                                        <input type="date" class="form-control" id="dataFim">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <button class="btn btn-primary w-100" onclick="updatePeriod()">
+                                        <i class="fas fa-filter me-2"></i> Filtrar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contêineres dos Gráficos -->
+                        <div class="row">
+                            <!-- Gráfico de Barras -->
+                            <div class="col-md-6">
+                                <div class="chart-container">
+                                    <canvas id="barChartPagamentos"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- Gráfico de Linha -->
+                            <div class="col-md-6">
+                                <div class="chart-container">
+                                    <canvas id="lineChartPagamentos"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -417,9 +575,505 @@
     </content>
     
     <additionalJs>
+        <!-- Chart.js para os gráficos -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+        
         <!-- JavaScript adicional específico desta página -->
         <script>
-            // Código JavaScript específico do dashboard do usuário, se necessário
+            // Inicialização dos gráficos quando o documento estiver pronto
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOM carregado, inicializando gráficos...');
+                initCharts();
+                
+                // Inicializar datas com valores padrão (últimos 6 meses)
+                const hoje = new Date();
+                const seisMesesAtras = new Date();
+                seisMesesAtras.setMonth(hoje.getMonth() - 6);
+                
+                // Formatar datas para o formato yyyy-MM-dd
+                document.getElementById('dataFim').value = formatDateForInput(hoje);
+                document.getElementById('dataInicio').value = formatDateForInput(seisMesesAtras);
+                
+                console.log('Datas inicializadas: de', formatDateForInput(seisMesesAtras), 'até', formatDateForInput(hoje));
+            });
+            
+            // Função para formatar data para o formato de input HTML
+            function formatDateForInput(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+            
+            // Função para inicializar os gráficos
+            function initCharts() {
+                console.log('Inicializando gráficos...');
+                fetchPagamentosData();
+            }
+            
+            // Função para buscar dados de pagamentos do servidor
+            function fetchPagamentosData(dataInicio = null, dataFim = null, tipoPeriodo = 'MES') {
+                // Obter valores dos campos de input se não foram passados
+                if (!dataInicio) {
+                    const dataInicioInput = document.getElementById('dataInicio');
+                    dataInicio = dataInicioInput && dataInicioInput.value ? dataInicioInput.value : null;
+                }
+                if (!dataFim) {
+                    const dataFimInput = document.getElementById('dataFim');
+                    dataFim = dataFimInput && dataFimInput.value ? dataFimInput.value : null;
+                }
+                if (!tipoPeriodo) {
+                    const tipoPeriodoSelect = document.getElementById('tipoPeriodo');
+                    tipoPeriodo = tipoPeriodoSelect ? tipoPeriodoSelect.value : 'MES';
+                }
+                
+                // URL para o endpoint REST
+                let url = '/dashboard/pagamentos-por-periodo?tipoPeriodo=' + tipoPeriodo;
+                
+                // Adicionar filtros de data se fornecidos
+                if (dataInicio) {
+                    url += '&dataInicio=' + dataInicio;
+                }
+                if (dataFim) {
+                    url += '&dataFim=' + dataFim;
+                }
+                
+                console.log('[DEBUG] Iniciando busca de dados:', {
+                    url: url,
+                    dataInicio: dataInicio,
+                    dataFim: dataFim,
+                    tipoPeriodo: tipoPeriodo
+                });
+                
+                try {
+                    // Obter o token CSRF do cookie
+                    const csrfToken = getCsrfToken();
+                    console.log('[DEBUG] CSRF Token:', csrfToken ? 'Encontrado' : 'Não encontrado');
+                    
+                    // Fazer a requisição AJAX
+                    console.log('[DEBUG] Enviando requisição fetch para:', url);
+                    
+                    fetch(url, {
+                        method: 'GET',
+                        credentials: 'same-origin', // Incluir cookies na requisição
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken || '' // Incluir token CSRF no header
+                        }
+                    })
+                        .then(response => {
+                            console.log('[DEBUG] Resposta recebida:', {
+                                status: response.status,
+                                statusText: response.statusText,
+                                headers: Array.from(response.headers.entries()),
+                                ok: response.ok
+                            });
+                            
+                            if (!response.ok) {
+                                throw new Error('Erro na resposta: ' + response.status + ' ' + response.statusText);
+                            }
+                            
+                            return response.json().catch(err => {
+                                console.error('[DEBUG] Erro ao processar JSON:', err);
+                                throw new Error('Erro ao processar resposta como JSON');
+                            });
+                        })
+                        .then(data => {
+                            console.log('[DEBUG] Dados recebidos:', data);
+                            
+                            // Remover overlays de carregamento
+                            document.querySelectorAll('.chart-container .loading-overlay').forEach(overlay => {
+                                overlay.remove();
+                            });
+                            
+                            if (!data || !data.labels || data.labels.length === 0) {
+                                console.warn('[DEBUG] Dados vazios ou sem labels recebidos do servidor');
+                                // Mostrar uma mensagem para o usuário sem remover canvas
+                                document.querySelectorAll('.chart-container').forEach(container => {
+                                    const alertDiv = document.createElement('div');
+                                    alertDiv.className = 'alert alert-warning text-center';
+                                    alertDiv.style.position = 'absolute';
+                                    alertDiv.style.top = '0';
+                                    alertDiv.style.left = '0';
+                                    alertDiv.style.width = '100%';
+                                    alertDiv.style.height = '100%';
+                                    alertDiv.style.display = 'flex';
+                                    alertDiv.style.alignItems = 'center';
+                                    alertDiv.style.justifyContent = 'center';
+                                    alertDiv.style.zIndex = '5';
+                                    alertDiv.style.background = 'rgba(255, 255, 255, 0.9)';
+                                    alertDiv.textContent = 'Não há dados disponíveis para o período selecionado.';
+                                    container.appendChild(alertDiv);
+                                });
+                                return;
+                            }
+                            
+                            try {
+                                // Renderizar gráficos com os dados
+                                console.log('[DEBUG] Chamando renderBarChart');
+                                renderBarChart(data);
+                                console.log('[DEBUG] Chamando renderLineChart');
+                                renderLineChart(data);
+                            } catch (err) {
+                                console.error('[DEBUG] Erro durante renderização dos gráficos:', err);
+                                document.querySelectorAll('.chart-container').forEach(container => {
+                                    const alertDiv = document.createElement('div');
+                                    alertDiv.className = 'alert alert-danger text-center';
+                                    alertDiv.style.position = 'absolute';
+                                    alertDiv.style.top = '0';
+                                    alertDiv.style.left = '0';
+                                    alertDiv.style.width = '100%';
+                                    alertDiv.style.height = '100%';
+                                    alertDiv.style.display = 'flex';
+                                    alertDiv.style.alignItems = 'center';
+                                    alertDiv.style.justifyContent = 'center';
+                                    alertDiv.style.zIndex = '5';
+                                    alertDiv.style.background = 'rgba(255, 255, 255, 0.9)';
+                                    alertDiv.textContent = 'Erro ao renderizar gráficos: ' + err.message;
+                                    container.appendChild(alertDiv);
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('[DEBUG] Erro ao buscar dados de pagamentos:', error);
+                            
+                            // Remover overlays de carregamento
+                            document.querySelectorAll('.chart-container .loading-overlay').forEach(overlay => {
+                                overlay.remove();
+                            });
+                            
+                            // Mostrar mensagem de erro sem remover canvas
+                            document.querySelectorAll('.chart-container').forEach(container => {
+                                const alertDiv = document.createElement('div');
+                                alertDiv.className = 'alert alert-danger text-center';
+                                alertDiv.style.position = 'absolute';
+                                alertDiv.style.top = '0';
+                                alertDiv.style.left = '0';
+                                alertDiv.style.width = '100%';
+                                alertDiv.style.height = '100%';
+                                alertDiv.style.display = 'flex';
+                                alertDiv.style.alignItems = 'center';
+                                alertDiv.style.justifyContent = 'center';
+                                alertDiv.style.zIndex = '5';
+                                alertDiv.style.background = 'rgba(255, 255, 255, 0.9)';
+                                alertDiv.textContent = 'Erro ao carregar dados do gráfico: ' + error.message;
+                                container.appendChild(alertDiv);
+                            });
+                        });
+                } catch (error) {
+                    console.error('[DEBUG] Erro global na função fetchPagamentosData:', error);
+                    
+                    // Remover overlays de carregamento
+                    document.querySelectorAll('.chart-container .loading-overlay').forEach(overlay => {
+                        overlay.remove();
+                    });
+                    
+                    // Mostrar mensagem de erro sem remover canvas
+                    document.querySelectorAll('.chart-container').forEach(container => {
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'alert alert-danger text-center';
+                        alertDiv.style.position = 'absolute';
+                        alertDiv.style.top = '0';
+                        alertDiv.style.left = '0';
+                        alertDiv.style.width = '100%';
+                        alertDiv.style.height = '100%';
+                        alertDiv.style.display = 'flex';
+                        alertDiv.style.alignItems = 'center';
+                        alertDiv.style.justifyContent = 'center';
+                        alertDiv.style.zIndex = '5';
+                        alertDiv.style.background = 'rgba(255, 255, 255, 0.9)';
+                        alertDiv.textContent = 'Erro inesperado: ' + error.message;
+                        container.appendChild(alertDiv);
+                    });
+                }
+            }
+            
+            // Função para obter o token CSRF dos cookies
+            function getCsrfToken() {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith('XSRF-TOKEN=')) {
+                        return cookie.substring('XSRF-TOKEN='.length, cookie.length);
+                    }
+                }
+                return null;
+            }
+            
+            // Função para renderizar o gráfico de barras
+            function renderBarChart(data) {
+                console.log('[DEBUG] Renderizando gráfico de barras com dados:', data);
+                const ctx = document.getElementById('barChartPagamentos').getContext('2d');
+                
+                if (!ctx) {
+                    console.error('[DEBUG] Elemento canvas "barChartPagamentos" não encontrado!');
+                    return;
+                }
+                
+                // Preparar dados para o gráfico
+                const labels = data.labels;
+                const datasets = [];
+                
+                // Mapear cores para cada status
+                const colors = {
+                    'PAGO': '#198754',       // Verde
+                    'PENDENTE': '#ffc107',   // Amarelo
+                    'CANCELADO': '#0d6efd',  // Azul
+                    'ESTORNADO': '#9c27b0',  // Roxo
+                    'ERRO': '#dc3545',       // Vermelho
+                    'EXPIRADO': '#6c757d',   // Cinza
+                    'PROCESSANDO': '#0dcaf0' // Azul claro
+                };
+                
+                // Função para converter label para o formato das chaves de dados
+                function getDataKeyForLabel(label) {
+                    // Converter formato "Mar/2025" para "03/2025"
+                    const mesesAbreviados = {
+                        'Jan': '01', 'Fev': '02', 'Mar': '03', 'Abr': '04', 
+                        'Mai': '05', 'Jun': '06', 'Jul': '07', 'Ago': '08', 
+                        'Set': '09', 'Out': '10', 'Nov': '11', 'Dez': '12'
+                    };
+                    
+                    if (!label || typeof label !== 'string') return null;
+                    
+                    const partes = label.split('/');
+                    if (partes.length !== 2) return null;
+                    
+                    const mesAbreviado = partes[0];
+                    const ano = partes[1];
+                    const mesNumerico = mesesAbreviados[mesAbreviado];
+                    
+                    if (!mesNumerico) return null;
+                    
+                    return mesNumerico + '/' + ano;
+                }
+                
+                // Criar datasets para cada status
+                console.log('[DEBUG] Criando datasets para o gráfico de barras');
+                for (const [status, periodos] of Object.entries(data.dados || {})) {
+                    console.log(`[DEBUG] Status: ${status}, períodos:`, periodos);
+                    
+                    // Para cada label, encontrar o valor correspondente no formato correto
+                    const values = labels.map(label => {
+                        const dataKey = getDataKeyForLabel(label);
+                        console.log(`[DEBUG] Label: ${label}, dataKey: ${dataKey}, valor: ${periodos[dataKey] || 0}`);
+                        return periodos[dataKey] || 0;
+                    });
+                    
+                    datasets.push({
+                        label: status,
+                        data: values,
+                        backgroundColor: colors[status] || '#777',
+                        borderColor: colors[status] || '#777',
+                        borderWidth: 1
+                    });
+                }
+                
+                console.log('[DEBUG] Datasets preparados:', datasets);
+                
+                // Criar ou atualizar o gráfico
+                if (window.barChart) {
+                    console.log('[DEBUG] Atualizando gráfico de barras existente');
+                    window.barChart.data.labels = labels;
+                    window.barChart.data.datasets = datasets;
+                    window.barChart.update();
+                } else {
+                    console.log('[DEBUG] Criando novo gráfico de barras');
+                    window.barChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: datasets
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Quantidade de Pagamentos'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Período'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Pagamentos por Status e Período'
+                                },
+                                legend: {
+                                    position: 'top'
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // Função para renderizar o gráfico de linhas
+            function renderLineChart(data) {
+                console.log('[DEBUG] Renderizando gráfico de linha com dados:', data);
+                const ctx = document.getElementById('lineChartPagamentos').getContext('2d');
+                
+                if (!ctx) {
+                    console.error('[DEBUG] Elemento canvas "lineChartPagamentos" não encontrado!');
+                    return;
+                }
+                
+                // Preparar dados para o gráfico
+                const labels = data.labels;
+                const datasets = [];
+                
+                // Mapear cores para cada status
+                const colors = {
+                    'PAGO': '#198754',       // Verde
+                    'PENDENTE': '#ffc107',   // Amarelo
+                    'CANCELADO': '#0d6efd',  // Azul
+                    'ESTORNADO': '#9c27b0',  // Roxo
+                    'ERRO': '#dc3545',       // Vermelho
+                    'EXPIRADO': '#6c757d',   // Cinza
+                    'PROCESSANDO': '#0dcaf0' // Azul claro
+                };
+                
+                // Função para converter label para o formato das chaves de dados
+                function getDataKeyForLabel(label) {
+                    // Converter formato "Mar/2025" para "03/2025"
+                    const mesesAbreviados = {
+                        'Jan': '01', 'Fev': '02', 'Mar': '03', 'Abr': '04', 
+                        'Mai': '05', 'Jun': '06', 'Jul': '07', 'Ago': '08', 
+                        'Set': '09', 'Out': '10', 'Nov': '11', 'Dez': '12'
+                    };
+                    
+                    if (!label || typeof label !== 'string') return null;
+                    
+                    const partes = label.split('/');
+                    if (partes.length !== 2) return null;
+                    
+                    const mesAbreviado = partes[0];
+                    const ano = partes[1];
+                    const mesNumerico = mesesAbreviados[mesAbreviado];
+                    
+                    if (!mesNumerico) return null;
+                    
+                    return mesNumerico + '/' + ano;
+                }
+                
+                // Criar datasets para cada status
+                console.log('[DEBUG] Criando datasets para o gráfico de linha');
+                for (const [status, periodos] of Object.entries(data.dados || {})) {
+                    console.log(`[DEBUG] Status: ${status}, períodos:`, periodos);
+                    
+                    // Para cada label, encontrar o valor correspondente no formato correto
+                    const values = labels.map(label => {
+                        const dataKey = getDataKeyForLabel(label);
+                        console.log(`[DEBUG] Label: ${label}, dataKey: ${dataKey}, valor: ${periodos[dataKey] || 0}`);
+                        return periodos[dataKey] || 0;
+                    });
+                    
+                    datasets.push({
+                        label: status,
+                        data: values,
+                        fill: false,
+                        borderColor: colors[status] || '#777',
+                        tension: 0.1
+                    });
+                }
+                
+                console.log('[DEBUG] Datasets preparados:', datasets);
+                
+                // Criar ou atualizar o gráfico
+                if (window.lineChart) {
+                    console.log('[DEBUG] Atualizando gráfico de linha existente');
+                    window.lineChart.data.labels = labels;
+                    window.lineChart.data.datasets = datasets;
+                    window.lineChart.update();
+                } else {
+                    console.log('[DEBUG] Criando novo gráfico de linha');
+                    window.lineChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: datasets
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Quantidade de Pagamentos'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Período'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Evolução de Pagamentos por Status'
+                                },
+                                legend: {
+                                    position: 'top'
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // Função para atualizar o período de dados
+            function updatePeriod() {
+                console.log('[DEBUG] Atualizando período de dados');
+                const tipoPeriodo = document.getElementById('tipoPeriodo').value;
+                const dataInicio = document.getElementById('dataInicio').value;
+                const dataFim = document.getElementById('dataFim').value;
+                
+                console.log('[DEBUG] Filtros:', {tipoPeriodo, dataInicio, dataFim});
+                
+                // Mostrar indicador de carregamento sem remover os elementos canvas
+                document.querySelectorAll('.chart-container').forEach(container => {
+                    // Adicionar overlay de carregamento sem remover canvas
+                    const loadingOverlay = document.createElement('div');
+                    loadingOverlay.className = 'loading-overlay';
+                    loadingOverlay.style.position = 'absolute';
+                    loadingOverlay.style.top = '0';
+                    loadingOverlay.style.left = '0';
+                    loadingOverlay.style.width = '100%';
+                    loadingOverlay.style.height = '100%';
+                    loadingOverlay.style.background = 'rgba(255, 255, 255, 0.8)';
+                    loadingOverlay.style.display = 'flex';
+                    loadingOverlay.style.alignItems = 'center';
+                    loadingOverlay.style.justifyContent = 'center';
+                    loadingOverlay.style.zIndex = '10';
+                    loadingOverlay.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div><p class="mt-2">Carregando dados...</p></div>';
+                    
+                    // Garantir que o container tenha position relative para o overlay funcionar
+                    container.style.position = 'relative';
+                    
+                    // Remover overlays anteriores se existirem
+                    container.querySelectorAll('.loading-overlay').forEach(el => el.remove());
+                    container.querySelectorAll('.alert').forEach(el => el.remove());
+                    
+                    // Adicionar o novo overlay
+                    container.appendChild(loadingOverlay);
+                });
+                
+                fetchPagamentosData(dataInicio, dataFim, tipoPeriodo);
+            }
         </script>
     </additionalJs>
 </body>

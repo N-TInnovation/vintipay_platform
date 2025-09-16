@@ -126,6 +126,7 @@ public class SecurityConfig {
                             .requestMatchers("/termos").permitAll()
                             .requestMatchers("/admin/**").hasRole("ADMIN")
                             .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                            .requestMatchers("/dashboard/**").hasAnyRole("USER", "ADMIN")
                             .requestMatchers("/permissoes/**").hasRole("ADMIN")
                             .requestMatchers("/papeis/**").hasRole("ADMIN")
                             .requestMatchers("/pagamento/checkout/{reference}").permitAll()
