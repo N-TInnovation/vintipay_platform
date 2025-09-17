@@ -43,6 +43,11 @@ public class ProdutoMapper {
                 .dataAtualizacao(produto.getDataAtualizacao())
                 .moeda(produto.getMoeda())
                 .proprietario(proprietario)
+                // Campos de recorrência
+                .recorrente(produto.isRecorrente())
+                .periodoRecorrencia(produto.getPeriodoRecorrencia())
+                .duracaoRecorrencia(produto.getDuracaoRecorrencia())
+                .descricaoRecorrencia(produto.getDescricaoRecorrencia())
                 .build();
     }
     
@@ -77,6 +82,11 @@ public class ProdutoMapper {
                 .moeda(entity.getMoeda())
                 .proprietario(proprietario)
                 .proprietarioId(entity.getProprietario() != null ? entity.getProprietario().getId() : null)
+                // Campos de recorrência
+                .recorrente(entity.isRecorrente())
+                .periodoRecorrencia(entity.getPeriodoRecorrencia())
+                .duracaoRecorrencia(entity.getDuracaoRecorrencia())
+                .descricaoRecorrencia(entity.getDescricaoRecorrencia())
                 .build();
     }
 }

@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.application.core.domain.entity;
 
 import cv.ntinnovation.vintipay.application.core.domain.enums.CategoriaProdutoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.PeriodoRecorrenciaEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,4 +33,10 @@ public class Produto {
     private Integer estoque; // Opcional, pode ser null para produtos digitais ou serviços
     private CategoriaProdutoEnum categoria;
     private String moeda; // Por padrão, CVE
+    
+    // Campos para cobranças recorrentes
+    private boolean recorrente;
+    private PeriodoRecorrenciaEnum periodoRecorrencia;
+    private Integer duracaoRecorrencia; // Número de ciclos (null = ilimitado)
+    private String descricaoRecorrencia; // Descrição amigável da recorrência
 }

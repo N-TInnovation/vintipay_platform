@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.in.web.dto;
 
 import cv.ntinnovation.vintipay.application.core.domain.enums.CategoriaProdutoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.PeriodoRecorrenciaEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,4 +28,10 @@ public class ProdutoResponse {
     private LocalDateTime dataAtualizacao;
     private String moeda;
     private Long proprietarioId;
+    
+    // Campos para cobranças recorrentes
+    private boolean recorrente;
+    private PeriodoRecorrenciaEnum periodoRecorrencia;
+    private Integer duracaoRecorrencia; // Número de ciclos (null = ilimitado)
+    private String descricaoRecorrencia; // Descrição amigável da recorrência
 }

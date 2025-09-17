@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.out.persistence.entity;
 
 import cv.ntinnovation.vintipay.application.core.domain.enums.CategoriaProdutoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.PeriodoRecorrenciaEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,6 +51,19 @@ public class ProdutoEntity {
     private LocalDateTime dataAtualizacao;
     
     private String moeda;
+    
+    // Campos para cobranças recorrentes
+    private boolean recorrente;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "periodo_recorrencia")
+    private PeriodoRecorrenciaEnum periodoRecorrencia;
+    
+    @Column(name = "duracao_recorrencia")
+    private Integer duracaoRecorrencia;
+    
+    @Column(name = "descricao_recorrencia")
+    private String descricaoRecorrencia;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proprietario_id", nullable = false)

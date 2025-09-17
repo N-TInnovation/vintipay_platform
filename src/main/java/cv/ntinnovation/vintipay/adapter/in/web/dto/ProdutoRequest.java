@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.in.web.dto;
 
 import cv.ntinnovation.vintipay.application.core.domain.enums.CategoriaProdutoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.PeriodoRecorrenciaEnum;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -42,4 +43,13 @@ public class ProdutoRequest {
     private boolean ativo = true;
     
     private String moeda = "CVE"; // Moeda padrão para Cabo Verde
+    
+    // Campos para cobranças recorrentes
+    private boolean recorrente = false;
+    
+    private PeriodoRecorrenciaEnum periodoRecorrencia;
+    
+    private Integer duracaoRecorrencia; // Número de ciclos (null = ilimitado)
+    
+    private String descricaoRecorrencia; // Descrição amigável da recorrência
 }
