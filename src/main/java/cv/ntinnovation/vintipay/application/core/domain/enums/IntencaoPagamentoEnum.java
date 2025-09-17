@@ -10,7 +10,10 @@ public enum IntencaoPagamentoEnum {
     COMPRAS("1","compras","Compras"),
     RECARGA("3","recarga","Recarga"),
     PAGAMENTO_SERVICO("2","servico","Pagamento de Serviço"),
-    ESTORNO("4","estorno","Estorno");
+    ESTORNO("4","estorno","Estorno"),
+    SUBSCRICAO("5","subscricao","Subscrição"),
+    COBRANCA_RECORRENTE("6","cobranca_recorrente","Cobrança Recorrente"),
+    CANCELAMENTO_SUBSCRICAO("7","cancelamento_subscricao","Cancelamento de Subscrição");
 
     private final String transactionCode;
     private final String intencaoPagamento;
