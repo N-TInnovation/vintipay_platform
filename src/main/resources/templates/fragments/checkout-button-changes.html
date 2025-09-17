@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Alterações no Botão de Submissão</title>
+</head>
+<body>
+    <!-- 
+    Instruções para alteração do botão de submissão no arquivo checkout.html
+    
+    Localizar a linha com o botão de submissão (por volta da linha 456):
+    
+    <button type="submit" class="checkout-btn">
+        Finalizar Compra
+    </button>
+    
+    E substituir por:
+    -->
+    
+    <button type="submit" class="checkout-btn">
+        <span th:if="${isSubscription}">Subscrever</span>
+        <span th:unless="${isSubscription}">Finalizar Compra</span>
+    </button>
+    
+    <!-- 
+    Esta modificação irá exibir "Subscrever" quando o produto for uma assinatura,
+    ou "Finalizar Compra" nos casos normais.
+    
+    A variável isSubscription já está sendo passada corretamente pelo controller
+    PagamentoPublicoController na linha 93:
+    model.addAttribute("isSubscription", isSubscription);
+    -->
+</body>
+</html>
