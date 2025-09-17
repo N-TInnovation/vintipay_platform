@@ -33,6 +33,11 @@ public class ProdutoWebMapper {
                 .dataAtualizacao(produto.getDataAtualizacao())
                 .moeda(produto.getMoeda())
                 .proprietarioId(produto.getProprietarioId())
+                // Campos de recorrência
+                .recorrente(produto.isRecorrente())
+                .periodoRecorrencia(produto.getPeriodoRecorrencia())
+                .duracaoRecorrencia(produto.getDuracaoRecorrencia())
+                .descricaoRecorrencia(produto.getDescricaoRecorrencia())
                 .build();
     }
     
@@ -57,6 +62,11 @@ public class ProdutoWebMapper {
                 .categoria(request.getCategoria())
                 .ativo(request.isAtivo())
                 .moeda(request.getMoeda())
+                // Campos de recorrência
+                .recorrente(request.isRecorrente())
+                .periodoRecorrencia(request.getPeriodoRecorrencia())
+                .duracaoRecorrencia(request.getDuracaoRecorrencia())
+                .descricaoRecorrencia(request.getDescricaoRecorrencia())
                 .build();
     }
     
@@ -81,6 +91,11 @@ public class ProdutoWebMapper {
                 .categoria(produto.getCategoria())
                 .ativo(produto.isAtivo())
                 .moeda(produto.getMoeda())
+                // Campos de recorrência
+                .recorrente(produto.isRecorrente())
+                .periodoRecorrencia(produto.getPeriodoRecorrencia())
+                .duracaoRecorrencia(produto.getDuracaoRecorrencia())
+                .descricaoRecorrencia(produto.getDescricaoRecorrencia())
                 .build();
     }
 }

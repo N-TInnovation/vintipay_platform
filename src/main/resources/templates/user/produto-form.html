@@ -305,6 +305,55 @@
                         </div>
                     </div>
                     
+                    <!-- Cobranças Recorrentes -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-sync-alt me-2"></i> Cobranças Recorrentes
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="recorrente" th:field="*{recorrente}" onchange="toggleRecorrenciaOptions()">
+                                <label class="form-check-label" for="recorrente">Habilitar cobranças recorrentes</label>
+                            </div>
+                            <small class="text-muted">Ative para produtos com assinatura ou cobranças periódicas</small>
+                        </div>
+                        
+                        <div id="recorrenciaOptions" style="display: none;">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="periodoRecorrencia" class="form-label">Período de Recorrência</label>
+                                    <select class="form-select" id="periodoRecorrencia" th:field="*{periodoRecorrencia}">
+                                        <option value="">Selecione um período</option>
+                                        <option th:each="periodo : ${T(cv.ntinnovation.vintipay.application.core.domain.enums.PeriodoRecorrenciaEnum).values()}" 
+                                                th:value="${periodo.name()}" 
+                                                th:text="${periodo.descricao}">
+                                            Período
+                                        </option>
+                                    </select>
+                                    <small class="text-muted">Frequência com que o cliente será cobrado</small>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="duracaoRecorrencia" class="form-label">Duração (em ciclos)</label>
+                                    <input type="number" class="form-control" id="duracaoRecorrencia" th:field="*{duracaoRecorrencia}" min="1">
+                                    <small class="text-muted">Deixe em branco para assinatura sem prazo definido</small>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="descricaoRecorrencia" class="form-label">Descrição da Recorrência</label>
+                                <input type="text" class="form-control" id="descricaoRecorrencia" th:field="*{descricaoRecorrencia}" placeholder="Ex: Assinatura Mensal, Cobrança Semestral, etc.">
+                                <small class="text-muted">Descrição que será exibida ao cliente</small>
+                            </div>
+                            
+                            <div class="alert alert-info" role="alert">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Importante:</strong> Ao configurar um produto com cobranças recorrentes, o cliente será informado sobre o modelo de assinatura e cobranças periódicas antes da confirmação da compra.
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Imagem e Visibilidade -->
                     <div class="form-section">
                         <div class="form-section-title">
@@ -379,6 +428,9 @@
                 
                 // Inicializar a pré-visualização da imagem
                 previewImage();
+                
+                // Inicializar a visibilidade das opções de recorrência
+                toggleRecorrenciaOptions();
             });
             
             function previewImage() {
@@ -419,6 +471,21 @@
                 } else {
                     preview.style.display = 'none';
                     noPreview.style.display = 'block';
+                }
+            }
+            
+            function toggleRecorrenciaOptions() {
+                const recorrenteCheckbox = document.getElementById('recorrente');
+                const recorrenciaOptions = document.getElementById('recorrenciaOptions');
+                
+                if (recorrenteCheckbox.checked) {
+                    recorrenciaOptions.style.display = 'block';
+                    // Adicionar animação de fade in
+                    recorrenciaOptions.classList.add('animate-fade-in');
+                } else {
+                    recorrenciaOptions.style.display = 'none';
+                    // Remover a classe de animação
+                    recorrenciaOptions.classList.remove('animate-fade-in');
                 }
             }
         </script>
