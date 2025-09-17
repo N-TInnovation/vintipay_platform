@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt"
+      th:replace="~{user/layout/base :: html(
+        title='Clientes',
+        activeMenu='clientes',
+        pageTitle='Clientes',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <title>Clientes</title>
+    <additionalCss>
+        <!-- CSS adicional específico desta página -->
+        <style>
+            /* Cards principais */
+            .card {
+                border: none;
+                border-radius: 12px;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+                overflow: hidden;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                margin-bottom: 1.5rem;
+            }
+            
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            }
+            
+            .card-header {
+                padding: 1.25rem 1.5rem;
+                background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+                color: white;
+                border-bottom: none;
+            }
+            
+            .card-header h6 {
+                color: white !important;
+                font-weight: 600;
+                margin-bottom: 0;
+                letter-spacing: 0.3px;
+            }
+            
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            /* Cards de estatísticas */
+            .status-card {
+                border-radius: 15px;
+                padding: 1.5rem;
+                height: 100%;
+                background: white;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+                transition: all 0.3s ease;
+            }
+            
+            .status-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            }
+            
+            .status-card-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 1.25rem;
+            }
+            
+            .status-card-icon i {
+                font-size: 1.75rem;
+                color: white;
+            }
+            
+            .bg-purple-gradient {
+                background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            }
+            
+            .status-card h3 {
+                font-size: 2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            }
+            
+            .status-card p {
+                color: #64748b;
+                font-size: 0.9rem;
+                margin-bottom: 0;
+            }
+            
+            /* Tabelas */
+            .table {
+                margin-bottom: 0;
+            }
+            
+            .table th {
+                font-weight: 600;
+                color: #1e293b;
+                background: linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(58, 12, 163, 0.05) 100%);
+                border-bottom: none;
+                padding: 1rem;
+            }
+            
+            .table td {
+                color: #334155;
+                border-color: rgba(203, 213, 225, 0.5);
+                vertical-align: middle;
+                padding: 1rem;
+            }
+            
+            .table-hover tbody tr:hover {
+                background: linear-gradient(135deg, rgba(67, 97, 238, 0.03) 0%, rgba(58, 12, 163, 0.03) 100%);
+                cursor: pointer;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+                transition: all 0.3s ease;
+            }
+            
+            /* Filtros e buscas */
+            .search-wrapper {
+                position: relative;
+            }
+            
+            .search-input {
+                border-radius: 8px;
+                padding: 0.75rem 1rem 0.75rem 2.5rem;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+                transition: all 0.3s ease;
+            }
+            
+            .search-input:focus {
+                border-color: #4361ee;
+                box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+            }
+            
+            .search-icon {
+                position: absolute;
+                left: 1rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #64748b;
+            }
+            
+            /* Empty state */
+            .empty-state {
+                padding: 3rem 2rem;
+                text-align: center;
+                background: linear-gradient(135deg, rgba(67, 97, 238, 0.03) 0%, rgba(58, 12, 163, 0.03) 100%);
+                border-radius: 12px;
+                border: 1px dashed rgba(67, 97, 238, 0.3);
+            }
+            
+            .empty-state i {
+                font-size: 3rem;
+                color: #4361ee;
+                margin-bottom: 1.5rem;
+                opacity: 0.6;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <!-- Cards de Estatísticas -->
+        <div class="row mb-4">
+            <div class="col-xl-4 col-md-6 mb-xl-0 mb-4">
+                <div class="status-card">
+                    <div class="status-card-icon bg-purple-gradient">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 th:text="${totalClientes}">0</h3>
+                    <p>Total de Clientes</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filtros e Tabela de Clientes -->
+        <div class="card">
+            <div class="card-header pb-0 p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Lista de Clientes</h6>
+                    <div>
+                        <form method="get" class="d-flex align-items-center">
+                            <div class="search-wrapper me-2">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" name="query" th:value="${query}" class="form-control search-input" placeholder="Buscar cliente...">
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                <i class="fas fa-filter me-1"></i> Filtrar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-3">
+                <div th:if="${erro}" class="alert alert-danger" role="alert" th:text="${erro}">
+                    Erro ao carregar clientes
+                </div>
+                
+                <div th:if="${clientes != null && clientes.empty}" class="empty-state">
+                    <i class="fas fa-user-friends"></i>
+                    <h4>Nenhum cliente encontrado</h4>
+                    <p class="text-muted">Não encontramos nenhum cliente registrado no sistema.</p>
+                </div>
+                
+                <div th:if="${clientes != null && !clientes.empty}" class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Cidade</th>
+                                <th>País</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="cliente : ${clientes}" th:onclick="'window.location.href=\'/user/clientes/' + ${cliente.id} + '\''">
+                                <td th:text="${cliente.id}">123</td>
+                                <td th:text="${cliente.name}">João Silva</td>
+                                <td th:text="${cliente.email}">joao@exemplo.com</td>
+                                <td th:text="${cliente.billAddrCity}">São Paulo</td>
+                                <td th:text="${cliente.billAddrCountry}">Brasil</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a th:href="@{'/user/clientes/' + ${cliente.id}}" class="btn btn-sm btn-info me-1">
+                                            <i class="fas fa-eye"></i> Detalhes
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <!-- Paginação -->
+                    <div th:if="${clientes.totalPages > 1}" class="d-flex justify-content-center mt-4">
+                        <nav aria-label="Navegação de páginas">
+                            <ul class="pagination">
+                                <li class="page-item" th:classappend="${paginaAtual == 0 ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/user/clientes(page=${paginaAtual - 1}, query=${query})}" aria-label="Anterior">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item" th:each="i : ${#numbers.sequence(0, clientes.totalPages - 1)}" 
+                                    th:classappend="${i == paginaAtual ? 'active' : ''}">
+                                    <a class="page-link" th:href="@{/user/clientes(page=${i}, query=${query})}" th:text="${i + 1}">1</a>
+                                </li>
+                                <li class="page-item" th:classappend="${paginaAtual == clientes.totalPages - 1 ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/user/clientes(page=${paginaAtual + 1}, query=${query})}" aria-label="Próxima">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- JavaScript adicional específico desta página -->
+        <script>
+            // Código JavaScript específico da página de clientes, se necessário
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('Página de clientes carregada');
+            });
+        </script>
+    </additionalJs>
+</body>
+</html>

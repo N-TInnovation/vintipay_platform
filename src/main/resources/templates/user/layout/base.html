@@ -434,6 +434,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" th:classappend="${activeMenu == 'clientes' ? 'active' : ''}" href="/user/clientes">
+                    <i class="fas fa-users"></i> Clientes
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" th:classappend="${activeMenu == 'config-pagamentos' ? 'active' : ''}" href="/user/config-pagamentos">
                     <i class="fas fa-cog"></i> Config. Pagamentos
                 </a>
