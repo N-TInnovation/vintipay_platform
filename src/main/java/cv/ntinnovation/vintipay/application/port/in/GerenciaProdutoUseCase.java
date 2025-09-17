@@ -1,7 +1,10 @@
 package cv.ntinnovation.vintipay.application.port.in;
 
+import cv.ntinnovation.vintipay.application.core.domain.entity.DescontoCiclo;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
 import cv.ntinnovation.vintipay.application.core.domain.enums.CategoriaProdutoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.PeriodoRecorrenciaEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.PrimeiraCobrancaEnum;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -41,6 +44,33 @@ public interface GerenciaProdutoUseCase {
     Produto atualizarProduto(Long produtoId, String nome, String descricao, 
                            BigDecimal preco, String imagem, String codigoSku,
                            Integer estoque, CategoriaProdutoEnum categoria, boolean ativo);
+    
+    /**
+     * Atualiza um produto existente incluindo configurações de recorrência
+     * 
+     * @param produtoId ID do produto a ser atualizado
+     * @param nome Nome do produto
+     * @param descricao Descrição do produto
+     * @param preco Preço do produto
+     * @param imagem URL da imagem do produto
+     * @param codigoSku Código SKU do produto
+     * @param estoque Quantidade em estoque
+     * @param categoria Categoria do produto
+     * @param ativo Status de ativação do produto
+     * @param recorrente Indica se o produto é recorrente
+     * @param periodoRecorrencia Período de recorrência (mensal, anual, etc.)
+     * @param duracaoRecorrencia Número de ciclos (null = ilimitado)
+     * @param descricaoRecorrencia Descrição amigável da recorrência
+     * @param primeiraCobranca Momento da primeira cobrança (IMEDIATA, APOS_PERIODO)
+     * @param descontosPorCiclo Lista de descontos por ciclo
+     * @return Produto atualizado
+     */
+    Produto atualizarProdutoComRecorrencia(Long produtoId, String nome, String descricao, 
+                                        BigDecimal preco, String imagem, String codigoSku,
+                                        Integer estoque, CategoriaProdutoEnum categoria, boolean ativo,
+                                        boolean recorrente, PeriodoRecorrenciaEnum periodoRecorrencia, 
+                                        Integer duracaoRecorrencia, String descricaoRecorrencia,
+                                        PrimeiraCobrancaEnum primeiraCobranca, List<DescontoCiclo> descontosPorCiclo);
     
     /**
      * Ativa ou desativa um produto

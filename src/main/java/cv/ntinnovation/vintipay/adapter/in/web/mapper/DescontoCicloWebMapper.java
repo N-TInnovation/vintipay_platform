@@ -50,6 +50,41 @@ public class DescontoCicloWebMapper {
     }
 
     /**
+     * Converte um objeto de domínio para um DTO de requisição
+     *
+     * @param domain Objeto de domínio
+     * @return DTO de requisição
+     */
+    public DescontoCicloRequest toRequest(DescontoCiclo domain) {
+        if (domain == null) {
+            return null;
+        }
+
+        return DescontoCicloRequest.builder()
+                .id(domain.getId())
+                .numeroCiclo(domain.getNumeroCiclo())
+                .percentualDesconto(domain.getPercentualDesconto())
+                .descricao(domain.getDescricao())
+                .build();
+    }
+
+    /**
+     * Converte uma lista de objetos de domínio para uma lista de DTOs de requisição
+     *
+     * @param domains Lista de objetos de domínio
+     * @return Lista de DTOs de requisição
+     */
+    public List<DescontoCicloRequest> toRequestList(List<DescontoCiclo> domains) {
+        if (domains == null) {
+            return List.of();
+        }
+
+        return domains.stream()
+                .map(this::toRequest)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Converte um objeto de domínio para um DTO de resposta
      *
      * @param domain Objeto de domínio

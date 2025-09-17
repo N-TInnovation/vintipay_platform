@@ -1,8 +1,11 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
+import cv.ntinnovation.vintipay.application.core.domain.entity.DescontoCiclo;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.core.domain.enums.CategoriaProdutoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.PeriodoRecorrenciaEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.PrimeiraCobrancaEnum;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaProdutoUseCase;
 import cv.ntinnovation.vintipay.application.port.out.BuscaProduto;
 import cv.ntinnovation.vintipay.application.port.out.BuscaUsuario;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -131,6 +135,71 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
         
         produto.setAtivo(ativo);
         produto.setDataAtualizacao(LocalDateTime.now());
+        
+        // Salvar o produto atualizado
+        return salvaProduto.salvar(produto);
+    }
+
+    @Override
+    @Transactional
+    public Produto atualizarProdutoComRecorrencia(Long produtoId, String nome, String descricao, 
+                                               BigDecimal preco, String imagem, String codigoSku,
+                                               Integer estoque, CategoriaProdutoEnum categoria, boolean ativo,
+                                               boolean recorrente, PeriodoRecorrenciaEnum periodoRecorrencia, 
+                                               Integer duracaoRecorrencia, String descricaoRecorrencia,
+                                               PrimeiraCobrancaEnum primeiraCobranca, List<DescontoCiclo> descontosPorCiclo) {
+        log.info("Atualizando produto com configurações de recorrência: {}", produtoId);
+        
+        // Buscar o produto
+        Optional<Produto> produtoOpt = buscaProduto.buscarPorId(produtoId);
+        if (produtoOpt.isEmpty()) {
+            throw new IllegalArgumentException("Produto não encontrado");
+        }
+        
+        Produto produto = produtoOpt.get();
+        
+        // Atualizar os campos básicos
+        if (nome != null && !nome.trim().isEmpty()) {
+            produto.setNome(nome);
+        }
+        
+        if (descricao != null) {
+            produto.setDescricao(descricao);
+        }
+        
+        if (preco != null && preco.compareTo(BigDecimal.ZERO) > 0) {
+            produto.setPreco(preco);
+        }
+        
+        if (imagem != null && !imagem.trim().isEmpty()) {
+            produto.setImagem(imagem);
+        }
+        
+        produto.setCodigoSku(codigoSku);
+        produto.setEstoque(estoque);
+        produto.setCategoria(categoria);
+        produto.setAtivo(ativo);
+        produto.setDataAtualizacao(LocalDateTime.now());
+        
+        // Atualizar campos de recorrência
+        produto.setRecorrente(recorrente);
+        produto.setPeriodoRecorrencia(periodoRecorrencia);
+        produto.setDuracaoRecorrencia(duracaoRecorrencia);
+        produto.setDescricaoRecorrencia(descricaoRecorrencia);
+        produto.setPrimeiraCobranca(primeiraCobranca);
+        
+        // Atualizar descontos por ciclo
+        if (produto.getDescontosPorCiclo() != null) {
+            produto.getDescontosPorCiclo().clear();
+        } else {
+            produto.setDescontosPorCiclo(new ArrayList<>());
+        }
+        
+        if (descontosPorCiclo != null && !descontosPorCiclo.isEmpty()) {
+            // Definir o produtoId para cada desconto
+            descontosPorCiclo.forEach(desconto -> desconto.setProdutoId(produtoId));
+            produto.getDescontosPorCiclo().addAll(descontosPorCiclo);
+        }
         
         // Salvar o produto atualizado
         return salvaProduto.salvar(produto);

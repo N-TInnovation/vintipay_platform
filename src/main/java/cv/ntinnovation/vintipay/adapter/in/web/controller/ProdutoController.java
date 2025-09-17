@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.in.web.dto.ProdutoRequest;
+import cv.ntinnovation.vintipay.adapter.in.web.mapper.DescontoCicloWebMapper;
 import cv.ntinnovation.vintipay.adapter.out.storage.ArmazenamentoService;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
@@ -27,6 +28,7 @@ public class ProdutoController {
 
     private final GerenciaProdutoUseCase gerenciaProdutoUseCase;
     private final ArmazenamentoService armazenamentoService;
+    private final DescontoCicloWebMapper descontoCicloWebMapper;
     
     @GetMapping
     public String listarProdutos(Model model, Authentication authentication) {
@@ -110,6 +112,20 @@ public class ProdutoController {
             produtoRequest.setCategoria(produto.getCategoria());
             produtoRequest.setAtivo(produto.isAtivo());
             
+            // Copiar informações de recorrência
+            produtoRequest.setRecorrente(produto.isRecorrente());
+            produtoRequest.setPeriodoRecorrencia(produto.getPeriodoRecorrencia());
+            produtoRequest.setDuracaoRecorrencia(produto.getDuracaoRecorrencia());
+            produtoRequest.setDescricaoRecorrencia(produto.getDescricaoRecorrencia());
+            produtoRequest.setPrimeiraCobranca(produto.getPrimeiraCobranca());
+            
+            // Copiar descontos por ciclo, se existirem
+            if (produto.getDescontosPorCiclo() != null && !produto.getDescontosPorCiclo().isEmpty()) {
+                produtoRequest.setDescontosPorCiclo(
+                    descontoCicloWebMapper.toRequestList(produto.getDescontosPorCiclo())
+                );
+            }
+            
             model.addAttribute("produto", produtoRequest);
             model.addAttribute("produtoId", id);
             model.addAttribute("categorias", CategoriaProdutoEnum.values());
@@ -147,7 +163,8 @@ public class ProdutoController {
             // Processar o upload da imagem, se houver
             processarUploadImagem(request);
             
-            gerenciaProdutoUseCase.atualizarProduto(
+            // Chamar o novo método que suporta recorrência
+            gerenciaProdutoUseCase.atualizarProdutoComRecorrencia(
                 id,
                 request.getNome(),
                 request.getDescricao(),
@@ -156,7 +173,17 @@ public class ProdutoController {
                 request.getCodigoSku(),
                 request.getEstoque(),
                 request.getCategoria(),
-                request.isAtivo()
+                request.isAtivo(),
+                request.isRecorrente(),
+                request.getPeriodoRecorrencia(),
+                request.getDuracaoRecorrencia(),
+                request.getDescricaoRecorrencia(),
+                request.getPrimeiraCobranca(),
+                request.getDescontosPorCiclo() != null ? 
+                    request.getDescontosPorCiclo().stream()
+                        .map(descontoCicloWebMapper::toDomain)
+                        .collect(java.util.stream.Collectors.toList()) : 
+                    null
             );
             
             return "redirect:/user/produtos";
