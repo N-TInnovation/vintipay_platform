@@ -1,12 +1,20 @@
 package cv.ntinnovation.vintipay.adapter.in.web.mapper;
 
+import cv.ntinnovation.vintipay.adapter.in.web.dto.DescontoCicloRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.ProdutoRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.ProdutoResponse;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
 @Component
+@RequiredArgsConstructor
 public class ProdutoWebMapper {
+
+    private final DescontoCicloWebMapper descontoCicloWebMapper;
 
     /**
      * Converte uma entidade Produto para um DTO ProdutoResponse
@@ -38,6 +46,10 @@ public class ProdutoWebMapper {
                 .periodoRecorrencia(produto.getPeriodoRecorrencia())
                 .duracaoRecorrencia(produto.getDuracaoRecorrencia())
                 .descricaoRecorrencia(produto.getDescricaoRecorrencia())
+                // Nova configuração para primeira cobrança
+                .primeiraCobranca(produto.getPrimeiraCobranca())
+                // Descontos por ciclo
+                .descontosPorCiclo(descontoCicloWebMapper.toResponseList(produto.getDescontosPorCiclo()))
                 .build();
     }
     
@@ -67,6 +79,10 @@ public class ProdutoWebMapper {
                 .periodoRecorrencia(request.getPeriodoRecorrencia())
                 .duracaoRecorrencia(request.getDuracaoRecorrencia())
                 .descricaoRecorrencia(request.getDescricaoRecorrencia())
+                // Nova configuração para primeira cobrança
+                .primeiraCobranca(request.getPrimeiraCobranca())
+                // Descontos por ciclo
+                .descontosPorCiclo(descontoCicloWebMapper.toDomainList(request.getDescontosPorCiclo()))
                 .build();
     }
     
@@ -81,7 +97,7 @@ public class ProdutoWebMapper {
             return null;
         }
         
-        return ProdutoRequest.builder()
+        ProdutoRequest request = ProdutoRequest.builder()
                 .nome(produto.getNome())
                 .descricao(produto.getDescricao())
                 .preco(produto.getPreco())
@@ -96,6 +112,24 @@ public class ProdutoWebMapper {
                 .periodoRecorrencia(produto.getPeriodoRecorrencia())
                 .duracaoRecorrencia(produto.getDuracaoRecorrencia())
                 .descricaoRecorrencia(produto.getDescricaoRecorrencia())
+                // Nova configuração para primeira cobrança
+                .primeiraCobranca(produto.getPrimeiraCobranca())
                 .build();
+                
+        // Convertendo descontos por ciclo
+        if (produto.getDescontosPorCiclo() != null && !produto.getDescontosPorCiclo().isEmpty()) {
+            request.setDescontosPorCiclo(produto.getDescontosPorCiclo().stream()
+                .map(desconto -> DescontoCicloRequest.builder()
+                    .id(desconto.getId())
+                    .numeroCiclo(desconto.getNumeroCiclo())
+                    .percentualDesconto(desconto.getPercentualDesconto())
+                    .descricao(desconto.getDescricao())
+                    .build())
+                .collect(Collectors.toList()));
+        } else {
+            request.setDescontosPorCiclo(new ArrayList<>());
+        }
+        
+        return request;
     }
 }

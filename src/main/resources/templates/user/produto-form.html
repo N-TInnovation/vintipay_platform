@@ -214,6 +214,55 @@
             .animate-fade-in {
                 animation: fadeIn 0.5s ease forwards;
             }
+            
+            /* Estilos para a tabela de descontos */
+            #descontosTableContainer {
+                border-radius: 8px;
+                overflow: hidden;
+                margin-bottom: 1rem;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            }
+            
+            #descontosTableBody tr {
+                transition: all 0.2s ease;
+            }
+            
+            #descontosTableBody tr:hover {
+                background-color: rgba(67, 97, 238, 0.05);
+            }
+            
+            #noDescontosMessage {
+                background-color: rgba(0, 0, 0, 0.02);
+                border-radius: 8px;
+                transition: all 0.3s ease;
+            }
+            
+            #noDescontosMessage i {
+                color: #64748b;
+                font-size: 2rem;
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+            
+            .table > thead.table-light {
+                background-color: #f1f5f9;
+            }
+            
+            /* Modal de desconto */
+            .modal-content {
+                border: none;
+                border-radius: 12px;
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            }
+            
+            .modal-header {
+                background: linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(58, 12, 163, 0.05) 100%);
+                border-bottom: 1px solid rgba(67, 97, 238, 0.1);
+            }
+            
+            .modal-footer {
+                border-top: 1px solid rgba(0, 0, 0, 0.05);
+            }
         </style>
     </additionalCss>
 </head>
@@ -347,6 +396,57 @@
                                 <small class="text-muted">Descrição que será exibida ao cliente</small>
                             </div>
                             
+                            <!-- Configuração da Primeira Cobrança -->
+                            <div class="mb-3">
+                                <label for="primeiraCobranca" class="form-label">Primeira Cobrança</label>
+                                <select class="form-select" id="primeiraCobranca" th:field="*{primeiraCobranca}">
+                                    <option th:each="tipo : ${T(cv.ntinnovation.vintipay.application.core.domain.enums.PrimeiraCobrancaEnum).values()}" 
+                                            th:value="${tipo.name()}" 
+                                            th:text="${tipo.descricao}">
+                                        Tipo de Primeira Cobrança
+                                    </option>
+                                </select>
+                                <small class="text-muted" id="primeiraCobrancaHelp"></small>
+                            </div>
+                            
+                            <!-- Sistema de Descontos por Ciclo -->
+                            <div class="mb-4">
+                                <label class="form-label d-flex justify-content-between align-items-center">
+                                    <span>Descontos por Ciclo</span>
+                                    <button type="button" class="btn btn-sm btn-primary" id="addDescontoBtn">
+                                        <i class="fas fa-plus me-1"></i> Adicionar Desconto
+                                    </button>
+                                </label>
+                                <small class="text-muted d-block mb-2">Configure descontos para ciclos específicos de pagamento</small>
+                                
+                                <!-- Tabela de Descontos -->
+                                <div class="table-responsive" id="descontosTableContainer" style="display: none;">
+                                    <table class="table table-hover table-sm">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Ciclo</th>
+                                                <th>Desconto (%)</th>
+                                                <th>Descrição</th>
+                                                <th>Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="descontosTableBody">
+                                            <!-- Linhas de desconto serão adicionadas dinamicamente via JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div id="noDescontosMessage" class="text-center text-muted p-3 border rounded">
+                                    <i class="fas fa-percentage mb-2"></i>
+                                    <p>Nenhum desconto configurado</p>
+                                </div>
+                                
+                                <!-- Container para armazenar os inputs dos descontos -->
+                                <div id="descontosInputContainer" style="display: none;">
+                                    <!-- Os inputs serão adicionados dinamicamente via JavaScript -->
+                                </div>
+                            </div>
+                            
                             <div class="alert alert-info" role="alert">
                                 <i class="fas fa-info-circle me-2"></i>
                                 <strong>Importante:</strong> Ao configurar um produto com cobranças recorrentes, o cliente será informado sobre o modelo de assinatura e cobranças periódicas antes da confirmação da compra.
@@ -431,6 +531,13 @@
                 
                 // Inicializar a visibilidade das opções de recorrência
                 toggleRecorrenciaOptions();
+                
+                // Inicializar o gerenciamento de descontos por ciclo
+                initDescontosPorCiclo();
+                
+                // Atualizar o texto de ajuda da primeira cobrança
+                atualizarTextoPrimeiraCobranca();
+                document.getElementById('primeiraCobranca').addEventListener('change', atualizarTextoPrimeiraCobranca);
             });
             
             function previewImage() {
@@ -486,6 +593,389 @@
                     recorrenciaOptions.style.display = 'none';
                     // Remover a classe de animação
                     recorrenciaOptions.classList.remove('animate-fade-in');
+                }
+            }
+            
+            // Função para atualizar o texto de ajuda da primeira cobrança
+            function atualizarTextoPrimeiraCobranca() {
+                const select = document.getElementById('primeiraCobranca');
+                const helpText = document.getElementById('primeiraCobrancaHelp');
+                const periodoSelect = document.getElementById('periodoRecorrencia');
+                
+                if (select.value === 'IMEDIATA') {
+                    helpText.textContent = "O cliente será cobrado imediatamente ao assinar o produto";
+                } else if (select.value === 'APOS_PERIODO') {
+                    const periodoTexto = periodoSelect.options[periodoSelect.selectedIndex]?.text || "período";
+                    helpText.textContent = `O cliente será cobrado apenas após o primeiro ${periodoTexto.toLowerCase()} completo`;
+                }
+            }
+            
+            // Variável para controlar o índice dos descontos
+            let descontoCounter = 0;
+            // Array para armazenar os descontos já existentes (útil para edição)
+            let descontosExistentes = [];
+            
+            // Inicializar o gerenciamento de descontos por ciclo
+            function initDescontosPorCiclo() {
+                // Configurar o botão de adicionar desconto
+                const addBtn = document.getElementById('addDescontoBtn');
+                addBtn.addEventListener('click', abrirModalDesconto);
+                
+                // Carregar descontos existentes, se houver
+                carregarDescontosExistentes();
+                
+                // Atualizar visibilidade da tabela de descontos
+                atualizarVisibilidadeTabelaDescontos();
+            }
+            
+            // Função para carregar descontos existentes (quando editando um produto)
+            function carregarDescontosExistentes() {
+                // No futuro, os descontos existentes seriam carregados do modelo do servidor
+                // Por enquanto, implementamos sem essa funcionalidade
+                // Se necessário, pode ser implementado posteriormente
+                atualizarVisibilidadeTabelaDescontos();
+            }
+            
+            // Função para abrir o modal de adição/edição de desconto
+            function abrirModalDesconto(event, descontoIndex = null) {
+                // Criar o modal dinamicamente
+                const modal = document.createElement('div');
+                modal.className = 'modal fade';
+                modal.id = 'descontoModal';
+                modal.tabIndex = '-1';
+                modal.setAttribute('aria-labelledby', 'descontoModalLabel');
+                modal.setAttribute('aria-hidden', 'true');
+                
+                // Conteúdo do modal
+                const isEdit = descontoIndex !== null;
+                const desconto = isEdit ? descontosExistentes[descontoIndex] : null;
+                
+                modal.innerHTML = `
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="descontoModalLabel">
+                                    ${isEdit ? 'Editar' : 'Adicionar'} Desconto por Ciclo
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="descontoForm" class="needs-validation" novalidate>
+                                    <div class="mb-3">
+                                        <label for="numeroCiclo" class="form-label">Ciclo</label>
+                                        <input type="number" class="form-control" id="numeroCiclo" min="1" required
+                                            value="${isEdit ? desconto.numeroCiclo : ''}">
+                                        <small class="text-muted">Número do ciclo em que o desconto será aplicado (1 = primeiro ciclo)</small>
+                                        <div class="invalid-feedback">
+                                            O número do ciclo é obrigatório e deve ser maior ou igual a 1
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="percentualDesconto" class="form-label">Percentual de Desconto (%)</label>
+                                        <input type="number" class="form-control" id="percentualDesconto" min="0" max="100" step="0.01" required
+                                            value="${isEdit ? desconto.percentualDesconto : ''}">
+                                        <small class="text-muted">Percentual de desconto aplicado neste ciclo (de 0 a 100%)</small>
+                                        <div class="invalid-feedback">
+                                            O percentual de desconto é obrigatório e deve estar entre 0 e 100
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="descricaoDesconto" class="form-label">Descrição</label>
+                                        <input type="text" class="form-control" id="descricaoDesconto" 
+                                            value="${isEdit && desconto.descricao ? desconto.descricao : ''}">
+                                        <small class="text-muted">Descrição opcional do desconto (ex: "Desconto de boas-vindas")</small>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-primary" id="salvarDescontoBtn">Salvar</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Adicionar o modal ao documento
+                document.body.appendChild(modal);
+                
+                // Inicializar o modal do Bootstrap
+                const modalInstance = new bootstrap.Modal(modal);
+                modalInstance.show();
+                
+                // Configurar o botão de salvar
+                document.getElementById('salvarDescontoBtn').addEventListener('click', () => {
+                    const form = document.getElementById('descontoForm');
+                    
+                    if (form.checkValidity()) {
+                        const numeroCiclo = parseInt(document.getElementById('numeroCiclo').value);
+                        const percentualDesconto = parseFloat(document.getElementById('percentualDesconto').value);
+                        const descricao = document.getElementById('descricaoDesconto').value;
+                        
+                        if (isEdit) {
+                            // Editar desconto existente
+                            atualizarDesconto(descontoIndex, numeroCiclo, percentualDesconto, descricao);
+                        } else {
+                            // Adicionar novo desconto
+                            adicionarDesconto(numeroCiclo, percentualDesconto, descricao);
+                        }
+                        
+                        // Fechar o modal
+                        modalInstance.hide();
+                        
+                        // Remover o modal do DOM após fechar
+                        modal.addEventListener('hidden.bs.modal', function () {
+                            document.body.removeChild(modal);
+                        });
+                    } else {
+                        // Marcar formulário como validado para mostrar mensagens de erro
+                        form.classList.add('was-validated');
+                    }
+                });
+                
+                // Remover o modal do DOM quando for fechado
+                modal.addEventListener('hidden.bs.modal', function () {
+                    document.body.removeChild(modal);
+                });
+            }
+            
+            // Função para adicionar um novo desconto
+            function adicionarDesconto(numeroCiclo, percentualDesconto, descricao) {
+                // Verificar se já existe desconto para este ciclo
+                const cicloExistente = descontosExistentes.findIndex(d => d.numeroCiclo === numeroCiclo);
+                if (cicloExistente !== -1) {
+                    alert(`Já existe um desconto configurado para o ciclo ${numeroCiclo}. Edite o existente ou escolha outro ciclo.`);
+                    return;
+                }
+                
+                // Criar novo objeto de desconto
+                const novoDesconto = {
+                    id: `desconto_${descontoCounter++}`,
+                    numeroCiclo: numeroCiclo,
+                    percentualDesconto: percentualDesconto,
+                    descricao: descricao
+                };
+                
+                // Adicionar ao array de descontos
+                descontosExistentes.push(novoDesconto);
+                
+                // Adicionar ao formulário como campos ocultos
+                adicionarCamposOcultos(novoDesconto);
+                
+                // Atualizar a tabela de descontos
+                atualizarTabelaDescontos();
+            }
+            
+            // Função para atualizar um desconto existente
+            function atualizarDesconto(index, numeroCiclo, percentualDesconto, descricao) {
+                // Verificar se está tentando mudar para um ciclo que já existe
+                const cicloExistente = descontosExistentes.findIndex((d, i) => 
+                    i !== index && d.numeroCiclo === numeroCiclo);
+                if (cicloExistente !== -1) {
+                    alert(`Já existe um desconto configurado para o ciclo ${numeroCiclo}. Escolha outro ciclo.`);
+                    return;
+                }
+                
+                // Atualizar o objeto de desconto
+                descontosExistentes[index].numeroCiclo = numeroCiclo;
+                descontosExistentes[index].percentualDesconto = percentualDesconto;
+                descontosExistentes[index].descricao = descricao;
+                
+                // Atualizar os campos ocultos
+                atualizarCamposOcultos(index);
+                
+                // Atualizar a tabela de descontos
+                atualizarTabelaDescontos();
+            }
+            
+            // Função para remover um desconto
+            function removerDesconto(index) {
+                if (confirm('Tem certeza que deseja remover este desconto?')) {
+                    // Remover os campos ocultos do formulário
+                    const container = document.getElementById('descontosInputContainer');
+                    const inputsPrefix = `descontosPorCiclo[${index}]`;
+                    const inputs = container.querySelectorAll(`[name^="${inputsPrefix}"]`);
+                    inputs.forEach(input => container.removeChild(input));
+                    
+                    // Remover do array de descontos
+                    descontosExistentes.splice(index, 1);
+                    
+                    // Recriar todos os campos ocultos (para atualizar índices)
+                    recriarCamposOcultos();
+                    
+                    // Atualizar a tabela de descontos
+                    atualizarTabelaDescontos();
+                }
+            }
+            
+            // Função para adicionar campos ocultos ao formulário
+            function adicionarCamposOcultos(desconto) {
+                const container = document.getElementById('descontosInputContainer');
+                const index = descontosExistentes.length - 1;
+                
+                // Campo para ID (se existir)
+                if (desconto.id) {
+                    const idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.name = `descontosPorCiclo[${index}].id`;
+                    idInput.value = desconto.id;
+                    container.appendChild(idInput);
+                }
+                
+                // Campo para número do ciclo
+                const numeroCicloInput = document.createElement('input');
+                numeroCicloInput.type = 'hidden';
+                numeroCicloInput.name = `descontosPorCiclo[${index}].numeroCiclo`;
+                numeroCicloInput.value = desconto.numeroCiclo;
+                container.appendChild(numeroCicloInput);
+                
+                // Campo para percentual de desconto
+                const percentualDescontoInput = document.createElement('input');
+                percentualDescontoInput.type = 'hidden';
+                percentualDescontoInput.name = `descontosPorCiclo[${index}].percentualDesconto`;
+                percentualDescontoInput.value = desconto.percentualDesconto;
+                container.appendChild(percentualDescontoInput);
+                
+                // Campo para descrição
+                const descricaoInput = document.createElement('input');
+                descricaoInput.type = 'hidden';
+                descricaoInput.name = `descontosPorCiclo[${index}].descricao`;
+                descricaoInput.value = desconto.descricao || '';
+                container.appendChild(descricaoInput);
+            }
+            
+            // Função para atualizar os campos ocultos de um desconto específico
+            function atualizarCamposOcultos(index) {
+                const container = document.getElementById('descontosInputContainer');
+                const desconto = descontosExistentes[index];
+                
+                // Atualizar campo para número do ciclo
+                const numeroCicloInput = container.querySelector(`input[name="descontosPorCiclo[${index}].numeroCiclo"]`);
+                if (numeroCicloInput) numeroCicloInput.value = desconto.numeroCiclo;
+                
+                // Atualizar campo para percentual de desconto
+                const percentualDescontoInput = container.querySelector(`input[name="descontosPorCiclo[${index}].percentualDesconto"]`);
+                if (percentualDescontoInput) percentualDescontoInput.value = desconto.percentualDesconto;
+                
+                // Atualizar campo para descrição
+                const descricaoInput = container.querySelector(`input[name="descontosPorCiclo[${index}].descricao"]`);
+                if (descricaoInput) descricaoInput.value = desconto.descricao || '';
+            }
+            
+            // Função para recriar todos os campos ocultos (útil após remover descontos)
+            function recriarCamposOcultos() {
+                const container = document.getElementById('descontosInputContainer');
+                // Limpar todos os inputs atuais
+                container.innerHTML = '';
+                
+                // Recriar todos os inputs
+                descontosExistentes.forEach((desconto, index) => {
+                    // Campo para ID (se existir)
+                    if (desconto.id) {
+                        const idInput = document.createElement('input');
+                        idInput.type = 'hidden';
+                        idInput.name = `descontosPorCiclo[${index}].id`;
+                        idInput.value = desconto.id;
+                        container.appendChild(idInput);
+                    }
+                    
+                    // Campo para número do ciclo
+                    const numeroCicloInput = document.createElement('input');
+                    numeroCicloInput.type = 'hidden';
+                    numeroCicloInput.name = `descontosPorCiclo[${index}].numeroCiclo`;
+                    numeroCicloInput.value = desconto.numeroCiclo;
+                    container.appendChild(numeroCicloInput);
+                    
+                    // Campo para percentual de desconto
+                    const percentualDescontoInput = document.createElement('input');
+                    percentualDescontoInput.type = 'hidden';
+                    percentualDescontoInput.name = `descontosPorCiclo[${index}].percentualDesconto`;
+                    percentualDescontoInput.value = desconto.percentualDesconto;
+                    container.appendChild(percentualDescontoInput);
+                    
+                    // Campo para descrição
+                    const descricaoInput = document.createElement('input');
+                    descricaoInput.type = 'hidden';
+                    descricaoInput.name = `descontosPorCiclo[${index}].descricao`;
+                    descricaoInput.value = desconto.descricao || '';
+                    container.appendChild(descricaoInput);
+                });
+            }
+            
+            // Função para atualizar a tabela de descontos
+            function atualizarTabelaDescontos() {
+                const tableBody = document.getElementById('descontosTableBody');
+                tableBody.innerHTML = '';
+                
+                // Ordenar descontos por número do ciclo
+                const descontosOrdenados = [...descontosExistentes].sort((a, b) => a.numeroCiclo - b.numeroCiclo);
+                
+                // Adicionar uma linha para cada desconto
+                descontosOrdenados.forEach((desconto, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // Célula para o número do ciclo
+                    const cellCiclo = document.createElement('td');
+                    cellCiclo.textContent = desconto.numeroCiclo;
+                    row.appendChild(cellCiclo);
+                    
+                    // Célula para o percentual de desconto
+                    const cellDesconto = document.createElement('td');
+                    cellDesconto.textContent = `${desconto.percentualDesconto}%`;
+                    row.appendChild(cellDesconto);
+                    
+                    // Célula para a descrição
+                    const cellDescricao = document.createElement('td');
+                    cellDescricao.textContent = desconto.descricao || '-';
+                    row.appendChild(cellDescricao);
+                    
+                    // Célula para as ações
+                    const cellAcoes = document.createElement('td');
+                    cellAcoes.innerHTML = `
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-primary edit-btn" data-index="${index}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-danger delete-btn" data-index="${index}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    `;
+                    row.appendChild(cellAcoes);
+                    
+                    // Adicionar a linha à tabela
+                    tableBody.appendChild(row);
+                });
+                
+                // Configurar eventos para botões de edição e exclusão
+                tableBody.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        abrirModalDesconto(null, index);
+                    });
+                });
+                
+                tableBody.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        removerDesconto(index);
+                    });
+                });
+                
+                // Atualizar visibilidade da tabela
+                atualizarVisibilidadeTabelaDescontos();
+            }
+            
+            // Função para atualizar a visibilidade da tabela de descontos
+            function atualizarVisibilidadeTabelaDescontos() {
+                const tableContainer = document.getElementById('descontosTableContainer');
+                const noDescontosMessage = document.getElementById('noDescontosMessage');
+                
+                if (descontosExistentes.length > 0) {
+                    tableContainer.style.display = 'block';
+                    noDescontosMessage.style.display = 'none';
+                } else {
+                    tableContainer.style.display = 'none';
+                    noDescontosMessage.style.display = 'block';
                 }
             }
         </script>

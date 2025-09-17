@@ -2,6 +2,8 @@ package cv.ntinnovation.vintipay.adapter.in.web.dto;
 
 import cv.ntinnovation.vintipay.application.core.domain.enums.CategoriaProdutoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.PeriodoRecorrenciaEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.PrimeiraCobrancaEnum;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,6 +14,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -52,4 +56,10 @@ public class ProdutoRequest {
     private Integer duracaoRecorrencia; // Número de ciclos (null = ilimitado)
     
     private String descricaoRecorrencia; // Descrição amigável da recorrência
+    
+    // Novas configurações para cobranças recorrentes
+    private PrimeiraCobrancaEnum primeiraCobranca = PrimeiraCobrancaEnum.IMEDIATA; // Padrão: cobrar imediatamente
+    
+    @Valid
+    private List<DescontoCicloRequest> descontosPorCiclo = new ArrayList<>();
 }

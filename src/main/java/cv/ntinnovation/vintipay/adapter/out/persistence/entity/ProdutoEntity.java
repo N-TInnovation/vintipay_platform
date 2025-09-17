@@ -2,6 +2,7 @@ package cv.ntinnovation.vintipay.adapter.out.persistence.entity;
 
 import cv.ntinnovation.vintipay.application.core.domain.enums.CategoriaProdutoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.PeriodoRecorrenciaEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.PrimeiraCobrancaEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +11,8 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -65,7 +68,27 @@ public class ProdutoEntity {
     @Column(name = "descricao_recorrencia")
     private String descricaoRecorrencia;
     
+    // Novas configurações para cobranças recorrentes
+    @Enumerated(EnumType.STRING)
+    @Column(name = "primeira_cobranca")
+    private PrimeiraCobrancaEnum primeiraCobranca;
+    
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DescontoCicloEntity> descontosPorCiclo = new ArrayList<>();
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proprietario_id", nullable = false)
     private UsuarioEntity proprietario;
+    
+    // Helper method para adicionar desconto
+    public void adicionarDescontoPorCiclo(DescontoCicloEntity desconto) {
+        descontosPorCiclo.add(desconto);
+        desconto.setProduto(this);
+    }
+    
+    // Helper method para remover desconto
+    public void removerDescontoPorCiclo(DescontoCicloEntity desconto) {
+        descontosPorCiclo.remove(desconto);
+        desconto.setProduto(null);
+    }
 }

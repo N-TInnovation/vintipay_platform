@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 public class ProdutoMapper {
     
     private final UsuarioMapper usuarioMapper;
+    private final DescontoCicloMapper descontoCicloMapper;
     
     /**
      * Converte uma entidade de domínio para uma entidade JPA
@@ -29,7 +30,7 @@ public class ProdutoMapper {
             proprietario = usuarioMapper.toEntity(produto.getProprietario());
         }
         
-        return ProdutoEntity.builder()
+        ProdutoEntity entity = ProdutoEntity.builder()
                 .id(produto.getId())
                 .nome(produto.getNome())
                 .descricao(produto.getDescricao())
@@ -48,7 +49,17 @@ public class ProdutoMapper {
                 .periodoRecorrencia(produto.getPeriodoRecorrencia())
                 .duracaoRecorrencia(produto.getDuracaoRecorrencia())
                 .descricaoRecorrencia(produto.getDescricaoRecorrencia())
+                // Nova configuração para primeira cobrança
+                .primeiraCobranca(produto.getPrimeiraCobranca())
                 .build();
+        
+        // Adicionar os descontos por ciclo
+        if (produto.getDescontosPorCiclo() != null && !produto.getDescontosPorCiclo().isEmpty()) {
+            produto.getDescontosPorCiclo().forEach(desconto -> 
+                entity.adicionarDescontoPorCiclo(descontoCicloMapper.toEntity(desconto, entity)));
+        }
+        
+        return entity;
     }
     
     /**
@@ -87,6 +98,10 @@ public class ProdutoMapper {
                 .periodoRecorrencia(entity.getPeriodoRecorrencia())
                 .duracaoRecorrencia(entity.getDuracaoRecorrencia())
                 .descricaoRecorrencia(entity.getDescricaoRecorrencia())
+                // Nova configuração para primeira cobrança
+                .primeiraCobranca(entity.getPrimeiraCobranca())
+                // Descontos por ciclo
+                .descontosPorCiclo(descontoCicloMapper.toDomainList(entity.getDescontosPorCiclo()))
                 .build();
     }
 }
