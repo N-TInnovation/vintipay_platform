@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Alterações para checkout.html</title>
+</head>
+<body>
+    <!-- 
+    Instruções para alterações no arquivo checkout.html:
+    
+    1. Após a seção product-details, antes da div "order-totals", adicionar a inclusão do fragmento de detalhes da assinatura:
+    -->
+    
+    <!-- Exemplo de como incluir os fragmentos no checkout.html -->
+    
+    <!-- Badge de assinatura - adicionar dentro da div product-details -->
+    <th:block th:replace="~{fragments/subscription-details :: subscription-badge}"></th:block>
+    
+    <!-- Detalhes completos da assinatura - adicionar antes da div order-totals -->
+    <th:block th:replace="~{fragments/subscription-details :: subscription-details}"></th:block>
+    
+</body>
+</html>

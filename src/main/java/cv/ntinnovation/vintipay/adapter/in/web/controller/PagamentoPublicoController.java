@@ -88,6 +88,23 @@ public class PagamentoPublicoController {
         LinkPagamento link = linkOpt.get();
         Produto produto = link.getProduto();
         
+        // Verificar se o produto é recorrente e adicionar informações de subscrição ao modelo
+        boolean isSubscription = produto.isRecorrente();
+        model.addAttribute("isSubscription", isSubscription);
+        
+        if (isSubscription) {
+            // Adicionar detalhes da recorrência ao modelo
+            model.addAttribute("periodoRecorrencia", produto.getPeriodoRecorrencia());
+            model.addAttribute("duracaoRecorrencia", produto.getDuracaoRecorrencia());
+            model.addAttribute("descricaoRecorrencia", produto.getDescricaoRecorrencia());
+            model.addAttribute("primeiraCobranca", produto.getPrimeiraCobranca());
+            model.addAttribute("descontosPorCiclo", produto.getDescontosPorCiclo());
+            
+            log.info("Link de pagamento {} identificado como ASSINATURA: período {}, duração: {}", 
+                     codigo, produto.getPeriodoRecorrencia(), 
+                     produto.getDuracaoRecorrencia() != null ? produto.getDuracaoRecorrencia() + " ciclos" : "Ilimitada");
+        }
+        
         model.addAttribute("link", link);
         model.addAttribute("produto", produto);
         model.addAttribute("codigo", codigo);

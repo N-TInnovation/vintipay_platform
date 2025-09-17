@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <!-- Fragmento para exibir o badge de assinatura -->
+    <div th:fragment="subscription-badge" class="subscription-badge" th:if="${isSubscription}" style="margin-top: 10px;">
+        <span class="badge bg-primary">
+            <i class="fas fa-sync-alt me-1"></i>
+            <span th:text="${produto.descricaoRecorrencia != null && !produto.descricaoRecorrencia.isEmpty() ? produto.descricaoRecorrencia : 'Assinatura'}">Assinatura</span>
+        </span>
+    </div>
+
+    <!-- Fragmento para exibir detalhes completos da assinatura -->
+    <div th:fragment="subscription-details" class="subscription-details" th:if="${isSubscription}" style="margin: 15px 0; padding: 15px; border-radius: 4px; background-color: rgba(13, 110, 253, 0.05); border: 1px solid rgba(13, 110, 253, 0.1);">
+        <h4 style="font-size: 16px; margin-bottom: 10px;"><i class="fas fa-info-circle me-2"></i>Detalhes da Assinatura</h4>
+        
+        <div class="subscription-info" style="font-size: 14px;">
+            <p th:if="${periodoRecorrencia != null}">
+                <strong>Período:</strong> 
+                <span th:text="${periodoRecorrencia.descricao}">Mensal</span>
+            </p>
+            
+            <p th:if="${duracaoRecorrencia != null}">
+                <strong>Duração:</strong> 
+                <span th:text="${duracaoRecorrencia} + ' ciclos'">12 ciclos</span>
+            </p>
+            <p th:unless="${duracaoRecorrencia != null}">
+                <strong>Duração:</strong> 
+                <span>Até cancelar</span>
+            </p>
+            
+            <p th:if="${primeiraCobranca != null}">
+                <strong>Primeira cobrança:</strong> 
+                <span th:if="${primeiraCobranca.name() == 'IMEDIATA'}">Hoje</span>
+                <span th:if="${primeiraCobranca.name() == 'APOS_PERIODO'}">Após o primeiro período</span>
+            </p>
+            
+            <!-- Descontos por ciclo -->
+            <div th:if="${descontosPorCiclo != null && !descontosPorCiclo.isEmpty()}" style="margin-top: 10px;">
+                <strong>Descontos especiais:</strong>
+                <ul style="padding-left: 20px; margin-top: 5px;">
+                    <li th:each="desconto : ${descontosPorCiclo}" style="margin-bottom: 3px;">
+                        <span th:text="${desconto.numeroCiclo == 1 ? 'Primeiro' : (desconto.numeroCiclo == 2 ? 'Segundo' : (desconto.numeroCiclo == 3 ? 'Terceiro' : desconto.numeroCiclo + 'º'))} + ' ciclo: '"></span>
+                        <strong th:text="${#numbers.formatDecimal(desconto.percentualDesconto, 0, 'COMMA', 1, 'POINT')} + '% de desconto'"></strong>
+                        <span th:if="${desconto.descricao != null && !desconto.descricao.isEmpty()}" th:text="'(' + ${desconto.descricao} + ')'" style="color: #666; font-style: italic;"></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="alert alert-info mt-3 mb-0" style="font-size: 13px; padding: 10px;">
+            <i class="fas fa-lightbulb me-2"></i>
+            <span>Ao confirmar este pagamento, você estará assinando um serviço com cobrança recorrente.</span>
+        </div>
+    </div>
+</body>
+</html>
