@@ -8,6 +8,7 @@ import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoE
 import cv.ntinnovation.vintipay.application.core.domain.enums.MoedaEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.exception.PagamentoNaoEncontradoException;
+import cv.ntinnovation.vintipay.application.core.service.AmbienteService;
 import cv.ntinnovation.vintipay.application.port.in.BuscaConfiguracaoPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.BuscaIntencaoPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.BuscaPagamentoUseCase;
@@ -25,6 +26,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriUtils;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -40,6 +42,7 @@ public class UserPagamentosController {
 
     private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase;
     private final EnvironmentProperties environmentProperties;
+    private final AmbienteService ambienteService;
 
     @Value("${sisp.estorno.return.url}")
     private String returnUrl;
@@ -48,8 +51,12 @@ public class UserPagamentosController {
     public String listarPagamentos(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "status", required = false) StatusPagamentoEnum status,
-            @RequestParam(name = "ambiente", required = false, defaultValue = "PRODUCAO") AmbienteEnum ambiente,
+            @RequestParam(name = "ambiente", required = false) AmbienteEnum ambiente,
+            HttpServletRequest request,
             Model model) {
+        
+        // Resolver o ambiente a ser usado (parâmetro ou sessão)
+        AmbienteEnum ambienteResolvido = ambienteService.resolveAmbiente(request, ambiente);
         
         // Obter o usuário autenticado
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -60,12 +67,12 @@ public class UserPagamentosController {
         
         try {
             // Buscar pagamentos do usuário com o status e ambiente especificados
-            var pagamentos = buscaPagamentoUseCase.buscarPorUsuarioEAmbiente(pageable, usuarioAtual.getId(), status, ambiente);
+            var pagamentos = buscaPagamentoUseCase.buscarPorUsuarioEAmbiente(pageable, usuarioAtual.getId(), status, ambienteResolvido);
             
             // Adicionar dados ao modelo
             model.addAttribute("pagamentos", pagamentos);
             model.addAttribute("statusAtual", status);
-            model.addAttribute("ambienteAtual", ambiente);
+            model.addAttribute("ambienteAtual", ambienteResolvido);
             model.addAttribute("statusOptions", StatusPagamentoEnum.values());
             model.addAttribute("ambienteOptions", AmbienteEnum.values());
             model.addAttribute("paginaAtual", page);
@@ -75,28 +82,28 @@ public class UserPagamentosController {
                     PageRequest.of(0, Integer.MAX_VALUE), 
                     usuarioAtual.getId(), 
                     StatusPagamentoEnum.PAGO,
-                    ambiente
+                    ambienteResolvido
             ).getTotalElements();
             
             var pagamentosPendentes = buscaPagamentoUseCase.buscarPorUsuarioEAmbiente(
                     PageRequest.of(0, Integer.MAX_VALUE), 
                     usuarioAtual.getId(), 
                     StatusPagamentoEnum.PENDENTE,
-                    ambiente
+                    ambienteResolvido
             ).getTotalElements();
             
             var pagamentosCancelados = buscaPagamentoUseCase.buscarPorUsuarioEAmbiente(
                     PageRequest.of(0, Integer.MAX_VALUE), 
                     usuarioAtual.getId(), 
                     StatusPagamentoEnum.CANCELADO,
-                    ambiente
+                    ambienteResolvido
             ).getTotalElements();
 
             var pagamentosEstornados = buscaPagamentoUseCase.buscarPorUsuarioEAmbiente(
                     PageRequest.of(0, Integer.MAX_VALUE),
                     usuarioAtual.getId(),
                     StatusPagamentoEnum.ESTORNADO,
-                    ambiente
+                    ambienteResolvido
             ).getTotalElements();
             
             model.addAttribute("pagamentosPagos", pagamentosPagos);

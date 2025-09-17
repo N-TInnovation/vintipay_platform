@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.SessaoPagamento;
+import cv.ntinnovation.vintipay.application.port.in.AtualizaStatusPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.ValidaSessaoPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.out.BuscaSessaoPagamentoPort;
 import cv.ntinnovation.vintipay.application.port.out.SalvaSessaoPagamentoPort;
@@ -26,7 +27,7 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
 
     private final BuscaSessaoPagamentoPort buscaSessaoPagamentoPort;
     private final SalvaSessaoPagamentoPort salvaSessaoPagamentoPort;
-
+    private final AtualizaStatusPagamentoUseCase atualizaStatusPagamentoUseCase;
 
     @Override
     public Optional<SessaoPagamento> validarSessao(String reference, HttpServletRequest request) {
@@ -90,6 +91,7 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
         buscaSessaoPagamentoPort.buscarSessoesExpiradas().forEach(sessao -> {
             sessao.setValid(false);
             salvaSessaoPagamentoPort.salvar(sessao);
+            atualizaStatusPagamentoUseCase.expirarPagamentosPendentes();
             log.info("Sessão expirada {} invalidada automaticamente", sessao.getId());
         });
     }

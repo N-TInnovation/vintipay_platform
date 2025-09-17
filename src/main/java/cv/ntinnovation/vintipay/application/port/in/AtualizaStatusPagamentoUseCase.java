@@ -5,4 +5,5 @@ import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnu
 
 public interface AtualizaStatusPagamentoUseCase {
     Pagamento atualizar(String merchantRef, StatusPagamentoEnum status, String message, String fingerPrint, String pan, String clearingPeriod, String transactionId);
+    void expirarPagamentosPendentes();
 }

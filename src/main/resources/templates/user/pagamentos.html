@@ -59,30 +59,105 @@
             }
             
             .badge-success {
-                background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: white;
                 padding: 0.5rem 0.75rem;
                 font-size: 0.75rem;
                 font-weight: 600;
                 border-radius: 50rem;
                 letter-spacing: 0.5px;
+                box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+                border: 1px solid rgba(16, 185, 129, 0.2);
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
             }
             
             .badge-danger {
-                background: linear-gradient(135deg, #dc3545 0%, #e35d6a 100%);
+                background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+                color: white;
                 padding: 0.5rem 0.75rem;
                 font-size: 0.75rem;
                 font-weight: 600;
                 border-radius: 50rem;
                 letter-spacing: 0.5px;
+                box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);
+                border: 1px solid rgba(239, 68, 68, 0.2);
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            }
+            
+            .badge-error {
+                background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+                color: white;
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+                border-radius: 50rem;
+                letter-spacing: 0.5px;
+                box-shadow: 0 2px 10px rgba(249, 115, 22, 0.3);
+                border: 1px solid rgba(249, 115, 22, 0.2);
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                display: inline-block;
             }
             
             .badge-warning {
-                background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                color: white;
                 padding: 0.5rem 0.75rem;
                 font-size: 0.75rem;
                 font-weight: 600;
                 border-radius: 50rem;
                 letter-spacing: 0.5px;
+                box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
+                border: 1px solid rgba(245, 158, 11, 0.2);
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            }
+            
+            .badge-info {
+                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                color: white;
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+                border-radius: 50rem;
+                letter-spacing: 0.5px;
+                box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+                border: 1px solid rgba(59, 130, 246, 0.2);
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            }
+            
+            .badge-secondary {
+                background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+                color: white;
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+                border-radius: 50rem;
+                letter-spacing: 0.5px;
+                box-shadow: 0 2px 10px rgba(100, 116, 139, 0.3);
+                border: 1px solid rgba(100, 116, 139, 0.2);
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            }
+            
+            .badge-purple {
+                background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+                color: white;
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+                border-radius: 50rem;
+                letter-spacing: 0.5px;
+                box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
+                border: 1px solid rgba(139, 92, 246, 0.2);
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            }
+            
+            /* Efeito de hover nos badges */
+            [class*="badge-"] {
+                transition: all 0.3s ease;
+            }
+            
+            [class*="badge-"]:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             }
             
             /* Cards de estatísticas */
@@ -100,7 +175,34 @@
                 font-size: 1.75rem;
                 font-weight: 700;
                 margin-bottom: 0;
-                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            }
+            
+            .text-success-gradient {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                text-fill-color: transparent;
+            }
+            
+            .text-warning-gradient {
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                text-fill-color: transparent;
+            }
+            
+            .text-danger-gradient {
+                background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                text-fill-color: transparent;
+            }
+            
+            .text-purple-gradient {
+                background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
@@ -110,7 +212,6 @@
             .icon-shape {
                 width: 48px;
                 height: 48px;
-                background: linear-gradient(135deg, rgba(67, 97, 238, 0.15) 0%, rgba(58, 12, 163, 0.15) 100%);
                 border-radius: 12px;
                 display: flex;
                 align-items: center;
@@ -118,14 +219,24 @@
                 transition: all 0.3s ease;
             }
             
-            .card:hover .icon-shape {
-                transform: scale(1.1);
-                background: linear-gradient(135deg, rgba(67, 97, 238, 0.25) 0%, rgba(58, 12, 163, 0.25) 100%);
+            .bg-success-gradient {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             }
             
-            .icon-shape i {
-                font-size: 1.5rem;
-                color: #4361ee;
+            .bg-warning-gradient {
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            }
+            
+            .bg-danger-gradient {
+                background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            }
+            
+            .bg-purple-gradient {
+                background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            }
+            
+            .card:hover .icon-shape {
+                transform: scale(1.1);
             }
             
             /* Tabelas */
@@ -316,6 +427,106 @@
                 .table th, .table td {
                     padding: 0.75rem;
                 }
+                
+                .numbers h5 {
+                    font-size: 1.5rem;
+                }
+                
+                .icon-shape {
+                    width: 40px;
+                    height: 40px;
+                }
+                
+                .icon-shape i {
+                    font-size: 1.2rem;
+                }
+                
+                .d-flex.align-items-center {
+                    flex-direction: column;
+                }
+                
+                .d-flex.align-items-center > div {
+                    margin-bottom: 0.5rem;
+                    width: 100%;
+                }
+                
+                .form-select, .btn {
+                    width: 100%;
+                }
+            }
+            
+            /* Transições suaves */
+            .card, .badge, .icon-shape, .btn, .form-select, .page-link, .table tr {
+                transition: all 0.3s ease;
+            }
+            
+            .page-container {
+                transition: opacity 0.3s ease;
+            }
+            
+            .ambiente-transition {
+                animation: fadeInUp 0.5s ease-out;
+            }
+            
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            /* Highlight para ambiente de homologação */
+            .ambiente-homologacao {
+                position: relative;
+            }
+            
+            .ambiente-homologacao::after {
+                content: "HOMOLOGAÇÃO";
+                position: absolute;
+                top: -10px;
+                right: -10px;
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                color: white;
+                font-size: 0.6rem;
+                font-weight: bold;
+                padding: 3px 8px;
+                border-radius: 20px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                z-index: 10;
+            }
+            
+            /* Status badges com maior especificidade */
+            .table tbody tr td span.badge-error,
+            span.badge-error {
+                background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%) !important;
+                color: white !important;
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+                border-radius: 50rem;
+                letter-spacing: 0.5px;
+                box-shadow: 0 2px 10px rgba(251, 146, 60, 0.3);
+                border: 1px solid rgba(251, 146, 60, 0.2);
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                display: inline-block;
+            }
+            
+            /* Adicionar também um gradiente específico para o texto de erro */
+            .text-error-gradient {
+                background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                text-fill-color: transparent;
+            }
+            
+            /* Classe de fundo para o ícone de erro */
+            .bg-error-gradient {
+                background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
             }
         </style>
     </additionalCss>
@@ -324,18 +535,18 @@
     <content>
         <!-- Cards de Estatísticas -->
         <div class="row mb-4">
-            <div class="col-xl-4 col-md-4 mb-xl-0 mb-4">
+            <div class="col-xl-3 col-md-6 mb-xl-0 mb-4">
                 <div class="card">
                     <div class="card-body p-3">
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Pagamentos Pagos</p>
-                                    <h5 class="font-weight-bolder text-success" th:text="${pagamentosPagos}">0</h5>
+                                    <h5 class="font-weight-bolder text-success-gradient" th:text="${pagamentosPagos}">0</h5>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-success shadow-success text-center rounded-circle p-3">
+                                <div class="icon icon-shape bg-success-gradient shadow text-center rounded-circle p-3">
                                     <i class="fas fa-check text-white"></i>
                                 </div>
                             </div>
@@ -343,18 +554,18 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-4 col-md-4 mb-xl-0 mb-4">
+            <div class="col-xl-3 col-md-6 mb-xl-0 mb-4">
                 <div class="card">
                     <div class="card-body p-3">
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Pagamentos Pendentes</p>
-                                    <h5 class="font-weight-bolder text-warning" th:text="${pagamentosPendentes}">0</h5>
+                                    <h5 class="font-weight-bolder text-warning-gradient" th:text="${pagamentosPendentes}">0</h5>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-warning shadow-warning text-center rounded-circle p-3">
+                                <div class="icon icon-shape bg-warning-gradient shadow text-center rounded-circle p-3">
                                     <i class="fas fa-clock text-white"></i>
                                 </div>
                             </div>
@@ -362,19 +573,38 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-4 col-md-4">
+            <div class="col-xl-3 col-md-6 mb-xl-0 mb-4">
                 <div class="card">
                     <div class="card-body p-3">
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Pagamentos Cancelados</p>
-                                    <h5 class="font-weight-bolder text-danger" th:text="${pagamentosCancelados}">0</h5>
+                                    <h5 class="font-weight-bolder text-danger-gradient" th:text="${pagamentosCancelados}">0</h5>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-danger shadow-danger text-center rounded-circle p-3">
+                                <div class="icon icon-shape bg-danger-gradient shadow text-center rounded-circle p-3">
                                     <i class="fas fa-times text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card">
+                    <div class="card-body p-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Pagamentos Estornados</p>
+                                    <h5 class="font-weight-bolder text-purple-gradient" th:text="${pagamentosEstornados}">0</h5>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="icon icon-shape bg-purple-gradient shadow text-center rounded-circle p-3">
+                                    <i class="fas fa-undo text-white"></i>
                                 </div>
                             </div>
                         </div>
@@ -402,7 +632,9 @@
                                 </select>
                             </div>
                             <div class="me-2">
-                                <select name="ambiente" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <select name="ambiente" class="form-select form-select-sm" 
+                                        th:classappend="${ambienteAtual != null && ambienteAtual.name() == 'HOMOLOGACAO' ? 'bg-warning text-dark' : ''}"
+                                        onchange="this.form.submit()">
                                     <option th:each="ambienteOption : ${ambienteOptions}" 
                                             th:value="${ambienteOption}" 
                                             th:text="${ambienteOption.name()}"
@@ -449,6 +681,14 @@
                                           class="badge-warning">Pendente</span>
                                     <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).CANCELADO}" 
                                           class="badge-danger">Cancelado</span>
+                                    <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).ESTORNADO}" 
+                                          class="badge-purple">Estornado</span>
+                                    <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).EXPIRADO}" 
+                                          class="badge-secondary">Expirado</span>
+                                    <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).ERRO}" 
+                                          class="badge-error" style="background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%) !important;">Erro</span>
+                                    <span th:if="${pagamento.status == T(cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum).PROCESSANDO}" 
+                                          class="badge-info">Processando</span>
                                 </td>
                                 <td th:text="${pagamento.panMascarado != null ? pagamento.panMascarado : '-'}">**** **** **** 1234</td>
                                 <td>
@@ -473,16 +713,16 @@
                         <nav aria-label="Navegação de páginas">
                             <ul class="pagination">
                                 <li class="page-item" th:classappend="${paginaAtual == 0 ? 'disabled' : ''}">
-                                    <a class="page-link" th:href="@{/user/pagamentos(page=${paginaAtual - 1}, status=${statusAtual})}" aria-label="Anterior">
+                                    <a class="page-link" th:href="@{/user/pagamentos(page=${paginaAtual - 1}, status=${statusAtual}, ambiente=${ambienteAtual})}" aria-label="Anterior">
                                         <span aria-hidden="true">&laquo;</span>
                                     </a>
                                 </li>
                                 <li class="page-item" th:each="i : ${#numbers.sequence(0, pagamentos.totalPages - 1)}" 
                                     th:classappend="${i == paginaAtual ? 'active' : ''}">
-                                    <a class="page-link" th:href="@{/user/pagamentos(page=${i}, status=${statusAtual})}" th:text="${i + 1}">1</a>
+                                    <a class="page-link" th:href="@{/user/pagamentos(page=${i}, status=${statusAtual}, ambiente=${ambienteAtual})}" th:text="${i + 1}">1</a>
                                 </li>
                                 <li class="page-item" th:classappend="${paginaAtual == pagamentos.totalPages - 1 ? 'disabled' : ''}">
-                                    <a class="page-link" th:href="@{/user/pagamentos(page=${paginaAtual + 1}, status=${statusAtual})}" aria-label="Próxima">
+                                    <a class="page-link" th:href="@{/user/pagamentos(page=${paginaAtual + 1}, status=${statusAtual}, ambiente=${ambienteAtual})}" aria-label="Próxima">
                                         <span aria-hidden="true">&raquo;</span>
                                     </a>
                                 </li>
