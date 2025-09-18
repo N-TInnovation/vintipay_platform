@@ -48,7 +48,6 @@ public class PagamentoPublicoController {
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
     private final BuscaPagamentoUseCase buscaPagamentoUseCase;
 
-
     /**
      * Exibe a página de checkout para um link de pagamento
      */
