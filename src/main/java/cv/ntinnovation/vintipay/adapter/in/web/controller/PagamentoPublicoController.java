@@ -188,15 +188,18 @@ public class PagamentoPublicoController {
 
         intencaoPagamento.setReferencia(sessaoOpt.get().getReferencia());
 
+        intencaoPagamento.setProduto(produto);
+
+        intencaoPagamento.setCiclo(1);
+
+        intencaoPagamento.gerarTimestamp();
+
         //Verificar se o produto é recorrente e adicionar informações de subscrição ao modelo
         boolean isSubscription = produto.isRecorrente();
 
         if (isSubscription) {
-            intencaoPagamento.setRecorrente(true);
             var periodo = produto.getPeriodoRecorrencia();
             intencaoPagamento.setDataCobranca(periodo.getDataCobranca());
-            intencaoPagamento.setCiclo(1);
-            intencaoPagamento.setPrimeiraCobranca(produto.getPrimeiraCobranca());
 
             var descontos = produto.getDescontosPorCiclo();
 
@@ -216,8 +219,6 @@ public class PagamentoPublicoController {
             intencaoPagamento.setIntencao(IntencaoPagamentoEnum.COMPRAS);
             intencaoPagamento.setTransactionCode(IntencaoPagamentoEnum.COMPRAS.getTransactionCode());
         }
-
-
 
         intencaoPagamento.setValor(produto.getPreco());
 
@@ -254,7 +255,11 @@ public class PagamentoPublicoController {
 
         gerenciaLinkPagamentoUseCase.incrementarUsos(link.getId());
 
-        return "redirect:/pagamento/checkout/" + intencaoPagamentoCriada.getReferencia();
+        if (isSubscription) {
+            return "redirect:/subscricao/checkout/" + intencaoPagamentoCriada.getReferencia();
+        }else {
+            return "redirect:/pagamento/checkout/" + intencaoPagamentoCriada.getReferencia();
+        }
     }
 
 

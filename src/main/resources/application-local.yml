@@ -24,12 +24,21 @@ sisp:
     prod:
       3d: https://mc.vinti4net.cv/3ds_middleware_php/public/3ds_init.php
       normal: https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment
+      subscricao: https://mc.vinti4net.cv/BizMPIOnUsSisp/TokenEnrollment
+      cobranca-recorrente: https://mc.vinti4net.cv/BizMPIOnUsSisp/TokenPayment
+      cancelamento-subscricao: https://mc.vinti4net.cv/BizMPIOnUsSisp/TokenCancel
     dev:
       3d: https://localhost:8443/simulador/sisp/3ds_middleware_php/public/3ds_init.php
       normal: https://localhost:3001/simulador/sisp/3ds_middleware_php/public/3ds_init.php
+      subscricao: https://mc.vinti4net.cv/BizMPIOnUsSisp/TokenEnrollment
+      cobranca-recorrente: https://mc.vinti4net.cv/BizMPIOnUsSisp/TokenPayment
+      cancelamento-subscricao: https://mc.vinti4net.cv/BizMPIOnUsSisp/TokenCancel
     qld:
       3d: https://mc.vinti4net.cv/3ds_middleware_php/public/3ds_init.php
       normal: https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment
+      subscricao: https://mc.vinti4net.cv/BizMPIOnUsSisp/TokenEnrollment
+      cobranca-recorrente: https://mc.vinti4net.cv/BizMPIOnUsSisp/TokenPayment
+      cancelamento-subscricao: https://mc.vinti4net.cv/BizMPIOnUsSisp/TokenCancel
   checkout:
     return:
       url: ${APP_BASE_URL:https://localhost:8443}/webhook/sisp/pagamentos/retorno

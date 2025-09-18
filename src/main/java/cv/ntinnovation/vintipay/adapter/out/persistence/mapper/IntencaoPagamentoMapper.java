@@ -1,9 +1,6 @@
 package cv.ntinnovation.vintipay.adapter.out.persistence.mapper;
 
-import cv.ntinnovation.vintipay.adapter.out.persistence.entity.ContaPagamentoEntity;
-import cv.ntinnovation.vintipay.adapter.out.persistence.entity.ContatoContaPagamentoEntity;
-import cv.ntinnovation.vintipay.adapter.out.persistence.entity.InfoContaPagamentoEntity;
-import cv.ntinnovation.vintipay.adapter.out.persistence.entity.IntencaoPagamentoEntity;
+import cv.ntinnovation.vintipay.adapter.out.persistence.entity.*;
 import cv.ntinnovation.vintipay.adapter.out.persistence.repository.ContaPagamentoRepository;
 import cv.ntinnovation.vintipay.application.core.domain.entity.*;
 import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
@@ -16,7 +13,8 @@ import org.springframework.stereotype.Component;
 public class IntencaoPagamentoMapper {
 
     private final ContaPagamentoRepository contaPagamentoRepository;
-    private final MetodoPagamentoMapper metodoPagamentoMapper;
+    private final ProdutoMapper produtoMapper;
+
 
     public IntencaoPagamentoEntity toIntencaoPagamentoEntity(IntencaoPagamento intencaoPagamento) {
         if (intencaoPagamento == null) {
@@ -38,11 +36,8 @@ public class IntencaoPagamentoMapper {
         entity.setReferenceNumber(intencaoPagamento.getReferenceNumber());
         entity.setTransactionCode(intencaoPagamento.getTransactionCode());
         entity.setAmbiente(intencaoPagamento.getAmbiente().getAmbiente());
-        entity.setRecorrente(intencaoPagamento.isRecorrente());
+        entity.setProduto(produtoMapper.toEntity(intencaoPagamento.getProduto()));
         entity.setDataCobranca(intencaoPagamento.getDataCobranca());
-        entity.setCiclo(intencaoPagamento.getCiclo());
-        entity.setIntencao(intencaoPagamento.getIntencao());
-        entity.setPrimeiraCobranca(intencaoPagamento.getPrimeiraCobranca());
 
         // Buscar a ContaPagamentoEntity existente pelo ID
         if (intencaoPagamento.getContaPagamento() != null && intencaoPagamento.getContaPagamento().getId() != null) {
@@ -77,13 +72,12 @@ public class IntencaoPagamentoMapper {
                 .contaPagamento(contaPagamento)
                 .transactionCode(entity.getTransactionCode())
                 .ambiente(AmbienteEnum.fromAmbiente(entity.getAmbiente()))
-                .recorrente(entity.isRecorrente())
                 .dataCobranca(entity.getDataCobranca())
-                .ciclo(entity.getCiclo())
-                .intencao(entity.getIntencao())
-                .primeiraCobranca(entity.getPrimeiraCobranca())
+                .produto(produtoMapper.toDomain(entity.getProduto()))
                 .build();
     }
+
+
 
     private ContaPagamento toContaPagamento(ContaPagamentoEntity entity) {
         if (entity == null) {

@@ -45,12 +45,14 @@ public class IntencaoPagamentoEntity extends BasePagamentoEntity {
     @Column(name = "data_cobranca")
     private LocalDate dataCobranca;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "produto_id", nullable = false)
+    private ProdutoEntity produto;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "subscricao_pagamento_id")
+    private SubscricaoPagamentoEntity subscricaoPagamento;
+
     @Column(name = "ciclo")
     private Integer ciclo;
-
-    @Column(name = "intencao", nullable = false)
-    private IntencaoPagamentoEnum intencao;
-
-    @Column(name = "primeira_cobranca")
-    private PrimeiraCobrancaEnum primeiraCobranca;
 }

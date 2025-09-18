@@ -41,4 +41,31 @@ public enum AmbienteEnum {
         return environmentProperties.getSubmitPaymentNormalDevFormUrl();
     }
 
+    public String getSubmitSubscricaoUrl(EnvironmentProperties environmentProperties) {
+        if(this == PRODUCAO) {
+            return environmentProperties.getSubmitPaymentSubscricaoProdFormUrl();
+        } else if(this == HOMOLOGACAO) {
+            return environmentProperties.getSubmitPaymentSubscricaoQldFormUrl();
+        }
+        return environmentProperties.getSubmitPaymentSubscricaoDevFormUrl();
+    }
+
+    public String getSubmitCobrancaRecorrenteUrl(EnvironmentProperties environmentProperties) {
+        if(this == PRODUCAO) {
+            return environmentProperties.getSubmitPaymentCobrancaRecorrenteProdFormUrl();
+        } else if(this == HOMOLOGACAO) {
+            return environmentProperties.getSubmitPaymentCobrancaRecorrenteQldFormUrl();
+        }
+        return environmentProperties.getSubmitPaymentCobrancaRecorrenteDevFormUrl();
+    }
+
+    public String getSubmitCancelamentoSubscricaoUrl(EnvironmentProperties environmentProperties) {
+        if(this == PRODUCAO) {
+            return environmentProperties.getSubmitPaymentCancelamentoSubscricaoProdFormUrl();
+        } else if(this == HOMOLOGACAO) {
+            return environmentProperties.getSubmitPaymentCancelamentoSubscricaoQldFormUrl();
+        }
+        return environmentProperties.getSubmitPaymentCancelamentoSubscricaoDevFormUrl();
+    }
+
 }

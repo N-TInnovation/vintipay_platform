@@ -35,12 +35,16 @@ sisp:
     prod:
       3d: ${SISP_URL_3D}
       normal: ${SISP_URL_NORMAL}
+      subscricao: ${SISP_URL_SUBSCRICAO}
     dev:
       3d: ${SISP_DEV_URL_3D}
       normal: ${SISP_DEV_URL_NORMAL}
+      subscricao: ${SISP_DEV_URL_SUBSCRICAO}
     qld:
       3d: ${SISP_QLD_URL_3D}
       normal: ${SISP_QLD_URL_NORMAL}
+      subscricao: ${SISP_QLD_URL_SUBSCRICAO}
+
   checkout:
     return:
       url: ${SISP_CHECKOUT_RETURN_URL}

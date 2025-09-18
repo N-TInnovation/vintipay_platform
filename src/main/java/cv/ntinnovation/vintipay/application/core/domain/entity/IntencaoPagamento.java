@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @Builder
@@ -49,8 +50,11 @@ public class IntencaoPagamento {
 
     private IntencaoPagamentoEnum intencao;
 
-    private boolean recorrente;
     private LocalDate dataCobranca;
+    private Produto produto;
     private Integer ciclo;
-    private PrimeiraCobrancaEnum primeiraCobranca;
+
+    public void gerarTimestamp() {
+        this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
 }
