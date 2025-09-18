@@ -1,8 +1,12 @@
 package cv.ntinnovation.vintipay.adapter.out.persistence.entity;
 
+import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.PrimeiraCobrancaEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "intencao_pagamento")
@@ -34,4 +38,19 @@ public class IntencaoPagamentoEntity extends BasePagamentoEntity {
 
     @Column(name = "ambiente", nullable = false)
     private String ambiente;
+
+    @Column(name = "recorrente", nullable = false)
+    private boolean recorrente;
+
+    @Column(name = "data_cobranca")
+    private LocalDate dataCobranca;
+
+    @Column(name = "ciclo")
+    private Integer ciclo;
+
+    @Column(name = "intencao", nullable = false)
+    private IntencaoPagamentoEnum intencao;
+
+    @Column(name = "primeira_cobranca")
+    private PrimeiraCobrancaEnum primeiraCobranca;
 }

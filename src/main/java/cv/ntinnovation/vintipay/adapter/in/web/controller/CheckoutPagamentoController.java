@@ -45,7 +45,7 @@ public class CheckoutPagamentoController {
     private final EnvironmentProperties environmentProperties;
 
     @GetMapping("/checkout/{reference}")
-    public String checkout(@PathVariable String reference, Model model, HttpServletRequest request, HttpServletResponse servletResponse) {
+    public String checkoutComprasRecargas(@PathVariable String reference, Model model, HttpServletRequest request, HttpServletResponse servletResponse) {
 
         var intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(reference);
 

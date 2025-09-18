@@ -103,6 +103,16 @@ public class PagamentoPublicoController {
             log.info("Link de pagamento {} identificado como ASSINATURA: período {}, duração: {}", 
                      codigo, produto.getPeriodoRecorrencia(), 
                      produto.getDuracaoRecorrencia() != null ? produto.getDuracaoRecorrencia() + " ciclos" : "Ilimitada");
+            var descontos = produto.getDescontosPorCiclo();
+
+            if (descontos != null) {
+                var desconto = descontos.stream().filter(d->d.getNumeroCiclo().equals(1)).findFirst();
+                if (desconto.isPresent()){
+                    var preco = produto.getPreco();
+                    var descontado = preco.pow(desconto.get().getNumeroCiclo());
+                    produto.setPreco(preco.subtract(descontado));
+                }
+            }
         }
         
         model.addAttribute("link", link);
@@ -178,6 +188,37 @@ public class PagamentoPublicoController {
 
         intencaoPagamento.setReferencia(sessaoOpt.get().getReferencia());
 
+        //Verificar se o produto é recorrente e adicionar informações de subscrição ao modelo
+        boolean isSubscription = produto.isRecorrente();
+
+        if (isSubscription) {
+            intencaoPagamento.setRecorrente(true);
+            var periodo = produto.getPeriodoRecorrencia();
+            intencaoPagamento.setDataCobranca(periodo.getDataCobranca());
+            intencaoPagamento.setCiclo(1);
+            intencaoPagamento.setPrimeiraCobranca(produto.getPrimeiraCobranca());
+
+            var descontos = produto.getDescontosPorCiclo();
+
+            if (descontos != null) {
+                var desconto = descontos.stream().filter(d->d.getNumeroCiclo().equals(1)).findFirst();
+                if (desconto.isPresent()){
+                    var preco = produto.getPreco();
+                    var descontado = preco.pow(desconto.get().getNumeroCiclo());
+                    produto.setPreco(preco.subtract(descontado));
+                }
+            }
+
+            intencaoPagamento.setIntencao(IntencaoPagamentoEnum.SUBSCRICAO);
+            intencaoPagamento.setTransactionCode(IntencaoPagamentoEnum.SUBSCRICAO.getTransactionCode());
+
+        }else {
+            intencaoPagamento.setIntencao(IntencaoPagamentoEnum.COMPRAS);
+            intencaoPagamento.setTransactionCode(IntencaoPagamentoEnum.COMPRAS.getTransactionCode());
+        }
+
+
+
         intencaoPagamento.setValor(produto.getPreco());
 
         intencaoPagamento.setMoeda(MoedaEnum.getByName(produto.getMoeda()).getCodigoISO());
@@ -188,7 +229,6 @@ public class PagamentoPublicoController {
         intencaoPagamento.setMerchantSession(sessaoOpt.get().getSessionId());
 
 
-        intencaoPagamento.setTransactionCode(IntencaoPagamentoEnum.COMPRAS.getTransactionCode());
 
         intencaoPagamento.setAmbiente(link.getConfiguracaoPagamento().getAmbiente());
 

@@ -38,6 +38,11 @@ public class IntencaoPagamentoMapper {
         entity.setReferenceNumber(intencaoPagamento.getReferenceNumber());
         entity.setTransactionCode(intencaoPagamento.getTransactionCode());
         entity.setAmbiente(intencaoPagamento.getAmbiente().getAmbiente());
+        entity.setRecorrente(intencaoPagamento.isRecorrente());
+        entity.setDataCobranca(intencaoPagamento.getDataCobranca());
+        entity.setCiclo(intencaoPagamento.getCiclo());
+        entity.setIntencao(intencaoPagamento.getIntencao());
+        entity.setPrimeiraCobranca(intencaoPagamento.getPrimeiraCobranca());
 
         // Buscar a ContaPagamentoEntity existente pelo ID
         if (intencaoPagamento.getContaPagamento() != null && intencaoPagamento.getContaPagamento().getId() != null) {
@@ -72,6 +77,11 @@ public class IntencaoPagamentoMapper {
                 .contaPagamento(contaPagamento)
                 .transactionCode(entity.getTransactionCode())
                 .ambiente(AmbienteEnum.fromAmbiente(entity.getAmbiente()))
+                .recorrente(entity.isRecorrente())
+                .dataCobranca(entity.getDataCobranca())
+                .ciclo(entity.getCiclo())
+                .intencao(entity.getIntencao())
+                .primeiraCobranca(entity.getPrimeiraCobranca())
                 .build();
     }
 

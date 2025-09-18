@@ -1,6 +1,8 @@
 package cv.ntinnovation.vintipay.application.core.domain.entity;
 
 import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.PrimeiraCobrancaEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -43,4 +46,11 @@ public class IntencaoPagamento {
     private String contaPagamentoBillAddrState;
 
     private AmbienteEnum ambiente;
+
+    private IntencaoPagamentoEnum intencao;
+
+    private boolean recorrente;
+    private LocalDate dataCobranca;
+    private Integer ciclo;
+    private PrimeiraCobrancaEnum primeiraCobranca;
 }

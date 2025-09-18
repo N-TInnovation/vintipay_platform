@@ -469,9 +469,14 @@
                         <h3 class="product-name" th:text="${produto.nome}">Camisa Under Armour Azul</h3>
                         <p class="mb-1" th:if="${produto.categoria != null}" th:text="${produto.categoria}">Vestuário</p>
                         <p class="product-price" th:text="${#numbers.formatDecimal(produto.preco, 0, 'COMMA', 2, 'POINT')} + ' ' + ${produto.moeda}">59.99 CVE</p>
+                        <!-- Badge de assinatura -->
+                        <th:block th:replace="~{fragments/subscription-details :: subscription-badge}"></th:block>
                     </div>
                 </div>
                 
+                <!-- Detalhes completos da assinatura -->
+                <th:block th:replace="~{fragments/subscription-details :: subscription-details}"></th:block>
+
                 <div class="order-totals">
                     <div class="total-row">
                         <span class="total-label">Subtotal</span>
