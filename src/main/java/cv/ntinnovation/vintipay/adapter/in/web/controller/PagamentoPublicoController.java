@@ -47,6 +47,7 @@ public class PagamentoPublicoController {
     private final CriaSessaoPagamentoUseCase criaSessaoPagamentoUseCase;
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
     private final BuscaPagamentoUseCase buscaPagamentoUseCase;
+    private final CriaSubscricaoPagamentoUseCase criaSubscricaoPagamentoUseCase;
 
     /**
      * Exibe a página de checkout para um link de pagamento

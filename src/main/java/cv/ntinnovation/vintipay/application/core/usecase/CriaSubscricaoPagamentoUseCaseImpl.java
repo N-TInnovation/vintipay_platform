@@ -1,9 +1,15 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
+import cv.ntinnovation.vintipay.application.core.domain.entity.DataFingerPrint;
+import cv.ntinnovation.vintipay.application.core.domain.entity.FingerPrintResult;
 import cv.ntinnovation.vintipay.application.core.domain.entity.IntencaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.SubscricaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.MoedaEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusSubscricaoPagamentoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.rules.FingerPrintService;
+import cv.ntinnovation.vintipay.application.port.in.BuscaConfiguracaoPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.CriaSubscricaoPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.out.SalvaSubscricaoPagamentoPort;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +25,8 @@ import java.util.UUID;
 public class CriaSubscricaoPagamentoUseCaseImpl implements CriaSubscricaoPagamentoUseCase {
     
     private final SalvaSubscricaoPagamentoPort salvaSubscricaoPagamentoPort;
+    private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase;
+    private final FingerPrintService fingerPrintService;
 
     @Override
     public SubscricaoPagamento subscrever(IntencaoPagamento intencaoPagamento) {
@@ -30,7 +38,10 @@ public class CriaSubscricaoPagamentoUseCaseImpl implements CriaSubscricaoPagamen
             log.warn("Já existe uma subscrição para esta intenção de pagamento ID: {}", intencaoPagamento.getId());
             return existenteOpt.get();
         }
-        
+
+        // Buscar configuração de pagamento pelo posId da intenção
+        var configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId(intencaoPagamento.getPosId());
+
         // Criar uma nova subscrição
         var subscricao = SubscricaoPagamento.builder()
                 .intencaoPagamento(intencaoPagamento)
@@ -38,9 +49,26 @@ public class CriaSubscricaoPagamentoUseCaseImpl implements CriaSubscricaoPagamen
                 .status(StatusSubscricaoPagamentoEnum.INSCRICAO_PENDENTE)
                 .createdAt(LocalDateTime.now())
                 .ciclo(1) // Começando com o primeiro ciclo
-                .ambiente(AmbienteEnum.PRODUCAO) // Ou obter de configurações
+                .ambiente(intencaoPagamento.getAmbiente()) // Ou obter de configurações
                 .build();
-        
+
+        // Gerar fingerprint usando o FingerPrintService
+        DataFingerPrint dataFingerPrint = DataFingerPrint.builder()
+                .posAutCode(configuracaoPagamento.getPosAutCode())
+                .timestamp(intencaoPagamento.getTimestamp())
+                .amount(intencaoPagamento.getValor())
+                .merchantRef(intencaoPagamento.getMerchantRef())
+                .merchantSession(intencaoPagamento.getMerchantSession())
+                .posID(intencaoPagamento.getPosId())
+                .currency(MoedaEnum.getByName(intencaoPagamento.getMoeda()).getCodigoISO())
+                .transactionCode(IntencaoPagamentoEnum.SUBSCRICAO.getTransactionCode())
+                .entityCode(null)
+                .referenceNumber(null)
+                .build();
+
+        FingerPrintResult fingerPrintResult = fingerPrintService.generateFingerPrint(dataFingerPrint);
+        subscricao.setFingerprint(fingerPrintResult.getHashFingerPrint());
+
         // Salvar no banco de dados
         var savedSubscricao = salvaSubscricaoPagamentoPort.salvar(subscricao);
         
