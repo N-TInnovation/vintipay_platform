@@ -14,6 +14,10 @@ import java.time.LocalDate;
 @Setter
 public class IntencaoPagamentoEntity extends BasePagamentoEntity {
 
+    @Column(name = "intencao", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private IntencaoPagamentoEnum intencao;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "conta_pagamento_id", nullable = false)
     private ContaPagamentoEntity contaPagamento;

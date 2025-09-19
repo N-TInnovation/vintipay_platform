@@ -38,6 +38,9 @@ public class IntencaoPagamentoMapper {
         entity.setAmbiente(intencaoPagamento.getAmbiente().getAmbiente());
         entity.setProduto(produtoMapper.toEntity(intencaoPagamento.getProduto()));
         entity.setDataCobranca(intencaoPagamento.getDataCobranca());
+        entity.setIntencao(intencaoPagamento.getIntencao());
+        entity.setRecorrente(intencaoPagamento.getProduto().isRecorrente());
+        entity.setCiclo(intencaoPagamento.getCiclo());
 
         // Buscar a ContaPagamentoEntity existente pelo ID
         if (intencaoPagamento.getContaPagamento() != null && intencaoPagamento.getContaPagamento().getId() != null) {
@@ -74,6 +77,8 @@ public class IntencaoPagamentoMapper {
                 .ambiente(AmbienteEnum.fromAmbiente(entity.getAmbiente()))
                 .dataCobranca(entity.getDataCobranca())
                 .produto(produtoMapper.toDomain(entity.getProduto()))
+                .intencao(entity.getIntencao())
+                .ciclo(entity.getCiclo())
                 .build();
     }
 
