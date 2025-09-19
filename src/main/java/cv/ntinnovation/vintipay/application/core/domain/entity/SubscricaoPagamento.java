@@ -26,5 +26,6 @@ public class SubscricaoPagamento {
     private String resultFingerPrint;
     private ContaPagamento contaPagamento;
     private Integer ciclo;
+    private String authorizationCode;
     private AmbienteEnum ambiente;
 }

@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.application.core.domain.enums;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -9,6 +10,7 @@ import java.time.LocalDate;
  * Enum para representar os diferentes períodos de recorrência disponíveis para produtos
  */
 @AllArgsConstructor
+@Getter
 public enum PeriodoRecorrenciaEnum {
     DIARIO("Diário", 1),
     SEMANAL("Semanal", 7),
