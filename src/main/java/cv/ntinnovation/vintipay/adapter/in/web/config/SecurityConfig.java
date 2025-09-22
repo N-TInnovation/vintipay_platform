@@ -130,6 +130,7 @@ public class SecurityConfig {
                             .requestMatchers("/permissoes/**").hasRole("ADMIN")
                             .requestMatchers("/papeis/**").hasRole("ADMIN")
                             .requestMatchers("/pagamento/checkout/{reference}").permitAll()
+                            .requestMatchers("/subscricao/checkout/{reference}").permitAll()
                             .requestMatchers("/recibo/download/pdf/**").permitAll()
                             .requestMatchers("/recibo/enviar-email").permitAll()
                             .requestMatchers("/recibo/view/**").permitAll()

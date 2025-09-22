@@ -1,4 +1,4 @@
-package cv.ntinnovation.vintipay.adapter.in.web.controller;
+package cv.ntinnovation.vintipay.adapter.in.web.controller.api;
 
 import cv.ntinnovation.vintipay.adapter.in.web.dto.IntencaoPagamentoRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.IntencaoPagamentoResponse;
@@ -18,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -26,7 +25,6 @@ import jakarta.validation.Valid;
 import java.security.Principal;
 
 import static cv.ntinnovation.vintipay.adapter.in.web.utils.GerarUtil.geraMerchantRef;
-import static cv.ntinnovation.vintipay.adapter.in.web.utils.GerarUtil.geraMerchantSession;
 
 @RestController
 @RequestMapping("/api/v1/pagamentos")

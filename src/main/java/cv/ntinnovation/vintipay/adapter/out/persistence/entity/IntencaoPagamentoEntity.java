@@ -1,7 +1,6 @@
 package cv.ntinnovation.vintipay.adapter.out.persistence.entity;
 
 import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoEnum;
-import cv.ntinnovation.vintipay.application.core.domain.enums.PrimeiraCobrancaEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

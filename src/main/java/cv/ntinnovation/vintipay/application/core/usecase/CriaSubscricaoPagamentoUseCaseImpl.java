@@ -62,8 +62,8 @@ public class CriaSubscricaoPagamentoUseCaseImpl implements CriaSubscricaoPagamen
                 .posID(intencaoPagamento.getPosId())
                 .currency(MoedaEnum.getByName(intencaoPagamento.getMoeda()).getCodigoISO())
                 .transactionCode(IntencaoPagamentoEnum.SUBSCRICAO.getTransactionCode())
-                .entityCode(null)
-                .referenceNumber(null)
+                .entityCode("")
+                .referenceNumber("")
                 .build();
 
         FingerPrintResult fingerPrintResult = fingerPrintService.generateFingerPrint(dataFingerPrint);

@@ -26,7 +26,7 @@ import static cv.ntinnovation.vintipay.adapter.in.web.utils.CookieUtil.setSessio
 
 @Slf4j
 @Controller
-@RequestMapping("/pagamento")
+@RequestMapping("/subscricao")
 @RequiredArgsConstructor
 public class SubscricaoPagamentoController {
 
@@ -39,7 +39,7 @@ public class SubscricaoPagamentoController {
 
     private final EnvironmentProperties environmentProperties;
 
-    @GetMapping("/subscricao/{reference}")
+    @GetMapping("/checkout/{reference}")
     public String checkoutComprasRecargas(@PathVariable String reference, Model model, HttpServletRequest request, HttpServletResponse servletResponse) {
 
         var intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(reference);
@@ -64,6 +64,8 @@ public class SubscricaoPagamentoController {
         var subscricaoPagamento = criaSubscricaoPagamentoUseCase.subscrever(intencaoPagamento);
 
         var submitFormUrl = intencaoPagamento.getAmbiente().getSubmitSubscricaoUrl(environmentProperties);
+
+        subscricaoPagamento.setAuthorizationCode("");
 
         var requestResponse = SispCheckoutRequest.builder()
                 .timestamp(intencaoPagamento.getTimestamp())
