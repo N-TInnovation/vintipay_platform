@@ -50,6 +50,9 @@ public class CriaSessaoPagamentoUseCaseImpl implements CriaSessaoPagamentoUseCas
                 .dataExpiracao(expiresAt)
                 .valid(true)
                 .build());
+
+        sessaoPagamento.setValid(true);
+        sessaoPagamento.setReferencia(reference);
         
         log.info("Criando nova sessão de pagamento para referência: {}, cliente: {}, IP: {}", 
                 reference, clientId, ipAddress);

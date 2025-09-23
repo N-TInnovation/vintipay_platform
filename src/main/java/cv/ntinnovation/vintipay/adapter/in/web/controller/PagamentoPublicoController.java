@@ -6,7 +6,10 @@ import cv.ntinnovation.vintipay.adapter.in.web.utils.CookieUtil;
 import cv.ntinnovation.vintipay.application.core.domain.entity.*;
 import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.MoedaEnum;
+import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
+import cv.ntinnovation.vintipay.application.core.domain.exception.IntencaoPagamentoNaoExisteExeption;
+import cv.ntinnovation.vintipay.application.core.domain.exception.SessaoPagamentoInvalidaException;
 import cv.ntinnovation.vintipay.application.port.in.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -46,7 +49,7 @@ public class PagamentoPublicoController {
     private final IntencaoPagamentoWebMapper intencaoPagamentoWebMapper;
     private final CriaSessaoPagamentoUseCase criaSessaoPagamentoUseCase;
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
-    private final BuscaPagamentoUseCase buscaPagamentoUseCase;
+    private final BuscaIntencaoPagamentoUseCase buscaIntencaoPagamentoUseCase;
     private final CriaSubscricaoPagamentoUseCase criaSubscricaoPagamentoUseCase;
 
     /**
@@ -72,8 +75,12 @@ public class PagamentoPublicoController {
         }
 
         if (sessaoOpt.isPresent()) {
-            Optional<Pagamento> pagamentoOpt = buscaPagamentoUseCase.buscarPorReferencia(sessaoOpt.get().getReferencia());
-            if (pagamentoOpt.isPresent() && !pagamentoOpt.get().getStatus().equals(StatusPagamentoEnum.PENDENTE)) {
+            try {
+                var intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(sessaoOpt.get().getReferencia());
+                if (intencaoPagamento != null && !intencaoPagamento.getStatus().equals(StatusIntencaoPagamentoEnum.PENDENTE)) {
+                    sessionId = geraMerchantSession();
+                }
+            } catch (IntencaoPagamentoNaoExisteExeption e) {
                 sessionId = geraMerchantSession();
             }
         }
@@ -162,7 +169,6 @@ public class PagamentoPublicoController {
             return "links/erro";
         }
 
-
         Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorCodigo(codigo);
         
         if (linkOpt.isEmpty() || !linkOpt.get().isDisponivel()) {
@@ -229,8 +235,6 @@ public class PagamentoPublicoController {
         intencaoPagamento.setMerchantRef(sessaoOpt.get().getReferencia());
         intencaoPagamento.setMerchantSession(sessaoOpt.get().getSessionId());
 
-
-
         intencaoPagamento.setAmbiente(link.getConfiguracaoPagamento().getAmbiente());
 
         // Criar ou buscar a conta de pagamento pelo email
@@ -262,6 +266,46 @@ public class PagamentoPublicoController {
         }
     }
 
+    @GetMapping("/p/{clientId}/{referencia}")
+    public String paginaCheckout(@PathVariable(value = "referencia") String referencia,
+                                 @PathVariable(value = "clientId") String clientId, HttpServletResponse response, Model model) {
 
+        var submitFormUrl = "/api/pagamento-publico/"+clientId+"/"+referencia;
+
+        model.addAttribute("submitFormUrl", submitFormUrl);
+
+        return "api/checkout";
+    }
+
+    @PostMapping("/p/{clientId}/{referencia}")
+    public String paginap(@PathVariable(value = "referencia") String referencia,
+                          @PathVariable(value = "clientId") String clientId, HttpServletResponse response) {
+
+        setClientIdCookie(response, clientId);
+
+        var intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(referencia);
+
+        if(intencaoPagamento == null) {
+            throw new IntencaoPagamentoNaoExisteExeption("Intencao de pagamento nao encontrada para a referência: " + referencia);
+        }
+
+        Optional<SessaoPagamento> sessaoOpt = validaSessaoPagamentoUseCase.validarSessao(intencaoPagamento.getMerchantSession());
+
+        var sessao = sessaoOpt.orElseGet(() -> null);
+
+        if (sessao == null) {
+            throw new SessaoPagamentoInvalidaException("Sessão de pagamento inválida ou expirada para referência: " + referencia);
+        }
+
+        setSessionCookie(response, sessao.getSessionId());
+
+        var isSubscription = intencaoPagamento.getIntencao().equals(IntencaoPagamentoEnum.SUBSCRICAO);
+
+        if (isSubscription) {
+            return "redirect:/subscricao/checkout/" + intencaoPagamento.getReferencia();
+        }else {
+            return "redirect:/pagamento/checkout/" + intencaoPagamento.getReferencia();
+        }
+    }
 
 }

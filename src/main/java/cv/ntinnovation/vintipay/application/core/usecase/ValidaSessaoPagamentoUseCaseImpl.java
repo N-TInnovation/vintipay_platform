@@ -87,7 +87,6 @@ public class ValidaSessaoPagamentoUseCaseImpl implements ValidaSessaoPagamentoUs
     @Scheduled(fixedRate = 60000) // Executa a cada minuto
     @Transactional
     public void invalidarSessoesExpiradas() {
-        LocalDateTime now = LocalDateTime.now();
         buscaSessaoPagamentoPort.buscarSessoesExpiradas().forEach(sessao -> {
             sessao.setValid(false);
             salvaSessaoPagamentoPort.salvar(sessao);
