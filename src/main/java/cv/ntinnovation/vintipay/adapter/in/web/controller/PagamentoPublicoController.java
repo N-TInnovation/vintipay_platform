@@ -270,19 +270,6 @@ public class PagamentoPublicoController {
     public String paginaCheckout(@PathVariable(value = "referencia") String referencia,
                                  @PathVariable(value = "clientId") String clientId, HttpServletResponse response, Model model) {
 
-        var submitFormUrl = "/api/pagamento-publico/"+clientId+"/"+referencia;
-
-        model.addAttribute("submitFormUrl", submitFormUrl);
-
-        return "api/checkout";
-    }
-
-    @PostMapping("/p/{clientId}/{referencia}")
-    public String paginap(@PathVariable(value = "referencia") String referencia,
-                          @PathVariable(value = "clientId") String clientId, HttpServletResponse response) {
-
-        setClientIdCookie(response, clientId);
-
         var intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(referencia);
 
         if(intencaoPagamento == null) {
@@ -298,6 +285,25 @@ public class PagamentoPublicoController {
         }
 
         setSessionCookie(response, sessao.getSessionId());
+
+        var submitFormUrl = "/p/"+sessao.getClientId()+"/"+ sessao.getSessionId()+"/" + referencia;
+
+        model.addAttribute("submitFormUrl", submitFormUrl);
+
+        return "api/checkout";
+    }
+
+    @PostMapping("/p/{clientId}/{sessionId}/{referencia}")
+    public String paginap(@PathVariable(value = "referencia") String referencia,
+                          @PathVariable(value = "clientId") String clientId,
+                          @PathVariable(value = "sessionId") String sessionId,
+                          HttpServletResponse response) {
+
+        setClientIdCookie(response, clientId);
+
+        setSessionCookie(response, sessionId);
+
+        var intencaoPagamento = buscaIntencaoPagamentoUseCase.buscarPorReferencia(referencia);
 
         var isSubscription = intencaoPagamento.getIntencao().equals(IntencaoPagamentoEnum.SUBSCRICAO);
 
