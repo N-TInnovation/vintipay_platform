@@ -7,9 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum AmbienteEnum {
 
-    PRODUCAO("PRODUCAO"),
-    HOMOLOGACAO("HOMOLOGACAO");
-   // DESENVOLVIMENTO("DESENVOLVIMENTO");
+    DESENVOLVIMENTO("DESENVOLVIMENTO"),
+    HOMOLOGACAO("HOMOLOGACAO"),
+    PRODUCAO("PRODUCAO");
 
     @Getter
     private String ambiente;

@@ -40,6 +40,7 @@ public class WebhookPagamentoController {
     private final FingerPrintService fingerPrintService;
     private final ProcessaIntegracaoUseCase<IntegracaoEnum> processaIntegracaoUseCase;
     private final NotificacaoUseCase notificacaoUseCase;
+    private final WebhookUseCase webhookUseCase;
 
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
 
@@ -123,8 +124,17 @@ public class WebhookPagamentoController {
             processaIntegracaoUseCase.processar(configuracaoPagamento,pagamento);
             
             log.debug("HMAC Fingerprint gerado: {}", hmacFingerprint);
+            boolean noReturnUrl = configuracaoPagamento.getReturnUrl() == null || configuracaoPagamento.getReturnUrl().isEmpty();
+            boolean returnAtivo = configuracaoPagamento.getReturnAtivo();
 
-            if(configuracaoPagamento.getReturnUrl() == null || configuracaoPagamento.getReturnUrl().isEmpty()) {
+            boolean webhookUrl = configuracaoPagamento.getWebhookUrl() != null && !configuracaoPagamento.getWebhookUrl().isEmpty();
+            boolean webhookAtivo = configuracaoPagamento.getWebhookAtivo();
+
+            if(webhookUrl && webhookAtivo ) {
+                webhookUseCase.enviarWebhook(configuracaoPagamento.getWebhookUrl(), pagamento);
+            }
+
+            if(noReturnUrl || !returnAtivo ) {
                 if(pagamento.getStatus().equals(StatusPagamentoEnum.PAGO)) {
                     // Construir URL para visualização do recibo
                     String urlVisualizarRecibo = request2.getScheme() + "://" + 

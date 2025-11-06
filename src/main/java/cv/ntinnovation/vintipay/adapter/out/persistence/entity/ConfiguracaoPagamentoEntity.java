@@ -28,13 +28,13 @@ public class ConfiguracaoPagamentoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "pos_id", nullable = false, unique = true)
+    @Column(name = "pos_id", nullable = false)
     private String posId;
 
     @Column(name = "merchant_id", nullable = false)
     private String merchantId;
 
-    @Column(name = "api_key", nullable = false)
+    @Column(name = "api_key", nullable = false, unique = true)
     private String apiKey;
 
     @Column(name = "api_secret", nullable = false)

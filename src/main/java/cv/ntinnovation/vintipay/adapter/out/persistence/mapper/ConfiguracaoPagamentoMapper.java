@@ -35,7 +35,7 @@ public class ConfiguracaoPagamentoMapper {
                 .urlLoja(domain.getUrlLoja() != null ? domain.getUrlLoja() : "")
                 .telefone(domain.getTelefone())
                 .email(domain.getEmail())
-                .ambiente(domain.getAmbiente().getAmbiente())
+                .ambiente(domain.getAmbiente() != null ? domain.getAmbiente().getAmbiente() : AmbienteEnum.HOMOLOGACAO.getAmbiente())
                 .webhookUrl(domain.getWebhookUrl())
                 .webhookSecret(domain.getWebhookSecret())
                 .ativo(domain.getAtivo() != null ? domain.getAtivo() : true)
