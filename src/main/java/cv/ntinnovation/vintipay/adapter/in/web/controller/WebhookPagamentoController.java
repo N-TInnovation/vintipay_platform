@@ -127,12 +127,7 @@ public class WebhookPagamentoController {
             boolean noReturnUrl = configuracaoPagamento.getReturnUrl() == null || configuracaoPagamento.getReturnUrl().isEmpty();
             boolean returnAtivo = configuracaoPagamento.getReturnAtivo();
 
-            boolean webhookUrl = configuracaoPagamento.getWebhookUrl() != null && !configuracaoPagamento.getWebhookUrl().isEmpty();
-            boolean webhookAtivo = configuracaoPagamento.getWebhookAtivo();
-
-            if(webhookUrl && webhookAtivo ) {
-                webhookUseCase.enviarWebhook(configuracaoPagamento.getWebhookUrl(), pagamento);
-            }
+            webhookUseCase.enviarPagamentoWebhook(configuracaoPagamento.getWebhookUrl(), pagamento);
 
             if(noReturnUrl || !returnAtivo ) {
                 if(pagamento.getStatus().equals(StatusPagamentoEnum.PAGO)) {

@@ -2,6 +2,7 @@ package cv.ntinnovation.vintipay.adapter.out.client.api.vintipay;
 
 import cv.ntinnovation.vintipay.adapter.out.client.api.vintipay.request.EventoRequest;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
+import cv.ntinnovation.vintipay.application.core.domain.enums.WebhookEventoEnum;
 import cv.ntinnovation.vintipay.application.port.out.WebhookServicePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,12 +22,12 @@ public class WebhookAdapter implements WebhookServicePort {
     private final Vintipay vintipay;
     
     @Override
-    public void enviarWebhook(String url, Pagamento payload) {
+    public void enviarWebhook(String url, WebhookEventoEnum tipo, Pagamento payload) {
         try {
             log.info("Enviando webhook HTTP para URL: {}", url);
             
             EventoRequest<Pagamento> eventoRequest = EventoRequest.<Pagamento>builder()
-                    .tipo("pagamento")
+                    .tipo(tipo.name())
                     .data(payload)
                     .build();
             

@@ -2,6 +2,7 @@ package cv.ntinnovation.vintipay.adapter.in.messaging.kafka.consumer;
 
 import cv.ntinnovation.vintipay.adapter.out.messaging.kafka.dto.WebhookEventoDTO;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
+import cv.ntinnovation.vintipay.application.port.in.WebhookUseCase;
 import cv.ntinnovation.vintipay.application.port.out.WebhookServicePort;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class WebhookKafkaConsumer {
     
     @Qualifier("webhookHttpAdapter")
-    private final WebhookServicePort webhookHttpAdapter;
+    private final WebhookUseCase webhookUseCase;
     private final ObjectMapper objectMapper;
     
     @KafkaListener(
@@ -33,7 +34,7 @@ public class WebhookKafkaConsumer {
             Pagamento pagamento = objectMapper.convertValue(evento.getPayload(), Pagamento.class);
             
             // Chamar o adapter HTTP diretamente para enviar o webhook
-            webhookHttpAdapter.enviarWebhook(evento.getWebhookUrl(), pagamento);
+            webhookUseCase.receberPagamentoWebhook(evento.getWebhookUrl(), pagamento);
             
             log.info("Webhook processado com sucesso para URL: {}", evento.getWebhookUrl());
             
