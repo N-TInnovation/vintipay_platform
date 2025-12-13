@@ -1,5 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
+import cv.ntinnovation.vintipay.adapter.in.web.security.CustomOAuth2User;
+import cv.ntinnovation.vintipay.adapter.out.persistence.entity.UsuarioEntity;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.port.in.BuscaPagamentoUseCase;
@@ -21,23 +23,37 @@ public class UserDashboardController {
 
     @GetMapping({"", "/"})
     public String dashboard(Model model) {
-        // Obter o usuário autenticado
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+        
+        Long usuarioId;
+        String nomeUsuario;
+        
+        if (authentication.getPrincipal() instanceof CustomOAuth2User) {
+            CustomOAuth2User customUser = (CustomOAuth2User) authentication.getPrincipal();
+            UsuarioEntity usuarioEntity = customUser.getUsuario();
+            usuarioId = usuarioEntity.getId();
+            nomeUsuario = usuarioEntity.getNome() != null ? usuarioEntity.getNome() : usuarioEntity.getEmail();
+            model.addAttribute("usuario", usuarioEntity);
+        } else if (authentication.getPrincipal() instanceof Usuario) {
+            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            usuarioId = usuarioAtual.getId();
+            nomeUsuario = usuarioAtual.getNome();
+            model.addAttribute("usuario", usuarioAtual);
+        } else {
+            return "redirect:/login?error";
+        }
         
         var pageable = PageRequest.of(0, Integer.MAX_VALUE);
         
-        // Busca totais por status apenas para o usuário atual
-        var pagamentosPagos = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioAtual.getId(), StatusPagamentoEnum.PAGO).getTotalElements();
-        var pagamentosPendentes = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioAtual.getId(), StatusPagamentoEnum.PENDENTE).getTotalElements();
-        var pagamentosCancelados = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioAtual.getId(), StatusPagamentoEnum.CANCELADO).getTotalElements();
-        var pagamentosEstornados = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioAtual.getId(), StatusPagamentoEnum.ESTORNADO).getTotalElements();
-        var pagamentosErro = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioAtual.getId(), StatusPagamentoEnum.ERRO).getTotalElements();
-        var pagamentosExpirados = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioAtual.getId(), StatusPagamentoEnum.EXPIRADO).getTotalElements();
+        var pagamentosPagos = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioId, StatusPagamentoEnum.PAGO).getTotalElements();
+        var pagamentosPendentes = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioId, StatusPagamentoEnum.PENDENTE).getTotalElements();
+        var pagamentosCancelados = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioId, StatusPagamentoEnum.CANCELADO).getTotalElements();
+        var pagamentosEstornados = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioId, StatusPagamentoEnum.ESTORNADO).getTotalElements();
+        var pagamentosErro = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioId, StatusPagamentoEnum.ERRO).getTotalElements();
+        var pagamentosExpirados = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioId, StatusPagamentoEnum.EXPIRADO).getTotalElements();
         
         var totalPagamentos = pagamentosPagos + pagamentosPendentes + pagamentosCancelados + pagamentosEstornados + pagamentosErro + pagamentosExpirados;
 
-        // Adiciona estatísticas ao modelo
         model.addAttribute("totalPagamentos", totalPagamentos);
         model.addAttribute("pagamentosPagos", pagamentosPagos);
         model.addAttribute("pagamentosPendentes", pagamentosPendentes);
@@ -45,7 +61,6 @@ public class UserDashboardController {
         model.addAttribute("pagamentosEstornados", pagamentosEstornados);
         model.addAttribute("pagamentosErro", pagamentosErro);
         model.addAttribute("pagamentosExpirados", pagamentosExpirados);
-        model.addAttribute("usuario", usuarioAtual);
 
         return "user/dashboard";
     }

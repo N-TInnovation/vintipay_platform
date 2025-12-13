@@ -3,10 +3,10 @@
 # Script de inicialização do Keycloak para VintiPay
 # Este script configura o realm, client e roles necessários
 
-KEYCLOAK_URL="http://localhost:18080"
+KEYCLOAK_URL="http://localhost:8080"
 REALM_NAME="vintipay"
 CLIENT_ID="vintipay-client"
-CLIENT_SECRET="vintipay-client-secret"
+CLIENT_SECRET="PSvxsR3bvLIsRiayytQVJ3oi45snoS52"
 
 echo "Aguardando Keycloak ficar disponível..."
 until curl -s "${KEYCLOAK_URL}/health/ready" > /dev/null; do
@@ -144,6 +144,74 @@ else
         }')
     
     echo "Client ${CLIENT_ID} criado com sucesso!"
+fi
+
+# Obter ID do client para adicionar mappers
+echo "Obtendo ID do client ${CLIENT_ID}..."
+CLIENT_ID_UUID=$(curl -s "${KEYCLOAK_URL}/admin/realms/${REALM_NAME}/clients" \
+    -H "Authorization: Bearer ${TOKEN}" | jq -r '.[] | select(.clientId=="'${CLIENT_ID}'") | .id')
+
+if [ -n "$CLIENT_ID_UUID" ] && [ "$CLIENT_ID_UUID" != "null" ]; then
+    echo "Configurando mappers de roles no client..."
+    
+    # Mapper para realm roles
+    echo "Criando mapper para realm roles..."
+    curl -s -X POST "${KEYCLOAK_URL}/admin/realms/${REALM_NAME}/clients/${CLIENT_ID_UUID}/protocol-mappers/models" \
+        -H "Authorization: Bearer ${TOKEN}" \
+        -H "Content-Type: application/json" \
+        -d '{
+            "name": "realm roles",
+            "protocol": "openid-connect",
+            "protocolMapper": "oidc-usermodel-realm-role-mapper",
+            "consentRequired": false,
+            "config": {
+                "multivalued": "true",
+                "userinfo.token.claim": "true",
+                "id.token.claim": "true",
+                "access.token.claim": "true",
+                "claim.name": "realm_access.roles",
+                "jsonType.label": "String"
+            }
+        }'
+    
+    # Mapper para client roles
+    echo "Criando mapper para client roles..."
+    curl -s -X POST "${KEYCLOAK_URL}/admin/realms/${REALM_NAME}/clients/${CLIENT_ID_UUID}/protocol-mappers/models" \
+        -H "Authorization: Bearer ${TOKEN}" \
+        -H "Content-Type: application/json" \
+        -d '{
+            "name": "client roles",
+            "protocol": "openid-connect",
+            "protocolMapper": "oidc-usermodel-client-role-mapper",
+            "consentRequired": false,
+            "config": {
+                "multivalued": "true",
+                "userinfo.token.claim": "true",
+                "id.token.claim": "true",
+                "access.token.claim": "true",
+                "claim.name": "resource_access.${client_id}.roles",
+                "jsonType.label": "String"
+            }
+        }'
+    
+    # Mapper para audience
+    echo "Criando mapper para audience..."
+    curl -s -X POST "${KEYCLOAK_URL}/admin/realms/${REALM_NAME}/clients/${CLIENT_ID_UUID}/protocol-mappers/models" \
+        -H "Authorization: Bearer ${TOKEN}" \
+        -H "Content-Type: application/json" \
+        -d '{
+            "name": "audience",
+            "protocol": "openid-connect",
+            "protocolMapper": "oidc-audience-mapper",
+            "consentRequired": false,
+            "config": {
+                "included.client.audience": "'${CLIENT_ID}'",
+                "id.token.claim": "true",
+                "access.token.claim": "true"
+            }
+        }'
+    
+    echo "Mappers de roles configurados com sucesso!"
 fi
 
 # Criar usuário admin de teste

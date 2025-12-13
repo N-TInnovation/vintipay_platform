@@ -7,6 +7,9 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import cv.ntinnovation.vintipay.adapter.in.web.handler.CustomAuthenticationFailureHandler;
+import cv.ntinnovation.vintipay.adapter.in.web.handler.OAuth2AuthenticationSuccessHandler;
+import cv.ntinnovation.vintipay.adapter.out.persistence.repository.UsuarioRepository;
+import cv.ntinnovation.vintipay.adapter.out.persistence.repository.PapelRepository;
 import cv.ntinnovation.vintipay.application.port.in.SessionAuthenticationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -119,6 +122,9 @@ public class SecurityConfig {
     public static class WebSecurityConfig {
 
         private final CustomAuthenticationFailureHandler authenticationFailureHandler;
+        private final OAuth2AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler;
+        private final UsuarioRepository usuarioRepository;
+        private final PapelRepository papelRepository;
 
         @Bean
         public AuthenticationManager authManager(HttpSecurity http, SessionAuthenticationUseCase sessionAuthenticationProvider) throws Exception {
@@ -137,7 +143,7 @@ public class SecurityConfig {
                             .requestMatchers("/termos").permitAll()
                             .requestMatchers("/admin/**").hasRole("ADMIN")
                             .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
-                            .requestMatchers("/dashboard/**").hasAnyRole("USER", "ADMIN")
+                            .requestMatchers("/dashboard", "/dashboard/**").hasAnyRole("USER", "ADMIN")
                             .requestMatchers("/permissoes/**").hasRole("ADMIN")
                             .requestMatchers("/papeis/**").hasRole("ADMIN")
                             .requestMatchers("/pagamento/checkout/{reference}").permitAll()
@@ -168,9 +174,10 @@ public class SecurityConfig {
                     // OAuth2 Login com Keycloak
                     .oauth2Login(oauth2 -> oauth2
                             .loginPage("/login")
+                            .successHandler(oauth2AuthenticationSuccessHandler)
                             .defaultSuccessUrl("/dashboard", true)
                             .userInfoEndpoint(userInfo -> userInfo
-                                    .oidcUserService(oidcUserService())
+                                    .oidcUserService(oidcUserService(usuarioRepository, papelRepository))
                             )
                     )
                     .logout(logout -> logout
@@ -191,17 +198,26 @@ public class SecurityConfig {
         }
 
         @Bean
-        public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
+        public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService(UsuarioRepository usuarioRepository, PapelRepository papelRepository) {
             final OidcUserService delegate = new OidcUserService();
 
             return (userRequest) -> {
                 OidcUser oidcUser = delegate.loadUser(userRequest);
+
+                log.info("=== OIDC USER DEBUG ===");
+                log.info("User: {}", oidcUser);
+                log.info("Authorities: {}", oidcUser.getAuthorities());
+                log.info("Email: {}", oidcUser.getEmail());
+                log.info("Name: {}", oidcUser.getName());
+                log.info("Userinfo: {}", oidcUser.getUserInfo());
+                log.info("IdToken: {}", oidcUser.getIdToken());
 
                 // Extrair roles do Keycloak
                 Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
                 
                 // Roles do realm
                 var realmAccess = oidcUser.getClaimAsMap("realm_access");
+                log.info("Realm Access: {}", realmAccess);
                 if (realmAccess != null && realmAccess.containsKey("roles")) {
                     @SuppressWarnings("unchecked")
                     Collection<String> roles = (Collection<String>) realmAccess.get("roles");
@@ -231,7 +247,16 @@ public class SecurityConfig {
                 // Adicionar authorities existentes
                 mappedAuthorities.addAll(oidcUser.getAuthorities());
 
-                return new DefaultOidcUser(new ArrayList<>(mappedAuthorities), oidcUser.getIdToken(), oidcUser.getUserInfo());
+                OidcUser oidcUserWithRoles = new DefaultOidcUser(new ArrayList<>(mappedAuthorities), oidcUser.getIdToken(), oidcUser.getUserInfo());
+                
+                String email = oidcUser.getEmail();
+                cv.ntinnovation.vintipay.adapter.out.persistence.entity.UsuarioEntity usuario = usuarioRepository.findByEmail(email).orElse(null);
+                
+                if (usuario != null) {
+                    return new cv.ntinnovation.vintipay.adapter.in.web.security.CustomOAuth2User(oidcUserWithRoles, usuario);
+                }
+                
+                return oidcUserWithRoles;
             };
         }
 

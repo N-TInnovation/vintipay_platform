@@ -1,33 +1,45 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-/**
- * Controlador para o redirecionamento do dashboard
- * Redireciona os usuários para o dashboard apropriado com base em seu papel
- */
+import java.util.stream.Collectors;
+
+@Slf4j
 @Controller
 public class DashboardController {
 
-    /**
-     * Redireciona para o dashboard apropriado com base no papel do usuário
-     * @return Redirecionamento para o dashboard de admin ou usuário
-     */
     @GetMapping("/dashboard")
     public String dashboardRedirect() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         
-        // Verifica se o usuário tem papel de ADMIN
-        if (auth != null && auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            // Redireciona para o dashboard de administrador
-            return "redirect:/admin/";
+        if (auth != null) {
+            log.info("=== DASHBOARD REDIRECT DEBUG ===");
+            log.info("Principal: {}", auth.getPrincipal().getClass().getName());
+            log.info("Authorities: {}", auth.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.joining(", ")));
+            log.info("Is Authenticated: {}", auth.isAuthenticated());
+            
+            boolean isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            
+            log.info("Has ROLE_ADMIN: {}", isAdmin);
+            
+            if (isAdmin) {
+                log.info("Redirecting to /admin/");
+                return "redirect:/admin/";
+            }
+            
+            log.info("Redirecting to /user/");
+            return "redirect:/user/";
         }
         
-        // Redireciona para o dashboard de usuário padrão
+        log.warn("No authentication found, redirecting to /user/");
         return "redirect:/user/";
     }
 }
