@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -70,6 +72,21 @@ public class TenantEntity {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @ManyToMany(mappedBy = "tenants", fetch = FetchType.LAZY)
+    private List<UsuarioEntity> usuarios = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
+    private List<ConfiguracaoPagamentoEntity> configuracoesPagamento = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
+    private List<ProdutoEntity> produtos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
+    private List<LinkPagamentoEntity> linksPagamento = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
+    private List<PlanoEntity> planos = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

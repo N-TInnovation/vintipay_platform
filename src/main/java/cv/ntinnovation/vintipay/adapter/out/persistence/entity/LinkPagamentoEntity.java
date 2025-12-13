@@ -55,6 +55,10 @@ public class LinkPagamentoEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proprietario_id", nullable = false)
     private UsuarioEntity proprietario;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private TenantEntity tenant;
     
     @Column(name = "url_retorno_sucesso")
     private String urlRetornoSucesso;

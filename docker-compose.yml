@@ -61,36 +61,6 @@ services:
       timeout: 10s
       retries: 5
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:23.0.1
-    container_name: vintipay-keycloak
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_DB: mysql
-      KC_DB_URL: jdbc:mysql://mysql:3306/keycloak?createDatabaseIfNotExist=true
-      KC_DB_USERNAME: root
-      KC_DB_PASSWORD: root
-      KC_HOSTNAME: localhost
-      KC_HOSTNAME_PORT: 18080
-      KC_HOSTNAME_STRICT: false
-      KC_HOSTNAME_STRICT_HTTPS: false
-      KC_HTTP_ENABLED: true
-      KC_HEALTH_ENABLED: true
-    ports:
-      - "18080:8080"
-    depends_on:
-      mysql:
-        condition: service_healthy
-    command: start-dev
-    networks:
-      - vintipay-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
   vintipay:
     build:
       context: .
@@ -100,8 +70,6 @@ services:
       mysql:
         condition: service_healthy
       kafka:
-        condition: service_healthy
-      keycloak:
         condition: service_healthy
     ports:
       - "8443:8443"

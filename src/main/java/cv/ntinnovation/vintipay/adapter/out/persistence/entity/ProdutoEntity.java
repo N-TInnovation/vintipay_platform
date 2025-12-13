@@ -79,6 +79,10 @@ public class ProdutoEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proprietario_id", nullable = false)
     private UsuarioEntity proprietario;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private TenantEntity tenant;
     
     // Helper method para adicionar desconto
     public void adicionarDescontoPorCiclo(DescontoCicloEntity desconto) {

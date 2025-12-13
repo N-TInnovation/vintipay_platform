@@ -74,4 +74,12 @@ public class UsuarioEntity {
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
     private PlanoAssinaturaEntity planoAssinatura;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "usuario_tenant",
+        joinColumns = @JoinColumn(name = "usuario_id"),
+        inverseJoinColumns = @JoinColumn(name = "tenant_id")
+    )
+    private Set<TenantEntity> tenants = new HashSet<>();
 }

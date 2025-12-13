@@ -42,6 +42,10 @@ public class PlanoEntity {
     private String stripeProductId;
     
     private boolean ativo = true;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private TenantEntity tenant;
     
     public enum PeriodoCobranca {
         MENSAL(Period.ofMonths(1)),

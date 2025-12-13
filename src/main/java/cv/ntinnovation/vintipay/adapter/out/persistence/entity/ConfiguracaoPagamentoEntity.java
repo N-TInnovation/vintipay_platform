@@ -89,6 +89,10 @@ public class ConfiguracaoPagamentoEntity {
     @JoinColumn(name = "usuario_id")
     private UsuarioEntity usuario;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private TenantEntity tenant;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
