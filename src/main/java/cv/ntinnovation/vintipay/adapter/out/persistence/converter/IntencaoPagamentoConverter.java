@@ -17,7 +17,7 @@ public class IntencaoPagamentoConverter implements AttributeConverter<IntencaoPa
 
     @Override
     public IntencaoPagamentoEnum convertToEntityAttribute(String intencaoPagamento) {
-        if (intencaoPagamento == null) {
+        if (intencaoPagamento == null || intencaoPagamento.trim().isEmpty()) {
             return null;
         }
         return IntencaoPagamentoEnum.findByIntencaoPagamento(intencaoPagamento);

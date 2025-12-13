@@ -4,6 +4,7 @@ import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoE
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
 

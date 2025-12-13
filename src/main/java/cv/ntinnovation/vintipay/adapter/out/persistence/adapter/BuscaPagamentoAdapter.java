@@ -31,6 +31,7 @@ public class BuscaPagamentoAdapter implements BuscaPagamentoPort {
 
     @Override
     public Page<Pagamento> buscarTodos(Pageable pageable, String reference, StatusPagamentoEnum status) {
+        log.info("Buscando pagamentos com status: {}", status);
         var pagamentos = reference != null && !reference.isEmpty() ?
                 pagamentoRepository.findByReferenceContainingIgnoreCaseAndStatusIfPresent(reference, status, pageable) :
                 pagamentoRepository.findByStatusIfPresent(status, pageable);
