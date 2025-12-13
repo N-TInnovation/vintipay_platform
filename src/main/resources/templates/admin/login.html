@@ -60,6 +60,36 @@
             background: #0b5ed7;
             border-color: #0b5ed7;
         }
+        .btn-keycloak {
+            background: #008aaa;
+            border-color: #008aaa;
+            color: white;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .btn-keycloak:hover {
+            background: #006d87;
+            border-color: #006d87;
+            color: white;
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.5rem 0;
+            color: #6c757d;
+        }
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .divider span {
+            padding: 0 1rem;
+            font-size: 0.9rem;
+        }
         .alert {
             border-radius: 8px;
             font-weight: 500;
@@ -117,6 +147,14 @@
                 <p class="mb-0">Painel Administrativo</p>
             </div>
             <div class="card-body p-4">
+                <!-- Botão de Login com Keycloak -->
+                <a th:href="@{/oauth2/authorization/keycloak}" class="w-100 btn btn-lg btn-keycloak mb-3">
+                    <i class="fas fa-key me-2"></i> Entrar com Keycloak
+                </a>
+                
+                <div class="divider">
+                    <span>OU</span>
+                </div>
                 <!-- Mensagem de erro -->
                 <div th:if="${param.error}" class="alert alert-danger">
                     <span>Nome de usuário ou senha incorretos</span>

@@ -101,6 +101,28 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: ${KEYCLOAK_RESOURCE:vintipay-client}
+            client-secret: ${KEYCLOAK_CREDENTIALS_SECRET:PSvxsR3bvLIsRiayytQVJ3oi45snoS52}
+            scope: openid, profile, email
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}
+            authorization-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}/protocol/openid-connect/auth
+            token-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}/protocol/openid-connect/token
+            user-info-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}/protocol/openid-connect/userinfo
+            jwk-set-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}/protocol/openid-connect/certs
+            user-name-attribute: preferred_username
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}
+          jwk-set-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}/protocol/openid-connect/certs
 
 # Configuração de logging
 logging:
@@ -125,3 +147,18 @@ vendus:
   api:
     key: 1bcf15d3da754d5322ace80382703722
     base-url: https://www.vendus.cv/ws/v1.2
+
+# Configurações do Keycloak
+keycloak:
+  enabled: true
+  realm: ${KEYCLOAK_REALM:vintipay}
+  auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:18080}
+  ssl-required: external
+  resource: ${KEYCLOAK_RESOURCE:vintipay-client}
+  credentials:
+    secret: ${KEYCLOAK_CREDENTIALS_SECRET:vintipay-client-secret}
+  use-resource-role-mappings: true
+  bearer-only: false
+  public-client: false
+  confidential-port: 0
+  principal-attribute: preferred_username

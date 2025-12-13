@@ -61,6 +61,36 @@ services:
       timeout: 10s
       retries: 5
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.1
+    container_name: vintipay-keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: mysql
+      KC_DB_URL: jdbc:mysql://mysql:3306/keycloak?createDatabaseIfNotExist=true
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: root
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 18080
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTP_ENABLED: true
+      KC_HEALTH_ENABLED: true
+    ports:
+      - "18080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: start-dev
+    networks:
+      - vintipay-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
   vintipay:
     build:
       context: .
@@ -70,6 +100,8 @@ services:
       mysql:
         condition: service_healthy
       kafka:
+        condition: service_healthy
+      keycloak:
         condition: service_healthy
     ports:
       - "8443:8443"
@@ -85,6 +117,11 @@ services:
       - BREVO_API_KEY=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
       - BREVO_API_URL=https://api.brevo.com/v3
       - BREVO_EMAIL_FROM=no-reply@vintipay.cv
+      # Keycloak Configuration
+      - KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080
+      - KEYCLOAK_REALM=vintipay
+      - KEYCLOAK_RESOURCE=vintipay-client
+      - KEYCLOAK_CREDENTIALS_SECRET=vintipay-client-secret
       - STRIPE_API_KEY=sk_test_51JZHlXFLqETPcYGM3OkBuL08Yv8BFyYLkMIuIRBORak5t2aIOQ5IoRtZOoa0kNMcFbGhjSbHgRG8Hf5WIrPqAh1300GGaBDBpk
       - STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
       - APP_BASE_URL=https://localhost:8443

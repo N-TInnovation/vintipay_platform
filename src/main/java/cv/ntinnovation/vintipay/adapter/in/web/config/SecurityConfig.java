@@ -11,6 +11,17 @@ import cv.ntinnovation.vintipay.application.port.in.SessionAuthenticationUseCase
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -136,7 +147,8 @@ public class SecurityConfig {
                             .requestMatchers("/recibo/view/**").permitAll()
                             .requestMatchers("/recibo/api/qrcode/**").permitAll()
                             .requestMatchers("/error").permitAll()
-                            .requestMatchers("/login").permitAll()
+                            .requestMatchers("/login/**").permitAll()
+                            .requestMatchers("/oauth2/**").permitAll()
                             .requestMatchers("/verificar-email").permitAll()
                             .requestMatchers(HttpMethod.POST,"/reenviar-verificacao").permitAll()
                             .requestMatchers(HttpMethod.GET,"/reenviar-verificacao").permitAll()
@@ -153,16 +165,20 @@ public class SecurityConfig {
                             .requestMatchers("/images/**", "/css/**", "/js/**", "/img/**", "/uploads/**").permitAll()
                             .anyRequest().authenticated()
                     )
-                    .formLogin(form -> form
+                    // OAuth2 Login com Keycloak
+                    .oauth2Login(oauth2 -> oauth2
                             .loginPage("/login")
-                            .loginProcessingUrl("/login")
                             .defaultSuccessUrl("/dashboard", true)
-                            .failureHandler(authenticationFailureHandler)
-                            .permitAll()
+                            .userInfoEndpoint(userInfo -> userInfo
+                                    .oidcUserService(oidcUserService())
+                            )
                     )
                     .logout(logout -> logout
                             .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                             .logoutSuccessUrl("/login?logout")
+                            .invalidateHttpSession(true)
+                            .clearAuthentication(true)
+                            .deleteCookies("JSESSIONID")
                             .permitAll()
                     )
                     .csrf(csrf -> csrf
@@ -172,6 +188,51 @@ public class SecurityConfig {
                     .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
 
             return http.build();
+        }
+
+        @Bean
+        public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
+            final OidcUserService delegate = new OidcUserService();
+
+            return (userRequest) -> {
+                OidcUser oidcUser = delegate.loadUser(userRequest);
+
+                // Extrair roles do Keycloak
+                Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+                
+                // Roles do realm
+                var realmAccess = oidcUser.getClaimAsMap("realm_access");
+                if (realmAccess != null && realmAccess.containsKey("roles")) {
+                    @SuppressWarnings("unchecked")
+                    Collection<String> roles = (Collection<String>) realmAccess.get("roles");
+                    mappedAuthorities.addAll(roles.stream()
+                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+                            .collect(Collectors.toList()));
+                }
+
+                // Roles do resource (client)
+                var resourceAccess = oidcUser.getClaimAsMap("resource_access");
+                if (resourceAccess != null) {
+                    resourceAccess.values().forEach(resource -> {
+                        if (resource instanceof Map) {
+                            @SuppressWarnings("unchecked")
+                            Map<String, Object> resourceMap = (Map<String, Object>) resource;
+                            if (resourceMap.containsKey("roles")) {
+                                @SuppressWarnings("unchecked")
+                                Collection<String> roles = (Collection<String>) resourceMap.get("roles");
+                                mappedAuthorities.addAll(roles.stream()
+                                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+                                        .collect(Collectors.toList()));
+                            }
+                        }
+                    });
+                }
+
+                // Adicionar authorities existentes
+                mappedAuthorities.addAll(oidcUser.getAuthorities());
+
+                return new DefaultOidcUser(new ArrayList<>(mappedAuthorities), oidcUser.getIdToken(), oidcUser.getUserInfo());
+            };
         }
 
         @Bean
@@ -224,6 +285,50 @@ public class SecurityConfig {
     @Bean
     public JWSVerifier jwtJWSVerifier() {
         return new RSASSAVerifier((RSAPublicKey) publicKey);
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
+        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            Collection<GrantedAuthority> authorities = new ArrayList<>();
+            
+            // Extrair roles do realm_access
+            Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
+            if (realmAccess != null && realmAccess.containsKey("roles")) {
+                @SuppressWarnings("unchecked")
+                Collection<String> roles = (Collection<String>) realmAccess.get("roles");
+                authorities.addAll(roles.stream()
+                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+                        .collect(Collectors.toList()));
+            }
+
+            // Extrair roles do resource_access
+            Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");
+            if (resourceAccess != null) {
+                resourceAccess.values().forEach(resource -> {
+                    if (resource instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> resourceMap = (Map<String, Object>) resource;
+                        if (resourceMap.containsKey("roles")) {
+                            @SuppressWarnings("unchecked")
+                            Collection<String> roles = (Collection<String>) resourceMap.get("roles");
+                            authorities.addAll(roles.stream()
+                                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+                                    .collect(Collectors.toList()));
+                        }
+                    }
+                });
+            }
+
+            return authorities;
+        });
+
+        return jwtAuthenticationConverter;
     }
 
 }
