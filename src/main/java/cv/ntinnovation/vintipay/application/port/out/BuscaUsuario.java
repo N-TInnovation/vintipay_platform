@@ -9,4 +9,5 @@ public interface BuscaUsuario {
     public String getusername(String username);
     public UserDetails getUser(String username);
     public Optional<Usuario> buscarPorId(Long id);
+    public Optional<Usuario> buscarPorEmail(String email);
 }

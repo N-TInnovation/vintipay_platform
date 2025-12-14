@@ -8,9 +8,17 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import cv.ntinnovation.vintipay.adapter.in.web.handler.CustomAuthenticationFailureHandler;
 import cv.ntinnovation.vintipay.adapter.in.web.handler.OAuth2AuthenticationSuccessHandler;
+import cv.ntinnovation.vintipay.adapter.in.web.security.CustomOAuth2User;
 import cv.ntinnovation.vintipay.adapter.out.persistence.repository.UsuarioRepository;
 import cv.ntinnovation.vintipay.adapter.out.persistence.repository.PapelRepository;
+import cv.ntinnovation.vintipay.application.core.domain.entity.Papel;
+import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
+import cv.ntinnovation.vintipay.application.core.service.TenentService;
 import cv.ntinnovation.vintipay.application.port.in.SessionAuthenticationUseCase;
+import cv.ntinnovation.vintipay.application.port.out.BuscaUsuario;
+import cv.ntinnovation.vintipay.application.port.out.GerenciaPapelPort;
+import cv.ntinnovation.vintipay.application.port.out.SalvaUsuarioPort;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,11 +26,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +59,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -123,8 +136,11 @@ public class SecurityConfig {
 
         private final CustomAuthenticationFailureHandler authenticationFailureHandler;
         private final OAuth2AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler;
-        private final UsuarioRepository usuarioRepository;
-        private final PapelRepository papelRepository;
+        private final BuscaUsuario buscaUsuario;
+        private final GerenciaPapelPort gerenciaPapelPort;
+        private final SalvaUsuarioPort salvaUsuario;
+        private final TenentService tenentService;
+        private final HttpServletRequest request;
 
         @Bean
         public AuthenticationManager authManager(HttpSecurity http, SessionAuthenticationUseCase sessionAuthenticationProvider) throws Exception {
@@ -134,7 +150,7 @@ public class SecurityConfig {
         }
 
         @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+        public SecurityFilterChain securityFilterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
 
             http.securityMatcher("/**")
                     .authorizeHttpRequests(auth -> auth
@@ -177,15 +193,15 @@ public class SecurityConfig {
                             .successHandler(oauth2AuthenticationSuccessHandler)
                             .defaultSuccessUrl("/dashboard", true)
                             .userInfoEndpoint(userInfo -> userInfo
-                                    .oidcUserService(oidcUserService(usuarioRepository, papelRepository))
+                                    .oidcUserService(oidcUserService(request, salvaUsuario, buscaUsuario, gerenciaPapelPort, tenentService))
                             )
                     )
                     .logout(logout -> logout
-                            .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                            .logoutSuccessUrl("/login?logout")
+                            .logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository))
                             .invalidateHttpSession(true)
                             .clearAuthentication(true)
                             .deleteCookies("JSESSIONID")
+                            .logoutSuccessUrl("/login?logout")
                             .permitAll()
                     )
                     .csrf(csrf -> csrf
@@ -197,20 +213,20 @@ public class SecurityConfig {
             return http.build();
         }
 
+        private LogoutSuccessHandler oidcLogoutSuccessHandler(ClientRegistrationRepository clientRegistrationRepository) {
+            OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
+                    new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
+            oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}/login?logout");
+            return oidcLogoutSuccessHandler;
+        }
+
         @Bean
-        public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService(UsuarioRepository usuarioRepository, PapelRepository papelRepository) {
+        public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService(HttpServletRequest request, SalvaUsuarioPort salvaUsuario, BuscaUsuario buscaUsuario, GerenciaPapelPort gerenciaPapelPort, TenentService tenentService) {
             final OidcUserService delegate = new OidcUserService();
 
             return (userRequest) -> {
-                OidcUser oidcUser = delegate.loadUser(userRequest);
 
-                log.info("=== OIDC USER DEBUG ===");
-                log.info("User: {}", oidcUser);
-                log.info("Authorities: {}", oidcUser.getAuthorities());
-                log.info("Email: {}", oidcUser.getEmail());
-                log.info("Name: {}", oidcUser.getName());
-                log.info("Userinfo: {}", oidcUser.getUserInfo());
-                log.info("IdToken: {}", oidcUser.getIdToken());
+                OidcUser oidcUser = delegate.loadUser(userRequest);
 
                 // Extrair roles do Keycloak
                 Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
@@ -223,7 +239,7 @@ public class SecurityConfig {
                     Collection<String> roles = (Collection<String>) realmAccess.get("roles");
                     mappedAuthorities.addAll(roles.stream()
                             .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
-                            .collect(Collectors.toList()));
+                            .toList());
                 }
 
                 // Roles do resource (client)
@@ -238,7 +254,7 @@ public class SecurityConfig {
                                 Collection<String> roles = (Collection<String>) resourceMap.get("roles");
                                 mappedAuthorities.addAll(roles.stream()
                                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
-                                        .collect(Collectors.toList()));
+                                        .toList());
                             }
                         }
                     });
@@ -250,14 +266,122 @@ public class SecurityConfig {
                 OidcUser oidcUserWithRoles = new DefaultOidcUser(new ArrayList<>(mappedAuthorities), oidcUser.getIdToken(), oidcUser.getUserInfo());
                 
                 String email = oidcUser.getEmail();
-                cv.ntinnovation.vintipay.adapter.out.persistence.entity.UsuarioEntity usuario = usuarioRepository.findByEmail(email).orElse(null);
-                
-                if (usuario != null) {
-                    return new cv.ntinnovation.vintipay.adapter.in.web.security.CustomOAuth2User(oidcUserWithRoles, usuario);
+                String username = oidcUser.getPreferredUsername();
+                String nome = oidcUser.getFullName();
+
+                Usuario usuario =  buscaUsuario.buscarPorEmail(email)
+                        .orElseGet(() -> criarUsuarioDoKeycloak(oidcUser, email, username, nome));
+
+                // Extrair array de tenant slugs dos claims do OIDC
+                List<String> tenantSlugs = extrairTenantSlugs(oidcUser);
+
+                // Processar e associar tenants ao usuário
+                if (!tenantSlugs.isEmpty()) {
+                    tenentService.processarEAssociarTenants(usuario, tenantSlugs);
+                    tenentService.selecionarTenant(request, tenantSlugs.get(0));
                 }
-                
+
+                if (usuario != null) {
+                    return new CustomOAuth2User(oidcUserWithRoles, usuario);
+                }
+
                 return oidcUserWithRoles;
             };
+        }
+
+        private Usuario criarUsuarioDoKeycloak(OidcUser oidcUser, String email, String username, String nome) {
+            log.info("Criando novo usuário a partir do Keycloak: {}", email);
+
+            Set<Papel> papeis = new HashSet<>();
+
+            for (GrantedAuthority authority : oidcUser.getAuthorities()) {
+                String authorityName = authority.getAuthority();
+
+                if (authorityName.startsWith("ROLE_")) {
+                    String roleName = authorityName.substring(5);
+
+                    Papel papel = gerenciaPapelPort.buscarPorCodigo(roleName)
+                            .orElseGet(() -> criarPapelSeNaoExistir(roleName));
+
+                    papeis.add(papel);
+                    log.info("Papel atribuído: {}", roleName);
+                }
+            }
+
+            if (papeis.isEmpty()) {
+                Papel papelPadrao = gerenciaPapelPort.buscarPapelPadrao()
+                        .orElseGet(() -> gerenciaPapelPort.buscarPorCodigo("USER")
+                                .orElseGet(() -> criarPapelSeNaoExistir("USER")));
+                papeis.add(papelPadrao);
+                log.info("Nenhum papel encontrado, usando papel padrão: {}", papelPadrao.getCodigo());
+            }
+
+            Usuario novoUsuario =  Usuario.builder(
+                    username != null ? username : email,
+                    email,
+                    nome,
+                    "",
+                    true,
+                    papeis.stream().map(Papel::getCodigo).toArray(String[]::new),
+                    papeis,
+                    new HashSet<>()
+            );
+
+            novoUsuario.setEmailVerified(oidcUser.getEmailVerified());
+            novoUsuario.setDataRegistro(LocalDateTime.now());
+            novoUsuario.setUltimoLogin(LocalDateTime.now());
+
+            return salvaUsuario.salvar(novoUsuario);
+        }
+        private Papel criarPapelSeNaoExistir(String codigo) {
+            log.info("Criando novo papel: {}", codigo);
+
+            Papel novoPapel = Papel.builder()
+                    .codigo(codigo)
+                    .nome(codigo)
+                    .descricao("Papel importado do Keycloak: " + codigo)
+                    .padrao(codigo.equals("USER"))
+                    .permissoes(new HashSet<>())
+                    .usuarios(new HashSet<>())
+                    .build();
+
+            return gerenciaPapelPort.salvar(novoPapel);
+        }
+        private List<String> extrairTenantSlugs(OidcUser oidcUser) {
+            List<String> slugs = new ArrayList<>();
+
+            // Tentar extrair de diferentes claims possíveis
+            Object tenantsClaim = null;
+
+            if (oidcUser.getClaims().containsKey("tenants")) {
+                tenantsClaim = oidcUser.getClaim("tenants");
+            } else if (oidcUser.getClaims().containsKey("organizations")) {
+                tenantsClaim = oidcUser.getClaim("organizations");
+            } else if (oidcUser.getClaims().containsKey("tenant_slugs")) {
+                tenantsClaim = oidcUser.getClaim("tenant_slugs");
+            }
+
+            if (tenantsClaim != null) {
+                // Se for uma lista/array
+                if (tenantsClaim instanceof List<?> lista) {
+                    for (Object item : lista) {
+                        if (item != null) {
+                            slugs.add(item.toString());
+                        }
+                    }
+                }
+                // Se for uma string separada por vírgula ou espaço
+                else if (tenantsClaim instanceof String tenantsStr) {
+                    String[] partes = tenantsStr.split("[,\\s]+");
+                    for (String parte : partes) {
+                        if (!parte.trim().isEmpty()) {
+                            slugs.add(parte.trim());
+                        }
+                    }
+                }
+            }
+
+            return slugs;
         }
 
         @Bean
@@ -329,7 +453,7 @@ public class SecurityConfig {
                 Collection<String> roles = (Collection<String>) realmAccess.get("roles");
                 authorities.addAll(roles.stream()
                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
-                        .collect(Collectors.toList()));
+                        .toList());
             }
 
             // Extrair roles do resource_access
@@ -344,7 +468,7 @@ public class SecurityConfig {
                             Collection<String> roles = (Collection<String>) resourceMap.get("roles");
                             authorities.addAll(roles.stream()
                                     .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
-                                    .collect(Collectors.toList()));
+                                    .toList());
                         }
                     }
                 });

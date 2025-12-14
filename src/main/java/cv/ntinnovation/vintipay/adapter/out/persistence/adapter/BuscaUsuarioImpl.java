@@ -52,4 +52,11 @@ public class BuscaUsuarioImpl implements BuscaUsuario {
         return usuarioRepository.findById(id)
                 .map(usuarioMapper::toDomain);
     }
+
+    @Override
+    public Optional<Usuario> buscarPorEmail(String email) {
+        log.debug("Buscando usuário com email: {}", email);
+        return usuarioRepository.findByEmail(email)
+                .map(usuarioMapper::toDomain);
+    }
 }

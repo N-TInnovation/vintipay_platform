@@ -1,4 +1,4 @@
-package cv.ntinnovation.vintipay.application.core.service;
+package cv.ntinnovation.vintipay.application.port.in;
 
 /**
  * Interface para consultas relacionadas a configurações de pagamento

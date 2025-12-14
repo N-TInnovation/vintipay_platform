@@ -91,6 +91,15 @@ public class Usuario extends User {
     @Setter
     private PreferenciasNotificacao preferenciasNotificacao;
 
+    @Getter
+    @Setter
+    private Set<Tenant> tenants = new HashSet<>();
+
+    @Getter
+    @Setter
+    private Set<Permissao> permissoes = new HashSet<>();
+
+
     /**
      * Construtor padrão para criar instâncias simplificadas
      * Usado principalmente para referências em relacionamentos
@@ -142,6 +151,21 @@ public class Usuario extends User {
         usuario.setNome(nome);
         usuario.setDataRegistro(LocalDateTime.now());
         
+        return usuario;
+    }
+
+    /**
+     * Cria uma instância de Usuario com informações adicionais
+     */
+    public static Usuario builder(String username, String email, String nome, String password, boolean ativo, String[] roles, Set<Papel> papeis, Set<Tenant> tenants) {
+        if (username == null) {
+            throw new IllegalArgumentException("Username cannot be null");
+        }
+
+        Usuario usuario = builder(username, email, nome, password, ativo, roles);
+        usuario.setPapeis(papeis);
+        usuario.setTenants(tenants);
+
         return usuario;
     }
     

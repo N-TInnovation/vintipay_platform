@@ -21,12 +21,12 @@ public class DefaultUserInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        String username = buscaUsuario.getusername("admin");
+       /* String username = buscaUsuario.getusername("admin");
         if (username.isEmpty()) {
             registroUsuarioUseCase.executar("admin", passwordEncoder.encode("admin123"), "ADMIN");
             log.info("Usuário padrão 'admin' criado com sucesso!");
         } else {
             log.info("Usuário padrão 'admin' já existe.");
-        }
+        }*/
     }
 }

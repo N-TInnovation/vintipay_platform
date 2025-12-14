@@ -84,11 +84,14 @@ spring:
     init:
       mode: never
   flyway:
-    enabled: true
+    enabled: false
     baseline-on-migrate: true
+    baseline-version: 0
     locations: classpath:db/migration
     out-of-order: true
     validate-on-migrate: false
+    clean-disabled: false
+    clean-on-validation-error: true
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9093}
     consumer:

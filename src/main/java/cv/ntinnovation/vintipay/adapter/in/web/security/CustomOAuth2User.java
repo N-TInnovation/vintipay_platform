@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.in.web.security;
 
 import cv.ntinnovation.vintipay.adapter.out.persistence.entity.UsuarioEntity;
+import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -14,9 +15,9 @@ import java.util.Map;
 public class CustomOAuth2User implements OidcUser {
 
     private final OidcUser delegate;
-    private final UsuarioEntity usuario;
+    private final Usuario usuario;
 
-    public CustomOAuth2User(OidcUser delegate, UsuarioEntity usuario) {
+    public CustomOAuth2User(OidcUser delegate, Usuario usuario) {
         this.delegate = delegate;
         this.usuario = usuario;
     }

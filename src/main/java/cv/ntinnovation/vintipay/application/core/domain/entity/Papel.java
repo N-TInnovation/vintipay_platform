@@ -20,6 +20,7 @@ public class Papel {
     private String codigo;
     private boolean padrao;
     private Set<Permissao> permissoes = new HashSet<>();
+    private Set<Usuario> usuarios = new HashSet<>();
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

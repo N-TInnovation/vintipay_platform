@@ -60,7 +60,7 @@ public class AutomaticDataImportConfig implements ApplicationListener<Applicatio
         }
 
         logger.info("Verificando necessidade de importação automática de dados geográficos...");
-
+/*
         try {
             // Verificar se as tabelas existem
             boolean tablesExist = checkTablesExist();
@@ -113,7 +113,7 @@ public class AutomaticDataImportConfig implements ApplicationListener<Applicatio
 
         } catch (Exception e) {
             logger.error("Erro ao verificar necessidade de importação automática: {}", e.getMessage(), e);
-        }
+        }*/
     }
 
     /**

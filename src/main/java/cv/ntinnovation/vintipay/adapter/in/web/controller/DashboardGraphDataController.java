@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.in.web.dto.GraficoPagamentoDTO;
+import cv.ntinnovation.vintipay.adapter.in.web.security.CustomOAuth2User;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.BuscaPagamentoUseCase;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,8 @@ public class DashboardGraphDataController {
             
         // Obter o usuário autenticado
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+        CustomOAuth2User oAuth2Atual = (CustomOAuth2User) authentication.getPrincipal();
+        Usuario usuarioAtual = oAuth2Atual.getUsuario();
         log.info("Usuário autenticado: id={}, nome={}", usuarioAtual.getId(), usuarioAtual.getNome());
         
         // Definir período padrão se não informado (últimos 6 meses)

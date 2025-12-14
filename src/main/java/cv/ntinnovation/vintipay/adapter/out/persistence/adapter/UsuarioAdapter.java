@@ -47,4 +47,9 @@ public class UsuarioAdapter implements SalvaUsuarioPort, BuscaUsuario {
     public Optional<Usuario> buscarPorId(Long id) {
         return repository.findById(id).map(ususarioMapper::toDomain);
     }
+
+    @Override
+    public Optional<Usuario> buscarPorEmail(String email) {
+        return repository.findByEmail(email).map(ususarioMapper::toDomain);
+    }
 }

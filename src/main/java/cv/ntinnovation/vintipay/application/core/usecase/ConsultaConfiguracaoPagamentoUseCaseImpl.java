@@ -1,6 +1,6 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
-import cv.ntinnovation.vintipay.application.core.service.ConsultaConfiguracaoPagamentoUseCase;
+import cv.ntinnovation.vintipay.application.port.in.ConsultaConfiguracaoPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.out.ConsultaConfiguracaoPagamentoPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
