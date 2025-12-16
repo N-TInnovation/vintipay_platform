@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.application.core.service;
 
+import cv.ntinnovation.vintipay.adapter.out.client.api.verifika.VerifikaAdapter;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Tenant;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.out.GerenciaTenantPort;
@@ -11,11 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -25,6 +24,7 @@ public class TenentService {
     
     private final GerenciaTenantPort tenantPort;
     private final SalvaUsuarioPort usuarioPort;
+    private final VerifikaAdapter keycloakAdminAdapter;
 
     public void selecionarTenant(HttpServletRequest request, String tenantIdentifier) {
         if (tenantIdentifier == null || tenantIdentifier.trim().isEmpty()) {
@@ -60,19 +60,8 @@ public class TenentService {
             return;
         }
         
-        Set<Tenant> tenantsUsuario = new HashSet<>();
-        
-        for (String slug : tenantSlugs) {
-            if (slug == null || slug.trim().isEmpty()) {
-                continue;
-            }
-            
-            Tenant tenant = tenantPort.buscarPorSlug(slug.trim())
-                    .orElseGet(() -> criarTenantPorSlug(slug.trim()));
-            
-            tenantsUsuario.add(tenant);
-        }
-        
+        List<Tenant> tenantsUsuario = tenantPort.buscarPorSlugIn(tenantSlugs);
+
         usuario.getTenants().clear();
         usuario.getTenants().addAll(tenantsUsuario);
         usuarioPort.salvar(usuario);
@@ -80,19 +69,25 @@ public class TenentService {
         log.info("Associados {} tenants ao usuário {}: {}", 
                 tenantsUsuario.size(), usuario.getEmail(), tenantSlugs);
     }
-    
-    private Tenant criarTenantPorSlug(String slug) {
-        log.info("Criando novo tenant com slug: {}", slug);
-        
-        Tenant tenant = Tenant.builder()
-                .codigo(slug.toUpperCase())
-                .slug(slug)
-                .nome(gerarNomeDoSlug(slug))
-                .ativo(true)
-                .createdAt(LocalDateTime.now())
-                .build();
-        
-        return tenantPort.salvar(tenant);
+
+    /**
+     * Atualiza o atributo 'tenants' no perfil do usuário no Keycloak
+     */
+    private void atualizarTenantsNoKeycloak(String email, List<String> tenantSlugs) {
+        try {
+            Map<String, List<String>> atributos = new HashMap<>();
+            atributos.put("tenants", tenantSlugs);
+            
+            boolean sucesso = keycloakAdminAdapter.atualizarAtributos(email, atributos);
+            
+            if (sucesso) {
+                log.info("Atributo 'tenants' atualizado no Keycloak para usuário {}: {}", email, tenantSlugs);
+            } else {
+                log.warn("Não foi possível atualizar atributo 'tenants' no Keycloak para usuário {}", email);
+            }
+        } catch (Exception e) {
+            log.error("Erro ao atualizar atributo 'tenants' no Keycloak: {}", e.getMessage(), e);
+        }
     }
     
     private String gerarNomeDoSlug(String slug) {

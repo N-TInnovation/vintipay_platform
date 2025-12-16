@@ -51,4 +51,8 @@ public class CustomOAuth2User implements OidcUser {
     public String getName() {
         return delegate.getName();
     }
+
+    public String getId() {
+        return delegate.getSubject();
+    }
 }

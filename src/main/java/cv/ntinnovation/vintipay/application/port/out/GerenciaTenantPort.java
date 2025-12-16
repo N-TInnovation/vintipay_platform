@@ -13,4 +13,5 @@ public interface GerenciaTenantPort {
     List<Tenant> buscarPorSlugIn(List<String> slugs);
     boolean existePorSlug(String slug);
     List<Tenant> listarTodos();
+    List<Tenant> buscarTenantPorUsuario(Long usuarioId);
 }

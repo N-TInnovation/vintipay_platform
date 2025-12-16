@@ -126,7 +126,12 @@ spring:
         jwt:
           issuer-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}
           jwk-set-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}/protocol/openid-connect/certs
-
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            loggerLevel: full
 # Configuração de logging
 logging:
   level:
@@ -152,16 +157,13 @@ vendus:
     base-url: https://www.vendus.cv/ws/v1.2
 
 # Configurações do Keycloak
-keycloak:
+verifika:
   enabled: true
   realm: ${KEYCLOAK_REALM:vintipay}
-  auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:18080}
-  ssl-required: external
-  resource: ${KEYCLOAK_RESOURCE:vintipay-client}
-  credentials:
-    secret: ${KEYCLOAK_CREDENTIALS_SECRET:vintipay-client-secret}
-  use-resource-role-mappings: true
-  bearer-only: false
-  public-client: false
-  confidential-port: 0
-  principal-attribute: preferred_username
+  auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}
+  admin:
+    realm: ${KEYCLOAK_REALM:master}
+    username: admin
+    password: admin
+    clientId: vintipay-client
+    clientSecret: iNxiR867AstkJe92WE5ixQh8xdoz0hCJ

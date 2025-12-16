@@ -2,7 +2,7 @@ package cv.ntinnovation.vintipay.adapter.out.persistence.mapper;
 
 import cv.ntinnovation.vintipay.adapter.out.persistence.entity.TenantEntity;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Tenant;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
 public class TenantMapper {
 
     private final UsuarioMapper usuarioMapper;
@@ -18,6 +17,19 @@ public class TenantMapper {
     private final ProdutoMapper produtoMapper;
     private final LinkPagamentoMapper linkPagamentoMapper;
     private final PlanoMapper planoMapper;
+    
+    public TenantMapper(
+            @Lazy UsuarioMapper usuarioMapper,
+            @Lazy ConfiguracaoPagamentoMapper configuracaoPagamentoMapper,
+            @Lazy ProdutoMapper produtoMapper,
+            @Lazy LinkPagamentoMapper linkPagamentoMapper,
+            @Lazy PlanoMapper planoMapper) {
+        this.usuarioMapper = usuarioMapper;
+        this.configuracaoPagamentoMapper = configuracaoPagamentoMapper;
+        this.produtoMapper = produtoMapper;
+        this.linkPagamentoMapper = linkPagamentoMapper;
+        this.planoMapper = planoMapper;
+    }
 
     public TenantEntity toEntity(Tenant domain) {
         if (domain == null) {

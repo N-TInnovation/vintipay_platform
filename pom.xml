@@ -91,12 +91,12 @@
 		<dependency>
 			<groupId>org.keycloak</groupId>
 			<artifactId>keycloak-spring-boot-starter</artifactId>
-			<version>23.0.1</version>
+			<version>21.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.keycloak</groupId>
 			<artifactId>keycloak-admin-client</artifactId>
-			<version>23.0.1</version>
+			<version>21.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>

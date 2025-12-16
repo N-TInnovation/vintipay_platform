@@ -75,7 +75,7 @@ public class UsuarioEntity {
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
     private PlanoAssinaturaEntity planoAssinatura;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "usuario_tenant",
         joinColumns = @JoinColumn(name = "usuario_id"),

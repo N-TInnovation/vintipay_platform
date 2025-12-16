@@ -73,19 +73,19 @@ public class TenantEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @ManyToMany(mappedBy = "tenants", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "tenants", fetch = FetchType.EAGER)
     private List<UsuarioEntity> usuarios = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ConfiguracaoPagamentoEntity> configuracoesPagamento = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ProdutoEntity> produtos = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<LinkPagamentoEntity> linksPagamento = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<PlanoEntity> planos = new ArrayList<>();
 
     @PrePersist

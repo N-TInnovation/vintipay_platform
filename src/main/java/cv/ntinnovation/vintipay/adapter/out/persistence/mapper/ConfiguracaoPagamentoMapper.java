@@ -7,14 +7,17 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import java.time.LocalDateTime;
 
 import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class ConfiguracaoPagamentoMapper {
 
     private final UsuarioMapper usuarioMapper;
+    
+    public ConfiguracaoPagamentoMapper(@Lazy UsuarioMapper usuarioMapper) {
+        this.usuarioMapper = usuarioMapper;
+    }
 
     public ConfiguracaoPagamentoEntity toEntity(ConfiguracaoPagamento domain) {
         if (domain == null) {

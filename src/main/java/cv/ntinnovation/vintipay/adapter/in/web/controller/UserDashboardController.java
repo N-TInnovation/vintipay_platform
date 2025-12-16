@@ -37,9 +37,6 @@ public class UserDashboardController {
             usuarioId = usuario.getId();
             nomeUsuario = usuario.getNome() != null ? usuario.getNome() : usuario.getEmail();
             model.addAttribute("usuario", usuario);
-            if(usuario.getTenants() == null || usuario.getTenants().isEmpty()) {
-                return "redirect:/user/tenant/create";
-            }
         }  else {
             log.info("User (else): {}", authentication.getPrincipal());
             throw new RuntimeException("Usuario nao encontrado");

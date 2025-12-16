@@ -11,4 +11,5 @@ public interface TenantRepository extends JpaRepository<TenantEntity, Long> {
     Optional<TenantEntity> findByCodigo(String codigo);
     List<TenantEntity> findBySlugIn(List<String> slugs);
     boolean existsBySlug(String slug);
+    List<TenantEntity> findByUsuariosId(Long usuarioId);
 }
