@@ -15,14 +15,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class VerificationInterceptorHandler implements HandlerInterceptor {
 
-    private final BuscaUsuario buscaUsuario;
     private final GerenciaTenantPort gerenciaTenantPort;
 
     @Override
@@ -38,14 +39,15 @@ public class VerificationInterceptorHandler implements HandlerInterceptor {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication.getPrincipal() instanceof CustomOAuth2User customUser) {
-            Usuario usuario = buscaUsuario.buscarPorEmail(customUser.getEmail()).orElse(null);
+            Usuario usuario = customUser.getUsuario();
 
             assert usuario != null;
 
             List<Tenant> tenants = gerenciaTenantPort.buscarTenantPorUsuario(usuario.getId());
+            usuario.setTenants(new HashSet<>(tenants));
 
             log.info("User (if): {}", tenants);
-            if(tenants == null || tenants.isEmpty()) {
+            if(tenants.isEmpty()) {
                 response.sendRedirect("/user/tenant/create");
                 return false;
             }

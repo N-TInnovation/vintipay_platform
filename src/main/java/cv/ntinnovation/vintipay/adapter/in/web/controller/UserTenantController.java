@@ -7,6 +7,7 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.Tenant;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.out.BuscaUsuario;
 import cv.ntinnovation.vintipay.application.port.out.GerenciaTenantPort;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.UUID;
 
 @Controller
@@ -35,7 +38,7 @@ public class UserTenantController {
     private final UsuarioAdapter usuarioAdapter;
 
     @GetMapping("/create")
-    public String showCreateForm(Model model) {
+    public String showCreateForm(Model model, Principal principal) {
         log.info("Exibindo formulário de criação de tenant");
         model.addAttribute("tenantRequest", new TenantCreateRequest());
         return "user/tenant-create";
@@ -45,7 +48,8 @@ public class UserTenantController {
     public String createTenant(@Valid @ModelAttribute("tenantRequest") TenantCreateRequest request,
                               BindingResult bindingResult,
                               RedirectAttributes redirectAttributes,
-                              Model model) {
+                              Model model,
+                              HttpServletRequest httpServletRequest) {
         
         log.info("Recebendo requisição para criar tenant: {}", request.getNome());
 
@@ -60,8 +64,7 @@ public class UserTenantController {
             Usuario usuario = null;
 
             if (authentication.getPrincipal() instanceof CustomOAuth2User customUser) {
-                usuario = buscaUsuario.buscarPorEmail(customUser.getEmail())
-                        .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                usuario = customUser.getUsuario();
             } else {
                 throw new RuntimeException("Usuário não autenticado");
             }
@@ -98,6 +101,12 @@ public class UserTenantController {
             log.info("Tenant associado ao usuário: {}", usuario.getEmail());
 
             redirectAttributes.addFlashAttribute("sucesso", "Organização criada com sucesso!");
+
+            httpServletRequest.getSession().setAttribute("tenantId", tenant.getId());
+            httpServletRequest.getSession().setAttribute("tenantSlug", tenant.getSlug());
+
+            usuario.setTenants(new HashSet<>(tenantPort.buscarTenantPorUsuario(usuario.getId())));
+
             return "redirect:/user";
 
         } catch (Exception e) {

@@ -272,15 +272,6 @@ public class SecurityConfig {
                 Usuario usuario =  buscaUsuario.buscarPorEmail(email)
                         .orElseGet(() -> criarUsuarioDoKeycloak(oidcUser, email, username, nome));
 
-                // Extrair array de tenant slugs dos claims do OIDC
-                List<String> tenantSlugs = extrairTenantSlugs(oidcUser);
-
-                // Processar e associar tenants ao usuário
-                if (!tenantSlugs.isEmpty()) {
-                    tenentService.processarEAssociarTenants(usuario, tenantSlugs);
-                    tenentService.selecionarTenant(request, tenantSlugs.get(0));
-                }
-
                 if (usuario != null) {
                     return new CustomOAuth2User(oidcUserWithRoles, usuario);
                 }
@@ -346,42 +337,6 @@ public class SecurityConfig {
                     .build();
 
             return gerenciaPapelPort.salvar(novoPapel);
-        }
-        private List<String> extrairTenantSlugs(OidcUser oidcUser) {
-            List<String> slugs = new ArrayList<>();
-
-            // Tentar extrair de diferentes claims possíveis
-            Object tenantsClaim = null;
-
-            if (oidcUser.getClaims().containsKey("tenants")) {
-                tenantsClaim = oidcUser.getClaim("tenants");
-            } else if (oidcUser.getClaims().containsKey("organizations")) {
-                tenantsClaim = oidcUser.getClaim("organizations");
-            } else if (oidcUser.getClaims().containsKey("tenant_slugs")) {
-                tenantsClaim = oidcUser.getClaim("tenant_slugs");
-            }
-
-            if (tenantsClaim != null) {
-                // Se for uma lista/array
-                if (tenantsClaim instanceof List<?> lista) {
-                    for (Object item : lista) {
-                        if (item != null) {
-                            slugs.add(item.toString());
-                        }
-                    }
-                }
-                // Se for uma string separada por vírgula ou espaço
-                else if (tenantsClaim instanceof String tenantsStr) {
-                    String[] partes = tenantsStr.split("[,\\s]+");
-                    for (String parte : partes) {
-                        if (!parte.trim().isEmpty()) {
-                            slugs.add(parte.trim());
-                        }
-                    }
-                }
-            }
-
-            return slugs;
         }
 
         @Bean

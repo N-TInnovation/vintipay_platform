@@ -8,7 +8,9 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -54,5 +56,43 @@ public class CustomOAuth2User implements OidcUser {
 
     public String getId() {
         return delegate.getSubject();
+    }
+
+
+    private List<String> getTenantSlugs() {
+        List<String> slugs = new ArrayList<>();
+
+        // Tentar extrair de diferentes claims possíveis
+        Object tenantsClaim = null;
+
+        if (this.getClaims().containsKey("tenants")) {
+            tenantsClaim = this.getClaim("tenants");
+        } else if (this.getClaims().containsKey("organizations")) {
+            tenantsClaim = this.getClaim("organizations");
+        } else if (this.getClaims().containsKey("tenant_slugs")) {
+            tenantsClaim = this.getClaim("tenant_slugs");
+        }
+
+        if (tenantsClaim != null) {
+            // Se for uma lista/array
+            if (tenantsClaim instanceof List<?> lista) {
+                for (Object item : lista) {
+                    if (item != null) {
+                        slugs.add(item.toString());
+                    }
+                }
+            }
+            // Se for uma string separada por vírgula ou espaço
+            else if (tenantsClaim instanceof String tenantsStr) {
+                String[] partes = tenantsStr.split("[,\\s]+");
+                for (String parte : partes) {
+                    if (!parte.trim().isEmpty()) {
+                        slugs.add(parte.trim());
+                    }
+                }
+            }
+        }
+
+        return slugs;
     }
 }
