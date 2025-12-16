@@ -18,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -113,6 +114,50 @@ public class UserTenantController {
             log.error("Erro ao criar tenant: {}", e.getMessage(), e);
             model.addAttribute("erro", "Erro ao criar organização: " + e.getMessage());
             return "user/tenant-create";
+        }
+    }
+
+    @GetMapping("/switch/{slug}")
+    public String switchTenant(@PathVariable String slug, 
+                              HttpServletRequest httpServletRequest,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            
+            if (authentication.getPrincipal() instanceof CustomOAuth2User customUser) {
+                Usuario usuario = customUser.getUsuario();
+                
+                // Buscar tenant por slug
+                Tenant tenant = tenantPort.buscarPorSlug(slug)
+                        .orElseThrow(() -> new RuntimeException("Organização não encontrada"));
+                
+                // Verificar se o usuário tem acesso a este tenant
+                boolean hasAccess = usuario.getTenants().stream()
+                        .anyMatch(t -> t.getSlug().equals(slug));
+                
+                if (!hasAccess) {
+                    log.warn("Usuário {} tentou acessar organização {} sem permissão", usuario.getEmail(), slug);
+                    redirectAttributes.addFlashAttribute("erro", "Você não tem acesso a esta organização");
+                    return "redirect:/user";
+                }
+                
+                // Atualizar sessão com o novo tenant
+                httpServletRequest.getSession().setAttribute("tenantId", tenant.getId());
+                httpServletRequest.getSession().setAttribute("tenantSlug", tenant.getSlug());
+                
+                log.info("Usuário {} trocou para organização {}", usuario.getEmail(), tenant.getNome());
+                redirectAttributes.addFlashAttribute("sucesso", "Organização alterada para: " + tenant.getNome());
+                
+            } else {
+                throw new RuntimeException("Usuário não autenticado");
+            }
+            
+            return "redirect:/user";
+            
+        } catch (Exception e) {
+            log.error("Erro ao trocar organização: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("erro", "Erro ao trocar organização: " + e.getMessage());
+            return "redirect:/user";
         }
     }
 

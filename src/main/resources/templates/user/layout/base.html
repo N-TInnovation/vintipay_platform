@@ -149,6 +149,77 @@
             background: rgba(255, 255, 255, 0.2);
         }
         
+        /* Seletor de Organização */
+        .tenant-selector {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .tenant-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            display: block;
+        }
+        
+        .btn-tenant-select {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn-tenant-select:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-tenant-select:focus {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+        
+        .tenant-name-display {
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+        
+        .tenant-dropdown-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .tenant-dropdown-item:hover {
+            background: rgba(13, 110, 253, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .tenant-dropdown-item.active {
+            background: rgba(13, 110, 253, 0.15);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .tenant-dropdown-item i.fa-check {
+            color: var(--success-color);
+        }
+        
         /* Dropdown no perfil do usuário */
         .dropdown-menu {
             border: none;
@@ -422,6 +493,46 @@
         <div class="navbar-brand text-center">
             <img src="/img/logo.png" alt="VintiPay Logo" class="img-fluid" style="max-height: 40px;">
         </div>
+        
+        <!-- Seletor de Organização -->
+        <div class="tenant-selector px-3 py-3">
+            <label class="tenant-label text-white-50 small mb-2">
+                <i class="fas fa-building me-1"></i> Organização
+            </label>
+            <div class="dropdown">
+                <button class="btn btn-tenant-select dropdown-toggle w-100 text-start d-flex justify-content-between align-items-center" 
+                        type="button" 
+                        id="tenantDropdown" 
+                        data-bs-toggle="dropdown" 
+                        aria-expanded="false">
+                    <span class="tenant-name-display">
+                        <i class="fas fa-building me-2"></i>
+                        <span th:text="${session.tenantSlug != null ? session.tenantSlug : 'Selecione uma organização'}">Minha Organização</span>
+                    </span>
+                    <i class="fas fa-chevron-down ms-2"></i>
+                </button>
+                <ul class="dropdown-menu w-100" aria-labelledby="tenantDropdown">
+                    <th:block th:if="${#authentication.principal.usuario != null && #authentication.principal.usuario.tenants != null && !#authentication.principal.usuario.tenants.isEmpty()}">
+                        <li th:each="tenant : ${#authentication.principal.usuario.tenants}" th:if="${tenant != null}">
+                            <a class="dropdown-item tenant-dropdown-item" 
+                               th:href="@{/user/tenant/switch/{slug}(slug=${tenant.slug})}"
+                               th:classappend="${session.tenantSlug == tenant.slug ? 'active' : ''}">
+                                <i class="fas fa-building me-2"></i>
+                                <span th:text="${tenant.nome}">Nome da Organização</span>
+                                <i class="fas fa-check ms-auto" th:if="${session.tenantSlug == tenant.slug}"></i>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                    </th:block>
+                    <li>
+                        <a class="dropdown-item tenant-dropdown-item" href="/user/tenant/create">
+                            <i class="fas fa-plus-circle me-2"></i> Nova Organização
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
                 <a class="nav-link" th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}" href="/user/">

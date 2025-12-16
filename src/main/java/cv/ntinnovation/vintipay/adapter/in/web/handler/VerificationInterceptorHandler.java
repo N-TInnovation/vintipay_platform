@@ -44,13 +44,22 @@ public class VerificationInterceptorHandler implements HandlerInterceptor {
             assert usuario != null;
 
             List<Tenant> tenants = gerenciaTenantPort.buscarTenantPorUsuario(usuario.getId());
-            usuario.setTenants(new HashSet<>(tenants));
+
 
             log.info("User (if): {}", tenants);
             if(tenants.isEmpty()) {
                 response.sendRedirect("/user/tenant/create");
                 return false;
             }
+
+            List<String> tenantSlugs = customUser.getTenantSlugs();
+            tenants.stream().filter(tenant -> tenantSlugs.contains(tenant.getSlug())).findFirst().ifPresent(tenant -> {
+                session.setAttribute("tenantId", tenant.getId());
+                session.setAttribute("tenantSlug", tenant.getSlug());
+            });
+
+            usuario.setTenants(new HashSet<>(tenants));
+
         }  else {
             log.info("User (else): {}", authentication.getPrincipal());
             throw new RuntimeException("Usuario nao encontrado");

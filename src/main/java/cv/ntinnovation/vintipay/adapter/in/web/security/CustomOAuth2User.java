@@ -59,7 +59,7 @@ public class CustomOAuth2User implements OidcUser {
     }
 
 
-    private List<String> getTenantSlugs() {
+    public List<String> getTenantSlugs() {
         List<String> slugs = new ArrayList<>();
 
         // Tentar extrair de diferentes claims possíveis
