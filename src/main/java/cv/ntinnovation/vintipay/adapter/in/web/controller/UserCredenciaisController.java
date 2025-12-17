@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
+import cv.ntinnovation.vintipay.adapter.in.web.security.CustomOAuth2User;
 import cv.ntinnovation.vintipay.adapter.out.persistence.entity.ConfiguracaoPagamentoEntity;
 import cv.ntinnovation.vintipay.adapter.out.persistence.repository.ConfiguracaoPagamentoRepository;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
@@ -10,6 +11,7 @@ import cv.ntinnovation.vintipay.application.port.out.BuscaConfiguracaoPagamentoP
 import cv.ntinnovation.vintipay.application.port.out.SalvaConfiguracaoPagamentoPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,10 +43,9 @@ public class UserCredenciaisController {
     private final ConfiguracaoPagamentoRepository configuracaoPagamentoRepository; // Acesso direto ao repositório
 
     @GetMapping("/{id}")
-    public String exibirCredenciais(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+    public String exibirCredenciais(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o usuário autenticado
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+        Usuario usuarioAtual = customOAuth2User.getUsuario();
         
         // Buscar configuração
         var configuracaoOpt = buscaConfiguracaoPagamentoPort.buscarPorId(id);
@@ -110,26 +111,25 @@ public class UserCredenciaisController {
      */
     @GetMapping("/renovar-api-secret/{id}")
     @Transactional
-    public String renovarApiSecretGet(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        return renovarApiSecret(id, redirectAttributes);
+    public String renovarApiSecretGet(@PathVariable Long id, RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+        return renovarApiSecret(id, redirectAttributes, customOAuth2User);
     }
     
     @PostMapping("/renovar-api-secret/{id}")
     @Transactional
-    public String renovarApiSecretPost(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        return renovarApiSecret(id, redirectAttributes);
+    public String renovarApiSecretPost(@PathVariable Long id, RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+        return renovarApiSecret(id, redirectAttributes, customOAuth2User);
     }
     
     /**
      * Método interno para renovar o API Secret
      */
-    private String renovarApiSecret(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    private String renovarApiSecret(@PathVariable Long id, RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         try {
             logger.log(Level.INFO, "Iniciando renovação do API Secret para configuração ID: " + id);
             
             // Obter o usuário autenticado
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            Usuario usuarioAtual = customOAuth2User.getUsuario();
             logger.log(Level.INFO, "Usuário autenticado: " + usuarioAtual.getUsername());
             
             // Buscar configuração diretamente do repositório
@@ -212,13 +212,12 @@ public class UserCredenciaisController {
      */
     @PostMapping("/renovar-return-aut-code/{id}")
     @Transactional
-    public String renovarReturnAutCode(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String renovarReturnAutCode(@PathVariable Long id, RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         try {
             logger.log(Level.INFO, "Iniciando renovação do Return Aut Code para configuração ID: " + id);
             
             // Obter o usuário autenticado
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            Usuario usuarioAtual = customOAuth2User.getUsuario();
             logger.log(Level.INFO, "Usuário autenticado: " + usuarioAtual.getUsername());
             
             // Buscar configuração diretamente do repositório
@@ -282,13 +281,12 @@ public class UserCredenciaisController {
      */
     @PostMapping("/renovar-webhook-secret/{id}")
     @Transactional
-    public String renovarWebhookSecret(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String renovarWebhookSecret(@PathVariable Long id, RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         try {
             logger.log(Level.INFO, "Iniciando renovação do Webhook Secret para configuração ID: " + id);
             
             // Obter o usuário autenticado
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            Usuario usuarioAtual = customOAuth2User.getUsuario();
             logger.log(Level.INFO, "Usuário autenticado: " + usuarioAtual.getUsername());
             
             // Buscar configuração diretamente do repositório
