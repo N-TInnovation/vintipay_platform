@@ -45,18 +45,39 @@ public class VerificationInterceptorHandler implements HandlerInterceptor {
 
             List<Tenant> tenants = gerenciaTenantPort.buscarTenantPorUsuario(usuario.getId());
 
-
             log.info("User (if): {}", tenants);
             if(tenants.isEmpty()) {
                 response.sendRedirect("/user/tenant/create");
                 return false;
             }
 
-            List<String> tenantSlugs = customUser.getTenantSlugs();
-            tenants.stream().filter(tenant -> tenantSlugs.contains(tenant.getSlug())).findFirst().ifPresent(tenant -> {
-                session.setAttribute("tenantId", tenant.getId());
-                session.setAttribute("tenantSlug", tenant.getSlug());
-            });
+            // Só define tenant da sessão se ainda não houver um definido
+            if(session.getAttribute("tenantId") == null || session.getAttribute("tenantSlug") == null) {
+                List<String> tenantSlugs = customUser.getTenantSlugs();
+                
+                // Tenta usar tenant dos claims do OAuth2
+                tenants.stream()
+                    .filter(tenant -> tenantSlugs.contains(tenant.getSlug()))
+                    .findFirst()
+                    .ifPresentOrElse(
+                        tenant -> {
+                            session.setAttribute("tenantId", tenant.getId());
+                            session.setAttribute("tenantSlug", tenant.getSlug());
+                            log.info("Tenant definido da sessão OAuth2: {}", tenant.getSlug());
+                        },
+                        () -> {
+                            // Se não houver tenant nos claims, usa o primeiro disponível
+                            if(!tenants.isEmpty()) {
+                                Tenant firstTenant = tenants.get(0);
+                                session.setAttribute("tenantId", firstTenant.getId());
+                                session.setAttribute("tenantSlug", firstTenant.getSlug());
+                                log.info("Tenant padrão definido: {}", firstTenant.getSlug());
+                            }
+                        }
+                    );
+            } else {
+                log.info("Tenant já definido na sessão: {}", session.getAttribute("tenantSlug"));
+            }
 
             usuario.setTenants(new HashSet<>(tenants));
 
