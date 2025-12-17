@@ -53,6 +53,9 @@ public class IntencaoPagamento {
     private LocalDate dataCobranca;
     private Produto produto;
     private Integer ciclo;
+    
+    private Tenant tenant;
+    private Long tenantId;
 
     public void gerarTimestamp() {
         this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));

@@ -236,6 +236,18 @@ public class PagamentoPublicoController {
         intencaoPagamento.setMerchantSession(sessaoOpt.get().getSessionId());
 
         intencaoPagamento.setAmbiente(link.getConfiguracaoPagamento().getAmbiente());
+        
+        // Garantir que o tenant seja definido (obrigatório)
+        if (link.getConfiguracaoPagamento().getTenant() != null) {
+            intencaoPagamento.setTenant(link.getConfiguracaoPagamento().getTenant());
+        } else if (link.getConfiguracaoPagamento().getTenantId() != null) {
+            intencaoPagamento.setTenantId(link.getConfiguracaoPagamento().getTenantId());
+        } else {
+            log.error("Configuração de pagamento sem tenant associado. Link: {}, ConfigId: {}", 
+                    codigo, link.getConfiguracaoPagamento().getId());
+            model.addAttribute("erro", "Configuração de pagamento inválida");
+            return "links/erro";
+        }
 
         // Criar ou buscar a conta de pagamento pelo email
         ContaPagamento contaPagamento = criaContaPagamentoUseCase.criarOuBuscarPorEmail(

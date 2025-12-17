@@ -59,4 +59,8 @@ public class IntencaoPagamentoEntity extends BasePagamentoEntity {
 
     @Column(name = "ciclo")
     private Integer ciclo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private TenantEntity tenant;
 }

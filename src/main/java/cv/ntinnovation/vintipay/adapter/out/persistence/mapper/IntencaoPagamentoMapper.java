@@ -42,6 +42,18 @@ public class IntencaoPagamentoMapper {
         entity.setRecorrente(intencaoPagamento.getProduto().isRecorrente());
         entity.setCiclo(intencaoPagamento.getCiclo());
 
+        if (intencaoPagamento.getTenant() != null) {
+            TenantEntity tenantEntity = new TenantEntity();
+            tenantEntity.setId(intencaoPagamento.getTenant().getId());
+            entity.setTenant(tenantEntity);
+        } else if (intencaoPagamento.getTenantId() != null) {
+            TenantEntity tenantEntity = new TenantEntity();
+            tenantEntity.setId(intencaoPagamento.getTenantId());
+            entity.setTenant(tenantEntity);
+        } else {
+            throw new IllegalArgumentException("Tenant é obrigatório para criar uma intenção de pagamento");
+        }
+
         // Buscar a ContaPagamentoEntity existente pelo ID
         if (intencaoPagamento.getContaPagamento() != null && intencaoPagamento.getContaPagamento().getId() != null) {
             ContaPagamentoEntity contaPagamentoEntity = contaPagamentoRepository.getReferenceById(intencaoPagamento.getContaPagamento().getId());
@@ -79,6 +91,7 @@ public class IntencaoPagamentoMapper {
                 .produto(produtoMapper.toDomain(entity.getProduto()))
                 .intencao(entity.getIntencao())
                 .ciclo(entity.getCiclo())
+                .tenantId(entity.getTenant() != null ? entity.getTenant().getId() : null)
                 .build();
     }
 

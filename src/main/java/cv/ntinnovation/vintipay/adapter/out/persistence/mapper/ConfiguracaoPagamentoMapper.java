@@ -17,9 +17,13 @@ import org.springframework.stereotype.Component;
 public class ConfiguracaoPagamentoMapper {
 
     private final UsuarioMapper usuarioMapper;
+    private final TenantMapper tenantMapper;
     
-    public ConfiguracaoPagamentoMapper(@Lazy UsuarioMapper usuarioMapper) {
+    public ConfiguracaoPagamentoMapper(
+            @Lazy UsuarioMapper usuarioMapper,
+            @Lazy TenantMapper tenantMapper) {
         this.usuarioMapper = usuarioMapper;
+        this.tenantMapper = tenantMapper;
     }
 
     public ConfiguracaoPagamentoEntity toEntity(ConfiguracaoPagamento domain) {
@@ -130,9 +134,14 @@ public class ConfiguracaoPagamentoMapper {
             }
         }
         
-        // Mapear tenantId
+        // Mapear tenant e tenantId
         if (entity.getTenant() != null) {
-            domain.setTenantId(entity.getTenant().getId());
+            try {
+                domain.setTenant(tenantMapper.toDomainWithoutRelationships(entity.getTenant()));
+                domain.setTenantId(entity.getTenant().getId());
+            } catch (Exception e) {
+                domain.setTenantId(entity.getTenant().getId());
+            }
         }
         
         return domain;

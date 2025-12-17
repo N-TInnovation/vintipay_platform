@@ -319,6 +319,7 @@ public class CsvDataImportService {
                         CityEntity city = new CityEntity();
                         populateCity(city, line, headerMap, country.get(), state.get());
                         cityRepository.save(city);
+                        logger.info("Cidade {} criada com sucesso", cityName);
                         importCount++;
                     }
 
