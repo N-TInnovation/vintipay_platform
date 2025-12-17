@@ -155,4 +155,20 @@ public class ConfiguracaoPagamentoAdapter implements
         log.info("Resultado da verificação para POS ID {} e outros usuários: {}", posId, exists);
         return exists;
     }
+    
+    @Override
+    public List<ConfiguracaoPagamento> buscarPorTenant(Long tenantId) {
+        log.info("Buscando configurações para tenant: {}", tenantId);
+        return repository.findByTenantId(tenantId).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<ConfiguracaoPagamento> buscarPorUsuarioETenant(Long usuarioId, Long tenantId) {
+        log.info("Buscando configurações para usuário: {} e tenant: {}", usuarioId, tenantId);
+        return repository.findByUsuarioIdAndTenantId(usuarioId, tenantId).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
 }

@@ -76,6 +76,7 @@ public class CriaConfiguracaoPagamentoUseCaseImpl implements CriaConfiguracaoPag
                 .telefone(configuracaoPagamento.getTelefone())
                 .email(configuracaoPagamento.getEmail())
                 .usuarioId(configuracaoPagamento.getUsuarioId())
+                .tenantId(configuracaoPagamento.getTenantId()) // IMPORTANTE: Preservar tenantId
                 .ambiente(configuracaoPagamento.getAmbiente())
                 .webhookUrl(configuracaoPagamento.getWebhookUrl())
                 .webhookSecret(configuracaoPagamento.getWebhookSecret())

@@ -1,15 +1,18 @@
 package cv.ntinnovation.vintipay.adapter.out.persistence.mapper;
 
 import cv.ntinnovation.vintipay.adapter.out.persistence.entity.ConfiguracaoPagamentoEntity;
+import cv.ntinnovation.vintipay.adapter.out.persistence.entity.TenantEntity;
 import cv.ntinnovation.vintipay.adapter.out.persistence.entity.UsuarioEntity;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import java.time.LocalDateTime;
 
 import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class ConfiguracaoPagamentoMapper {
 
@@ -23,6 +26,10 @@ public class ConfiguracaoPagamentoMapper {
         if (domain == null) {
             return null;
         }
+        
+        log.info("=== MAPPER toEntity ===");
+        log.info("Domain tenantId: {}", domain.getTenantId());
+        log.info("Domain usuarioId: {}", domain.getUsuarioId());
 
         ConfiguracaoPagamentoEntity.ConfiguracaoPagamentoEntityBuilder builder = ConfiguracaoPagamentoEntity.builder()
                 .id(domain.getId())
@@ -59,6 +66,22 @@ public class ConfiguracaoPagamentoMapper {
             usuarioEntity.setId(domain.getUsuarioId());
             entity.setUsuario(usuarioEntity);
         }
+        
+        // Mapear tenantId
+        if (domain.getTenantId() != null) {
+            log.info("Mapeando tenantId {} para TenantEntity", domain.getTenantId());
+            TenantEntity tenantEntity = new TenantEntity();
+            tenantEntity.setId(domain.getTenantId());
+            entity.setTenant(tenantEntity);
+            log.info("TenantEntity setado na entity. Entity.getTenant(): {}", entity.getTenant());
+            log.info("TenantEntity ID: {}", entity.getTenant() != null ? entity.getTenant().getId() : "NULL");
+        } else {
+            log.error("ATENÇÃO: domain.getTenantId() é NULL! Não foi possível mapear tenant para entity!");
+        }
+        
+        log.info("Entity final - Usuario ID: {}, Tenant: {}", 
+            entity.getUsuario() != null ? entity.getUsuario().getId() : "NULL",
+            entity.getTenant() != null ? entity.getTenant().getId() : "NULL");
 
         return entity;
     }
@@ -105,6 +128,11 @@ public class ConfiguracaoPagamentoMapper {
                 // Se houver erro no mapeamento do usuário, pelo menos definir o ID
                 domain.setUsuarioId(entity.getUsuario().getId());
             }
+        }
+        
+        // Mapear tenantId
+        if (entity.getTenant() != null) {
+            domain.setTenantId(entity.getTenant().getId());
         }
         
         return domain;

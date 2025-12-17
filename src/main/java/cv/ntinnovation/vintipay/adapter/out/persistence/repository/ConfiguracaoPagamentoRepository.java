@@ -35,4 +35,8 @@ public interface ConfiguracaoPagamentoRepository extends JpaRepository<Configura
 
     // Método para buscar configuração por POS ID (para depuração)
     Optional<ConfiguracaoPagamentoEntity> findByPosId(String posId);
+    
+    // Métodos para buscar por tenant
+    List<ConfiguracaoPagamentoEntity> findByTenantId(Long tenantId);
+    List<ConfiguracaoPagamentoEntity> findByUsuarioIdAndTenantId(Long usuarioId, Long tenantId);
 }

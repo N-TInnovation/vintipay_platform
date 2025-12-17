@@ -10,12 +10,14 @@ import cv.ntinnovation.vintipay.application.port.out.BuscaConfiguracaoPagamentoP
 import cv.ntinnovation.vintipay.application.port.out.SalvaConfiguracaoPagamentoPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.http.HttpSession;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -40,19 +42,27 @@ public class UserConfigPagamentosController {
     private final FingerPrintService fingerPrintService;
 
     @GetMapping({"", "/"})
-
-    public String configPagamentosPage(Model model) {
+    public String configPagamentosPage(Model model, HttpSession session, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o usuário autenticado
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomOAuth2User customOAuth2User  = (CustomOAuth2User) authentication.getPrincipal();
 
         Usuario usuarioAtual = customOAuth2User.getUsuario();
 
         // Adicionar dados do usuário ao modelo
         model.addAttribute("usuario", usuarioAtual);
         
-        // Buscar configurações de pagamento do usuário
-        List<ConfiguracaoPagamento> configuracoesPagamento = buscaConfiguracaoPagamentoPort.buscarPorUsuario(usuarioAtual.getId());
+        // Obter tenant da sessão
+        Long tenantId = (Long) session.getAttribute("tenantId");
+        
+        // Buscar configurações de pagamento filtradas por usuário e tenant
+        List<ConfiguracaoPagamento> configuracoesPagamento;
+        if (tenantId != null) {
+            logger.log(Level.INFO, "Buscando configurações para usuário " + usuarioAtual.getId() + " e tenant " + tenantId);
+            configuracoesPagamento = buscaConfiguracaoPagamentoPort.buscarPorUsuarioETenant(usuarioAtual.getId(), tenantId);
+        } else {
+            logger.log(Level.WARNING, "Nenhum tenant selecionado, buscando todas as configurações do usuário");
+            configuracoesPagamento = buscaConfiguracaoPagamentoPort.buscarPorUsuario(usuarioAtual.getId());
+        }
+        
         model.addAttribute("configuracoesPagamento", configuracoesPagamento);
         
         // Criar objeto para nova configuração
@@ -64,16 +74,31 @@ public class UserConfigPagamentosController {
     @PostMapping("/salvar")
     public String salvarConfiguracao(
             @ModelAttribute ConfiguracaoPagamento configuracao,
-            RedirectAttributes redirectAttributes) {
+            HttpSession session,
+            RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         
         try {
-            // Obter o usuário autenticado
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            Usuario usuarioAtual = customOAuth2User.getUsuario();
             
             // Configurar dados do usuário
             configuracao.setUsuario(usuarioAtual);
             configuracao.setUsuarioId(usuarioAtual.getId());
+            logger.log(Level.INFO, "Usuario ID configurado: " + usuarioAtual.getId());
+            
+            // Obter tenant da sessão e associar à configuração (OBRIGATÓRIO)
+            logger.log(Level.INFO, "Verificando tenant na sessão...");
+            Long tenantId = (Long) session.getAttribute("tenantId");
+            logger.log(Level.INFO, "Tenant ID na sessão: " + tenantId);
+            
+            if (tenantId == null) {
+                logger.log(Level.SEVERE, "Nenhum tenant selecionado na sessão. Não é possível criar configuração.");
+                redirectAttributes.addFlashAttribute("mensagemErro", "Você precisa selecionar uma organização antes de criar uma configuração.");
+                return "redirect:/user/config-pagamentos";
+            }
+            
+            configuracao.setTenantId(tenantId);
+            logger.log(Level.INFO, "Tenant ID setado na configuração domain: " + configuracao.getTenantId());
+            logger.log(Level.INFO, "Configuração ANTES de salvar - Usuario ID: " + configuracao.getUsuarioId() + ", Tenant ID: " + configuracao.getTenantId());
             
             // Configurar datas
             if (configuracao.getId() == null) {
@@ -216,10 +241,10 @@ public class UserConfigPagamentosController {
     }
     
     @GetMapping("/editar/{id}")
-    public String editarConfiguracao(@PathVariable Long id, Model model) {
+    public String editarConfiguracao(@PathVariable Long id, Model model, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o usuário autenticado
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+
+        Usuario usuarioAtual = customOAuth2User.getUsuario();
         
         // Buscar configuração
         var configuracaoOpt = buscaConfiguracaoPagamentoPort.buscarPorId(id);
@@ -306,11 +331,10 @@ public class UserConfigPagamentosController {
     }
     
     @PostMapping("/ativar/{id}")
-    public String ativarConfiguracao(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String ativarConfiguracao(@PathVariable Long id, RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         try {
             // Obter o usuário autenticado
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            Usuario usuarioAtual =  customOAuth2User.getUsuario();
             
             // Buscar configuração
             var configuracaoOpt = buscaConfiguracaoPagamentoPort.buscarPorId(id);
@@ -338,11 +362,10 @@ public class UserConfigPagamentosController {
     }
     
     @PostMapping("/desativar/{id}")
-    public String desativarConfiguracao(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String desativarConfiguracao(@PathVariable Long id, RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         try {
             // Obter o usuário autenticado
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            Usuario usuarioAtual = customOAuth2User.getUsuario();
             
             // Buscar configuração
             var configuracaoOpt = buscaConfiguracaoPagamentoPort.buscarPorId(id);
@@ -370,9 +393,9 @@ public class UserConfigPagamentosController {
     }
     
     @PostMapping("/excluir/{id}")
-    public String excluirConfiguracao(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String excluirConfiguracao(@PathVariable Long id, RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Neste exemplo, apenas desativamos a configuração em vez de excluí-la
-        return desativarConfiguracao(id, redirectAttributes);
+        return desativarConfiguracao(id, redirectAttributes, customOAuth2User);
     }
     
     // Métodos auxiliares para geração de API Key e API Secret

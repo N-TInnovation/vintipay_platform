@@ -30,6 +30,7 @@ public class ConfiguracaoPagamento {
     private String email;
     private Usuario usuario;
     private Long usuarioId;
+    private Long tenantId;
     private AmbienteEnum ambiente;
     private String webhookUrl;
     private String webhookSecret;
