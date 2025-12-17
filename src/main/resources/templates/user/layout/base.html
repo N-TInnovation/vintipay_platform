@@ -533,6 +533,55 @@
             </div>
         </div>
         
+        <!-- Seletor de Ambiente -->
+        <div class="tenant-selector px-3 py-3">
+            <label class="tenant-label text-white-50 small mb-2">
+                <i class="fas fa-cog me-1"></i> Ambiente
+            </label>
+            <div class="dropdown">
+                <button class="btn btn-tenant-select dropdown-toggle w-100 text-start d-flex justify-content-between align-items-center" 
+                        type="button" 
+                        id="ambienteDropdown" 
+                        data-bs-toggle="dropdown" 
+                        aria-expanded="false">
+                    <span class="tenant-name-display">
+                        <i class="fas fa-server me-2"></i>
+                        <span th:text="${session.ambiente != null ? session.ambiente : 'HOMOLOGACAO'}">HOMOLOGACAO</span>
+                    </span>
+                    <i class="fas fa-chevron-down ms-2"></i>
+                </button>
+                <ul class="dropdown-menu w-100" aria-labelledby="ambienteDropdown">
+                    <li>
+                        <a class="dropdown-item tenant-dropdown-item" 
+                           href="/user/ambiente/switch/DESENVOLVIMENTO"
+                           th:classappend="${session.ambiente == 'DESENVOLVIMENTO' ? 'active' : ''}">
+                            <i class="fas fa-code me-2"></i>
+                            <span>Desenvolvimento</span>
+                            <i class="fas fa-check ms-auto" th:if="${session.ambiente == 'DESENVOLVIMENTO'}"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item tenant-dropdown-item" 
+                           href="/user/ambiente/switch/HOMOLOGACAO"
+                           th:classappend="${session.ambiente == 'HOMOLOGACAO' || session.ambiente == null ? 'active' : ''}">
+                            <i class="fas fa-vial me-2"></i>
+                            <span>Homologação</span>
+                            <i class="fas fa-check ms-auto" th:if="${session.ambiente == 'HOMOLOGACAO' || session.ambiente == null}"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item tenant-dropdown-item" 
+                           href="/user/ambiente/switch/PRODUCAO"
+                           th:classappend="${session.ambiente == 'PRODUCAO' ? 'active' : ''}">
+                            <i class="fas fa-rocket me-2"></i>
+                            <span>Produção</span>
+                            <i class="fas fa-check ms-auto" th:if="${session.ambiente == 'PRODUCAO'}"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
                 <a class="nav-link" th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}" href="/user/">

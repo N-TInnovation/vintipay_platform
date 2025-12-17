@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AmbienteService {
 
-    private static final String SESSION_AMBIENTE_KEY = "ambiente_selecionado";
+    private static final String SESSION_AMBIENTE_KEY = "ambiente";
     private static final AmbienteEnum DEFAULT_AMBIENTE = AmbienteEnum.PRODUCAO;
 
     /**

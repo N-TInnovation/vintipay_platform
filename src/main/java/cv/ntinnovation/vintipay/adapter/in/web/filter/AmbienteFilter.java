@@ -25,7 +25,7 @@ import java.io.IOException;
 public class AmbienteFilter extends OncePerRequestFilter {
 
     private final AmbienteService ambienteService;
-    private static final String REQUEST_ATTRIBUTE_AMBIENTE = "ambienteSelecionado";
+    private static final String REQUEST_ATTRIBUTE_AMBIENTE = "ambiente";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
