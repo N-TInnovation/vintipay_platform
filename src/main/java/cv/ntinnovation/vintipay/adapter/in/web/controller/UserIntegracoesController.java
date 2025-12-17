@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
+import cv.ntinnovation.vintipay.adapter.in.web.security.CustomOAuth2User;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoIntegracoes;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
@@ -33,7 +34,8 @@ public class UserIntegracoesController {
     private final BuscaIntegracoesUseCase buscaIntegracoesUseCase;
 
     @GetMapping({"", "/"})
-    public String listarIntegracoes(@AuthenticationPrincipal Usuario usuario, Model model) {
+    public String listarIntegracoes(@AuthenticationPrincipal CustomOAuth2User customOAuth2User, Model model) {
+        Usuario usuario = customOAuth2User.getUsuario();
         log.info("Listando integrações para o usuário ID: {}", usuario.getId());
         
         // Buscar integrações diretamente pelo caso de uso específico

@@ -2,6 +2,7 @@ package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.in.web.config.EnvironmentProperties;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.SispCheckoutRequest;
+import cv.ntinnovation.vintipay.adapter.in.web.security.CustomOAuth2User;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.core.domain.enums.AmbienteEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoEnum;
@@ -60,7 +61,9 @@ public class UserPagamentosController {
         
         // Obter o usuário autenticado
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+        CustomOAuth2User customOAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+
+        Usuario usuarioAtual = customOAuth2User.getUsuario();
         
         // Configurar paginação com ordenação por data de criação (mais recentes primeiro)
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("created_at").descending());

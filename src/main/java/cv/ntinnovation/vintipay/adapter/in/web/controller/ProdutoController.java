@@ -2,6 +2,7 @@ package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.in.web.dto.ProdutoRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.mapper.DescontoCicloWebMapper;
+import cv.ntinnovation.vintipay.adapter.in.web.security.CustomOAuth2User;
 import cv.ntinnovation.vintipay.adapter.out.storage.ArmazenamentoService;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
@@ -11,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -31,9 +33,9 @@ public class ProdutoController {
     private final DescontoCicloWebMapper descontoCicloWebMapper;
     
     @GetMapping
-    public String listarProdutos(Model model, Authentication authentication) {
+    public String listarProdutos(Model model, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);

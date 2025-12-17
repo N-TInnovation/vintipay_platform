@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.in.web.dto.UserPerfilRequest;
+import cv.ntinnovation.vintipay.adapter.in.web.security.CustomOAuth2User;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.core.domain.entity.PreferenciasNotificacao;
 import cv.ntinnovation.vintipay.application.core.service.CriptografiaService;
@@ -8,6 +9,7 @@ import cv.ntinnovation.vintipay.application.port.in.GerenciaUsuarioUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaPreferenciasNotificacaoUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,10 +38,9 @@ public class UserPerfilController {
     private static final Logger logger = LoggerFactory.getLogger(UserPerfilController.class);
 
     @GetMapping({"", "/"})
-    public String perfilPage(Model model, HttpServletRequest request) {
+    public String perfilPage(Model model, HttpServletRequest request, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o usuário autenticado
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+        Usuario usuarioAtual = (Usuario) customOAuth2User.getUsuario();
         
         // Adicionar dados do usuário ao modelo
         model.addAttribute("usuario", usuarioAtual);

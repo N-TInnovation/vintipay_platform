@@ -3,6 +3,7 @@ package cv.ntinnovation.vintipay.adapter.in.web.controller;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.LinkPagamentoRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.LinkPagamentoResponse;
 import cv.ntinnovation.vintipay.adapter.in.web.mapper.LinkPagamentoWebMapper;
+import cv.ntinnovation.vintipay.adapter.in.web.security.CustomOAuth2User;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.LinkPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -39,9 +41,9 @@ public class LinkPagamentoController {
     // ===== Endpoints para interface web =====
 
     @GetMapping
-    public String listarLinks(Model model, Authentication authentication) {
+    public String listarLinks(Model model,  @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         List<LinkPagamento> links = gerenciaLinkPagamentoUseCase.listarLinksPorProprietario(usuarioId);
