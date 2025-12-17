@@ -9,6 +9,8 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.List;
@@ -17,6 +19,36 @@ import java.util.List;
 public class TratadorErros {
 
     private static final org.apache.logging.log4j.Logger log = org.apache.logging.log4j.LogManager.getLogger(TratadorErros.class);
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public String handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex, RedirectAttributes redirectAttributes) {
+        log.error("Arquivo excede o tamanho máximo permitido: {}", ex.getMessage());
+        
+        long maxSize = ex.getMaxUploadSize();
+        String maxSizeFormatted = maxSize > 0 ? formatFileSize(maxSize) : "10MB";
+        
+        redirectAttributes.addFlashAttribute("erro", 
+            "O arquivo enviado é muito grande. O tamanho máximo permitido é " + maxSizeFormatted + ". " +
+            "Por favor, escolha um arquivo menor.");
+        
+        // Tentar identificar de onde veio a requisição
+        String referer = "produtos";
+        if (ex.getMessage() != null && ex.getMessage().contains("imagemFile")) {
+            referer = "produtos";
+        }
+        
+        return "redirect:/user/" + referer;
+    }
+    
+    private String formatFileSize(long size) {
+        if (size < 1024) {
+            return size + " bytes";
+        } else if (size < 1024 * 1024) {
+            return (size / 1024) + " KB";
+        } else {
+            return (size / (1024 * 1024)) + " MB";
+        }
+    }
 
     @ExceptionHandler(SessaoPagamentoInvalidaException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)

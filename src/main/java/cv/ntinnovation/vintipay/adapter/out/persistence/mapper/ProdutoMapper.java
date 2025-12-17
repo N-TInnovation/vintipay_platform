@@ -1,12 +1,15 @@
 package cv.ntinnovation.vintipay.adapter.out.persistence.mapper;
 
 import cv.ntinnovation.vintipay.adapter.out.persistence.entity.ProdutoEntity;
+import cv.ntinnovation.vintipay.adapter.out.persistence.entity.TenantEntity;
 import cv.ntinnovation.vintipay.adapter.out.persistence.entity.UsuarioEntity;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ProdutoMapper {
@@ -53,6 +56,16 @@ public class ProdutoMapper {
                 .primeiraCobranca(produto.getPrimeiraCobranca())
                 .build();
         
+        // Mapear tenantId
+        if (produto.getTenantId() != null) {
+            log.info("Mapeando tenantId {} para TenantEntity no produto", produto.getTenantId());
+            TenantEntity tenantEntity = new TenantEntity();
+            tenantEntity.setId(produto.getTenantId());
+            entity.setTenant(tenantEntity);
+        } else {
+            log.warn("Produto sem tenantId - tenantId é null");
+        }
+        
         // Adicionar os descontos por ciclo
         if (produto.getDescontosPorCiclo() != null && !produto.getDescontosPorCiclo().isEmpty()) {
             produto.getDescontosPorCiclo().forEach(desconto -> 
@@ -93,6 +106,7 @@ public class ProdutoMapper {
                 .moeda(entity.getMoeda())
                 .proprietario(proprietario)
                 .proprietarioId(entity.getProprietario() != null ? entity.getProprietario().getId() : null)
+                .tenantId(entity.getTenant() != null ? entity.getTenant().getId() : null)
                 // Campos de recorrência
                 .recorrente(entity.isRecorrente())
                 .periodoRecorrencia(entity.getPeriodoRecorrencia())

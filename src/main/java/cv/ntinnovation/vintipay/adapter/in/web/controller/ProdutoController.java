@@ -8,6 +8,7 @@ import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.core.domain.enums.CategoriaProdutoEnum;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaProdutoUseCase;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,12 +35,22 @@ public class ProdutoController {
     private final DescontoCicloWebMapper descontoCicloWebMapper;
     
     @GetMapping
-    public String listarProdutos(Model model, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
-        // Obter o objeto Usuario a partir do Authentication
+    public String listarProdutos(Model model, HttpSession session, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
-        List<Produto> produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
+        // Obter tenant da sessão
+        Long tenantId = (Long) session.getAttribute("tenantId");
+        log.info("Listando produtos para usuário {} e tenant {}", usuarioId, tenantId);
+        
+        // Filtrar produtos por tenant se disponível
+        List<Produto> produtos;
+        if (tenantId != null) {
+            produtos = gerenciaProdutoUseCase.listarProdutosPorProprietarioETenant(usuarioId, tenantId);
+        } else {
+            produtos = gerenciaProdutoUseCase.listarProdutosPorProprietario(usuarioId);
+        }
+        
         model.addAttribute("produtos", produtos);
         model.addAttribute("usuario", usuario);
         model.addAttribute("categorias", CategoriaProdutoEnum.values());
@@ -55,16 +67,27 @@ public class ProdutoController {
     @PostMapping("/novo")
     public String criarProduto(@Valid @ModelAttribute("produto") ProdutoRequest request, 
                                BindingResult result, 
-                               Model model, 
-                               Authentication authentication) {
+                               Model model,
+                               HttpSession session,
+                               RedirectAttributes redirectAttributes,
+                               @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         if (result.hasErrors()) {
             model.addAttribute("categorias", CategoriaProdutoEnum.values());
             return "user/produto-form";
         }
         
-        // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
+        
+        // Obter tenant da sessão (OBRIGATÓRIO)
+        Long tenantId = (Long) session.getAttribute("tenantId");
+        log.info("Criando produto - Usuario ID: {}, Tenant ID: {}", usuarioId, tenantId);
+        
+        if (tenantId == null) {
+            log.error("Nenhum tenant selecionado na sessão");
+            redirectAttributes.addFlashAttribute("erro", "Você precisa selecionar uma organização antes de criar um produto.");
+            return "redirect:/user/produtos";
+        }
         
         try {
             // Processar o upload da imagem, se houver
@@ -78,7 +101,8 @@ public class ProdutoController {
                 request.getCodigoSku(),
                 request.getEstoque(),
                 request.getCategoria(),
-                usuarioId
+                usuarioId,
+                tenantId
             );
             
             return "redirect:/user/produtos";

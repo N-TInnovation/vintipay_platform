@@ -31,6 +31,7 @@ public class Produto {
     // Relacionamentos
     private Usuario proprietario;
     private Long proprietarioId; // Para facilitar a criação
+    private Long tenantId; // Tenant ao qual o produto pertence
     
     // Campos adicionais
     private Integer estoque; // Opcional, pode ser null para produtos digitais ou serviços

@@ -11,9 +11,15 @@ public interface ProdutoRepository extends JpaRepository<ProdutoEntity, Long> {
     
     List<ProdutoEntity> findByProprietarioIdOrderByDataCriacaoDesc(Long proprietarioId);
     
+    List<ProdutoEntity> findByProprietarioIdAndTenantIdOrderByDataCriacaoDesc(Long proprietarioId, Long tenantId);
+    
+    List<ProdutoEntity> findByTenantIdOrderByDataCriacaoDesc(Long tenantId);
+    
     List<ProdutoEntity> findByAtivoTrue();
     
     List<ProdutoEntity> findByAtivoTrueAndProprietarioId(Long proprietarioId);
+    
+    List<ProdutoEntity> findByAtivoTrueAndProprietarioIdAndTenantId(Long proprietarioId, Long tenantId);
     
     List<ProdutoEntity> findByCategoria(String categoria);
     

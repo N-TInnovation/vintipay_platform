@@ -54,6 +54,22 @@ public class ProdutoRepositoryAdapter implements SalvaProduto, BuscaProduto {
     }
 
     @Override
+    public List<Produto> buscarPorProprietarioIdETenantId(Long proprietarioId, Long tenantId) {
+        return produtoRepository.findByProprietarioIdAndTenantIdOrderByDataCriacaoDesc(proprietarioId, tenantId)
+                .stream()
+                .map(produtoMapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Produto> buscarPorTenantId(Long tenantId) {
+        return produtoRepository.findByTenantIdOrderByDataCriacaoDesc(tenantId)
+                .stream()
+                .map(produtoMapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<Produto> buscarTodosAtivos() {
         return produtoRepository.findByAtivoTrue()
                 .stream()

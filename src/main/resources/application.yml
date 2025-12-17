@@ -9,6 +9,11 @@ spring:
     allow-circular-references: true
   application:
     name: vintipay
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      enabled: true
 
 # Configurações da aplicação
 app:

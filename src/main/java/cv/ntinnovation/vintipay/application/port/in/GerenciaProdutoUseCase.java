@@ -21,11 +21,12 @@ public interface GerenciaProdutoUseCase {
      * @param estoque Quantidade em estoque (opcional)
      * @param categoria Categoria do produto (opcional)
      * @param proprietarioId ID do usuário proprietário do produto
+     * @param tenantId ID do tenant ao qual o produto pertence
      * @return Produto criado
      */
     Produto criarProduto(String nome, String descricao, BigDecimal preco, 
                         String imagem, String codigoSku, Integer estoque,
-                        CategoriaProdutoEnum categoria, Long proprietarioId);
+                        CategoriaProdutoEnum categoria, Long proprietarioId, Long tenantId);
     
     /**
      * Atualiza um produto existente
@@ -96,6 +97,15 @@ public interface GerenciaProdutoUseCase {
      * @return Lista de produtos
      */
     List<Produto> listarProdutosPorProprietario(Long proprietarioId);
+    
+    /**
+     * Lista todos os produtos de um usuário filtrados por tenant
+     * 
+     * @param proprietarioId ID do usuário proprietário
+     * @param tenantId ID do tenant
+     * @return Lista de produtos
+     */
+    List<Produto> listarProdutosPorProprietarioETenant(Long proprietarioId, Long tenantId);
     
     /**
      * Busca um produto pelo ID

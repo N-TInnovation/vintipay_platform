@@ -39,8 +39,8 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
     @Transactional
     public Produto criarProduto(String nome, String descricao, BigDecimal preco, 
                               String imagem, String codigoSku, Integer estoque,
-                              CategoriaProdutoEnum categoria, Long proprietarioId) {
-        log.info("Criando produto para o usuário: {}", proprietarioId);
+                              CategoriaProdutoEnum categoria, Long proprietarioId, Long tenantId) {
+        log.info("Criando produto para o usuário: {} e tenant: {}", proprietarioId, tenantId);
         
         // Validar campos obrigatórios
         if (nome == null || nome.trim().isEmpty()) {
@@ -57,6 +57,10 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
         
         if (categoria == null) {
             throw new IllegalArgumentException("Categoria do produto é obrigatória");
+        }
+        
+        if (tenantId == null) {
+            throw new IllegalArgumentException("Tenant ID é obrigatório");
         }
         
         // Buscar o usuário proprietário
@@ -78,6 +82,7 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
                 .dataCriacao(LocalDateTime.now())
                 .dataAtualizacao(LocalDateTime.now())
                 .proprietarioId(proprietarioId)
+                .tenantId(tenantId)
                 .moeda("CVE") // Moeda padrão para Cabo Verde
                 .build();
         
@@ -256,6 +261,13 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
     public List<Produto> listarProdutosPorProprietario(Long proprietarioId) {
         log.info("Listando produtos do proprietário: {}", proprietarioId);
         return buscaProduto.buscarPorProprietarioId(proprietarioId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Produto> listarProdutosPorProprietarioETenant(Long proprietarioId, Long tenantId) {
+        log.info("Listando produtos do proprietário: {} e tenant: {}", proprietarioId, tenantId);
+        return buscaProduto.buscarPorProprietarioIdETenantId(proprietarioId, tenantId);
     }
 
     @Override
