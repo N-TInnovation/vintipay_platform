@@ -41,7 +41,7 @@ public class LinkPagamentoController {
     // ===== Endpoints para interface web =====
 
     @GetMapping
-    public String listarLinks(Model model,  @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+    public String listarLinks(Model model, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o objeto Usuario a partir do Authentication
         Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
@@ -52,9 +52,9 @@ public class LinkPagamentoController {
     }
 
     @GetMapping("/novo")
-    public String formularioNovoLink(@RequestParam(required = false) Long produtoId, Model model, Authentication authentication) {
+    public String formularioNovoLink(@RequestParam(required = false) Long produtoId, Model model , @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         // Buscar produtos do usuário para o dropdown
@@ -99,10 +99,10 @@ public class LinkPagamentoController {
     public String criarLink(@Valid @ModelAttribute("link") LinkPagamentoRequest request, 
                            BindingResult result,
                            Model model,
-                           Authentication authentication,
+                            @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
                            RedirectAttributes redirectAttributes) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         if (result.hasErrors()) {
@@ -183,9 +183,9 @@ public class LinkPagamentoController {
     }
 
     @GetMapping("/{id}/editar")
-    public String formularioEditarLink(@PathVariable Long id, Model model, Authentication authentication, RedirectAttributes redirectAttributes) {
+    public String formularioEditarLink(@PathVariable Long id, Model model, @AuthenticationPrincipal CustomOAuth2User customOAuth2User, RedirectAttributes redirectAttributes) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         try {
@@ -223,10 +223,10 @@ public class LinkPagamentoController {
                                @Valid @ModelAttribute("link") LinkPagamentoRequest request,
                                BindingResult result,
                                Model model,
-                               Authentication authentication,
+                                @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
                                RedirectAttributes redirectAttributes) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         if (result.hasErrors()) {
@@ -267,9 +267,9 @@ public class LinkPagamentoController {
     }
 
     @PostMapping("/{id}/excluir")
-    public String excluirLink(@PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
+    public String excluirLink(@PathVariable Long id, @AuthenticationPrincipal CustomOAuth2User customOAuth2User, RedirectAttributes redirectAttributes) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         try {
@@ -295,9 +295,9 @@ public class LinkPagamentoController {
 
     @GetMapping("/api")
     @ResponseBody
-    public ResponseEntity<List<LinkPagamentoResponse>> listarLinksApi(Authentication authentication) {
+    public ResponseEntity<List<LinkPagamentoResponse>> listarLinksApi( @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         List<LinkPagamento> links = gerenciaLinkPagamentoUseCase.listarLinksPorProprietario(usuarioId);
@@ -311,9 +311,9 @@ public class LinkPagamentoController {
 
     @GetMapping("/api/{id}")
     @ResponseBody
-    public ResponseEntity<LinkPagamentoResponse> buscarLinkApi(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<LinkPagamentoResponse> buscarLinkApi(@PathVariable Long id, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         Optional<LinkPagamento> linkOpt = gerenciaLinkPagamentoUseCase.buscarLinkPorId(id);
@@ -327,10 +327,10 @@ public class LinkPagamentoController {
 
     @PostMapping("/api")
     @ResponseBody
-    public ResponseEntity<LinkPagamentoResponse> criarLinkApi(@Valid @RequestBody LinkPagamentoRequest request, 
-                                                            Authentication authentication) {
+    public ResponseEntity<LinkPagamentoResponse> criarLinkApi(@Valid @RequestBody LinkPagamentoRequest request,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         // Verificar se o produto pertence ao usuário
@@ -382,9 +382,9 @@ public class LinkPagamentoController {
     @ResponseBody
     public ResponseEntity<LinkPagamentoResponse> atualizarLinkApi(@PathVariable Long id, 
                                                                 @Valid @RequestBody LinkPagamentoRequest request,
-                                                                Authentication authentication) {
+                                                                  @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLinkPagamento(id, usuarioId)) {
@@ -408,9 +408,9 @@ public class LinkPagamentoController {
 
     @DeleteMapping("/api/{id}")
     @ResponseBody
-    public ResponseEntity<Void> excluirLinkApi(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<Void> excluirLinkApi(@PathVariable Long id, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         if (!gerenciaLinkPagamentoUseCase.verificarPropriedadeLinkPagamento(id, usuarioId)) {
@@ -428,10 +428,9 @@ public class LinkPagamentoController {
 
     @GetMapping("/api/produto/{produtoId}")
     @ResponseBody
-    public ResponseEntity<List<LinkPagamentoResponse>> listarLinksPorProdutoApi(@PathVariable Long produtoId,
-                                                                              Authentication authentication) {
+    public ResponseEntity<List<LinkPagamentoResponse>> listarLinksPorProdutoApi(@PathVariable Long produtoId, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         // Verificar se o produto pertence ao usuário
