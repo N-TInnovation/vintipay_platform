@@ -32,7 +32,7 @@ public class GerenciaLinkPagamentoUseCaseImpl implements GerenciaLinkPagamentoUs
 
     @Override
     @Transactional
-    public LinkPagamento criarLinkPagamento(Long produtoId, Long proprietarioId, 
+    public LinkPagamento criarLinkPagamento(Long produtoId, Long proprietarioId, Long tenantId,
                                           String titulo, String descricao,
                                           LocalDateTime dataExpiracao, Integer quantidadeUsos,
                                           String urlRetornoSucesso, String urlRetornoCancelamento) {
@@ -43,6 +43,10 @@ public class GerenciaLinkPagamentoUseCaseImpl implements GerenciaLinkPagamentoUs
         
         if (proprietarioId == null) {
             throw new IllegalArgumentException("ID do proprietário é obrigatório");
+        }
+        
+        if (tenantId == null) {
+            throw new IllegalArgumentException("Tenant ID é obrigatório");
         }
         
         // Buscar o produto
@@ -81,6 +85,7 @@ public class GerenciaLinkPagamentoUseCaseImpl implements GerenciaLinkPagamentoUs
                 .produtoId(produtoId)
                 .proprietario(proprietarioOpt.get())
                 .proprietarioId(proprietarioId)
+                .tenantId(tenantId)
                 .urlRetornoSucesso(urlRetornoSucesso)
                 .urlRetornoCancelamento(urlRetornoCancelamento)
                 .build();

@@ -12,8 +12,10 @@ import cv.ntinnovation.vintipay.application.port.in.GerenciaConfiguracaoPagament
 import cv.ntinnovation.vintipay.application.port.in.GerenciaLinkPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaProdutoUseCase;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -28,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Controller
 @RequestMapping("/user/links-pagamento")
 @RequiredArgsConstructor
@@ -99,11 +102,21 @@ public class LinkPagamentoController {
     public String criarLink(@Valid @ModelAttribute("link") LinkPagamentoRequest request, 
                            BindingResult result,
                            Model model,
-                            @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
+                           HttpSession session,
+                           @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
                            RedirectAttributes redirectAttributes) {
-        // Obter o objeto Usuario a partir do Authentication
         Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
+        
+        // Obter tenant da sessão (OBRIGATÓRIO)
+        Long tenantId = (Long) session.getAttribute("tenantId");
+        log.info("Criando link de pagamento - Usuario ID: {}, Tenant ID: {}", usuarioId, tenantId);
+        
+        if (tenantId == null) {
+            log.error("Nenhum tenant selecionado na sessão");
+            redirectAttributes.addFlashAttribute("erro", "Você precisa selecionar uma organização antes de criar um link de pagamento.");
+            return "redirect:/user/links-pagamento";
+        }
         
         if (result.hasErrors()) {
             // Buscar produtos do usuário para o dropdown
@@ -153,6 +166,7 @@ public class LinkPagamentoController {
             LinkPagamento linkPagamento = gerenciaLinkPagamentoUseCase.criarLinkPagamento(
                 request.getProdutoId(),
                 usuarioId,
+                tenantId,
                 request.getNome(),
                 request.getDescricao(),
                 request.getDataExpiracao(),
@@ -328,7 +342,7 @@ public class LinkPagamentoController {
     @PostMapping("/api")
     @ResponseBody
     public ResponseEntity<LinkPagamentoResponse> criarLinkApi(@Valid @RequestBody LinkPagamentoRequest request,
-            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User, HttpSession session) {
         // Obter o objeto Usuario a partir do Authentication
         Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
@@ -353,10 +367,12 @@ public class LinkPagamentoController {
         }
         
         try {
+            Long tenantId = (Long) session.getAttribute("tenantId");
             // Criar o link de pagamento
             LinkPagamento link = gerenciaLinkPagamentoUseCase.criarLinkPagamento(
                 request.getProdutoId(),
                 usuarioId,
+                    tenantId,
                 request.getNome(),
                 request.getDescricao(),
                 request.getDataExpiracao(),

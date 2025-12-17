@@ -13,6 +13,7 @@ public interface GerenciaLinkPagamentoUseCase {
      * 
      * @param produtoId ID do produto
      * @param proprietarioId ID do usuário proprietário
+     * @param tenantId ID do tenant ao qual o link pertence
      * @param titulo Título personalizado para o link (opcional)
      * @param descricao Descrição personalizada (opcional)
      * @param dataExpiracao Data de expiração do link (opcional)
@@ -21,7 +22,7 @@ public interface GerenciaLinkPagamentoUseCase {
      * @param urlRetornoCancelamento URL para redirecionar após cancelamento (opcional)
      * @return Link de pagamento criado
      */
-    LinkPagamento criarLinkPagamento(Long produtoId, Long proprietarioId, 
+    LinkPagamento criarLinkPagamento(Long produtoId, Long proprietarioId, Long tenantId,
                                    String titulo, String descricao,
                                    LocalDateTime dataExpiracao, Integer quantidadeUsos,
                                    String urlRetornoSucesso, String urlRetornoCancelamento);

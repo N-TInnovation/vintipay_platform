@@ -30,6 +30,7 @@ public class LinkPagamento {
     private Long proprietarioId; // Para facilitar a criação
     private ConfiguracaoPagamento configuracaoPagamento;
     private Long configuracaoPagamentoId; // Para facilitar a criação
+    private Long tenantId; // Tenant ao qual o link pertence
     
     // Campos adicionais
     private String urlRetornoSucesso; // URL para redirecionar após pagamento bem-sucedido

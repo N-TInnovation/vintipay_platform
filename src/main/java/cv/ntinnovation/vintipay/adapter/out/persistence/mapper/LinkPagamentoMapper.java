@@ -3,14 +3,17 @@ package cv.ntinnovation.vintipay.adapter.out.persistence.mapper;
 import cv.ntinnovation.vintipay.adapter.out.persistence.entity.ConfiguracaoPagamentoEntity;
 import cv.ntinnovation.vintipay.adapter.out.persistence.entity.LinkPagamentoEntity;
 import cv.ntinnovation.vintipay.adapter.out.persistence.entity.ProdutoEntity;
+import cv.ntinnovation.vintipay.adapter.out.persistence.entity.TenantEntity;
 import cv.ntinnovation.vintipay.adapter.out.persistence.entity.UsuarioEntity;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.LinkPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Produto;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class LinkPagamentoMapper {
@@ -45,7 +48,7 @@ public class LinkPagamentoMapper {
             configuracaoPagamento = configuracaoPagamentoMapper.toEntity(link.getConfiguracaoPagamento());
         }
         
-        return LinkPagamentoEntity.builder()
+        LinkPagamentoEntity entity = LinkPagamentoEntity.builder()
                 .id(link.getId())
                 .codigo(link.getCodigo())
                 .titulo(link.getTitulo())
@@ -61,6 +64,18 @@ public class LinkPagamentoMapper {
                 .urlRetornoCancelamento(link.getUrlRetornoCancelamento())
                 .configuracaoPagamento(configuracaoPagamento)
                 .build();
+        
+        // Mapear tenantId
+        if (link.getTenantId() != null) {
+            log.info("Mapeando tenantId {} para TenantEntity no link de pagamento", link.getTenantId());
+            TenantEntity tenantEntity = new TenantEntity();
+            tenantEntity.setId(link.getTenantId());
+            entity.setTenant(tenantEntity);
+        } else {
+            log.error("Link de pagamento sem tenantId - tenantId é null");
+        }
+        
+        return entity;
     }
     
     /**
@@ -103,6 +118,7 @@ public class LinkPagamentoMapper {
                 .produtoId(entity.getProduto() != null ? entity.getProduto().getId() : null)
                 .proprietario(proprietario)
                 .proprietarioId(entity.getProprietario() != null ? entity.getProprietario().getId() : null)
+                .tenantId(entity.getTenant() != null ? entity.getTenant().getId() : null)
                 .urlRetornoSucesso(entity.getUrlRetornoSucesso())
                 .urlRetornoCancelamento(entity.getUrlRetornoCancelamento())
                 .configuracaoPagamento(configuracaoPagamento)
