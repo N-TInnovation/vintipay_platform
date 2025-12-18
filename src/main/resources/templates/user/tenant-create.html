@@ -253,7 +253,7 @@
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
-                                        <label for="documento" class="form-label">Documento (NIF/NIPC)</label>
+                                        <label for="documento" class="form-label required-field">Documento (NIF/NIPC)</label>
                                         <div class="icon-input-group">
                                             <i class="fas fa-id-card"></i>
                                             <input type="text" 
@@ -261,8 +261,11 @@
                                                    th:classappend="${#fields.hasErrors('documento')} ? 'is-invalid' : ''"
                                                    id="documento" 
                                                    th:field="*{documento}"
-                                                   placeholder="Ex: 123456789">
+                                                   placeholder="Ex: 123456789"
+                                                   maxlength="9"
+                                                   required>
                                         </div>
+                                        <div class="form-helper-text">Deve conter exatamente 9 caracteres</div>
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('documento')}" th:errors="*{documento}"></div>
                                     </div>
                                 </div>
@@ -276,7 +279,7 @@
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="email" class="form-label">Email</label>
+                                        <label for="email" class="form-label required-field">Email</label>
                                         <div class="icon-input-group">
                                             <i class="fas fa-envelope"></i>
                                             <input type="email" 
@@ -284,7 +287,8 @@
                                                    th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
                                                    id="email" 
                                                    th:field="*{email}"
-                                                   placeholder="contato@empresa.com">
+                                                   placeholder="contato@empresa.com"
+                                                   required>
                                         </div>
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
                                     </div>
@@ -313,7 +317,7 @@
                                 
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
-                                        <label for="endereco" class="form-label">Endereço</label>
+                                        <label for="endereco" class="form-label required-field">Endereço</label>
                                         <div class="icon-input-group">
                                             <i class="fas fa-home"></i>
                                             <input type="text" 
@@ -321,13 +325,14 @@
                                                    th:classappend="${#fields.hasErrors('endereco')} ? 'is-invalid' : ''"
                                                    id="endereco" 
                                                    th:field="*{endereco}"
-                                                   placeholder="Rua, número, bairro">
+                                                   placeholder="Rua, número, bairro"
+                                                   required>
                                         </div>
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('endereco')}" th:errors="*{endereco}"></div>
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
-                                        <label for="cidade" class="form-label">Cidade</label>
+                                        <label for="cidade" class="form-label required-field">Cidade</label>
                                         <div class="icon-input-group">
                                             <i class="fas fa-city"></i>
                                             <input type="text" 
@@ -335,13 +340,14 @@
                                                    th:classappend="${#fields.hasErrors('cidade')} ? 'is-invalid' : ''"
                                                    id="cidade" 
                                                    th:field="*{cidade}"
-                                                   placeholder="Praia">
+                                                   placeholder="Praia"
+                                                   required>
                                         </div>
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('cidade')}" th:errors="*{cidade}"></div>
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
-                                        <label for="pais" class="form-label">País</label>
+                                        <label for="pais" class="form-label required-field">País</label>
                                         <div class="icon-input-group">
                                             <i class="fas fa-globe"></i>
                                             <input type="text" 
@@ -349,7 +355,8 @@
                                                    th:classappend="${#fields.hasErrors('pais')} ? 'is-invalid' : ''"
                                                    id="pais" 
                                                    th:field="*{pais}"
-                                                   placeholder="Cabo Verde">
+                                                   placeholder="Cabo Verde"
+                                                   required>
                                         </div>
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('pais')}" th:errors="*{pais}"></div>
                                     </div>

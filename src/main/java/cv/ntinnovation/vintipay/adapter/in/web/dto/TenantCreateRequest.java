@@ -21,9 +21,11 @@ public class TenantCreateRequest {
     @Size(max = 200, message = "Nome fantasia deve ter no máximo 200 caracteres")
     private String nomeFantasia;
 
-    @Size(max = 50, message = "Documento deve ter no máximo 50 caracteres")
+    @NotBlank(message = "Documento (NIF/NIPC) é obrigatório")
+    @Size(min = 9, max = 9, message = "Documento deve ter exatamente 9 caracteres")
     private String documento;
 
+    @NotBlank(message = "Email é obrigatório")
     @Email(message = "Email inválido")
     @Size(max = 100, message = "Email deve ter no máximo 100 caracteres")
     private String email;
@@ -31,12 +33,15 @@ public class TenantCreateRequest {
     @Size(max = 20, message = "Telefone deve ter no máximo 20 caracteres")
     private String telefone;
 
+    @NotBlank(message = "Endereço é obrigatório")
     @Size(max = 1000, message = "Endereço deve ter no máximo 1000 caracteres")
     private String endereco;
 
+    @NotBlank(message = "Cidade é obrigatória")
     @Size(max = 100, message = "Cidade deve ter no máximo 100 caracteres")
     private String cidade;
 
+    @NotBlank(message = "País é obrigatório")
     @Size(max = 100, message = "País deve ter no máximo 100 caracteres")
     private String pais;
 
