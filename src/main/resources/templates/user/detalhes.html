@@ -426,6 +426,73 @@
                     </div>
                 </div>
                 
+                <!-- Informações de Recorrência (se aplicável) -->
+                <div class="card shadow-sm mb-4" th:if="${pagamento.intencaoPagamento.produto != null && pagamento.intencaoPagamento.produto.recorrente}">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-sync-alt me-2"></i>Informações de Recorrência
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info mb-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Este é um pagamento recorrente</strong> - As cobranças serão realizadas automaticamente.
+                        </div>
+                        
+                        <table class="table">
+                            <tr>
+                                <th style="width: 30%">Produto:</th>
+                                <td th:text="${pagamento.intencaoPagamento.produto.nome}">Nome do Produto</td>
+                            </tr>
+                            <tr>
+                                <th>Valor da Recorrência:</th>
+                                <td>
+                                    <strong class="text-primary" th:text="${#numbers.formatDecimal(pagamento.intencaoPagamento.produto.preco, 1, 2) + ' ' + (pagamento.intencaoPagamento.produto.moeda != null ? pagamento.intencaoPagamento.produto.moeda : 'CVE')}">99,90 CVE</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Período:</th>
+                                <td>
+                                    <span th:if="${pagamento.intencaoPagamento.produto.periodoRecorrencia != null}" 
+                                          th:text="${pagamento.intencaoPagamento.produto.periodoRecorrencia == T(cv.ntinnovation.vintipay.application.core.domain.enums.PeriodoRecorrenciaEnum).MENSAL ? 'Mensal' : 
+                                                     pagamento.intencaoPagamento.produto.periodoRecorrencia == T(cv.ntinnovation.vintipay.application.core.domain.enums.PeriodoRecorrenciaEnum).TRIMESTRAL ? 'Trimestral' :
+                                                     pagamento.intencaoPagamento.produto.periodoRecorrencia == T(cv.ntinnovation.vintipay.application.core.domain.enums.PeriodoRecorrenciaEnum).SEMESTRAL ? 'Semestral' :
+                                                     pagamento.intencaoPagamento.produto.periodoRecorrencia == T(cv.ntinnovation.vintipay.application.core.domain.enums.PeriodoRecorrenciaEnum).ANUAL ? 'Anual' :
+                                                     pagamento.intencaoPagamento.produto.periodoRecorrencia == T(cv.ntinnovation.vintipay.application.core.domain.enums.PeriodoRecorrenciaEnum).SEMANAL ? 'Semanal' :
+                                                     pagamento.intencaoPagamento.produto.periodoRecorrencia}">
+                                        Mensal
+                                    </span>
+                                    <span th:unless="${pagamento.intencaoPagamento.produto.periodoRecorrencia != null}">-</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Duração:</th>
+                                <td>
+                                    <span th:if="${pagamento.intencaoPagamento.produto.duracaoRecorrencia != null}" 
+                                          th:text="${pagamento.intencaoPagamento.produto.duracaoRecorrencia + ' ciclos'}">12 ciclos</span>
+                                    <span th:unless="${pagamento.intencaoPagamento.produto.duracaoRecorrencia != null}">
+                                        <span class="badge bg-success">Ilimitado</span>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr th:if="${pagamento.intencaoPagamento.produto.descricaoRecorrencia != null}">
+                                <th>Descrição:</th>
+                                <td th:text="${pagamento.intencaoPagamento.produto.descricaoRecorrencia}">Descrição da recorrência</td>
+                            </tr>
+                            <tr th:if="${pagamento.intencaoPagamento.ciclo != null}">
+                                <th>Ciclo Atual:</th>
+                                <td>
+                                    <span class="badge bg-primary" th:text="${'Ciclo ' + pagamento.intencaoPagamento.ciclo}">Ciclo 1</span>
+                                </td>
+                            </tr>
+                            <tr th:if="${pagamento.intencaoPagamento.dataCobranca != null}">
+                                <th>Próxima Cobrança:</th>
+                                <td th:text="${#temporals.format(pagamento.intencaoPagamento.dataCobranca, 'dd/MM/yyyy')}">01/01/2025</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
                 <!-- Informações do Comprador -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-header">

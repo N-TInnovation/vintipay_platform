@@ -115,9 +115,9 @@ public class ProdutoController {
     }
     
     @GetMapping("/{id}/editar")
-    public String exibirFormularioEdicaoProduto(@PathVariable Long id, Model model, Authentication authentication) {
+    public String exibirFormularioEdicaoProduto(@PathVariable Long id, Model model, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         try {
@@ -167,7 +167,7 @@ public class ProdutoController {
                                 @Valid @ModelAttribute("produto") ProdutoRequest request,
                                 BindingResult result,
                                 Model model,
-                                Authentication authentication) {
+                                @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         if (result.hasErrors()) {
             model.addAttribute("produtoId", id);
             model.addAttribute("categorias", CategoriaProdutoEnum.values());
@@ -175,7 +175,7 @@ public class ProdutoController {
         }
         
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         try {
@@ -223,9 +223,9 @@ public class ProdutoController {
     }
     
     @PostMapping("/{id}/excluir")
-    public String excluirProduto(@PathVariable Long id, Authentication authentication) {
+    public String excluirProduto(@PathVariable Long id, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         try {
@@ -245,9 +245,9 @@ public class ProdutoController {
     
 
     @PostMapping("/{id}/alterarStatus")
-    public String alterarStatusProduto(@PathVariable Long id, Authentication authentication) {
+    public String alterarStatusProduto(@PathVariable Long id, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         // Obter o objeto Usuario a partir do Authentication
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = customOAuth2User.getUsuario();
         Long usuarioId = usuario.getId();
         
         try {
