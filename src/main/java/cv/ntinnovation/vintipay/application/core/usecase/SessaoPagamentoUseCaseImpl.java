@@ -1,8 +1,7 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.SessaoPagamento;
-import cv.ntinnovation.vintipay.application.port.in.CriaSessaoPagamentoUseCase;
-import cv.ntinnovation.vintipay.application.port.in.ValidaSessaoPagamentoUseCase;
+import cv.ntinnovation.vintipay.application.port.in.SessaoPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.out.BuscaSessaoPagamentoPort;
 import cv.ntinnovation.vintipay.application.port.out.SalvaSessaoPagamentoPort;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,14 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
-
-import static cv.ntinnovation.vintipay.adapter.in.web.utils.GerarUtil.geraMerchantSession;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CriaSessaoPagamentoUseCaseImpl implements CriaSessaoPagamentoUseCase {
+public class SessaoPagamentoUseCaseImpl implements SessaoPagamentoUseCase {
 
     private final SalvaSessaoPagamentoPort salvaSessaoPagamentoPort;
     private final BuscaSessaoPagamentoPort buscaSessaoPagamentoPort;
@@ -59,7 +55,18 @@ public class CriaSessaoPagamentoUseCaseImpl implements CriaSessaoPagamentoUseCas
         
         return salvaSessaoPagamentoPort.salvar(sessaoPagamento);
     }
-    
+
+    @Override
+    public void invalidar(String sessionId) {
+        Optional<SessaoPagamento> sessaoOpt = buscaSessaoPagamentoPort.buscarPorSessionId(sessionId);
+
+        if (sessaoOpt.isPresent()) {
+            SessaoPagamento sessaoPagamento = sessaoOpt.get();
+            sessaoPagamento.setValid(false);
+            salvaSessaoPagamentoPort.salvar(sessaoPagamento);
+        }
+    }
+
     /**
      * Obtém o endereço IP real do cliente, considerando proxies
      */

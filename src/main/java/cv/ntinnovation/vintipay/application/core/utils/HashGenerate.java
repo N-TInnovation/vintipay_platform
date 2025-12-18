@@ -12,16 +12,16 @@ public class HashGenerate {
 
 	private static final Logger logger = Logger
 			.getLogger(HashGenerate.class.getName());
-	
+
 	public static String HashGenerate810MP(DataFingerPrint810MPResponse dataFingerPrint810MPResponse){
-		
+
 		String merchantRespEntityCode="";
 		String merchantRespReferenceNumber="";
 		String merchantRespClientReceipt=dataFingerPrint810MPResponse.getMerchantRespClientReceipt();
-		
+
 		if(merchantRespClientReceipt!=null){
-				merchantRespClientReceipt=merchantRespClientReceipt.replaceAll(" ","");
-				merchantRespClientReceipt=merchantRespClientReceipt.trim();
+			merchantRespClientReceipt=merchantRespClientReceipt.replaceAll(" ","");
+			merchantRespClientReceipt=merchantRespClientReceipt.trim();
 
 		}
 		try{
@@ -49,9 +49,9 @@ public class HashGenerate {
 					dataFingerPrint810MPResponse.getMerchantRespReloadCode().trim();
 			logger.log(Level.INFO,
 					"MessageType : " +dataFingerPrint810MPResponse.getMessageType());
-		}	
+		}
 		else{
-			
+
 			toHash=SHA.GenerateSHA512StringToBase64(dataFingerPrint810MPResponse.getPosAutCode())+
 					dataFingerPrint810MPResponse.getMessageType().trim() + dataFingerPrint810MPResponse.getMerchantRespCP().trim()+
 					dataFingerPrint810MPResponse.getMerchantRespTid().trim()+ dataFingerPrint810MPResponse.getMerchantRespMerchantRef().trim()+
@@ -61,14 +61,14 @@ public class HashGenerate {
 					dataFingerPrint810MPResponse.getMerchantRespTimeStamp().trim()+
 					merchantRespReferenceNumber+merchantRespEntityCode+
 					//MerchantRespEntityCode+MerchantRespReferenceNumber +
-					
+
 					merchantRespClientReceipt+
 					dataFingerPrint810MPResponse.getMerchantRespAdditionalErrorMessage().trim()+
 					dataFingerPrint810MPResponse.getMerchantRespReloadCode().trim();
 			logger.log(Level.INFO,
 					"MessageType ALL: " +dataFingerPrint810MPResponse.getMessageType());
-		}		
-		
+		}
+
 		logger.log(Level.INFO,
 				"Clear Hash: " +toHash);
 
@@ -79,13 +79,13 @@ public class HashGenerate {
 
 		String toHash =SHA.GenerateSHA512StringToBase64(dataFingerPrint6Response.getPosAutCode())+
 				dataFingerPrint6Response.getMessageType()+dataFingerPrint6Response.getMerchantRespMerchantRef().trim()+
-                dataFingerPrint6Response.getMerchantRespMerchantSession().trim()+ ((long)(Double.parseDouble(dataFingerPrint6Response.getMerchantRespPurchaseAmount())*1000))+
-                dataFingerPrint6Response.getMerchantRespMessageID()+dataFingerPrint6Response.getMerchantRespPan().trim()+
-                dataFingerPrint6Response.getMerchantResp().trim() +dataFingerPrint6Response.getMerchantRespTimeStamp();
+				dataFingerPrint6Response.getMerchantRespMerchantSession().trim()+ ((long)(Double.parseDouble(dataFingerPrint6Response.getMerchantRespPurchaseAmount())*1000))+
+				dataFingerPrint6Response.getMerchantRespMessageID()+dataFingerPrint6Response.getMerchantRespPan().trim()+
+				dataFingerPrint6Response.getMerchantResp().trim() +dataFingerPrint6Response.getMerchantRespTimeStamp();
 		logger.log(Level.INFO,
 				"Clear Hash: " +toHash);
 		return SHA.GenerateSHA512StringToBase64(toHash);
-	
+
 	}
 
 	public static String HashGenerateOutros(DataFingerPrintOutroResponse dataFingerPrintOutroResponse){

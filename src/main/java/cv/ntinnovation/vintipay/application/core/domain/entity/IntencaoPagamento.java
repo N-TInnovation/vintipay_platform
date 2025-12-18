@@ -56,6 +56,7 @@ public class IntencaoPagamento {
     
     private Tenant tenant;
     private Long tenantId;
+    private String clientKey;
 
     public void gerarTimestamp() {
         this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));

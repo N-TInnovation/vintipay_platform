@@ -1,6 +1,7 @@
 package cv.ntinnovation.vintipay.application.core.usecase;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
+import cv.ntinnovation.vintipay.application.core.domain.rules.FingerPrintService;
 import cv.ntinnovation.vintipay.application.port.in.BuscaConfiguracaoPagamentoAtivaUseCase;
 import cv.ntinnovation.vintipay.application.port.out.BuscaConfiguracaoPagamentoPort;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class BuscaConfiguracaoPagamentoAtivaUseCaseImpl implements BuscaConfiguracaoPagamentoAtivaUseCase {
 
     private final BuscaConfiguracaoPagamentoPort buscaConfiguracaoPagamentoPort;
+    private final FingerPrintService fingerPrintService;
 
     @Override
     public ConfiguracaoPagamento buscarPorCredenciais(String clientId, String clientSecret) {
@@ -20,7 +22,22 @@ public class BuscaConfiguracaoPagamentoAtivaUseCaseImpl implements BuscaConfigur
 
     @Override
     public ConfiguracaoPagamento buscarPorClientId(String clientId) {
-        return buscaConfiguracaoPagamentoPort.buscarPorApiKey(clientId)
+        ConfiguracaoPagamento configuracaoPagamento = buscaConfiguracaoPagamentoPort.buscarPorApiKey(clientId)
                 .orElseThrow(() -> new IllegalStateException("Configuração não encontrada ou inativa"));
+        return descriptografarPosAutCode(configuracaoPagamento);
+    }
+
+    /**
+     * Descriptografa o campo posAutCode da configuração
+     * @param configuracao Configuração com posAutCode criptografado
+     * @return Configuração com posAutCode descriptografado
+     */
+    private ConfiguracaoPagamento descriptografarPosAutCode(ConfiguracaoPagamento configuracao) {
+        if (configuracao.getPosAutCode() != null) {
+            String posAutCodeDescriptografado = fingerPrintService.decryptAES256(configuracao.getPosAutCode());
+
+            configuracao.setPosAutCode(posAutCodeDescriptografado);
+        }
+        return configuracao;
     }
 }

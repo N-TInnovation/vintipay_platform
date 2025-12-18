@@ -16,6 +16,8 @@ public interface BuscaPagamentoUseCase {
     Page<Pagamento> buscarPorUsuario(Pageable pageable, Long usuarioId, StatusPagamentoEnum status);
     Page<Pagamento> buscarPorUsuarioEAmbiente(Pageable pageable, Long usuarioId, StatusPagamentoEnum status, AmbienteEnum ambiente);
     
+    Page<Pagamento> buscarPorUsuarioETenant(Pageable pageable, Long usuarioId, Long tenantId, StatusPagamentoEnum status);
+    
     /**
      * Busca pagamentos agrupados por período e status para geração de gráficos no dashboard
      * @param usuarioId ID do usuário 
@@ -25,4 +27,6 @@ public interface BuscaPagamentoUseCase {
      * @return Mapa com dados agrupados por status e período
      */
     Map<String, Map<String, Long>> buscarPorPeriodoAgrupado(Long usuarioId, LocalDate dataInicio, LocalDate dataFim, String tipoPeriodo);
+    
+    Map<String, Map<String, Long>> buscarPorPeriodoAgrupadoComTenant(Long usuarioId, Long tenantId, LocalDate dataInicio, LocalDate dataFim, String tipoPeriodo);
 }

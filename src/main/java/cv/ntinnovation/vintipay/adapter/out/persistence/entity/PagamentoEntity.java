@@ -65,4 +65,8 @@ public class PagamentoEntity {
 
     @Column(name = "ambiente", nullable = false)
     private String ambiente;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private TenantEntity tenant;
 }

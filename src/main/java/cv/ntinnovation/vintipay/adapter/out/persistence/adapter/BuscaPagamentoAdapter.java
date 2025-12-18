@@ -96,6 +96,99 @@ public class BuscaPagamentoAdapter implements BuscaPagamentoPort {
     }
     
     @Override
+    public Page<Pagamento> buscarPorUsuarioETenant(Pageable pageable, Long usuarioId, Long tenantId, StatusPagamentoEnum status) {
+        String statusStr = status != null ? status.name() : null;
+        
+        log.info("Buscando pagamentos para usuário ID: {}, tenant ID: {}, status: {}", usuarioId, tenantId, statusStr);
+        try {
+            var pagamentos = pagamentoRepository.findByUsuarioIdAndTenantIdAndStatusIfPresent(
+                usuarioId, 
+                tenantId,
+                statusStr, 
+                pageable
+            );
+            log.info("Encontrados {} pagamentos para o tenant {}", pagamentos.getTotalElements(), tenantId);
+            return pagamentos.map(pagamentoMapper::toDomain);
+        } catch (Exception e) {
+            log.error("Erro ao buscar pagamentos para usuário ID: {}, tenant ID: {}, status: {}", 
+                usuarioId, tenantId, statusStr, e);
+            return Page.empty(pageable);
+        }
+    }
+    
+    @Override
+    public Map<String, Map<String, Long>> buscarPorPeriodoAgrupadoComTenant(Long usuarioId, Long tenantId, LocalDate dataInicio, LocalDate dataFim, String tipoPeriodo) {
+        log.info("Buscando pagamentos agrupados por período para usuário ID: {}, tenant ID: {}, de {} até {}, tipo: {}", 
+                usuarioId, tenantId, dataInicio, dataFim, tipoPeriodo);
+        
+        try {
+            // Buscar todos os pagamentos do usuário no período filtrados por tenant
+            List<PagamentoEntity> pagamentos = pagamentoRepository.findByUsuarioIdAndTenantIdAndDataPagamentoBetween(
+                usuarioId,
+                tenantId,
+                dataInicio.atStartOfDay(), 
+                dataFim.plusDays(1).atStartOfDay()
+            );
+            
+            log.info("Encontrados {} pagamentos no período para o tenant {}", pagamentos.size(), tenantId);
+            
+            if (pagamentos.isEmpty()) {
+                log.warn("Nenhum pagamento encontrado para o período especificado");
+                // Se não houver dados, inicializar mapa para cada status
+                Map<String, Map<String, Long>> resultadoVazio = new HashMap<>();
+                for (StatusPagamentoEnum status : StatusPagamentoEnum.values()) {
+                    resultadoVazio.put(status.name(), new HashMap<>());
+                }
+                return resultadoVazio;
+            }
+            
+            // Verificar se há status nulos
+            long countNullStatus = pagamentos.stream().filter(p -> p.getStatus() == null).count();
+            if (countNullStatus > 0) {
+                log.warn("Detectados {} pagamentos com status nulo", countNullStatus);
+            }
+            
+            // Mapa para armazenar dados agrupados: status -> {período -> quantidade}
+            Map<String, Map<String, Long>> resultado = new HashMap<>();
+            
+            // Inicializar mapa para cada status
+            for (StatusPagamentoEnum status : StatusPagamentoEnum.values()) {
+                resultado.put(status.name(), new HashMap<>());
+            }
+            
+            // Agrupar pagamentos por status e período
+            Map<String, Map<String, List<PagamentoEntity>>> agrupados = pagamentos.stream()
+                .filter(p -> p.getStatus() != null) // Filtrar pagamentos com status nulo
+                .collect(Collectors.groupingBy(
+                    pagamento -> pagamento.getStatus().name(), // Converter enum para String usando name()
+                    Collectors.groupingBy(
+                        entity -> formatarPeriodo(entity, tipoPeriodo)
+                    )
+                ));
+            
+            log.info("Pagamentos agrupados por status: {}", agrupados.keySet());
+            
+            // Converter para o formato esperado: status -> {período -> quantidade}
+            agrupados.forEach((status, periodoMap) -> {
+                Map<String, Long> quantidadePorPeriodo = periodoMap.entrySet().stream()
+                    .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> (long) entry.getValue().size()
+                    ));
+                
+                log.info("Status {} tem {} períodos com dados", status, quantidadePorPeriodo.size());
+                resultado.put(status, quantidadePorPeriodo);
+            });
+            
+            log.info("Resultado final: {}", resultado);
+            return resultado;
+        } catch (Exception e) {
+            log.error("Erro ao buscar pagamentos agrupados por período para usuário ID: {}, tenant ID: {}", usuarioId, tenantId, e);
+            return new HashMap<>();
+        }
+    }
+    
+    @Override
     public Map<String, Map<String, Long>> buscarPorPeriodoAgrupado(Long usuarioId, LocalDate dataInicio, LocalDate dataFim, String tipoPeriodo) {
         log.info("Buscando pagamentos agrupados por período para usuário ID: {}, de {} até {}, tipo: {}", 
                 usuarioId, dataInicio, dataFim, tipoPeriodo);

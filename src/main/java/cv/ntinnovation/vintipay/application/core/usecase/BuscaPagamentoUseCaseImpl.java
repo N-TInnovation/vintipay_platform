@@ -41,7 +41,17 @@ public class BuscaPagamentoUseCaseImpl implements BuscaPagamentoUseCase {
     }
     
     @Override
+    public Page<Pagamento> buscarPorUsuarioETenant(Pageable pageable, Long usuarioId, Long tenantId, StatusPagamentoEnum status) {
+        return buscaPagamentoPort.buscarPorUsuarioETenant(pageable, usuarioId, tenantId, status);
+    }
+    
+    @Override
     public Map<String, Map<String, Long>> buscarPorPeriodoAgrupado(Long usuarioId, LocalDate dataInicio, LocalDate dataFim, String tipoPeriodo) {
         return buscaPagamentoPort.buscarPorPeriodoAgrupado(usuarioId, dataInicio, dataFim, tipoPeriodo);
+    }
+    
+    @Override
+    public Map<String, Map<String, Long>> buscarPorPeriodoAgrupadoComTenant(Long usuarioId, Long tenantId, LocalDate dataInicio, LocalDate dataFim, String tipoPeriodo) {
+        return buscaPagamentoPort.buscarPorPeriodoAgrupadoComTenant(usuarioId, tenantId, dataInicio, dataFim, tipoPeriodo);
     }
 }

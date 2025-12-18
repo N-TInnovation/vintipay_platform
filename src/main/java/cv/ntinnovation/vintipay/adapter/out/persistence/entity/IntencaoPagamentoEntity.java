@@ -63,4 +63,7 @@ public class IntencaoPagamentoEntity extends BasePagamentoEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_id", nullable = false)
     private TenantEntity tenant;
+
+    @Column(name = "client_key", nullable = false)
+    private String clientKey;
 }

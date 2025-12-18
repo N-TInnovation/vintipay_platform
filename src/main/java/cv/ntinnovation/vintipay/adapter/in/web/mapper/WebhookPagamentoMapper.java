@@ -10,6 +10,9 @@ public class WebhookPagamentoMapper {
 
     public RetornoFingerprint toRetornoFingerprint( SispWebhookRequest sispWebhookRequest) {
         var messageType = sispWebhookRequest.getMessageType();
+        if(messageType == null){
+            messageType = MessageRespTypeEnum.FALHA_OUTROS;
+        }
         messageType.getRetornoFingerprint().toBuilder(sispWebhookRequest);
         return messageType.getRetornoFingerprint();
     }

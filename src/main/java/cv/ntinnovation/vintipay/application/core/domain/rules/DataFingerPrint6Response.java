@@ -14,47 +14,68 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 public class DataFingerPrint6Response implements RetornoFingerprint {
 
-	private String posAutCode;
-	private String messageType;
-    private String merchantRespCP;
-    private String merchantRespTid;
-	private String merchantRespMessageID;
+    private String posAutCode;
+    private String messageType;
+    private String merchantRespMessageID;
+    private String merchantRespErrorCode;
+    private String merchantRespErrorDetail;
+    private String merchantRespErrorDescription;
+    private String merchantRespMerchantRef;
+    private String merchantRespMerchantSession;
+    private String merchantRespAdditionalErrorMessage;
+    private String merchantRespTimeStamp;
+    private String resultFingerPrint;
+    private String authorizationCode;
     private String merchantRespPan;
-	private String merchantRespErrorCode;
-	private String merchantRespErrorDetail;
-	private String merchantRespErrorDescription;
-	private String merchantRespMerchantRef;
-	private String merchantRespMerchantSession;
-	private String merchantRespAdditionalErrorMessage;
-	private String merchantRespTimeStamp;
-	private String resultFingerPrint;
-	private String authorizationCode;
     private String merchantResp;
-    private String merchantRespEntityCode;
-    private String merchantRespReferenceNumber;
-    private String merchantRespClientReceipt;
-    private String merchantRespReloadCode;
     private String merchantRespPurchaseAmount;
+    private Pagamento pagamento;
 
-	private Pagamento pagamento;
-
-	@Override
-	public void validarFingerPrint(FingerPrintService fingerPrintService) {
-		var fingerPrintResult = fingerPrintService.validatorFingerPrintMessageType6(this);
-		boolean invalidRef = !this.pagamento.getIntencaoPagamento().getMerchantRef().equals(merchantRespMerchantRef);
+    @Override
+    public void validarFingerPrint(FingerPrintService fingerPrintService) {
+        var fingerPrintResult = fingerPrintService.validatorFingerPrintMessageType6(this);
+        boolean invalidRef = !this.pagamento.getIntencaoPagamento().getMerchantRef().equals(merchantRespMerchantRef);
         boolean invalidSession = !this.pagamento.getIntencaoPagamento().getMerchantSession().equals(merchantRespMerchantSession);
 
         if(!fingerPrintResult.getResult() || invalidRef || invalidSession){
-			throw new FingerprintInvalidoException(this.resultFingerPrint);
-		}
-	}
+            throw new FingerprintInvalidoException(this.resultFingerPrint);
+        }
+    }
 
+    @Override
+    public void setMerchantRespCP(String merchantRespCP) {
+
+    }
+
+    @Override
+    public void setMerchantRespTid(String merchantRespTid) {
+
+    }
 
 
     @Override
+    public void setMerchantRespEntityCode(String merchantRespEntityCode) {
+
+    }
+
+    @Override
+    public void setMerchantRespReferenceNumber(String merchantRespReferenceNumber) {
+
+    }
+
+    @Override
+    public void setMerchantRespClientReceipt(String merchantRespClientReceipt) {
+
+    }
+
+    @Override
+    public void setMerchantRespReloadCode(String merchantRespReloadCode) {
+
+    }
+
+    @Override
     public void toBuilder(SispWebhookRequest sispWebhookRequest) {
-        var messageType = sispWebhookRequest.getMessageType();
-        this.setMessageType(messageType.getCode());
+        this.setMessageType(sispWebhookRequest.getMessageType().getCode());
         this.setMerchantRespTid(sispWebhookRequest.getMerchantRespTid());
         this.setMerchantResp(sispWebhookRequest.getMerchantResp());
         this.setMerchantRespPurchaseAmount(sispWebhookRequest.getMerchantRespPurchaseAmount().toString());

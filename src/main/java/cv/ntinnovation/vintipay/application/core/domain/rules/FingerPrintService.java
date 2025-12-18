@@ -83,12 +83,12 @@ public class FingerPrintService {
 	}
 
 	public FingerPrintResult validatorFingerPrintMessageType810MP(DataFingerPrint810MPResponse dataFingerPrint810MPResponse){
-
+		logger.log(Level.INFO,"Validando FingerPrint MessageType 810MP");
 		FingerPrintResult fingerPrintResult = FingerPrintResult.builder().build();
+		fingerPrintResult.setResult(validateAuthorizationCode(dataFingerPrint810MPResponse));
+		if (!fingerPrintResult.getResult()) return fingerPrintResult;
 
-		logger.log(Level.INFO,dataFingerPrint810MPResponse.toString()); //dataFingerPrint810MPResponse
-
-		String resHash = HashGenerate.HashGenerate810MP(dataFingerPrint810MPResponse);
+		String resHash= HashGenerate.HashGenerate810MP(dataFingerPrint810MPResponse);
 
 		logger.log(Level.INFO,
 				"Generate resHash: " +resHash);
@@ -106,11 +106,12 @@ public class FingerPrintService {
 		return fingerPrintResult;
 	}
 
-
 	public FingerPrintResult validatorFingerPrintMessageType6(DataFingerPrint6Response dataFingerPrint6Response){
 
+		logger.log(Level.INFO,"Validando FingerPrint MessageType 6");
 		FingerPrintResult fingerPrintResult = FingerPrintResult.builder().build();
-
+		fingerPrintResult.setResult(validateAuthorizationCode(dataFingerPrint6Response));
+		if (!fingerPrintResult.getResult()) return fingerPrintResult;
 		String resHash=HashGenerate.HashGenerate6(dataFingerPrint6Response);
 		logger.log(Level.INFO,
 				"Generate ToHash: " +resHash);

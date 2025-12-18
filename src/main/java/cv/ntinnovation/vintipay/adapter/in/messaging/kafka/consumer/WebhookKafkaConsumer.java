@@ -31,10 +31,10 @@ public class WebhookKafkaConsumer {
             log.info("Recebido evento de webhook do Kafka: {}", evento);
             
             // Converter o payload para Pagamento
-            Pagamento pagamento = objectMapper.convertValue(evento.getPayload(), Pagamento.class);
+            //Pagamento pagamento = objectMapper.convertValue(evento.getPayload(), Pagamento.class);
             
             // Chamar o adapter HTTP diretamente para enviar o webhook
-            webhookUseCase.receberPagamentoWebhook(evento.getWebhookUrl(), pagamento);
+            //webhookUseCase.receberPagamentoWebhook(evento.getWebhookUrl(), pagamento);
             
             log.info("Webhook processado com sucesso para URL: {}", evento.getWebhookUrl());
             

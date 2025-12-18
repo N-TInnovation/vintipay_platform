@@ -2,16 +2,13 @@ package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.in.web.dto.CompradorInfoRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.mapper.IntencaoPagamentoWebMapper;
-import cv.ntinnovation.vintipay.adapter.in.web.utils.CookieUtil;
 import cv.ntinnovation.vintipay.application.core.domain.entity.*;
 import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.MoedaEnum;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusIntencaoPagamentoEnum;
-import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
 import cv.ntinnovation.vintipay.application.core.domain.exception.IntencaoPagamentoNaoExisteExeption;
 import cv.ntinnovation.vintipay.application.core.domain.exception.SessaoPagamentoInvalidaException;
 import cv.ntinnovation.vintipay.application.port.in.*;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +20,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 
 import static cv.ntinnovation.vintipay.adapter.in.web.utils.CookieUtil.*;
@@ -47,7 +41,7 @@ public class PagamentoPublicoController {
     private final CriaIntencaoPagamentoUseCase criaIntencaoPagamentoUseCase;
     private final CriaContaPagamentoUseCase criaContaPagamentoUseCase;
     private final IntencaoPagamentoWebMapper intencaoPagamentoWebMapper;
-    private final CriaSessaoPagamentoUseCase criaSessaoPagamentoUseCase;
+    private final SessaoPagamentoUseCase sessaoPagamentoUseCase;
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
     private final BuscaIntencaoPagamentoUseCase buscaIntencaoPagamentoUseCase;
     private final CriaSubscricaoPagamentoUseCase criaSubscricaoPagamentoUseCase;
@@ -134,7 +128,7 @@ public class PagamentoPublicoController {
         model.addAttribute("compradorInfoRequest", compradorInfo);
 
         // Criar uma sessão de pagamento para esta intenção
-        SessaoPagamento sessao = criaSessaoPagamentoUseCase.criar(
+        SessaoPagamento sessao = sessaoPagamentoUseCase.criar(
                 geraMerchantRef(),
                 sessionId,
                 clientId,
@@ -234,6 +228,7 @@ public class PagamentoPublicoController {
         intencaoPagamento.setPosId(link.getConfiguracaoPagamento().getPosId());
         intencaoPagamento.setMerchantRef(sessaoOpt.get().getReferencia());
         intencaoPagamento.setMerchantSession(sessaoOpt.get().getSessionId());
+        intencaoPagamento.setClientKey(link.getConfiguracaoPagamento().getApiKey());
 
         intencaoPagamento.setAmbiente(link.getConfiguracaoPagamento().getAmbiente());
         

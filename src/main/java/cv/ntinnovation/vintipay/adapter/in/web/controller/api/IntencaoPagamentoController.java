@@ -12,7 +12,7 @@ import cv.ntinnovation.vintipay.application.core.domain.enums.IntencaoPagamentoE
 import cv.ntinnovation.vintipay.application.port.in.BuscaConfiguracaoPagamentoAtivaUseCase;
 import cv.ntinnovation.vintipay.application.port.in.CriaContaPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.CriaIntencaoPagamentoUseCase;
-import cv.ntinnovation.vintipay.application.port.in.CriaSessaoPagamentoUseCase;
+import cv.ntinnovation.vintipay.application.port.in.SessaoPagamentoUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +35,7 @@ public class IntencaoPagamentoController {
     private final CriaContaPagamentoUseCase criaContaPagamentoUseCase;
     private final IntencaoPagamentoWebMapper intencaoPagamentoWebMapper;
     private final BuscaConfiguracaoPagamentoAtivaUseCase buscaConfiguracaoPagamentoAtivaUseCase;
-    private final CriaSessaoPagamentoUseCase criaSessaoPagamentoUseCase;
+    private final SessaoPagamentoUseCase sessaoPagamentoUseCase;
 
     private static final String SESSION_COOKIE_NAME = "PAYMENT_SESSION_ID";
     private static final String CLIENT_ID = "CLIENT_ID";
@@ -97,7 +97,7 @@ public class IntencaoPagamentoController {
             IntencaoPagamento intencaoPagamentoCriada = criaIntencaoPagamentoUseCase.criar(intencaoPagamento);
             
             // Criar uma sessão de pagamento para esta intenção
-            SessaoPagamento sessao = criaSessaoPagamentoUseCase.criar(
+            SessaoPagamento sessao = sessaoPagamentoUseCase.criar(
                     intencaoPagamentoCriada.getReferencia(),
                     request.getMerchantSession(),
                     clientId,

@@ -35,6 +35,16 @@ public interface BuscaPagamentoPort {
     Page<Pagamento> buscarPorUsuarioEAmbiente(Pageable pageable, Long usuarioId, StatusPagamentoEnum status, AmbienteEnum ambiente);
     
     /**
+     * Busca pagamentos por usuário, tenant e status
+     * @param pageable Informações de paginação
+     * @param usuarioId ID do usuário
+     * @param tenantId ID do tenant
+     * @param status Status do pagamento (opcional, pode ser null)
+     * @return Página com os pagamentos do usuário filtrados por tenant
+     */
+    Page<Pagamento> buscarPorUsuarioETenant(Pageable pageable, Long usuarioId, Long tenantId, StatusPagamentoEnum status);
+    
+    /**
      * Busca pagamentos agrupados por período e status para geração de gráficos no dashboard
      * @param usuarioId ID do usuário 
      * @param dataInicio Data de início do período
@@ -43,4 +53,15 @@ public interface BuscaPagamentoPort {
      * @return Mapa com dados agrupados por status e período
      */
     Map<String, Map<String, Long>> buscarPorPeriodoAgrupado(Long usuarioId, LocalDate dataInicio, LocalDate dataFim, String tipoPeriodo);
+    
+    /**
+     * Busca pagamentos agrupados por período, status e tenant para geração de gráficos no dashboard
+     * @param usuarioId ID do usuário 
+     * @param tenantId ID do tenant
+     * @param dataInicio Data de início do período
+     * @param dataFim Data de fim do período
+     * @param tipoPeriodo Tipo de período (DIA, MES, ANO)
+     * @return Mapa com dados agrupados por status e período filtrados por tenant
+     */
+    Map<String, Map<String, Long>> buscarPorPeriodoAgrupadoComTenant(Long usuarioId, Long tenantId, LocalDate dataInicio, LocalDate dataFim, String tipoPeriodo);
 }

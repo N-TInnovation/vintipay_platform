@@ -34,6 +34,7 @@ public class WebhookPagamentoController {
 
     private final AtualizaStatusPagamentoUseCase atualizaStatusPagamentoUseCase;
     private final BuscaConfiguracaoPagamentoUseCase buscaConfiguracaoPagamentoUseCase;
+    private final BuscaConfiguracaoPagamentoAtivaUseCase buscaConfiguracaoPagamentoAtivaUseCase;
     private final BuscaPagamentoUseCase buscaPagamentoUseCase;
     private final ValidaRetornoUseCase validaRetornoUseCase;
     private final WebhookPagamentoMapper webhookPagamentoMapper;
@@ -41,6 +42,7 @@ public class WebhookPagamentoController {
     private final ProcessaIntegracaoUseCase<IntegracaoEnum> processaIntegracaoUseCase;
     private final NotificacaoUseCase notificacaoUseCase;
     private final WebhookUseCase webhookUseCase;
+    private final SessaoPagamentoUseCase sessaoPagamentoUseCase;
 
     private final ValidaSessaoPagamentoUseCase validaSessaoPagamentoUseCase;
 
@@ -49,22 +51,20 @@ public class WebhookPagamentoController {
     public String handlePaymentWebhook(@PathVariable("reference") String reference,
                                        @RequestParam("fingerPrintCode") String authorization,
                                        @ModelAttribute SispWebhookRequest request,
-                                       @CookieValue(value = "PAYMENT_SESSION_ID", required = false) String sessionId,
-                                       @CookieValue(value = "CLIENT_ID", required = false) String clientId,
-                                       Model model, HttpServletRequest request2, HttpServletResponse response) {
+                                       Model model, HttpServletRequest request2) {
         log.info("Recebido webhook do SISP - Reference: {}, Request: {}", reference, request);
 
         var pagamentoExistente = buscaPagamentoUseCase.buscarPorReferencia(reference);
 
         if (pagamentoExistente.isPresent()) {
-
             var retornoFingerprint = webhookPagamentoMapper.toRetornoFingerprint(request);
 
             retornoFingerprint.setPagamento(pagamentoExistente.get());
 
             retornoFingerprint.setAuthorizationCode(authorization);
 
-            ConfiguracaoPagamento configuracaoPagamento = buscaConfiguracaoPagamentoUseCase.buscarPorPosId(pagamentoExistente.map(Pagamento::getIntencaoPagamento).orElse(IntencaoPagamento.builder().build()).getPosId());
+            ConfiguracaoPagamento configuracaoPagamento = buscaConfiguracaoPagamentoAtivaUseCase.buscarPorClientId(pagamentoExistente.map(Pagamento::getIntencaoPagamento).orElse(IntencaoPagamento.builder().build()).getClientKey());
+            log.info("PosAutCode {} :",configuracaoPagamento.getPosAutCode());
             retornoFingerprint.setPosAutCode(configuracaoPagamento.getPosAutCode());
 
             validaRetornoUseCase.executar(retornoFingerprint);
@@ -129,6 +129,8 @@ public class WebhookPagamentoController {
 
             webhookUseCase.enviarPagamentoWebhook(configuracaoPagamento.getWebhookUrl(), pagamento);
 
+            validaSessaoPagamentoUseCase.invalidarSessao(responseDto.getMerchantSession());
+
             if(noReturnUrl || !returnAtivo ) {
                 if(pagamento.getStatus().equals(StatusPagamentoEnum.PAGO)) {
                     // Construir URL para visualização do recibo
@@ -156,7 +158,6 @@ public class WebhookPagamentoController {
                         pagamento.getReference(),  // Referência do pagamento
                         pagamento.getIntencaoPagamento().getValor().doubleValue()  // Valor do pagamento
                     );
-                    validaSessaoPagamentoUseCase.invalidarSessao(responseDto.getMerchantSession());
                 }
                 model.addAttribute("pagamento", pagamento);
                 model.addAttribute("erro", mensagem);
@@ -166,7 +167,7 @@ public class WebhookPagamentoController {
                 model.addAttribute("submitFormUrl", configuracaoPagamento.getReturnUrl());
                 model.addAttribute("hmacFingerprint", hmacFingerprint);
                 log.info("Redirecionando para: {}", configuracaoPagamento.getReturnUrl());
-
+                request2.getSession().removeAttribute("PAYMENT_SESSION_ID");
                 return "checkout-response";
             }
 

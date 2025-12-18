@@ -73,6 +73,30 @@ public interface PagamentoRepository extends JpaRepository<PagamentoEntity, Long
             @Param("ambiente") String ambiente,
             Pageable pageable);
 
+    @Query(value = "SELECT p.* FROM pagamento p " +
+           "JOIN intencao_pagamento ip ON p.intencao_pagamento_id = ip.id " +
+           "JOIN conta_pagamento cp ON ip.conta_pagamento_id = cp.id " +
+           "JOIN configuracao_pagamento cfp ON ip.pos_id = cfp.pos_id " +
+           "JOIN usuarios u ON cfp.usuario_id = u.id " +
+           "WHERE u.id = :usuarioId " +
+           "AND p.tenant_id = :tenantId " +
+           "AND (:status IS NULL OR p.status = :status) " +
+           "ORDER BY p.created_at DESC",
+           countQuery = "SELECT COUNT(*) FROM pagamento p " +
+           "JOIN intencao_pagamento ip ON p.intencao_pagamento_id = ip.id " +
+           "JOIN conta_pagamento cp ON ip.conta_pagamento_id = cp.id " +
+           "JOIN configuracao_pagamento cfp ON ip.pos_id = cfp.pos_id " +
+           "JOIN usuarios u ON cfp.usuario_id = u.id " +
+           "WHERE u.id = :usuarioId " +
+           "AND p.tenant_id = :tenantId " +
+           "AND (:status IS NULL OR p.status = :status)",
+           nativeQuery = true)
+    Page<PagamentoEntity> findByUsuarioIdAndTenantIdAndStatusIfPresent(
+            @Param("usuarioId") Long usuarioId,
+            @Param("tenantId") Long tenantId,
+            @Param("status") String status,
+            Pageable pageable);
+
     /**
      * Busca pagamentos por usuário e período de data para geração de gráficos
      * @param usuarioId ID do usuário
@@ -91,6 +115,30 @@ public interface PagamentoRepository extends JpaRepository<PagamentoEntity, Long
            nativeQuery = true)
     List<PagamentoEntity> findByUsuarioIdAndDataPagamentoBetween(
             @Param("usuarioId") Long usuarioId,
+            @Param("dataInicio") LocalDateTime dataInicio,
+            @Param("dataFim") LocalDateTime dataFim);
+
+    /**
+     * Busca pagamentos por usuário, tenant e período de data para geração de gráficos
+     * @param usuarioId ID do usuário
+     * @param tenantId ID do tenant
+     * @param dataInicio Data inicial do período
+     * @param dataFim Data final do período
+     * @return Lista de pagamentos no período filtrados por tenant
+     */
+    @Query(value = "SELECT p.* FROM pagamento p " +
+           "JOIN intencao_pagamento ip ON p.intencao_pagamento_id = ip.id " +
+           "JOIN conta_pagamento cp ON ip.conta_pagamento_id = cp.id " +
+           "JOIN configuracao_pagamento cfp ON ip.pos_id = cfp.pos_id " +
+           "JOIN usuarios u ON cfp.usuario_id = u.id " +
+           "WHERE u.id = :usuarioId " +
+           "AND p.tenant_id = :tenantId " +
+           "AND p.created_at BETWEEN :dataInicio AND :dataFim " +
+           "ORDER BY p.created_at",
+           nativeQuery = true)
+    List<PagamentoEntity> findByUsuarioIdAndTenantIdAndDataPagamentoBetween(
+            @Param("usuarioId") Long usuarioId,
+            @Param("tenantId") Long tenantId,
             @Param("dataInicio") LocalDateTime dataInicio,
             @Param("dataFim") LocalDateTime dataFim);
 }

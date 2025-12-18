@@ -2,8 +2,13 @@ package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.in.web.dto.GraficoPagamentoDTO;
 import cv.ntinnovation.vintipay.adapter.in.web.security.CustomOAuth2User;
+import cv.ntinnovation.vintipay.application.core.domain.entity.Tenant;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
+import cv.ntinnovation.vintipay.application.core.service.TenentService;
 import cv.ntinnovation.vintipay.application.port.in.BuscaPagamentoUseCase;
+import cv.ntinnovation.vintipay.application.port.out.GerenciaTenantPort;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -29,12 +34,15 @@ import java.util.Map;
 public class DashboardGraphDataController {
 
     private final BuscaPagamentoUseCase buscaPagamentoUseCase;
+    private final TenentService tenentService;
+    private final GerenciaTenantPort gerenciaTenantPort;
     
     @GetMapping("/pagamentos-por-periodo")
     public ResponseEntity<GraficoPagamentoDTO> getPagamentosPorPeriodo(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
-            @RequestParam(defaultValue = "MES") String tipoPeriodo) {
+            @RequestParam(defaultValue = "MES") String tipoPeriodo,
+            HttpSession session) {
             
         log.info("Recebida requisição para gráficos de pagamentos: dataInicio={}, dataFim={}, tipoPeriodo={}", 
                 dataInicio, dataFim, tipoPeriodo);
@@ -53,14 +61,16 @@ public class DashboardGraphDataController {
         if (dataInicio == null) {
             dataInicio = dataFim.minusMonths(6);
         }
-        
+
+        Long tenantId = (Long) session.getAttribute("tenantId");
         log.info("Período final para consulta: de {} até {}", dataInicio, dataFim);
-        
+
         try {
-            // Buscar dados do banco de dados
+            // Buscar dados do banco de dados filtrados por tenant
             Map<String, Map<String, Long>> dadosPagamentos = 
-                buscaPagamentoUseCase.buscarPorPeriodoAgrupado(
-                    usuarioAtual.getId(), 
+                buscaPagamentoUseCase.buscarPorPeriodoAgrupadoComTenant(
+                    usuarioAtual.getId(),
+                    tenantId,
                     dataInicio, 
                     dataFim, 
                     tipoPeriodo

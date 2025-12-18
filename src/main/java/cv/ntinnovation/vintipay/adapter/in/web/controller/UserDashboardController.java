@@ -1,10 +1,15 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import cv.ntinnovation.vintipay.adapter.in.web.security.CustomOAuth2User;
+import cv.ntinnovation.vintipay.application.core.domain.entity.Tenant;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.core.domain.enums.StatusPagamentoEnum;
+import cv.ntinnovation.vintipay.application.core.service.TenentService;
 import cv.ntinnovation.vintipay.application.port.in.BuscaPagamentoUseCase;
 import cv.ntinnovation.vintipay.application.port.out.BuscaUsuario;
+import cv.ntinnovation.vintipay.application.port.out.GerenciaTenantPort;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -24,9 +29,11 @@ public class UserDashboardController {
 
     private final BuscaPagamentoUseCase buscaPagamentoUseCase;
     private final BuscaUsuario buscaUsuario;
+    private final TenentService tenentService;
+    private final GerenciaTenantPort gerenciaTenantPort;
 
     @GetMapping({"", "/"})
-    public String dashboard(Model model) {
+    public String dashboard(Model model, HttpServletRequest request, HttpSession session) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
         Long usuarioId;
@@ -41,15 +48,17 @@ public class UserDashboardController {
             log.info("User (else): {}", authentication.getPrincipal());
             throw new RuntimeException("Usuario nao encontrado");
         }
-        
+
+        Long tenantId = (Long) session.getAttribute("tenantId");
+
         var pageable = PageRequest.of(0, Integer.MAX_VALUE);
         
-        var pagamentosPagos = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioId, StatusPagamentoEnum.PAGO).getTotalElements();
-        var pagamentosPendentes = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioId, StatusPagamentoEnum.PENDENTE).getTotalElements();
-        var pagamentosCancelados = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioId, StatusPagamentoEnum.CANCELADO).getTotalElements();
-        var pagamentosEstornados = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioId, StatusPagamentoEnum.ESTORNADO).getTotalElements();
-        var pagamentosErro = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioId, StatusPagamentoEnum.ERRO).getTotalElements();
-        var pagamentosExpirados = buscaPagamentoUseCase.buscarPorUsuario(pageable, usuarioId, StatusPagamentoEnum.EXPIRADO).getTotalElements();
+        var pagamentosPagos = buscaPagamentoUseCase.buscarPorUsuarioETenant(pageable, usuarioId, tenantId, StatusPagamentoEnum.PAGO).getTotalElements();
+        var pagamentosPendentes = buscaPagamentoUseCase.buscarPorUsuarioETenant(pageable, usuarioId, tenantId, StatusPagamentoEnum.PENDENTE).getTotalElements();
+        var pagamentosCancelados = buscaPagamentoUseCase.buscarPorUsuarioETenant(pageable, usuarioId, tenantId, StatusPagamentoEnum.CANCELADO).getTotalElements();
+        var pagamentosEstornados = buscaPagamentoUseCase.buscarPorUsuarioETenant(pageable, usuarioId, tenantId, StatusPagamentoEnum.ESTORNADO).getTotalElements();
+        var pagamentosErro = buscaPagamentoUseCase.buscarPorUsuarioETenant(pageable, usuarioId, tenantId, StatusPagamentoEnum.ERRO).getTotalElements();
+        var pagamentosExpirados = buscaPagamentoUseCase.buscarPorUsuarioETenant(pageable, usuarioId, tenantId, StatusPagamentoEnum.EXPIRADO).getTotalElements();
         
         var totalPagamentos = pagamentosPagos + pagamentosPendentes + pagamentosCancelados + pagamentosEstornados + pagamentosErro + pagamentosExpirados;
 

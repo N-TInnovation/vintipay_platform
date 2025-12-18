@@ -41,6 +41,7 @@ public class IntencaoPagamentoMapper {
         entity.setIntencao(intencaoPagamento.getIntencao());
         entity.setRecorrente(intencaoPagamento.getProduto().isRecorrente());
         entity.setCiclo(intencaoPagamento.getCiclo());
+        entity.setClientKey(intencaoPagamento.getClientKey());
 
         if (intencaoPagamento.getTenant() != null) {
             TenantEntity tenantEntity = new TenantEntity();
@@ -92,6 +93,7 @@ public class IntencaoPagamentoMapper {
                 .intencao(entity.getIntencao())
                 .ciclo(entity.getCiclo())
                 .tenantId(entity.getTenant() != null ? entity.getTenant().getId() : null)
+                .clientKey(entity.getClientKey())
                 .build();
     }
 
