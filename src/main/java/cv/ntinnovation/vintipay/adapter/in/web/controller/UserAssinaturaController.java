@@ -1,5 +1,6 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
+import cv.ntinnovation.vintipay.adapter.in.web.security.CustomOAuth2User;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Pagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.PlanoAssinatura;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Plano;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -63,13 +65,14 @@ public class UserAssinaturaController {
     @GetMapping({"", "/"})
     public String assinaturaPage(Model model, 
                                 @RequestParam(required = false, defaultValue = "0") int page,
-                                @RequestParam(required = false, defaultValue = "10") int size) {
+                                @RequestParam(required = false, defaultValue = "10") int size,
+                                @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         try {
             log.info("Iniciando carregamento da página de assinatura");
             
             // Obter o usuário autenticado
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            Usuario usuarioAtual = customOAuth2User.getUsuario();
             log.info("Usuário autenticado: " + usuarioAtual.getEmail());
             
             // Adicionar dados do usuário ao modelo
@@ -196,13 +199,12 @@ public class UserAssinaturaController {
     }
     
     @PostMapping("/upgrade")
-    public String upgradeAssinatura(@RequestParam("planoId") Long planoId, RedirectAttributes redirectAttributes) {
+    public String upgradeAssinatura(@RequestParam("planoId") Long planoId, RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         try {
             log.info("Iniciando processo de upgrade para o plano ID: " + planoId);
             
             // Obter o usuário autenticado
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            Usuario usuarioAtual = customOAuth2User.getUsuario();
             log.info("Usuário autenticado para upgrade: " + usuarioAtual.getEmail());
             
             // Verificar se o plano existe
@@ -245,13 +247,12 @@ public class UserAssinaturaController {
     }
     
     @GetMapping("/checkout-success")
-    public String checkoutSuccess(@RequestParam("planoId") Long planoId, RedirectAttributes redirectAttributes) {
+    public String checkoutSuccess(@RequestParam("planoId") Long planoId, RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         try {
             log.info("Checkout concluído com sucesso para o plano ID: " + planoId);
             
             // Obter o usuário autenticado
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            Usuario usuarioAtual = customOAuth2User.getUsuario();
             
             // Buscar assinatura atual do usuário
             Optional<PlanoAssinatura> assinaturaOptional = buscaAssinaturaDirectaUseCase.buscarAssinaturaPorUsuarioId(usuarioAtual.getId());
@@ -306,13 +307,12 @@ public class UserAssinaturaController {
     }
     
     @PostMapping("/cancelar")
-    public String cancelarAssinatura(RedirectAttributes redirectAttributes) {
+    public String cancelarAssinatura(RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         try {
             log.info("Iniciando processo de cancelamento de assinatura");
             
             // Obter o usuário autenticado
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuarioAtual = (Usuario) authentication.getPrincipal();
+            Usuario usuarioAtual = customOAuth2User.getUsuario();
             log.info("Usuário autenticado para cancelamento: " + usuarioAtual.getEmail());
             
             // Buscar assinatura atual do usuário
