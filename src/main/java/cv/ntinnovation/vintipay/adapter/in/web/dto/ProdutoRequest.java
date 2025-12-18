@@ -34,7 +34,6 @@ public class ProdutoRequest {
     
     private String imagem;
     
-    @NotNull(message = "Imagem do produto é obrigatória")
     private MultipartFile imagemFile;
     
     private String codigoSku;

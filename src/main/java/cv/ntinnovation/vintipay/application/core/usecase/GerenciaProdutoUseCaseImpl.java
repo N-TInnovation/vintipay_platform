@@ -118,11 +118,10 @@ public class GerenciaProdutoUseCaseImpl implements GerenciaProdutoUseCase {
             produto.setPreco(preco);
         }
         
-        // Validar que a imagem é obrigatória
-        if (imagem == null || imagem.trim().isEmpty()) {
-            throw new IllegalArgumentException("Imagem do produto é obrigatória");
+        // Atualizar imagem apenas se fornecida
+        if (imagem != null && !imagem.trim().isEmpty()) {
+            produto.setImagem(imagem);
         }
-        produto.setImagem(imagem);
         
         if (codigoSku != null) {
             produto.setCodigoSku(codigoSku);

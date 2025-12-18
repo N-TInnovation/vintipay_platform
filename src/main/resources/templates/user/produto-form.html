@@ -469,9 +469,15 @@
                         
                         <div class="row mb-3">
                             <div class="col-md-8">
-                                <label for="imagemFile" class="form-label">Imagem do Produto *</label>
-                                <input type="file" class="form-control" id="imagemFile" name="imagemFile" th:field="*{imagemFile}" accept="image/*" onchange="previewImageFile(this)" required>
-                                <small class="text-muted d-block">Faça upload de uma imagem para o produto (JPG, PNG, etc.)</small>
+                                <label for="imagemFile" class="form-label">
+                                    <span th:if="${produtoId == null}">Imagem do Produto *</span>
+                                    <span th:if="${produtoId != null}">Imagem do Produto</span>
+                                </label>
+                                <input type="file" class="form-control" id="imagemFile" name="imagemFile" th:field="*{imagemFile}" accept="image/*" onchange="previewImageFile(this)" th:required="${produtoId == null}">
+                                <small class="text-muted d-block">
+                                    <span th:if="${produtoId == null}">Faça upload de uma imagem para o produto (JPG, PNG, etc.)</span>
+                                    <span th:if="${produtoId != null}">Deixe em branco para manter a imagem atual</span>
+                                </small>
                                 <small class="text-info d-block mt-1">
                                     <i class="fas fa-info-circle"></i> Tamanho máximo: 10MB
                                 </small>
