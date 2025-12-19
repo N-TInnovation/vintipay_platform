@@ -28,4 +28,13 @@ public class SubscricaoPagamento {
     private Integer ciclo;
     private String authorizationCode;
     private AmbienteEnum ambiente;
+    
+    private Tenant tenant;
+    private Long tenantId;
+
+    private String tokenDescription;
+    private int maxNumberOfTransactions;
+    private String tokenExpiryDate;
+    private String maxAmountAllowed;
+    private String limitDate;
 }

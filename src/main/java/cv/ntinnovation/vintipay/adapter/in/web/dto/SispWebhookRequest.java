@@ -44,4 +44,11 @@ public class SispWebhookRequest {
     private String dccCurrency;
     private String dccMarkup;
     private String dccRate;
+
+    private String Token;
+    private String tokenDescription;
+    private int maxNumberOfTransactions;
+    private String tokenExpiryDate;
+    private String maxAmountAllowed;
+    private String limitDate;
 }

@@ -54,4 +54,26 @@ public class SubscricaoPagamentoEntity {
 
     @Column(name = "ambiente")
     private AmbienteEnum ambiente;
+
+    @ManyToOne
+    @JoinColumn(name = "tenant_id")
+    private TenantEntity tenant;
+
+    @Column(name = "tenant_id", insertable = false, updatable = false)
+    private Long tenantId;
+
+    @Column(name = "token_description")
+    private String tokenDescription;
+
+    @Column(name = "max_number_of_transactions")
+    private int maxNumberOfTransactions;
+
+    @Column(name = "token_expiry_date")
+    private String tokenExpiryDate;
+
+    @Column(name = "max_amount_allowed")
+    private String maxAmountAllowed;
+
+    @Column(name = "limit_date")
+    private String limitDate;
 }

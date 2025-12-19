@@ -50,6 +50,8 @@ public class CriaSubscricaoPagamentoUseCaseImpl implements CriaSubscricaoPagamen
                 .createdAt(LocalDateTime.now())
                 .ciclo(1) // Começando com o primeiro ciclo
                 .ambiente(intencaoPagamento.getAmbiente()) // Ou obter de configurações
+                .tenantId(intencaoPagamento.getTenantId())
+                .tenant(intencaoPagamento.getTenant())
                 .build();
 
         // Gerar fingerprint usando o FingerPrintService

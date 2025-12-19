@@ -11,6 +11,7 @@ public class SubscricaoPagamentoMapper {
 
     private final IntencaoPagamentoMapper intencaoPagamentoMapper;
     private final ContaPagamentoMapper contaPagamentoMapper;
+    private final TenantMapper tenantMapper;
 
     public SubscricaoPagamento toSubscricaoPagamento(SubscricaoPagamentoEntity entity) {
         return SubscricaoPagamento.builder()
@@ -25,6 +26,13 @@ public class SubscricaoPagamentoMapper {
                 .intencaoPagamento(intencaoPagamentoMapper.toIntencaoPagamento(entity.getIntencaoPagamentoAtual()))
                 .reference(entity.getReference())
                 .ambiente(entity.getAmbiente())
+                .tenant(entity.getTenant() != null ? tenantMapper.toDomain(entity.getTenant()) : null)
+                .tenantId(entity.getTenantId())
+                .tokenDescription(entity.getTokenDescription())
+                .maxNumberOfTransactions(entity.getMaxNumberOfTransactions())
+                .tokenExpiryDate(entity.getTokenExpiryDate())
+                .maxAmountAllowed(entity.getMaxAmountAllowed())
+                .limitDate(entity.getLimitDate())
                 .build();
     }
 
@@ -41,6 +49,13 @@ public class SubscricaoPagamentoMapper {
         entity.setIntencaoPagamentoAtual(intencaoPagamentoMapper.toIntencaoPagamentoEntity(subscricaoPagamento.getIntencaoPagamento()));
         entity.setAmbiente(subscricaoPagamento.getAmbiente());
         entity.setReference(subscricaoPagamento.getReference());
+        entity.setTenant(subscricaoPagamento.getTenant() != null ? tenantMapper.toEntity(subscricaoPagamento.getTenant()) : null);
+        entity.setTenantId(subscricaoPagamento.getTenantId());
+        entity.setTokenDescription(subscricaoPagamento.getTokenDescription());
+        entity.setMaxNumberOfTransactions(subscricaoPagamento.getMaxNumberOfTransactions());
+        entity.setTokenExpiryDate(subscricaoPagamento.getTokenExpiryDate());
+        entity.setMaxAmountAllowed(subscricaoPagamento.getMaxAmountAllowed());
+        entity.setLimitDate(subscricaoPagamento.getLimitDate());
         return entity;
     }
 }
