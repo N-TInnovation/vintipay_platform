@@ -12,7 +12,7 @@ public enum StatusSubscricaoPagamentoEnum {
     INSCRICAO_CANCELADA("INSCRICAO_CANCELADA", "retorno/pendente"),
     INSCRICAO_EXPIRADA("INSCRICAO_EXPIRADA", "retorno/pendente"),
     INSCRICAO_ERRO("INSCRICAO_ERRO", "retorno/pendente"),
-    INSCRICAO_SUCESSO("INSCRICAO_SUCESSO", "retorno/pendente");
+    INSCRICAO_ATIVA("INSCRICAO_ATIVA", "retorno/pendente");
 
     private final String status;
     private final String retorno;
