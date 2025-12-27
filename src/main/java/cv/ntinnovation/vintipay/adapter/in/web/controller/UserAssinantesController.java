@@ -49,7 +49,7 @@ public class UserAssinantesController {
             return "user/assinantes";
         }
         
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("created_at").descending());
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
         
         try {
             var assinantes = status != null 
