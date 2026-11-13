@@ -26,3 +26,5 @@ docs/adrs/
 | Número | Título | Status | Data |
 |--------|--------|--------|------|
 | 0000   | [Template](template.md) | Template | — |
+| 0001   | [Externalização de Secrets e Configurações via Variáveis de Ambiente](0001-externalizacao-secrets-variaveis-ambiente.md) | Accepted | 2026-11-13 |
+| 0002   | [Keycloak como Serviço no Docker Compose](0002-keycloak-servico-docker-compose.md) | Accepted | 2026-11-13 |
