@@ -40,3 +40,6 @@ logs/
 .env.docker
 *.env
 
+
+# Devin agent internals
+.devin/
