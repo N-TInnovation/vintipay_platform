@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
@@ -51,5 +53,12 @@ public class BuscaUsuarioAdapter implements BuscaUsuarioPort {
     public Optional<Usuario> buscarPorEmailVerificationToken(String token) {
         return usuarioRepository.findByEmailVerificationToken(token)
                 .map(ususarioMapper::toDomain);
+    }
+
+    @Override
+    public List<Usuario> listarTodos() {
+        return usuarioRepository.findAll().stream()
+                .map(ususarioMapper::toDomain)
+                .collect(Collectors.toList());
     }
 }

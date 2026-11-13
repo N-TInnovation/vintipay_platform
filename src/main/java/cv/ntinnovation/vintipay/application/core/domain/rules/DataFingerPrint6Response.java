@@ -78,7 +78,7 @@ public class DataFingerPrint6Response implements RetornoFingerprint {
         this.setMessageType(sispWebhookRequest.getMessageType().getCode());
         this.setMerchantRespTid(sispWebhookRequest.getMerchantRespTid());
         this.setMerchantResp(sispWebhookRequest.getMerchantResp());
-        this.setMerchantRespPurchaseAmount(sispWebhookRequest.getMerchantRespPurchaseAmount().toString());
+        this.setMerchantRespPurchaseAmount(sispWebhookRequest.getMerchantRespPurchaseAmount() != null ? sispWebhookRequest.getMerchantRespPurchaseAmount().toString() : null);
         this.setMerchantRespPan(sispWebhookRequest.getMerchantRespPan());
         this.setMerchantRespErrorCode(sispWebhookRequest.getMerchantRespErrorCode());
         this.setMerchantRespErrorDetail(sispWebhookRequest.getMerchantRespErrorDetail());

@@ -1,12 +1,11 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
-import cv.ntinnovation.vintipay.adapter.out.persistence.repository.UsuarioRepository;
-import cv.ntinnovation.vintipay.adapter.out.persistence.mapper.UsuarioMapper;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Plano;
 import cv.ntinnovation.vintipay.application.core.domain.entity.PlanoAssinatura;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaAssinaturaUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaPlanoUseCase;
+import cv.ntinnovation.vintipay.application.port.in.GerenciaUsuarioUseCase;
 import cv.ntinnovation.vintipay.application.port.in.StripeIntegrationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +28,7 @@ public class AssinaturaController {
     private final GerenciaPlanoUseCase gerenciaPlanoUseCase;
     private final GerenciaAssinaturaUseCase gerenciaAssinaturaUseCase;
     private final StripeIntegrationUseCase stripeIntegrationUseCase;
-    private final UsuarioRepository usuarioRepository;
-    private final UsuarioMapper usuarioMapper;
+    private final GerenciaUsuarioUseCase gerenciaUsuarioUseCase;
     
     @Value("${app.stripe.success-url}")
     private String successUrl;
@@ -47,8 +45,7 @@ public class AssinaturaController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
 
-        Usuario usuario = usuarioRepository.findByUsername(username)
-                .map(usuarioMapper::toDomain)
+        Usuario usuario = gerenciaUsuarioUseCase.buscarPorUsername(username)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         Optional<PlanoAssinatura> assinaturaOptional = gerenciaAssinaturaUseCase.buscarAssinaturaPorUsuario(usuario);
@@ -77,8 +74,7 @@ public class AssinaturaController {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
 
-            Usuario usuario = usuarioRepository.findByUsername(username)
-                    .map(usuarioMapper::toDomain)
+            Usuario usuario = gerenciaUsuarioUseCase.buscarPorUsername(username)
                     .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
             // Obter o plano
@@ -122,8 +118,7 @@ public class AssinaturaController {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
 
-            Usuario usuario = usuarioRepository.findByUsername(username)
-                    .map(usuarioMapper::toDomain)
+            Usuario usuario = gerenciaUsuarioUseCase.buscarPorUsername(username)
                     .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
             // Cancelar a assinatura

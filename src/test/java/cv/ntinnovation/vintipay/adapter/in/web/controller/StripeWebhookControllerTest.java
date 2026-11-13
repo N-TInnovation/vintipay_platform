@@ -1,9 +1,12 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cv.ntinnovation.vintipay.adapter.in.web.handler.VerificationInterceptorHandler;
 import cv.ntinnovation.vintipay.application.core.domain.entity.PlanoAssinatura;
+import cv.ntinnovation.vintipay.application.core.service.AmbienteService;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaAssinaturaUseCase;
 import cv.ntinnovation.vintipay.application.port.in.StripeIntegrationUseCase;
+import cv.ntinnovation.vintipay.application.port.out.GerenciaTenantPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,15 @@ class StripeWebhookControllerTest {
 
     @MockitoBean
     private GerenciaAssinaturaUseCase gerenciaAssinaturaUseCase;
+
+    @MockitoBean
+    private GerenciaTenantPort gerenciaTenantPort;
+
+    @MockitoBean
+    private VerificationInterceptorHandler verificationInterceptorHandler;
+
+    @MockitoBean
+    private AmbienteService ambienteService;
 
     private final String WEBHOOK_URL = "/webhook/stripe";
     private final String STRIPE_SIGNATURE = "whsec_test_signature"; // Usar assinatura de teste

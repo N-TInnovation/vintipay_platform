@@ -1,11 +1,10 @@
 package cv.ntinnovation.vintipay.adapter.in.web.controller;
 
-import cv.ntinnovation.vintipay.adapter.out.persistence.repository.UsuarioRepository;
-import cv.ntinnovation.vintipay.adapter.out.persistence.mapper.UsuarioMapper;
 import cv.ntinnovation.vintipay.application.core.domain.entity.PlanoAssinatura;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaAssinaturaUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaPlanoUseCase;
+import cv.ntinnovation.vintipay.application.port.in.GerenciaUsuarioUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,17 +25,14 @@ public class AdminAssinaturaController {
 
     private final GerenciaAssinaturaUseCase gerenciaAssinaturaUseCase;
     private final GerenciaPlanoUseCase gerenciaPlanoUseCase;
-    private final UsuarioRepository usuarioRepository;
-    private final UsuarioMapper usuarioMapper;
+    private final GerenciaUsuarioUseCase gerenciaUsuarioUseCase;
 
     @GetMapping
     public String listarAssinaturas(Model model) {
         log.debug("Listando todas as assinaturas");
         
         // Buscar todos os usuários
-        List<Usuario> usuarios = usuarioRepository.findAll().stream()
-                .map(usuarioMapper::toDomain)
-                .collect(Collectors.toList());
+        List<Usuario> usuarios = gerenciaUsuarioUseCase.listarTodos();
         
         // Buscar assinaturas para cada usuário
         List<PlanoAssinatura> assinaturas = new ArrayList<>();
@@ -54,8 +50,7 @@ public class AdminAssinaturaController {
         log.debug("Exibindo detalhes da assinatura ID: {}", id);
         
         // Buscar o usuário pelo ID
-        Usuario usuario = usuarioRepository.findById(id)
-                .map(usuarioMapper::toDomain)
+        Usuario usuario = gerenciaUsuarioUseCase.buscarPorId(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         
         // Buscar a assinatura do usuário
@@ -73,8 +68,7 @@ public class AdminAssinaturaController {
         
         try {
             // Buscar o usuário pelo ID
-            Usuario usuario = usuarioRepository.findById(id)
-                    .map(usuarioMapper::toDomain)
+            Usuario usuario = gerenciaUsuarioUseCase.buscarPorId(id)
                     .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
             
             // Cancelar a assinatura
@@ -93,8 +87,7 @@ public class AdminAssinaturaController {
         
         try {
             // Buscar o usuário pelo ID
-            Usuario usuario = usuarioRepository.findById(id)
-                    .map(usuarioMapper::toDomain)
+            Usuario usuario = gerenciaUsuarioUseCase.buscarPorId(id)
                     .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
             
             // Buscar a assinatura do usuário
@@ -125,8 +118,7 @@ public class AdminAssinaturaController {
         
         // Se um ID de usuário foi fornecido, buscar o usuário
         if (usuario != null) {
-            var usuarioOpt = usuarioRepository.findById(usuario)
-                    .map(usuarioMapper::toDomain);
+            var usuarioOpt = gerenciaUsuarioUseCase.buscarPorId(usuario);
             
             if (usuarioOpt.isPresent()) {
                 model.addAttribute("usuario", usuarioOpt.get());
@@ -141,9 +133,7 @@ public class AdminAssinaturaController {
         
         // Buscar todos os usuários para o caso de não ter sido fornecido um ID
         if (usuario == null) {
-            var usuarios = usuarioRepository.findAll().stream()
-                    .map(usuarioMapper::toDomain)
-                    .collect(Collectors.toList());
+            var usuarios = gerenciaUsuarioUseCase.listarTodos();
             model.addAttribute("usuarios", usuarios);
         }
         
@@ -163,8 +153,7 @@ public class AdminAssinaturaController {
         
         try {
             // Buscar o usuário
-            var usuarioOpt = usuarioRepository.findById(usuario)
-                    .map(usuarioMapper::toDomain);
+            var usuarioOpt = gerenciaUsuarioUseCase.buscarPorId(usuario);
             
             if (usuarioOpt.isEmpty()) {
                 throw new IllegalArgumentException("Usuário não encontrado");

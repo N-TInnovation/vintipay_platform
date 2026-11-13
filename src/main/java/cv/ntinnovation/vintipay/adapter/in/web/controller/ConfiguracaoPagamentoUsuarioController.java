@@ -3,11 +3,10 @@ package cv.ntinnovation.vintipay.adapter.in.web.controller;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.ConfiguracaoPagamentoRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.ConfiguracaoPagamentoResponse;
 import cv.ntinnovation.vintipay.adapter.in.web.mapper.ConfiguracaoPagamentoWebMapper;
-import cv.ntinnovation.vintipay.adapter.out.persistence.repository.UsuarioRepository;
-import cv.ntinnovation.vintipay.adapter.out.persistence.mapper.UsuarioMapper;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ConfiguracaoPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaConfiguracaoPagamentoUsuarioUseCase;
+import cv.ntinnovation.vintipay.application.port.in.GerenciaUsuarioUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +30,7 @@ import java.util.stream.Collectors;
 public class ConfiguracaoPagamentoUsuarioController {
 
     private final GerenciaConfiguracaoPagamentoUsuarioUseCase gerenciaConfiguracaoPagamentoUsuarioUseCase;
-    private final UsuarioRepository usuarioRepository;
-    private final UsuarioMapper usuarioMapper;
+    private final GerenciaUsuarioUseCase gerenciaUsuarioUseCase;
     private final ConfiguracaoPagamentoWebMapper configuracaoPagamentoWebMapper;
 
     @GetMapping
@@ -165,8 +163,7 @@ public class ConfiguracaoPagamentoUsuarioController {
             username = principal.toString();
         }
         
-        return usuarioRepository.findByUsername(username)
-                .map(usuarioMapper::toDomain)
+        return gerenciaUsuarioUseCase.buscarPorUsername(username)
                 .orElseThrow(() -> {
                     log.error("Usuário não encontrado: {}", username);
                     return new UsernameNotFoundException("Usuário não encontrado: " + username);

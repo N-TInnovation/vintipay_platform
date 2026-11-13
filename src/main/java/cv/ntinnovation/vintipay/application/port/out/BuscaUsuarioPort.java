@@ -2,6 +2,7 @@ package cv.ntinnovation.vintipay.application.port.out;
 
 import cv.ntinnovation.vintipay.application.core.domain.entity.Usuario;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface BuscaUsuarioPort {
@@ -41,4 +42,10 @@ public interface BuscaUsuarioPort {
      * @return Optional contendo o usuário se encontrado, ou vazio se não existir
      */
     Optional<Usuario> buscarPorEmailVerificationToken(String token);
+
+    /**
+     * Lista todos os usuários do sistema
+     * @return Lista de usuários
+     */
+    List<Usuario> listarTodos();
 }

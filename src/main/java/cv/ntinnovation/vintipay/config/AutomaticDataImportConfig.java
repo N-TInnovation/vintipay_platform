@@ -1,13 +1,12 @@
 package cv.ntinnovation.vintipay.config;
 
 import com.opencsv.exceptions.CsvValidationException;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -25,6 +24,7 @@ import java.util.Map;
  * da aplicação usando o CsvDataImportService.
  */
 @Component
+@RequiredArgsConstructor
 public class AutomaticDataImportConfig implements ApplicationListener<ApplicationReadyEvent> {
 
     private static final Logger logger = LoggerFactory.getLogger(AutomaticDataImportConfig.class);
@@ -39,16 +39,6 @@ public class AutomaticDataImportConfig implements ApplicationListener<Applicatio
 
     @Value("${vintipay.auto-import.skip-if-data-exists:true}")
     private boolean skipIfDataExists;
-
-    @Autowired
-    public AutomaticDataImportConfig(
-            CsvDataImportService csvDataImportService,
-            JdbcTemplate jdbcTemplate,
-            Environment environment) {
-        this.csvDataImportService = csvDataImportService;
-        this.jdbcTemplate = jdbcTemplate;
-        this.environment = environment;
-    }
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {

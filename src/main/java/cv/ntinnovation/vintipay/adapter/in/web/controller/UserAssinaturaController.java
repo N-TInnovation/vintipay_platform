@@ -10,8 +10,8 @@ import cv.ntinnovation.vintipay.application.port.in.BuscaHistoricoPagamentoUseCa
 import cv.ntinnovation.vintipay.application.port.in.GerenciaAssinaturaUseCase;
 import cv.ntinnovation.vintipay.application.port.in.GerenciaPlanoUseCase;
 import cv.ntinnovation.vintipay.application.port.in.StripeIntegrationUseCase;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

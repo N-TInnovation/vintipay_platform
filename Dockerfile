@@ -33,4 +33,4 @@ COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
 
 # Set entrypoint with appropriate memory settings and connection retry parameters
-ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]

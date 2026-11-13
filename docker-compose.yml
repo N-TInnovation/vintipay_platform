@@ -61,6 +61,28 @@ services:
       timeout: 10s
       retries: 5
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.1
+    container_name: vintipay-keycloak
+    command: ["start-dev"]
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: dev-file
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 18080
+      KC_HOSTNAME_STRICT: "false"
+    ports:
+      - "18080:8080"
+    networks:
+      - vintipay-network
+    healthcheck:
+      test: ["CMD-SHELL", "(echo -n > /dev/tcp/127.0.0.1/8080) 2>/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
   vintipay:
     build:
       context: .
@@ -71,43 +93,51 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      keycloak:
+        condition: service_healthy
     ports:
-      - "8443:8443"
+      - "18443:8443"
+    env_file:
+      - .env.docker
     environment:
       - spring.profiles.active=local
+      - VINTIPAY_AUTO_IMPORT_ENABLED=${VINTIPAY_AUTO_IMPORT_ENABLED:-true}
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/vintipay?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - SERVER_PORT=8443
-      - SERVER_SSL_ENABLED=false
-      - JWT_PUBLIC_KEY=classpath:app.pub
-      - JWT_PRIVATE_KEY=classpath:app.key
-      - BREVO_API_KEY=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
-      - BREVO_API_URL=https://api.brevo.com/v3
-      - BREVO_EMAIL_FROM=no-reply@vintipay.cv
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-root}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
+      - SERVER_PORT=${SERVER_PORT:-8443}
+      - SERVER_SSL_ENABLED=${SERVER_SSL_ENABLED:-false}
+      - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY:-classpath:app.pub}
+      - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY:-classpath:app.key}
+      - BREVO_API_KEY=${BREVO_API_KEY}
+      - BREVO_API_URL=${BREVO_API_URL:-https://api.brevo.com/v3}
+      - BREVO_EMAIL_FROM=${BREVO_EMAIL_FROM:-no-reply@vintipay.cv}
       # Keycloak Configuration
-      - KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080
-      - KEYCLOAK_REALM=vintipay
-      - KEYCLOAK_RESOURCE=vintipay-client
-      - KEYCLOAK_CREDENTIALS_SECRET=vintipay-client-secret
-      - STRIPE_API_KEY=sk_test_51JZHlXFLqETPcYGM3OkBuL08Yv8BFyYLkMIuIRBORak5t2aIOQ5IoRtZOoa0kNMcFbGhjSbHgRG8Hf5WIrPqAh1300GGaBDBpk
-      - STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
-      - APP_BASE_URL=https://localhost:8443
+      - KEYCLOAK_AUTH_SERVER_URL=${KEYCLOAK_AUTH_SERVER_URL:-http://vintipay-keycloak:8080}
+      - KEYCLOAK_FRONTEND_URL=${KEYCLOAK_FRONTEND_URL:-http://localhost:18080}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM:-vintipay}
+      - KEYCLOAK_RESOURCE=${KEYCLOAK_RESOURCE:-vintipay-client}
+      - KEYCLOAK_CREDENTIALS_SECRET=${KEYCLOAK_CREDENTIALS_SECRET}
+      - KEYCLOAK_ADMIN_USERNAME=${KEYCLOAK_ADMIN_USERNAME}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - APP_BASE_URL=${APP_BASE_URL:-http://localhost:18443}
       # SISP URLs
-      - SISP_URL_3D=https://mc.vinti4net.cv/3ds_middleware_php/public/3ds_init.php
-      - SISP_URL_NORMAL=https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment
-      - SISP_DEV_URL_3D=https://localhost:8443/simulador/sisp/3ds_middleware_php/public/3ds_init.php
-      - SISP_DEV_URL_NORMAL=https://localhost:3001/simulador/sisp/3ds_middleware_php/public/3ds_init.php
-      - SISP_QLD_URL_3D=https://mc.vinti4net.cv/3ds_middleware_php/public/3ds_init.php
-      - SISP_QLD_URL_NORMAL=https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment
-      - SISP_CHECKOUT_RETURN_URL=https://localhost:8443/api/v1/pagamentos/confirmacao
+      - SISP_URL_3D=${SISP_URL_3D:-https://mc.vinti4net.cv/3ds_middleware_php/public/3ds_init.php}
+      - SISP_URL_NORMAL=${SISP_URL_NORMAL:-https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment}
+      - SISP_DEV_URL_3D=${SISP_DEV_URL_3D:-https://localhost:18443/simulador/sisp/3ds_middleware_php/public/3ds_init.php}
+      - SISP_DEV_URL_NORMAL=${SISP_DEV_URL_NORMAL:-https://localhost:3001/simulador/sisp/3ds_middleware_php/public/3ds_init.php}
+      - SISP_QLD_URL_3D=${SISP_QLD_URL_3D:-https://mc.vinti4net.cv/3ds_middleware_php/public/3ds_init.php}
+      - SISP_QLD_URL_NORMAL=${SISP_QLD_URL_NORMAL:-https://mc.vinti4net.cv/BizMPIOnUsSisp/CardPayment}
+      - SISP_CHECKOUT_RETURN_URL=${SISP_CHECKOUT_RETURN_URL:-http://localhost:18443/webhook/sisp/pagamentos/retorno}
       # Vendus API
-      - VENDUS_API_URL=api.vendus.pt/1.1
-      - VENDUS_API_KEY=your-vendus-api-key
+      - VENDUS_API_URL=${VENDUS_API_URL:-api.vendus.pt/1.1}
+      - VENDUS_API_KEY=${VENDUS_API_KEY}
       # Kafka
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - SPRING_KAFKA_CONSUMER_GROUP_ID=vintipay-webhook-group
-      - SPRING_KAFKA_CONSUMER_AUTO_OFFSET_RESET=earliest
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
+      - SPRING_KAFKA_CONSUMER_GROUP_ID=${SPRING_KAFKA_CONSUMER_GROUP_ID:-vintipay-webhook-group}
+      - SPRING_KAFKA_CONSUMER_AUTO_OFFSET_RESET=${SPRING_KAFKA_CONSUMER_AUTO_OFFSET_RESET:-earliest}
     volumes:
       - ./logs:/app/logs
     networks:

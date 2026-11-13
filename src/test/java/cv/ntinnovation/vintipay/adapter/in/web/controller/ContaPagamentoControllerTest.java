@@ -3,11 +3,14 @@ package cv.ntinnovation.vintipay.adapter.in.web.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.ContaPagamentoRequest;
 import cv.ntinnovation.vintipay.adapter.in.web.dto.ContaPagamentoResponse;
+import cv.ntinnovation.vintipay.adapter.in.web.handler.VerificationInterceptorHandler;
 import cv.ntinnovation.vintipay.adapter.in.web.mapper.ContaPagamentoWebMapper;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ContaPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.ContatoContaPagamento;
 import cv.ntinnovation.vintipay.application.core.domain.entity.InfoContaPagamento;
+import cv.ntinnovation.vintipay.application.core.service.AmbienteService;
 import cv.ntinnovation.vintipay.application.port.in.CriaContaPagamentoUseCase;
+import cv.ntinnovation.vintipay.application.port.out.GerenciaTenantPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +44,15 @@ class ContaPagamentoControllerTest {
 
     @MockitoBean    
     private ContaPagamentoWebMapper contaPagamentoWebMapper;
+
+    @MockitoBean
+    private GerenciaTenantPort gerenciaTenantPort;
+
+    @MockitoBean
+    private VerificationInterceptorHandler verificationInterceptorHandler;
+
+    @MockitoBean
+    private AmbienteService ambienteService;
     
     private final String CONTA_PAGAMENTO_URL = "/api/v1/contas-pagamento";
     private final ObjectMapper objectMapper = new ObjectMapper();

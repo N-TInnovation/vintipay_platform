@@ -33,3 +33,10 @@ build/
 .vscode/
 
 logs/
+
+# Environment variables
+.env
+.env.local
+.env.docker
+*.env
+

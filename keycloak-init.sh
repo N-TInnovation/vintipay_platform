@@ -3,7 +3,7 @@
 # Script de inicialização do Keycloak para VintiPay
 # Este script configura o realm, client e roles necessários
 
-KEYCLOAK_URL="http://localhost:8080"
+KEYCLOAK_URL="http://localhost:18080"
 REALM_NAME="vintipay"
 CLIENT_ID="vintipay-client"
 CLIENT_SECRET="PSvxsR3bvLIsRiayytQVJ3oi45snoS52"
@@ -251,6 +251,26 @@ if [ -n "$ADMIN_USER_ID" ] && [ "$ADMIN_USER_ID" != "null" ]; then
             "id": "'${ADMIN_ROLE_ID}'",
             "name": "ADMIN"
         }]'
+
+    # Atribuir role realm-admin do client realm-management para permitir acesso à Admin API
+    REALM_MGMT_CLIENT_ID=$(curl -s "${KEYCLOAK_URL}/admin/realms/${REALM_NAME}/clients?clientId=realm-management" \
+        -H "Authorization: Bearer ${TOKEN}" | jq -r '.[0].id')
+    
+    if [ -n "$REALM_MGMT_CLIENT_ID" ] && [ "$REALM_MGMT_CLIENT_ID" != "null" ]; then
+        REALM_ADMIN_ROLE_ID=$(curl -s "${KEYCLOAK_URL}/admin/realms/${REALM_NAME}/clients/${REALM_MGMT_CLIENT_ID}/roles/realm-admin" \
+            -H "Authorization: Bearer ${TOKEN}" | jq -r '.id')
+        
+        if [ -n "$REALM_ADMIN_ROLE_ID" ] && [ "$REALM_ADMIN_ROLE_ID" != "null" ]; then
+            echo "Atribuindo role realm-admin do realm-management ao usuário admin..."
+            curl -s -X POST "${KEYCLOAK_URL}/admin/realms/${REALM_NAME}/users/${ADMIN_USER_ID}/role-mappings/clients/${REALM_MGMT_CLIENT_ID}" \
+                -H "Authorization: Bearer ${TOKEN}" \
+                -H "Content-Type: application/json" \
+                -d '[{
+                    "id": "'${REALM_ADMIN_ROLE_ID}'",
+                    "name": "realm-admin"
+                }]' 
+        fi
+    fi
     
     echo "Role ADMIN atribuída com sucesso!"
 fi

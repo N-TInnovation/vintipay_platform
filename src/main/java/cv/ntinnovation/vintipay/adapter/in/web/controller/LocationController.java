@@ -7,7 +7,7 @@ import cv.ntinnovation.vintipay.adapter.out.location.State;
 import cv.ntinnovation.vintipay.adapter.out.persistence.dto.LocationOptionDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,9 +29,7 @@ import java.util.List;
 public class LocationController {
 
     private final LocationService locationService;
-
-    @Autowired
-    private org.springframework.context.ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
     /**
      * Obtém a lista de todos os países

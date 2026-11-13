@@ -48,16 +48,16 @@ sisp:
 
 brevo:
   api:
-    key: ${BREVO_API_KEY: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}
+    key: ${BREVO_API_KEY:}
     url: ${BREVO_API_URL:https://api.brevo.com/v3}
   email:
     from: ${BREVO_EMAIL_FROM:no-reply@vintipay.cv}
 
 stripe:
   api:
-    key: ${STRIPE_API_KEY:sk_test_51JZHlXFLqETPcYGM3OkBuL08Yv8BFyYLkMIuIRBORak5t2aIOQ5IoRtZOoa0kNMcFbGhjSbHgRG8Hf5WIrPqAh1300GGaBDBpk}
+    key: ${STRIPE_API_KEY:}
   webhook:
-    secret: ${STRIPE_WEBHOOK_SECRET:whsec_your_webhook_secret}
+    secret: ${STRIPE_WEBHOOK_SECRET:}
 
 springdoc:
   api-docs:
@@ -110,21 +110,19 @@ spring:
         registration:
           keycloak:
             client-id: ${KEYCLOAK_RESOURCE:vintipay-client}
-            client-secret: ${KEYCLOAK_CREDENTIALS_SECRET:PSvxsR3bvLIsRiayytQVJ3oi45snoS52}
+            client-secret: ${KEYCLOAK_CREDENTIALS_SECRET:}
             scope: openid, profile, email
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
           keycloak:
-            issuer-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}
-            authorization-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}/protocol/openid-connect/auth
+            authorization-uri: ${KEYCLOAK_FRONTEND_URL:${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}}/realms/${KEYCLOAK_REALM:vintipay}/protocol/openid-connect/auth
             token-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}/protocol/openid-connect/token
             user-info-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}/protocol/openid-connect/userinfo
             jwk-set-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}/protocol/openid-connect/certs
             user-name-attribute: preferred_username
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}
           jwk-set-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:vintipay}/protocol/openid-connect/certs
   cloud:
     openfeign:
@@ -153,8 +151,8 @@ logging:
 # Configurações da API Vendus
 vendus:
   api:
-    key: 1bcf15d3da754d5322ace80382703722
-    base-url: https://www.vendus.cv/ws/v1.2
+    key: ${VENDUS_API_KEY:}
+    base-url: ${VENDUS_API_URL:https://www.vendus.cv/ws/v1.2}
 
 # Configurações do Keycloak
 verifika:
@@ -163,7 +161,7 @@ verifika:
   auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}
   admin:
     realm: ${KEYCLOAK_REALM:master}
-    username: admin
-    password: admin
-    clientId: vintipay-client
-    clientSecret: iNxiR867AstkJe92WE5ixQh8xdoz0hCJ
+    username: ${KEYCLOAK_ADMIN_USERNAME:}
+    password: ${KEYCLOAK_ADMIN_PASSWORD:}
+    clientId: ${KEYCLOAK_RESOURCE:vintipay-client}
+    clientSecret: ${KEYCLOAK_CREDENTIALS_SECRET:}

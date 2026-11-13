@@ -3,12 +3,11 @@ package cv.ntinnovation.vintipay.config;
 import jakarta.annotation.PostConstruct;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationVersion;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.flyway.FlywayProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,16 +23,14 @@ import java.util.Arrays;
  * o histórico de migrações.
  */
 @Configuration
+@RequiredArgsConstructor
 @ConditionalOnProperty(name = "spring.flyway.repair-history", havingValue = "true", matchIfMissing = false)
 public class FlywayRepairConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(FlywayRepairConfig.class);
 
-    @Autowired
-    private DataSource dataSource;
-
-    @Autowired
-    private Environment environment;
+    private final DataSource dataSource;
+    private final Environment environment;
 
     @Value("${spring.flyway.repair-strategy:mark-successful}")
     private String repairStrategy;

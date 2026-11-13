@@ -17,6 +17,10 @@ public class PagamentoMapper {
     private final IntencaoPagamentoMapper intencaoPagamentoMapper;
 
     public Pagamento toDomain(PagamentoEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+
         return Pagamento.builder()
                 .id(entity.getId())
                 .intencaoPagamento(intencaoPagamentoMapper.toIntencaoPagamento(entity.getIntencaoPagamento()))
@@ -30,12 +34,17 @@ public class PagamentoMapper {
                 .createdAt(entity.getCreatedAt())
                 .transactionId(entity.getTransactionId())
                 .clearingPeriod(entity.getClearingPeriod())
+                .resultFingerPrint(entity.getResultFingerprint())
                 .ambiente(AmbienteEnum.fromAmbiente(entity.getAmbiente()))
                 .tenantId(entity.getTenant() != null ? entity.getTenant().getId() : null)
                 .build();
     }
 
     public PagamentoEntity toEntity(Pagamento pagamento) {
+        if (pagamento == null) {
+            return null;
+        }
+
         PagamentoEntity.PagamentoEntityBuilder builder = PagamentoEntity.builder()
                 .id(pagamento.getId())
                 .intencaoPagamento(intencaoPagamentoMapper.toIntencaoPagamentoEntity(pagamento.getIntencaoPagamento()))
@@ -44,12 +53,13 @@ public class PagamentoMapper {
                 .mensagem(pagamento.getMensagem())
                 .reference(pagamento.getReference())
                 .panMascarado(pagamento.getPanMascarado())
-                .createdAt(LocalDateTime.now())
+                .createdAt(pagamento.getCreatedAt() != null ? pagamento.getCreatedAt() : LocalDateTime.now())
                 .status(pagamento.getStatus())
                 .authorizationCode(pagamento.getAuthorizationCode())
                 .transactionId(pagamento.getTransactionId())
                 .clearingPeriod(pagamento.getClearingPeriod())
-                .ambiente(pagamento.getAmbiente().getAmbiente());
+                .resultFingerprint(pagamento.getResultFingerPrint())
+                .ambiente(pagamento.getAmbiente() != null ? pagamento.getAmbiente().getAmbiente() : AmbienteEnum.HOMOLOGACAO.getAmbiente());
         
         PagamentoEntity entity = builder.build();
         
